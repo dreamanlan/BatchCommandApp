@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using iTextSharp.text.pdf;
@@ -13,14 +14,33 @@ public class Main : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        var txtWriter = new StringWriter(m_LogBuilder);
+        System.Console.SetOut(txtWriter);
+        System.Console.SetError(txtWriter);
+
+        Application.logMessageReceived += HandleLog;
+
         m_Calculator.Init();
         m_Calculator.Register("copypdf", new ExpressionFactoryHelper<CopyPdfExp>());
+
+        StartCoroutine(Loop());
     }
 
-    // Update is called once per frame
-    void Update()
+    private IEnumerator Loop()
     {
-        
+        while (true) {
+            yield return new WaitForSeconds(1.0f);
+            if (m_LogBuilder.Length > 0) {
+                var txt = m_LogBuilder.ToString();
+                m_LogBuilder.Length = 0;
+                DebugConsole.Log(txt);
+            }
+        }
+    }
+
+    void HandleLog(string logString, string stackTrace, LogType type)
+    {
+        DebugConsole.Log("[" + type.ToString() + "]" + logString);
     }
 
     private void OnExecCommand(string cmd)
@@ -33,6 +53,7 @@ public class Main : MonoBehaviour
         }
     }
 
+    private StringBuilder m_LogBuilder = new StringBuilder();
     private Expression.DslCalculator m_Calculator = new Expression.DslCalculator();
 }
 

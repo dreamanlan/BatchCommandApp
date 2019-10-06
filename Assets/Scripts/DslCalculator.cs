@@ -12,7 +12,6 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
 #region 解释器
 namespace Expression
 {
@@ -6693,4 +6692,3 @@ namespace Expression
     }
 }
 #endregion
-#endif
