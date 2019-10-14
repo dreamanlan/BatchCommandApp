@@ -9,14 +9,16 @@ public class JavaClass
         m_Class = _class;
         m_AndroidJavaClass = new AndroidJavaClass(_class);
     }
-    public object Call(string method, params object[] args)
+    public object Call(string method, IList args)
     {
+        object[] _args = new object[args.Count];
+        args.CopyTo(_args, 0);
         object ret = null;
         try {
-            ret = m_AndroidJavaClass.CallStatic<object>(method, args);
+            ret = m_AndroidJavaClass.CallStatic<object>(method, _args);
         }
         catch {
-            m_AndroidJavaClass.CallStatic(method, args);
+            m_AndroidJavaClass.CallStatic(method, _args);
         }
         return ret;
     }
@@ -40,14 +42,16 @@ public class JavaObject
         m_Class = _class;
         m_AndroidJavaObject = new AndroidJavaObject(_class);
     }
-    public object Call(string method, params object[] args)
+    public object Call(string method, IList args)
     {
+        object[] _args = new object[args.Count];
+        args.CopyTo(_args, 0);
         object ret = null;
         try {
-            ret = m_AndroidJavaObject.Call<object>(method, args);
+            ret = m_AndroidJavaObject.Call<object>(method, _args);
         }
         catch {
-            m_AndroidJavaObject.Call(method, args);
+            m_AndroidJavaObject.Call(method, _args);
         }
         return ret;
     }
