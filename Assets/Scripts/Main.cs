@@ -22,6 +22,10 @@ public class Main : MonoBehaviour
 
         m_Calculator.Init();
         m_Calculator.Register("copypdf", new ExpressionFactoryHelper<CopyPdfExp>());
+        m_Calculator.Register("jc", new ExpressionFactoryHelper<JavaClassExp>());
+        m_Calculator.Register("jo", new ExpressionFactoryHelper<JavaObjectExp>());
+        m_Calculator.Register("oc", new ExpressionFactoryHelper<ObjectcClassExp>());
+        m_Calculator.Register("oo", new ExpressionFactoryHelper<ObjectcObjectExp>());
 
         StartCoroutine(Loop());
     }
@@ -104,5 +108,65 @@ namespace ExpressionAPI
         [DllImport("__Internal")]
         static extern string GetClipboard();
 #endif
+    }
+    internal sealed class JavaClassExp : AbstractExpression
+    {
+        protected override object DoCalc()
+        {
+            string _class = m_Class.Calc() as string;
+            return new JavaClass(_class);
+        }
+        protected override bool Load(IList<IExpression> exps)
+        {
+            m_Class = exps[0];
+            return true;
+        }
+
+        private IExpression m_Class;
+    }
+    internal sealed class JavaObjectExp : AbstractExpression
+    {
+        protected override object DoCalc()
+        {
+            string _class = m_Object.Calc() as string;
+            return new JavaObject(_class);
+        }
+        protected override bool Load(IList<IExpression> exps)
+        {
+            m_Object = exps[0];
+            return true;
+        }
+
+        private IExpression m_Object;
+    }
+    internal sealed class ObjectcClassExp : AbstractExpression
+    {
+        protected override object DoCalc()
+        {
+            string _class = m_Class.Calc() as string;
+            return new ObjectcClass(_class);
+        }
+        protected override bool Load(IList<IExpression> exps)
+        {
+            m_Class = exps[0];
+            return true;
+        }
+
+        private IExpression m_Class;
+    }
+    internal sealed class ObjectcObjectExp : AbstractExpression
+    {
+        protected override object DoCalc()
+        {
+            int objId = (int)System.Convert.ChangeType(m_Object.Calc(), typeof(int));
+            return new ObjectcObject(objId);
+        }
+        protected override bool Load(IList<IExpression> exps)
+        {
+            m_Object = exps[0];
+            return true;
+        }
+
+        private IExpression m_Object;
     }
 }
