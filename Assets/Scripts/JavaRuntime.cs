@@ -30,6 +30,10 @@ public class JavaClass
     {
         m_AndroidJavaClass.SetStatic<object>(prop, val);
     }
+    public AndroidJavaClass GetClass()
+    {
+        return m_AndroidJavaClass;
+    }
 
     private string m_Class;
     private AndroidJavaClass m_AndroidJavaClass;
@@ -37,10 +41,10 @@ public class JavaClass
 
 public class JavaObject
 {
-    public JavaObject(string _class)
+    public JavaObject(string _class, params object[] args)
     {
         m_Class = _class;
-        m_AndroidJavaObject = new AndroidJavaObject(_class);
+        m_AndroidJavaObject = new AndroidJavaObject(_class, args);
     }
     public object Call(string method, IList args)
     {
@@ -63,7 +67,41 @@ public class JavaObject
     {
         m_AndroidJavaObject.Set<object>(prop, val);
     }
+    public AndroidJavaObject GetObject()
+    {
+        return m_AndroidJavaObject;
+    }
 
     private string m_Class;
     private AndroidJavaObject m_AndroidJavaObject;
+}
+
+public class JavaProxy : AndroidJavaProxy
+{
+    public override AndroidJavaObject Invoke(string methodName, object[] args)
+    {
+        var al = new ArrayList(args);
+        al.Insert(0, methodName);
+        var r = Main.Call(m_InvokeMethod, al.ToArray()) as JavaObject;
+        if (null != r) {
+            return r.GetObject();
+        }
+        return null;
+    }
+    public override AndroidJavaObject Invoke(string methodName, AndroidJavaObject[] javaArgs)
+    {
+        var al = new ArrayList(javaArgs);
+        al.Insert(0, methodName);
+        var r = Main.Call(m_InvokeMethod, al.ToArray()) as JavaObject;
+        if (null != r) {
+            return r.GetObject();
+        }
+        return null;
+    }
+    public JavaProxy(string _class, string invokeMethod):base(new AndroidJavaClass(_class))
+    {
+        m_InvokeMethod = invokeMethod;
+    }
+
+    private string m_InvokeMethod;
 }

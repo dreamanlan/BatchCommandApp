@@ -14,6 +14,8 @@ public class Main : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        s_Instance = this;
+
         var txtWriter = new StringWriter(m_LogBuilder);
         System.Console.SetOut(txtWriter);
         System.Console.SetError(txtWriter);
@@ -24,6 +26,7 @@ public class Main : MonoBehaviour
         m_Calculator.Register("copypdf", new ExpressionFactoryHelper<CopyPdfExp>());
         m_Calculator.Register("jc", new ExpressionFactoryHelper<JavaClassExp>());
         m_Calculator.Register("jo", new ExpressionFactoryHelper<JavaObjectExp>());
+        m_Calculator.Register("jp", new ExpressionFactoryHelper<JavaProxyExp>());
         m_Calculator.Register("oc", new ExpressionFactoryHelper<ObjectcClassExp>());
         m_Calculator.Register("oo", new ExpressionFactoryHelper<ObjectcObjectExp>());
 
@@ -42,7 +45,7 @@ public class Main : MonoBehaviour
         }
     }
 
-    void HandleLog(string logString, string stackTrace, LogType type)
+    private void HandleLog(string logString, string stackTrace, LogType type)
     {
         DebugConsole.Log("[" + type.ToString() + "]" + logString);
     }
@@ -59,6 +62,15 @@ public class Main : MonoBehaviour
 
     private StringBuilder m_LogBuilder = new StringBuilder();
     private Expression.DslCalculator m_Calculator = new Expression.DslCalculator();
+
+    public static object Call(string proc, params object[] args)
+    {
+        if (null == s_Instance)
+            return null;
+        object r = s_Instance.m_Calculator.Calc(proc, args);
+        return r;
+    }
+    private static Main s_Instance = null;
 }
 
 namespace ExpressionAPI
@@ -109,64 +121,69 @@ namespace ExpressionAPI
         static extern string GetClipboard();
 #endif
     }
-    internal sealed class JavaClassExp : AbstractExpression
+    internal sealed class JavaClassExp : SimpleExpressionBase
     {
-        protected override object DoCalc()
+        protected override object OnCalc(IList<object> operands)
         {
-            string _class = m_Class.Calc() as string;
-            return new JavaClass(_class);
+            object r = null;
+            if (operands.Count >= 1) {
+                var str = operands[0] as string;
+                r = new JavaClass(str);
+            }
+            return r;
         }
-        protected override bool Load(IList<IExpression> exps)
-        {
-            m_Class = exps[0];
-            return true;
-        }
-
-        private IExpression m_Class;
     }
-    internal sealed class JavaObjectExp : AbstractExpression
+    internal sealed class JavaObjectExp : SimpleExpressionBase
     {
-        protected override object DoCalc()
+        protected override object OnCalc(IList<object> operands)
         {
-            string _class = m_Object.Calc() as string;
-            return new JavaObject(_class);
+            object r = null;
+            if (operands.Count >= 1) {
+                var str = operands[0] as string;
+                var al = new ArrayList();
+                for(int i = 1; i < operands.Count; ++i) {
+                    al.Add(operands[i]);
+                }
+                r = new JavaObject(str, al.ToArray());
+            }
+            return r;
         }
-        protected override bool Load(IList<IExpression> exps)
-        {
-            m_Object = exps[0];
-            return true;
-        }
-
-        private IExpression m_Object;
     }
-    internal sealed class ObjectcClassExp : AbstractExpression
+    internal sealed class JavaProxyExp : SimpleExpressionBase
     {
-        protected override object DoCalc()
+        protected override object OnCalc(IList<object> operands)
         {
-            string _class = m_Class.Calc() as string;
-            return new ObjectcClass(_class);
+            object r = null;
+            if (operands.Count >= 2) {
+                var _class = operands[0] as string;
+                var scpMethod = operands[1] as string;
+                r = new JavaProxy(_class, scpMethod);
+            }
+            return r;
         }
-        protected override bool Load(IList<IExpression> exps)
-        {
-            m_Class = exps[0];
-            return true;
-        }
-
-        private IExpression m_Class;
     }
-    internal sealed class ObjectcObjectExp : AbstractExpression
+    internal sealed class ObjectcClassExp : SimpleExpressionBase
     {
-        protected override object DoCalc()
+        protected override object OnCalc(IList<object> operands)
         {
-            int objId = (int)System.Convert.ChangeType(m_Object.Calc(), typeof(int));
-            return new ObjectcObject(objId);
+            object r = null;
+            if (operands.Count >= 1) {
+                var str = operands[0] as string;
+                r = new ObjectcClass(str);
+            }
+            return r;
         }
-        protected override bool Load(IList<IExpression> exps)
+    }
+    internal sealed class ObjectcObjectExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
         {
-            m_Object = exps[0];
-            return true;
+            object r = null;
+            if (operands.Count >= 1) {
+                int objId = (int)System.Convert.ChangeType(operands[0], typeof(int));
+                return new ObjectcObject(objId);
+            }
+            return r;
         }
-
-        private IExpression m_Object;
     }
 }
