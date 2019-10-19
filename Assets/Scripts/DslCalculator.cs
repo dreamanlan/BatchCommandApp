@@ -6130,6 +6130,8 @@ namespace Expression
             if (!m_Procs.TryGetValue(id, out list)) {
                 list = new List<IExpression>();
                 m_Procs.Add(id, list);
+            } else {
+                list.Clear();
             }
             foreach (Dsl.ISyntaxComponent comp in func.Statements) {
                 var exp = Load(comp);
@@ -6159,6 +6161,8 @@ namespace Expression
             if (!m_Procs.TryGetValue(proc, out list)) {
                 list = new List<IExpression>();
                 m_Procs.Add(proc, list);
+            } else {
+                list.Clear();
             }
             foreach (Dsl.ISyntaxComponent comp in func.Statements) {
                 var exp = Load(comp);

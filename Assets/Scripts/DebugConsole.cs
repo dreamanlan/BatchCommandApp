@@ -375,6 +375,9 @@ public class DebugConsole : MonoBehaviour
         this.RegisterCommandCallback("vsync", CMDVSync);
         this.RegisterCommandCallback("command", CMDCommand);
         this.RegisterCommandCallback("cmd", CMDCommand);
+        this.RegisterCommandCallback("script", CMDScript);
+        this.RegisterCommandCallback("scp", CMDScript);
+        this.RegisterCommandCallback("reset", CMDReset);
         this.RegisterCommandCallback("/?", CMDHelp);
     }
     
@@ -793,7 +796,29 @@ public class DebugConsole : MonoBehaviour
             return "cmd need argument command.";
         }
     }
-    
+
+    object CMDScript(params string[] args)
+    {
+        if (args.Length == 2) {
+            GameObject obj = GameObject.Find("StartScript");
+            if (null != obj) {
+                obj.SendMessage("OnScript", args[1]);
+            }
+            return "script " + args[1];
+        } else {
+            return "scp need argument script_file.";
+        }
+    }
+
+    object CMDReset(params string[] args)
+    {
+        GameObject obj = GameObject.Find("StartScript");
+        if (null != obj) {
+            obj.SendMessage("OnReset");
+        }
+        return "reset";
+    }
+
     #endregion
     #region GUI Window Methods
 

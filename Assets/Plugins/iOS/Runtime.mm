@@ -1,3 +1,75 @@
+#import <Foundation/NSObject.h>
+#import <Unity/UnityInterface.h>
+#import <UnityAppController.h>
+
+@interface FileExplorer: UIViewController <UIDocumentPickerDelegate> {
+    NSString* m_TempFile;
+}
+- (void)pickDocuments:(NSString*)fileName;
+- (void)documentPicker:(UIDocumentPickerViewController *)controller
+    didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls;
+
+@end
+
+@implementation FileExplorer
+
+- (void)pickDocuments:(NSString*)fileName {
+    m_TempFile = fileName;
+    NSArray *types = @[@"public.item",@"public.content"];
+    UIDocumentPickerViewController* documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:types inMode:UIDocumentPickerModeOpen];
+    //设置代理
+    documentPicker.delegate = self;
+    //设置模态弹出方式
+    documentPicker.modalPresentationStyle = UIModalPresentationFullScreen;
+    [[GetAppController() rootViewController] addChildViewController:self];
+    [self presentViewController:documentPicker animated:YES completion:nil];
+}
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller
+    didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
+    NSURL* url = urls.firstObject;
+    BOOL canAccessingResource = [url startAccessingSecurityScopedResource];
+    if(canAccessingResource) {
+        NSFileCoordinator *fileCoordinator = [[NSFileCoordinator alloc] init];
+        NSError *error;
+        [fileCoordinator coordinateReadingItemAtURL:url options:0 error:&error byAccessor:^(NSURL *newURL) {
+            NSData *fileData = [NSData dataWithContentsOfURL:newURL];
+            NSArray *arr = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+            NSString *documentPath = [arr lastObject];
+            NSString *desFileName = [documentPath stringByAppendingPathComponent:m_TempFile];
+            [fileData writeToFile:desFileName atomically:YES];
+            [self dismissViewControllerAnimated:YES completion:NULL];
+            [self removeFromParentViewController];
+        }];
+        if (error) {
+            // error handing
+        }
+    } else {
+        // startAccessingSecurityScopedResource fail
+    }
+    [url stopAccessingSecurityScopedResource];
+}
+
+@end
+
+@interface DummyClass : NSObject{
+}
+-(void)forwardInvocation:(NSInvocation *)anInvocation;
+@end
+
+@implementation DummyClass
+
+-(void)forwardInvocation:(NSInvocation *)anInvocation {
+    NSMethodSignature* signature = [anInvocation methodSignature];
+    NSUInteger count = [signature numberOfArguments];
+    for (int index = 2; index < count; ++index) {
+        const char* type = [signature getArgumentTypeAtIndex:index+2];
+    }
+    UnitySendMessage("StartScript", "Invocation", "");
+}
+
+@end
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -188,6 +260,11 @@ int CallInstance(int objId, const char* method, ArgTypeInfo* args, int num)
         id tmp = ArgType2Id(args[index]);
         if([tmp isKindOfClass:[NSNull class]])
             tmp = nil;
+        const char* type = [signature getArgumentTypeAtIndex:index+2];
+        if(strlen(type)>1 || type[0]=='@' || type[0]=='#' || type[0]==':' || type[0]=='?'){
+            id okey = [NSNumber numberWithInt:[tmp longLongValue]];
+            tmp = [g_Dict objectForKey:okey];
+        }
         [invocation setArgument:&tmp atIndex:index+2];
     }
 
@@ -208,6 +285,22 @@ int CallInstance(int objId, const char* method, ArgTypeInfo* args, int num)
         [g_Dict setObject:res forKey:key];
         return newId;
     }
+}
+    
+int NewDummyObject()
+{
+    int newId = g_NextId++;
+    id key = [NSNumber numberWithInt:newId];
+    id obj = [DummyClass alloc];
+    [g_Dict setObject:obj forKey:key];
+    return newId;
+}
+    
+void PickFile(const char* tempName)
+{
+    id fileExplorer = [FileExplorer alloc];
+    NSString* fileName = [NSString stringWithUTF8String:tempName];
+    [fileExplorer pickDocuments: fileName];
 }
 
 #if defined(__cplusplus)

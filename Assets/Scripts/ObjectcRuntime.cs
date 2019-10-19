@@ -100,6 +100,20 @@ public class ObjectcClass
         return null;
 #endif
     }
+    public int NewCallback()
+    {
+#if UNITY_IOS
+        return NewDummyObject();
+#else
+        return 0;
+#endif
+    }
+    public void CopyFile(string tempName)
+    {
+#if UNITY_IOS
+        PickFile(tempName);
+#endif
+    }
 
     private string m_Class;
 
@@ -108,6 +122,10 @@ public class ObjectcClass
     static extern int CallClass(string _class, string method, ArgTypeInfo[] args, int num);
     [DllImport("__Internal")]
     static extern ArgTypeInfo ObjectGet(int objId);
+    [DllImport("__Internal")]
+    static extern int NewDummyObject();
+    [DllImport("__Internal")]
+    static extern void PickFile(string tempName);
 #endif
 }
 
@@ -148,6 +166,20 @@ public class ObjectcObject
         return null;
 #endif
     }
+    public int NewCallback()
+    {
+#if UNITY_IOS
+        return NewDummyObject();
+#else
+        return 0;
+#endif
+    }
+    public void CopyFile(string tempName)
+    {
+#if UNITY_IOS
+        PickFile(tempName);
+#endif
+    }
 
     private int m_ObjId;
 
@@ -156,5 +188,9 @@ public class ObjectcObject
     static extern int CallInstance(int objId, string method, ArgTypeInfo[] args, int num);
     [DllImport("__Internal")]
     static extern ArgTypeInfo ObjectGet(int objId);
+    [DllImport("__Internal")]
+    static extern int NewDummyObject();
+    [DllImport("__Internal")]
+    static extern void PickFile(string tempName);
 #endif
 }

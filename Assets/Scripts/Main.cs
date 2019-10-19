@@ -54,10 +54,23 @@ public class Main : MonoBehaviour
     {
         Dsl.DslFile file = new Dsl.DslFile();
         if(file.LoadFromString(string.Format("script(){{{0};}};", cmd), "cmd", msg => Debug.LogWarning(msg))) {
-            m_Calculator.Cleanup();
             m_Calculator.LoadDsl("main", file.DslInfos[0].First);
             m_Calculator.Calc("main");
         }
+    }
+
+    private void OnScript(string file)
+    {
+        var basePath = Application.persistentDataPath;
+        if (!System.IO.Path.IsPathRooted(file)) {
+            file = System.IO.Path.Combine(basePath, file);
+        }
+        m_Calculator.LoadDsl(file);
+    }
+
+    private void OnReset()
+    {
+        m_Calculator.Cleanup();
     }
 
     private StringBuilder m_LogBuilder = new StringBuilder();
@@ -94,6 +107,10 @@ namespace ExpressionAPI
         }
         private void CopyPdf(string file, int start, int count)
         {
+            var basePath = Application.persistentDataPath;
+            if (!System.IO.Path.IsPathRooted(file)) {
+                file = System.IO.Path.Combine(basePath, file);
+            }
             var sb = new StringBuilder();
             PdfReader reader = new PdfReader(file);
             for (int page = start; page < start + count && page <= reader.NumberOfPages; ++page) {
