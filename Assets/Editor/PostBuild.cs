@@ -16,6 +16,7 @@ public class PostBuild
     {
         Debug.Log(buildPath);
         if (target == BuildTarget.iOS) {
+#if UNITY_IOS
             /*
             string projPath = PBXProject.GetPBXProjectPath(buildPath);
             PBXProject proj = new PBXProject();
@@ -34,6 +35,7 @@ public class PostBuild
             plist.ReadFromFile(plistFile);
             plist.root["UIFileSharingEnabled"] = new PlistElementBoolean(true);
             plist.WriteToFile(plistFile);
+#endif
         }
     }
 }
