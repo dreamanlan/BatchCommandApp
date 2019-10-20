@@ -100,10 +100,10 @@ public class ObjectcClass
         return null;
 #endif
     }
-    public int NewCallback()
+    public int NewCallback(string invokeMethod)
     {
 #if UNITY_IOS
-        return NewDummyObject();
+        return NewDummyObject(invokeMethod);
 #else
         return 0;
 #endif
@@ -123,7 +123,7 @@ public class ObjectcClass
     [DllImport("__Internal")]
     static extern ArgTypeInfo ObjectGet(int objId);
     [DllImport("__Internal")]
-    static extern int NewDummyObject();
+    static extern int NewDummyObject(string invokeMethod);
     [DllImport("__Internal")]
     static extern void PickFile(string tempName);
 #endif
@@ -166,10 +166,10 @@ public class ObjectcObject
         return null;
 #endif
     }
-    public int NewCallback()
+    public int NewCallback(string invokeMethod)
     {
 #if UNITY_IOS
-        return NewDummyObject();
+        return NewDummyObject(invokeMethod);
 #else
         return 0;
 #endif
@@ -189,7 +189,7 @@ public class ObjectcObject
     [DllImport("__Internal")]
     static extern ArgTypeInfo ObjectGet(int objId);
     [DllImport("__Internal")]
-    static extern int NewDummyObject();
+    static extern int NewDummyObject(string invokeMethod);
     [DllImport("__Internal")]
     static extern void PickFile(string tempName);
 #endif

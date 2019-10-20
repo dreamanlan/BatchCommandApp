@@ -73,6 +73,20 @@ public class Main : MonoBehaviour
         m_Calculator.Cleanup();
     }
 
+    private void OnCommand(string cmd)
+    {
+        var vals = cmd.Split(' ', ',', ';', '|');
+        string proc = vals[0];
+        ArrayList al = new ArrayList(vals);
+        al.RemoveAt(0);
+        Call(proc, al.ToArray());
+    }
+
+    private void OnLog(string info)
+    {
+        DebugConsole.Log(info);
+    }
+
     private StringBuilder m_LogBuilder = new StringBuilder();
     private Expression.DslCalculator m_Calculator = new Expression.DslCalculator();
 
@@ -111,11 +125,16 @@ namespace ExpressionAPI
             if (!System.IO.Path.IsPathRooted(file)) {
                 file = System.IO.Path.Combine(basePath, file);
             }
+            Debug.LogFormat("read pdf {0}.", file);
             var sb = new StringBuilder();
             PdfReader reader = new PdfReader(file);
             for (int page = start; page < start + count && page <= reader.NumberOfPages; ++page) {
-                var txt = PdfTextExtractor.GetTextFromPage(reader, page);
-                sb.AppendLine(txt);
+                try {
+                    var txt = PdfTextExtractor.GetTextFromPage(reader, page);
+                    sb.AppendLine(txt);
+                } catch {
+                    Debug.LogErrorFormat("page {0} read failed !", page);
+                }
             }
             reader.Close();
 #if UNITY_EDITOR

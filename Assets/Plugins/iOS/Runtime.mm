@@ -30,6 +30,7 @@
     NSURL* url = urls.firstObject;
     BOOL canAccessingResource = [url startAccessingSecurityScopedResource];
     if(canAccessingResource) {
+        UnitySendMessage("StartScript", "OnLog", [[url absoluteString] UTF8String]);
         NSFileCoordinator *fileCoordinator = [[NSFileCoordinator alloc] init];
         NSError *error;
         [fileCoordinator coordinateReadingItemAtURL:url options:0 error:&error byAccessor:^(NSURL *newURL) {
@@ -53,19 +54,68 @@
 @end
 
 @interface DummyClass : NSObject{
+    NSString* m_InvokeMethod;
 }
+-(void)init:(NSString*) invokeMethod;
 -(void)forwardInvocation:(NSInvocation *)anInvocation;
 @end
 
 @implementation DummyClass
 
--(void)forwardInvocation:(NSInvocation *)anInvocation {
-    NSMethodSignature* signature = [anInvocation methodSignature];
+-(void)init:(NSString*) invokeMethod {
+    m_InvokeMethod = invokeMethod;
+}
+-(void)forwardInvocation:(NSInvocation *)invocation {
+    NSString* cmd = [NSString stringWithString:m_InvokeMethod];
+    NSMethodSignature* signature = [invocation methodSignature];
     NSUInteger count = [signature numberOfArguments];
     for (int index = 2; index < count; ++index) {
         const char* type = [signature getArgumentTypeAtIndex:index+2];
+        switch(type[0]){
+                #define FWD_ARG_CASE(_typeChar, _type, _fmt) \
+                case _typeChar: {   \
+                    _type arg;  \
+                    [invocation getArgument:&arg atIndex:index+2];    \
+                    [cmd stringByAppendingFormat:@(_fmt), @(arg)]; \
+                    break;  \
+                }
+                FWD_ARG_CASE('c', char, "%c")
+                FWD_ARG_CASE('C', unsigned char, "%c")
+                FWD_ARG_CASE('s', short, "%d")
+                FWD_ARG_CASE('S', unsigned short, "%u")
+                FWD_ARG_CASE('i', int, "%d")
+                FWD_ARG_CASE('I', unsigned int, "%u")
+                FWD_ARG_CASE('l', long, "%d")
+                FWD_ARG_CASE('L', unsigned long, "%u")
+                FWD_ARG_CASE('q', long long, "%lld")
+                FWD_ARG_CASE('Q', unsigned long long, "%llu")
+                FWD_ARG_CASE('f', float, "%f")
+                FWD_ARG_CASE('d', double, "%f")
+                FWD_ARG_CASE('B', BOOL, "%d")
+            case '@':{
+                id val;
+                [invocation getArgument:&val atIndex:index+2];
+                if([val isKindOfClass: [NSNumber class]]){
+                    double v1 = [val doubleValue];
+                    long long v2 = [val longLongValue];
+                    if(abs(v1-v2)<0.0001f){
+                        [cmd stringByAppendingFormat:@"%lld", v2];
+                    } else {
+                        [cmd stringByAppendingFormat:@"%f", v1];
+                    }
+                } else if([val isKindOfClass: [NSString class]]){
+                    [cmd stringByAppendingFormat:@"%s", [val UTF8String]];
+                } else {
+                    [cmd stringByAppendingString:@"[unsupport type]"];
+                }
+                break;
+            }
+            default:
+                [cmd stringByAppendingString:@"[unsupport type]"];
+            break;
+        }
     }
-    UnitySendMessage("StartScript", "Invocation", "");
+    UnitySendMessage("StartScript", "OnCommand", [cmd UTF8String]);
 }
 
 @end
@@ -287,11 +337,13 @@ int CallInstance(int objId, const char* method, ArgTypeInfo* args, int num)
     }
 }
     
-int NewDummyObject()
+int NewDummyObject(const char* invokeMethod)
 {
+    NSString* methodName = [NSString stringWithUTF8String:invokeMethod];
     int newId = g_NextId++;
     id key = [NSNumber numberWithInt:newId];
     id obj = [DummyClass alloc];
+    [obj init:methodName];
     [g_Dict setObject:obj forKey:key];
     return newId;
 }
