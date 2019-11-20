@@ -15,6 +15,27 @@ public class JavaClass
         args.CopyTo(_args, 0);
         object ret = null;
         try {
+            ret = m_AndroidJavaClass.Call<object>(method, _args);
+        }
+        catch {
+            m_AndroidJavaClass.Call(method, _args);
+        }
+        return ret;
+    }
+    public object Get(string prop)
+    {
+        return m_AndroidJavaClass.Get<object>(prop);
+    }
+    public void Set(string prop, object val)
+    {
+        m_AndroidJavaClass.Set<object>(prop, val);
+    }
+    public object CallStatic(string method, IList args)
+    {
+        object[] _args = new object[args.Count];
+        args.CopyTo(_args, 0);
+        object ret = null;
+        try {
             ret = m_AndroidJavaClass.CallStatic<object>(method, _args);
         }
         catch {
@@ -22,11 +43,11 @@ public class JavaClass
         }
         return ret;
     }
-    public object Get(string prop)
+    public object GetStatic(string prop)
     {
         return m_AndroidJavaClass.GetStatic<object>(prop);
     }
-    public void Set(string prop, object val)
+    public void SetStatic(string prop, object val)
     {
         m_AndroidJavaClass.SetStatic<object>(prop, val);
     }
@@ -66,6 +87,27 @@ public class JavaObject
     public void Set(string prop, object val)
     {
         m_AndroidJavaObject.Set<object>(prop, val);
+    }
+    public object CallStatic(string method, IList args)
+    {
+        object[] _args = new object[args.Count];
+        args.CopyTo(_args, 0);
+        object ret = null;
+        try {
+            ret = m_AndroidJavaObject.CallStatic<object>(method, _args);
+        }
+        catch {
+            m_AndroidJavaObject.CallStatic(method, _args);
+        }
+        return ret;
+    }
+    public object GetStatic(string prop)
+    {
+        return m_AndroidJavaObject.GetStatic<object>(prop);
+    }
+    public void SetStatic(string prop, object val)
+    {
+        m_AndroidJavaObject.SetStatic<object>(prop, val);
     }
     public AndroidJavaObject GetObject()
     {
