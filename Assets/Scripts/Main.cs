@@ -29,6 +29,16 @@ public class Main : MonoBehaviour
         m_Calculator.Register("jp", new ExpressionFactoryHelper<JavaProxyExp>());
         m_Calculator.Register("oc", new ExpressionFactoryHelper<ObjectcClassExp>());
         m_Calculator.Register("oo", new ExpressionFactoryHelper<ObjectcObjectExp>());
+        m_Calculator.Register("getpss", new ExpressionFactoryHelper<GetPssExp>());
+        m_Calculator.Register("getvss", new ExpressionFactoryHelper<GetVssExp>());
+        m_Calculator.Register("getnative", new ExpressionFactoryHelper<GetNativeExp>());
+        m_Calculator.Register("getgraphics", new ExpressionFactoryHelper<GetGraphicsExp>());
+        m_Calculator.Register("getunknown", new ExpressionFactoryHelper<GetUnknownExp>());
+        m_Calculator.Register("getjava", new ExpressionFactoryHelper<GetJavaExp>());
+        m_Calculator.Register("getcode", new ExpressionFactoryHelper<GetCodeExp>());
+        m_Calculator.Register("getstack", new ExpressionFactoryHelper<GetStackExp>());
+        m_Calculator.Register("getsystem", new ExpressionFactoryHelper<GetSystemExp>());
+        m_Calculator.Register("showmemory", new ExpressionFactoryHelper<ShowMemoryExp>());
 
         StartCoroutine(Loop());
     }
@@ -221,5 +231,235 @@ namespace ExpressionAPI
             }
             return r;
         }
+    }
+    internal sealed class GetPssExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return MemoryInfo.GetAppMemory();
+        }
+    }
+    internal sealed class GetVssExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return MemoryInfo.GetVssMemory();
+        }
+    }
+    internal sealed class GetNativeExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return MemoryInfo.GetNativeMemory();
+        }
+    }
+    internal sealed class GetGraphicsExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return MemoryInfo.GetGraphicsMemory();
+        }
+    }
+    internal sealed class GetUnknownExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return MemoryInfo.GetUnknownMemory();
+        }
+    }
+    internal sealed class GetJavaExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return MemoryInfo.GetJavaMemory();
+        }
+    }
+    internal sealed class GetCodeExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return MemoryInfo.GetCodeMemory();
+        }
+    }
+    internal sealed class GetStackExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return MemoryInfo.GetStackMemory();
+        }
+    }
+    internal sealed class GetSystemExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return MemoryInfo.GetSystemMemory();
+        }
+    }
+    internal sealed class ShowMemoryExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            string info = string.Format("pss:{0} n:{1} g:{2} u:{3} j:{4} c:{5} t:{6} s:{7} vss:{8}", MemoryInfo.GetAppMemory(), MemoryInfo.GetNativeMemory(), MemoryInfo.GetGraphicsMemory(), MemoryInfo.GetUnknownMemory(), MemoryInfo.GetJavaMemory(), MemoryInfo.GetCodeMemory(), MemoryInfo.GetStackMemory(), MemoryInfo.GetSystemMemory(), MemoryInfo.GetVssMemory());
+            Debug.LogFormat("{0}", info);
+            return info;
+        }
+    }
+
+    internal static class MemoryInfo
+    {
+        internal static float GetAppMemory()
+        {
+#if UNITY_ANDROID
+            if (null == s_UnityActivity) {
+                s_UnityActivity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            }
+            if (null == s_CurrentActivity) {
+                s_CurrentActivity = s_UnityActivity.GetStatic<AndroidJavaObject>("currentActivity");
+            }
+            float ret = s_CurrentActivity.Call<int>("getTotalPss")/1024.0f;
+            return ret;
+#elif UNITY_IOS
+            return ios_GetAppMemory();
+#else
+            return 0;
+#endif
+        }
+        internal static float GetNativeMemory()
+        {
+#if UNITY_ANDROID
+            if (null == s_DebugObj) {
+                s_DebugObj = new AndroidJavaObject("android.os.Debug");
+            }
+            if (null == s_MemoryInfoObj) {
+                s_MemoryInfoObj = new AndroidJavaObject("android.os.Debug$MemoryInfo");
+            }
+            s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
+            return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.native-heap")) / 1024.0f;
+#else
+            return 0;
+#endif
+        }
+        internal static float GetGraphicsMemory()
+        {
+#if UNITY_ANDROID
+            if (null == s_DebugObj) {
+                s_DebugObj = new AndroidJavaObject("android.os.Debug");
+            }
+            if (null == s_MemoryInfoObj) {
+                s_MemoryInfoObj = new AndroidJavaObject("android.os.Debug$MemoryInfo");
+            }
+            s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
+            return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.graphics")) / 1024.0f;
+#else
+            return 0;
+#endif
+        }
+        internal static float GetUnknownMemory()
+        {
+#if UNITY_ANDROID
+            if (null == s_DebugObj) {
+                s_DebugObj = new AndroidJavaObject("android.os.Debug");
+            }
+            if (null == s_MemoryInfoObj) {
+                s_MemoryInfoObj = new AndroidJavaObject("android.os.Debug$MemoryInfo");
+            }
+            s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
+            return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.private-other")) / 1024.0f;
+#else
+            return 0;
+#endif
+        }
+        internal static float GetJavaMemory()
+        {
+#if UNITY_ANDROID
+            if (null == s_DebugObj) {
+                s_DebugObj = new AndroidJavaObject("android.os.Debug");
+            }
+            if (null == s_MemoryInfoObj) {
+                s_MemoryInfoObj = new AndroidJavaObject("android.os.Debug$MemoryInfo");
+            }
+            s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
+            return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.java-heap")) / 1024.0f;
+#else
+            return 0;
+#endif
+        }
+        internal static float GetCodeMemory()
+        {
+#if UNITY_ANDROID
+            if (null == s_DebugObj) {
+                s_DebugObj = new AndroidJavaObject("android.os.Debug");
+            }
+            if (null == s_MemoryInfoObj) {
+                s_MemoryInfoObj = new AndroidJavaObject("android.os.Debug$MemoryInfo");
+            }
+            s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
+            return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.code")) / 1024.0f;
+#else
+            return 0;
+#endif
+        }
+        internal static float GetStackMemory()
+        {
+#if UNITY_ANDROID
+            if (null == s_DebugObj) {
+                s_DebugObj = new AndroidJavaObject("android.os.Debug");
+            }
+            if (null == s_MemoryInfoObj) {
+                s_MemoryInfoObj = new AndroidJavaObject("android.os.Debug$MemoryInfo");
+            }
+            s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
+            return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.stack")) / 1024.0f;
+#else
+            return 0;
+#endif
+        }
+        internal static float GetSystemMemory()
+        {
+#if UNITY_ANDROID
+            if (null == s_DebugObj) {
+                s_DebugObj = new AndroidJavaObject("android.os.Debug");
+            }
+            if (null == s_MemoryInfoObj) {
+                s_MemoryInfoObj = new AndroidJavaObject("android.os.Debug$MemoryInfo");
+            }
+            s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
+            return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.system")) / 1024.0f;
+#else
+            return 0;
+#endif
+        }
+        internal static float GetVssMemory()
+        {
+            float vss = 0;
+#if UNITY_ANDROID && !UNITY_EDITOR
+            using (System.IO.StreamReader reader = System.IO.File.OpenText("/proc/self/status")) {
+                string fileBuffer = reader.ReadToEnd();
+                int index = fileBuffer.IndexOf("VmPeak:");
+                index += "VmPeak:".Length;
+                for (; fileBuffer[index] == ' ' || fileBuffer[index] == '\t'; ++index) ;
+                int vssKb = 0;
+                for (; ; ++index) {
+                    int num = fileBuffer[index] - '0';
+                    if (num < 0 || num > 9)
+                        break;
+
+                    vssKb = vssKb * 10 + num;
+                }
+                vss = vssKb/1024.0f;
+            }
+#endif
+            return vss;
+        }
+#if UNITY_ANDROID
+        private static AndroidJavaClass s_UnityActivity = null;
+        private static AndroidJavaObject s_CurrentActivity = null;
+        private static AndroidJavaObject s_DebugObj = null;
+        private static AndroidJavaObject s_MemoryInfoObj = null;
+#endif
+#if UNITY_IOS
+        [DllImport ("__Internal")]
+        private static extern float ios_GetAppMemory();
+#endif
     }
 }
