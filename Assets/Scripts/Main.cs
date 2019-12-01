@@ -310,13 +310,10 @@ namespace ExpressionAPI
         internal static float GetAppMemory()
         {
 #if UNITY_ANDROID
-            if (null == s_UnityActivity) {
-                s_UnityActivity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            if (null == s_MemoryActivity) {
+                s_MemoryActivity = new AndroidJavaClass("com.aaa.bbb.MainActivity");
             }
-            if (null == s_CurrentActivity) {
-                s_CurrentActivity = s_UnityActivity.GetStatic<AndroidJavaObject>("currentActivity");
-            }
-            float ret = s_CurrentActivity.Call<int>("getTotalPss")/1024.0f;
+            float ret = s_MemoryActivity.CallStatic<int>("getTotalPss")/1024.0f;
             return ret;
 #elif UNITY_IOS
             return ios_GetAppMemory();
@@ -327,6 +324,7 @@ namespace ExpressionAPI
         internal static float GetNativeMemory()
         {
 #if UNITY_ANDROID
+            /*
             if (null == s_DebugObj) {
                 s_DebugObj = new AndroidJavaObject("android.os.Debug");
             }
@@ -335,6 +333,16 @@ namespace ExpressionAPI
             }
             s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
             return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.native-heap")) / 1024.0f;
+            */
+            if (null == s_MemoryActivity) {
+                s_MemoryActivity = new AndroidJavaClass("com.aaa.bbb.MainActivity");
+            }
+            var infos = s_MemoryActivity.CallStatic<AndroidJavaObject[]>("getMemoryInfo");
+            float mem = 0;
+            if (null != infos && infos.Length > 0) {
+                mem = int.Parse(infos[0].Call<string>("getMemoryStat", "summary.native-heap")) / 1024.0f;
+            }
+            return mem;
 #else
             return 0;
 #endif
@@ -342,6 +350,7 @@ namespace ExpressionAPI
         internal static float GetGraphicsMemory()
         {
 #if UNITY_ANDROID
+            /*
             if (null == s_DebugObj) {
                 s_DebugObj = new AndroidJavaObject("android.os.Debug");
             }
@@ -350,6 +359,16 @@ namespace ExpressionAPI
             }
             s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
             return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.graphics")) / 1024.0f;
+            */
+            if (null == s_MemoryActivity) {
+                s_MemoryActivity = new AndroidJavaClass("com.aaa.bbb.MainActivity");
+            }
+            var infos = s_MemoryActivity.CallStatic<AndroidJavaObject[]>("getMemoryInfo");
+            float mem = 0;
+            if (null != infos && infos.Length > 0) {
+                mem = int.Parse(infos[0].Call<string>("getMemoryStat", "summary.graphics")) / 1024.0f;
+            }
+            return mem;
 #else
             return 0;
 #endif
@@ -357,6 +376,7 @@ namespace ExpressionAPI
         internal static float GetUnknownMemory()
         {
 #if UNITY_ANDROID
+            /*
             if (null == s_DebugObj) {
                 s_DebugObj = new AndroidJavaObject("android.os.Debug");
             }
@@ -365,6 +385,16 @@ namespace ExpressionAPI
             }
             s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
             return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.private-other")) / 1024.0f;
+            */
+            if (null == s_MemoryActivity) {
+                s_MemoryActivity = new AndroidJavaClass("com.aaa.bbb.MainActivity");
+            }
+            var infos = s_MemoryActivity.CallStatic<AndroidJavaObject[]>("getMemoryInfo");
+            float mem = 0;
+            if (null != infos && infos.Length > 0) {
+                mem = int.Parse(infos[0].Call<string>("getMemoryStat", "summary.private-other")) / 1024.0f;
+            }
+            return mem;
 #else
             return 0;
 #endif
@@ -372,6 +402,7 @@ namespace ExpressionAPI
         internal static float GetJavaMemory()
         {
 #if UNITY_ANDROID
+            /*
             if (null == s_DebugObj) {
                 s_DebugObj = new AndroidJavaObject("android.os.Debug");
             }
@@ -380,6 +411,16 @@ namespace ExpressionAPI
             }
             s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
             return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.java-heap")) / 1024.0f;
+            */
+            if (null == s_MemoryActivity) {
+                s_MemoryActivity = new AndroidJavaClass("com.aaa.bbb.MainActivity");
+            }
+            var infos = s_MemoryActivity.CallStatic<AndroidJavaObject[]>("getMemoryInfo");
+            float mem = 0;
+            if (null != infos && infos.Length > 0) {
+                mem = int.Parse(infos[0].Call<string>("getMemoryStat", "summary.java-heap")) / 1024.0f;
+            }
+            return mem;
 #else
             return 0;
 #endif
@@ -387,6 +428,7 @@ namespace ExpressionAPI
         internal static float GetCodeMemory()
         {
 #if UNITY_ANDROID
+            /*
             if (null == s_DebugObj) {
                 s_DebugObj = new AndroidJavaObject("android.os.Debug");
             }
@@ -395,6 +437,16 @@ namespace ExpressionAPI
             }
             s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
             return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.code")) / 1024.0f;
+            */
+            if (null == s_MemoryActivity) {
+                s_MemoryActivity = new AndroidJavaClass("com.aaa.bbb.MainActivity");
+            }
+            var infos = s_MemoryActivity.CallStatic<AndroidJavaObject[]>("getMemoryInfo");
+            float mem = 0;
+            if (null != infos && infos.Length > 0) {
+                mem = int.Parse(infos[0].Call<string>("getMemoryStat", "summary.code")) / 1024.0f;
+            }
+            return mem;
 #else
             return 0;
 #endif
@@ -402,6 +454,7 @@ namespace ExpressionAPI
         internal static float GetStackMemory()
         {
 #if UNITY_ANDROID
+            /*
             if (null == s_DebugObj) {
                 s_DebugObj = new AndroidJavaObject("android.os.Debug");
             }
@@ -410,6 +463,16 @@ namespace ExpressionAPI
             }
             s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
             return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.stack")) / 1024.0f;
+            */
+            if (null == s_MemoryActivity) {
+                s_MemoryActivity = new AndroidJavaClass("com.aaa.bbb.MainActivity");
+            }
+            var infos = s_MemoryActivity.CallStatic<AndroidJavaObject[]>("getMemoryInfo");
+            float mem = 0;
+            if (null != infos && infos.Length > 0) {
+                mem = int.Parse(infos[0].Call<string>("getMemoryStat", "summary.stack")) / 1024.0f;
+            }
+            return mem;
 #else
             return 0;
 #endif
@@ -417,6 +480,7 @@ namespace ExpressionAPI
         internal static float GetSystemMemory()
         {
 #if UNITY_ANDROID
+            /*
             if (null == s_DebugObj) {
                 s_DebugObj = new AndroidJavaObject("android.os.Debug");
             }
@@ -425,6 +489,16 @@ namespace ExpressionAPI
             }
             s_DebugObj.CallStatic("getMemoryInfo", s_MemoryInfoObj);
             return int.Parse(s_MemoryInfoObj.Call<string>("getMemoryStat", "summary.system")) / 1024.0f;
+            */
+            if (null == s_MemoryActivity) {
+                s_MemoryActivity = new AndroidJavaClass("com.aaa.bbb.MainActivity");
+            }
+            var infos = s_MemoryActivity.CallStatic<AndroidJavaObject[]>("getMemoryInfo");
+            float mem = 0;
+            if (null != infos && infos.Length > 0) {
+                mem = int.Parse(infos[0].Call<string>("getMemoryStat", "summary.system")) / 1024.0f;
+            }
+            return mem;
 #else
             return 0;
 #endif
@@ -452,8 +526,7 @@ namespace ExpressionAPI
             return vss;
         }
 #if UNITY_ANDROID
-        private static AndroidJavaClass s_UnityActivity = null;
-        private static AndroidJavaObject s_CurrentActivity = null;
+        private static AndroidJavaClass s_MemoryActivity = null;
         private static AndroidJavaObject s_DebugObj = null;
         private static AndroidJavaObject s_MemoryInfoObj = null;
 #endif
