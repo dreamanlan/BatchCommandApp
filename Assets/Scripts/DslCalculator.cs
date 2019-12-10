@@ -2625,7 +2625,30 @@ namespace Expression
             return r;
         }
     }
-    internal class GetDependenciesExp : Expression.SimpleExpressionBase
+    internal class GetGuidAndLocalFileIdentifierExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+#if UNITY_EDITOR
+            if (operands.Count >= 1) {
+                var obj = operands[0] as UnityEngine.Object;
+                if (null != obj) {
+                    var pobj = PrefabUtility.GetCorrespondingObjectFromSource(obj);
+                    if (null == pobj)
+                        pobj = obj;
+                    string guid = string.Empty;
+                    long localId = 0;
+                    if(AssetDatabase.TryGetGUIDAndLocalFileIdentifier(pobj, out guid, out localId)) {
+                        r = new KeyValuePair<string, long>(guid, localId);
+                    }
+                }
+            }
+#endif
+            return r;
+        }
+    }
+    internal class GetDependenciesExp : DslExpression.SimpleExpressionBase
     {
         protected override object OnCalc(IList<object> operands)
         {
@@ -6188,6 +6211,7 @@ namespace Expression
             Register("assetpath2guid", new ExpressionFactoryHelper<AssetPath2GUIDExp>());
             Register("guid2assetpath", new ExpressionFactoryHelper<GUID2AssetPathExp>());
             Register("getassetpath", new ExpressionFactoryHelper<GetAssetPathExp>());
+            Register("getguidandfileid", new ExpressionFactoryHelper<GetGuidAndLocalFileIdentifierExp>());
             Register("getdependencies", new ExpressionFactoryHelper<GetDependenciesExp>());
             Register("getassetimporter", new ExpressionFactoryHelper<GetAssetImporterExp>());
             Register("loadasset", new ExpressionFactoryHelper<LoadAssetExp>());
