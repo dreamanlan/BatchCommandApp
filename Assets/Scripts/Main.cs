@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
-using Expression;
+using DslExpression;
 using ExpressionAPI;
 
 public class Main : MonoBehaviour
@@ -98,7 +98,7 @@ public class Main : MonoBehaviour
     }
 
     private StringBuilder m_LogBuilder = new StringBuilder();
-    private Expression.DslCalculator m_Calculator = new Expression.DslCalculator();
+    private DslExpression.DslCalculator m_Calculator = new DslExpression.DslCalculator();
 
     public static object Call(string proc, params object[] args)
     {
