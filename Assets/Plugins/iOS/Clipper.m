@@ -12,7 +12,7 @@ void SetClipboard(const char* c){
     [UIPasteboard generalPasteboard].string = [NSString stringWithCString: c encoding:NSUTF8StringEncoding];
 }
 
-char *GetClipboard(){
+const char *GetClipboard(){
     return MakeStringCpy([[UIPasteboard generalPasteboard].string UTF8String]);
 }
 

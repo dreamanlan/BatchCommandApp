@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
+using UnityEngine.Scripting;
 using UnityEngine;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
@@ -24,6 +26,8 @@ public class Main : MonoBehaviour
 
         m_Calculator.Init();
         m_Calculator.Register("copypdf", new ExpressionFactoryHelper<CopyPdfExp>());
+        m_Calculator.Register("setclipboard", new ExpressionFactoryHelper<SetClipboardExp>());
+        m_Calculator.Register("getclipboard", new ExpressionFactoryHelper<GetClipboardExp>());
         m_Calculator.Register("jc", new ExpressionFactoryHelper<JavaClassExp>());
         m_Calculator.Register("jo", new ExpressionFactoryHelper<JavaObjectExp>());
         m_Calculator.Register("jp", new ExpressionFactoryHelper<JavaProxyExp>());
@@ -39,6 +43,15 @@ public class Main : MonoBehaviour
         m_Calculator.Register("getstack", new ExpressionFactoryHelper<GetStackExp>());
         m_Calculator.Register("getsystem", new ExpressionFactoryHelper<GetSystemExp>());
         m_Calculator.Register("showmemory", new ExpressionFactoryHelper<ShowMemoryExp>());
+        m_Calculator.Register("allocmemory", new ExpressionFactoryHelper<AllocMemoryExp>());
+        m_Calculator.Register("freememory", new ExpressionFactoryHelper<FreeMemoryExp>());
+        m_Calculator.Register("allochglobal", new ExpressionFactoryHelper<AllocHGlobalExp>());
+        m_Calculator.Register("freehglobal", new ExpressionFactoryHelper<FreeHGlobalExp>());
+        m_Calculator.Register("unloadunused", new ExpressionFactoryHelper<UnloadUnusedExp>());
+        m_Calculator.Register("cms", new ExpressionFactoryHelper<CaptureMemorySnapshotExp>());
+        m_Calculator.Register("loggc", new ExpressionFactoryHelper<LogGcExp>());
+        m_Calculator.Register("setloggcsize", new ExpressionFactoryHelper<SetLogGcSizeExp>());
+        m_Calculator.Register("setlognativesize", new ExpressionFactoryHelper<SetLogNativeSizeExp>());
 
         StartCoroutine(Loop());
     }
@@ -65,7 +78,13 @@ public class Main : MonoBehaviour
         Dsl.DslFile file = new Dsl.DslFile();
         if(file.LoadFromString(string.Format("script(){{{0};}};", cmd), "cmd", msg => Debug.LogWarning(msg))) {
             m_Calculator.LoadDsl("main", file.DslInfos[0].First);
-            m_Calculator.Calc("main");
+            var r = m_Calculator.Calc("main");
+            if (null != r) {
+                DebugConsole.Log(string.Format("result:{0}", r.ToString()));
+            }
+            else {
+                DebugConsole.Log("result:null");
+            }
         }
     }
 
@@ -99,6 +118,7 @@ public class Main : MonoBehaviour
 
     private StringBuilder m_LogBuilder = new StringBuilder();
     private DslExpression.DslCalculator m_Calculator = new DslExpression.DslCalculator();
+    private Dictionary<string, object> m_KeyValues = new Dictionary<string, object>();
 
     public static object Call(string proc, params object[] args)
     {
@@ -106,6 +126,18 @@ public class Main : MonoBehaviour
             return null;
         object r = s_Instance.m_Calculator.Calc(proc, args);
         return r;
+    }
+    public static void AddKeyValue(string key, object val)
+    {
+        s_Instance.m_KeyValues[key] = val;
+    }
+    public static void RemoveKeyValue(string key)
+    {
+        s_Instance.m_KeyValues.Remove(key);
+    }
+    public static bool TryGetValue(string key, out object val)
+    {
+        return s_Instance.m_KeyValues.TryGetValue(key, out val);
     }
     private static Main s_Instance = null;
 }
@@ -163,6 +195,50 @@ namespace ExpressionAPI
 #if UNITY_IOS
         [DllImport("__Internal")]
         static extern void SetClipboard(string str);
+#endif
+    }
+    internal sealed class SetClipboardExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+            if (operands.Count >= 1) {
+                var str = operands[0] as string;
+                if (null != str) {
+#if UNITY_EDITOR
+                    GUIUtility.systemCopyBuffer = str;
+#elif UNITY_IOS
+                    SetClipboard(str);
+#elif UNITY_ANDROID
+                    AndroidJavaClass cb = new AndroidJavaClass("jp.ne.donuts.uniclipboard.Clipboard");
+                    cb.CallStatic ("setText", str);
+#endif
+                    r = str;
+                }
+            }
+            return r;
+        }
+#if UNITY_IOS
+        [DllImport("__Internal")]
+        static extern void SetClipboard(string str);
+#endif
+    }
+    internal sealed class GetClipboardExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+#if UNITY_EDITOR
+            r = GUIUtility.systemCopyBuffer;
+#elif UNITY_IOS
+            r = GetClipboard();
+#elif UNITY_ANDROID
+            AndroidJavaClass cb = new AndroidJavaClass("jp.ne.donuts.uniclipboard.Clipboard");
+            r = cb.CallStatic<string>("getText");
+#endif
+            return r;
+        }
+#if UNITY_IOS
         [DllImport("__Internal")]
         static extern string GetClipboard();
 #endif
@@ -302,6 +378,186 @@ namespace ExpressionAPI
             string info = string.Format("pss:{0} n:{1} g:{2} u:{3} j:{4} c:{5} t:{6} s:{7} vss:{8}", MemoryInfo.GetAppMemory(), MemoryInfo.GetNativeMemory(), MemoryInfo.GetGraphicsMemory(), MemoryInfo.GetUnknownMemory(), MemoryInfo.GetJavaMemory(), MemoryInfo.GetCodeMemory(), MemoryInfo.GetStackMemory(), MemoryInfo.GetSystemMemory(), MemoryInfo.GetVssMemory());
             Debug.LogFormat("{0}", info);
             return info;
+        }
+    }
+    internal sealed class AllocMemoryExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+            if (operands.Count >= 2) {
+                string key = operands[0] as string;
+                int size = (int)System.Convert.ChangeType(operands[1], typeof(int));
+                if (null != key) {
+                    byte[] m = new byte[size];
+                    for (int i = 0; i < size; ++i) {
+                        m[i] = (byte)i;
+                    }
+                    Main.AddKeyValue(key, m);
+                    r = key;
+                }
+            }
+            return r;
+        }
+    }
+    internal sealed class FreeMemoryExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+            if (operands.Count >= 1) {
+                string key = operands[0] as string;
+                if (null != key) {
+                    Main.RemoveKeyValue(key);
+                    System.GC.Collect();
+                    r = key;
+                }
+            }
+            return r;
+        }
+    }
+    internal sealed class AllocHGlobalExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+            if (operands.Count >= 2) {
+                string key = operands[0] as string;
+                int size = (int)System.Convert.ChangeType(operands[1], typeof(int));
+                if (null != key) {
+                    System.IntPtr m = System.Runtime.InteropServices.Marshal.AllocHGlobal(size);
+                    unsafe {
+                        byte* ptr = (byte*)m;
+                        for (int i = 0; i < size; ++i) {
+                            ptr[i] = (byte)i;
+                        }
+                    }
+                    Main.AddKeyValue(key, m);
+                    r = key;
+                }
+            }
+            return r;
+        }
+    }
+    internal sealed class FreeHGlobalExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+            if (operands.Count >= 1) {
+                string key = operands[0] as string;
+                if (null != key) {
+                    object v;
+                    if(Main.TryGetValue(key, out v)) {
+                        Main.RemoveKeyValue(key);
+                        System.Runtime.InteropServices.Marshal.FreeHGlobal((System.IntPtr)v);
+                    }
+                    System.GC.Collect();
+                    r = key;
+                }
+            }
+            return r;
+        }
+    }
+    internal sealed class UnloadUnusedExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = true;
+            for(int i = 0; i < 8; ++i) {
+                System.GC.Collect();
+            }
+            Resources.UnloadUnusedAssets();            
+            return r;
+        }
+    }
+    internal sealed class CaptureMemorySnapshotExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = false;
+            if (operands.Count >= 2) {
+                string file = operands[0] as string;
+                uint flags = (uint)System.Convert.ChangeType(operands[1], typeof(uint));
+                if (null != file) {
+                    if (System.IO.Path.GetExtension(file) != ".snap")
+                        file = System.IO.Path.ChangeExtension(file, ".snap");
+                    if (!System.IO.Path.IsPathRooted(file)) {
+                        file = System.IO.Path.Combine(Application.persistentDataPath, file);
+                    }
+                    UnityHacker.CaptureMemorySnapshot(file, flags);
+#if UNITY_ANDROID
+                    string dirName = System.IO.Path.GetDirectoryName(file);
+                    string fileName = System.IO.Path.GetFileNameWithoutExtension(file);
+                    File.WriteAllText(System.IO.Path.Combine(dirName, fileName + "_maps.txt"), File.ReadAllText("/proc/self/maps"));
+                    File.WriteAllText(System.IO.Path.Combine(dirName, fileName + "_smaps.txt"), File.ReadAllText("/proc/self/smaps"));
+#endif
+                    r = true;
+                }
+            }
+            return r;
+        }
+    }
+    internal sealed class LogGcExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = false;
+            if (operands.Count >= 1) {
+                int val = (int)System.Convert.ChangeType(operands[0], typeof(int));
+                string file = string.Empty;
+                if (operands.Count >= 2)
+                    file = operands[1] as string;
+                if (val != 0) {
+                    if (!string.IsNullOrEmpty(file)) {
+                        if (System.IO.Path.GetExtension(file) != ".txt")
+                            file = System.IO.Path.ChangeExtension(file, ".txt");
+                        if (!System.IO.Path.IsPathRooted(file)) {
+                            file = System.IO.Path.Combine(Application.persistentDataPath, file);
+                        }
+#if UNITY_ANDROID
+                        string dirName = System.IO.Path.GetDirectoryName(file);
+                        string fileName = System.IO.Path.GetFileNameWithoutExtension(file);
+                        File.WriteAllText(System.IO.Path.Combine(dirName, fileName + "_maps.txt"), File.ReadAllText("/proc/self/maps"));
+#endif
+                        UnityHacker.StartGcLogger(file);
+                        r = true;
+                    }
+                }
+                else {
+                    UnityHacker.StopGcLogger();
+                    r = true;
+                }
+            }
+            return r;
+        }
+    }
+    internal sealed class SetLogGcSizeExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = false;
+            if (operands.Count >= 2) {
+                uint minSize = (uint)System.Convert.ChangeType(operands[0], typeof(uint));
+                uint maxSize = (uint)System.Convert.ChangeType(operands[1], typeof(uint));
+                UnityHacker.SetLogGcAllocSize(minSize, maxSize);
+                r = true;
+            }
+            return r;
+        }
+    }
+    internal sealed class SetLogNativeSizeExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = false;
+            if (operands.Count >= 2) {
+                uint minSize = (uint)System.Convert.ChangeType(operands[0], typeof(uint));
+                uint maxSize = (uint)System.Convert.ChangeType(operands[1], typeof(uint));
+                UnityHacker.SetLogNativeAllocSize(minSize, maxSize);
+                r = true;
+            }
+            return r;
         }
     }
 
