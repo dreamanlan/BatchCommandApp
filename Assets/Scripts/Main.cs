@@ -764,23 +764,41 @@ namespace ExpressionAPI
             float vss = 0;
 #if UNITY_ANDROID && !UNITY_EDITOR
             using (System.IO.StreamReader reader = System.IO.File.OpenText("/proc/self/status")) {
-                string fileBuffer = reader.ReadToEnd();
-                int index = fileBuffer.IndexOf("VmPeak:");
-                index += "VmPeak:".Length;
-                for (; fileBuffer[index] == ' ' || fileBuffer[index] == '\t'; ++index) ;
-                int vssKb = 0;
-                for (; ; ++index) {
-                    int num = fileBuffer[index] - '0';
-                    if (num < 0 || num > 9)
-                        break;
-
-                    vssKb = vssKb * 10 + num;
+                int ct = reader.Read(s_VssBuffer, 0, s_VssBuffer.Length);
+                int index = -1;
+                int k = 0;
+                for (int i = 0; i < ct && k < s_VmPeak.Length; ++i) {
+                    if (s_VssBuffer[i] == s_VmPeak[k]) {
+                        ++k;
+                        if (k == s_VmPeak.Length) {
+                            index = i + 1;
+                            break;
+                        }
+                    }
+                    else {
+                        k = 0;
+                    }
                 }
-                vss = vssKb/1024.0f;
+                if (index >= 0) {
+                    for (; index < ct && (s_VssBuffer[index] == ' ' || s_VssBuffer[index] == '\t'); ++index) ;
+                    int vssKb = 0;
+                    for (; index < ct; ++index) {
+                        int num = s_VssBuffer[index] - '0';
+                        if (num < 0 || num > 9)
+                            break;
+
+                        vssKb = vssKb * 10 + num;
+                    }
+                    vss = vssKb / 1024.0f;
+                }
             }
 #endif
             return vss;
         }
+#if UNITY_ANDROID && !UNITY_EDITOR
+        private static char[] s_VssBuffer = new char[4096];
+        private static char[] s_VmPeak = new char[] { 'V', 'm', 'P', 'e', 'a', 'k', ':' };
+#endif
 #if UNITY_ANDROID
         private static AndroidJavaClass s_MemoryActivity = null;
         private static AndroidJavaObject s_DebugObj = null;
