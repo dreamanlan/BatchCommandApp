@@ -4432,6 +4432,14 @@ namespace DslExpression
             return r;
         }
     }
+    internal class CallStackExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = System.Environment.StackTrace;
+            return r;
+        }
+    }
     internal class CallExp : SimpleExpressionBase
     {
         protected override object OnCalc(IList<object> operands)
@@ -6416,6 +6424,7 @@ namespace DslExpression
             Register("debuglog", new ExpressionFactoryHelper<DebugLogExp>());
             Register("debugwarning", new ExpressionFactoryHelper<DebugWarningExp>());
             Register("debugerror", new ExpressionFactoryHelper<DebugErrorExp>());
+            Register("callstack", new ExpressionFactoryHelper<CallStackExp>());
             Register("call", new ExpressionFactoryHelper<CallExp>());
             Register("return", new ExpressionFactoryHelper<ReturnExp>());
             Register("redirect", new ExpressionFactoryHelper<RedirectExp>());
