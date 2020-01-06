@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class JavaClass
 {
+    public JavaClass(AndroidJavaClass obj)
+    {
+        m_Class = obj.ToString();
+        m_AndroidJavaClass = obj;
+    }
     public JavaClass(string _class)
     {
         m_Class = _class;
@@ -262,6 +267,11 @@ public class JavaClass
 
 public class JavaObject
 {
+    public JavaObject(AndroidJavaObject obj)
+    {
+        m_Class = obj.ToString();
+        m_AndroidJavaObject = obj;
+    }
     public JavaObject(string _class, params object[] args)
     {
         m_Class = _class;

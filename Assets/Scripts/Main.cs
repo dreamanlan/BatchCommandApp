@@ -52,6 +52,14 @@ public class Main : MonoBehaviour
         m_Calculator.Register("loggc", new ExpressionFactoryHelper<LogGcExp>());
         m_Calculator.Register("setloggcsize", new ExpressionFactoryHelper<SetLogGcSizeExp>());
         m_Calculator.Register("setlognativesize", new ExpressionFactoryHelper<SetLogNativeSizeExp>());
+        m_Calculator.Register("getactivity", new ExpressionFactoryHelper<GetActivityExp>());
+        m_Calculator.Register("getintent", new ExpressionFactoryHelper<GetIntentExp>());
+        m_Calculator.Register("getstring", new ExpressionFactoryHelper<GetStringExp>());
+        m_Calculator.Register("getstringarray", new ExpressionFactoryHelper<GetStringArrayExp>());
+        m_Calculator.Register("getint", new ExpressionFactoryHelper<GetIntExp>());
+        m_Calculator.Register("getintarray", new ExpressionFactoryHelper<GetIntArrayExp>());
+        m_Calculator.Register("getlong", new ExpressionFactoryHelper<GetLongExp>());
+        m_Calculator.Register("getlongarray", new ExpressionFactoryHelper<GetLongArrayExp>());
 
         StartCoroutine(Loop());
     }
@@ -249,8 +257,14 @@ namespace ExpressionAPI
         {
             object r = null;
             if (operands.Count >= 1) {
-                var str = operands[0] as string;
-                r = new JavaClass(str);
+                var obj = operands[0] as AndroidJavaClass;
+                if (null != obj) {
+                    r = new JavaClass(obj);
+                }
+                else {
+                    var str = operands[0] as string;
+                    r = new JavaClass(str);
+                }
             }
             return r;
         }
@@ -261,12 +275,20 @@ namespace ExpressionAPI
         {
             object r = null;
             if (operands.Count >= 1) {
-                var str = operands[0] as string;
-                var al = new ArrayList();
-                for(int i = 1; i < operands.Count; ++i) {
-                    al.Add(operands[i]);
+                var obj = operands[0] as AndroidJavaObject;
+                if (null != obj) {
+                    r = new JavaObject(obj);
                 }
-                r = new JavaObject(str, al.ToArray());
+                else {
+                    var str = operands[0] as string;
+                    var al = new ArrayList();
+                    for (int i = 1; i < operands.Count; ++i) {
+                        al.Add(operands[i]);
+                    }
+                    if (!string.IsNullOrEmpty(str)) {
+                        r = new JavaObject(str, al.ToArray());
+                    }
+                }
             }
             return r;
         }
@@ -557,6 +579,137 @@ namespace ExpressionAPI
                 UnityHacker.SetLogNativeAllocSize(minSize, maxSize);
                 r = true;
             }
+            return r;
+        }
+    }
+    internal sealed class GetActivityExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+#if UNITY_ANDROID
+            r = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+#endif
+            return r;
+        }
+    }
+    internal sealed class GetIntentExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+#if UNITY_ANDROID
+            var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+            r = act.Call<AndroidJavaObject>("getIntent");
+#endif
+            return r;
+        }
+    }
+    internal sealed class GetStringExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+#if UNITY_ANDROID
+            if (operands.Count >= 1) {
+                var str = operands[0] as string;
+                if (!string.IsNullOrEmpty(str)) {
+                    var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                    var intent = act.Call<AndroidJavaObject>("getIntent");
+                    r = intent.Call<string>("getStringExtra", str);
+                }
+            }
+#endif
+            return r;
+        }
+    }
+    internal sealed class GetStringArrayExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+#if UNITY_ANDROID
+            if (operands.Count >= 1) {
+                var str = operands[0] as string;
+                if (!string.IsNullOrEmpty(str)) {
+                    var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                    var intent = act.Call<AndroidJavaObject>("getIntent");
+                    r = intent.Call<string[]>("getStringArrayExtra", str);
+                }
+            }
+#endif
+            return r;
+        }
+    }
+    internal sealed class GetIntExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+#if UNITY_ANDROID
+            if (operands.Count >= 1) {
+                var str = operands[0] as string;
+                if (!string.IsNullOrEmpty(str)) {
+                    var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                    var intent = act.Call<AndroidJavaObject>("getIntent");
+                    r = intent.Call<int>("getIntExtra", str);
+                }
+            }
+#endif
+            return r;
+        }
+    }
+    internal sealed class GetIntArrayExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+#if UNITY_ANDROID
+            if (operands.Count >= 1) {
+                var str = operands[0] as string;
+                if (!string.IsNullOrEmpty(str)) {
+                    var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                    var intent = act.Call<AndroidJavaObject>("getIntent");
+                    r = intent.Call<int[]>("getIntArrayExtra", str);
+                }
+            }
+#endif
+            return r;
+        }
+    }
+    internal sealed class GetLongExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+#if UNITY_ANDROID
+            if (operands.Count >= 1) {
+                var str = operands[0] as string;
+                if (!string.IsNullOrEmpty(str)) {
+                    var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                    var intent = act.Call<AndroidJavaObject>("getIntent");
+                    r = intent.Call<long>("getLongExtra", str);
+                }
+            }
+#endif
+            return r;
+        }
+    }
+    internal sealed class GetLongArrayExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = null;
+#if UNITY_ANDROID
+            if (operands.Count >= 1) {
+                var str = operands[0] as string;
+                if (!string.IsNullOrEmpty(str)) {
+                    var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                    var intent = act.Call<AndroidJavaObject>("getIntent");
+                    r = intent.Call<long[]>("getLongArrayExtra", str);
+                }
+            }
+#endif
             return r;
         }
     }
