@@ -33,6 +33,16 @@ public class Main : MonoBehaviour
         m_Calculator.Register("jp", new ExpressionFactoryHelper<JavaProxyExp>());
         m_Calculator.Register("oc", new ExpressionFactoryHelper<ObjectcClassExp>());
         m_Calculator.Register("oo", new ExpressionFactoryHelper<ObjectcObjectExp>());
+        m_Calculator.Register("systeminfo", new ExpressionFactoryHelper<SystemInfoExp>());
+        m_Calculator.Register("getdevicemodel", new ExpressionFactoryHelper<GetDeviceModelExp>());
+        m_Calculator.Register("getdevicename", new ExpressionFactoryHelper<GetDeviceNameExp>());
+        m_Calculator.Register("getdeviceuid", new ExpressionFactoryHelper<GetDeviceUidExp>());
+        m_Calculator.Register("getgfxname", new ExpressionFactoryHelper<GetGraphicsDeviceNameExp>());
+        m_Calculator.Register("getgfxvendor", new ExpressionFactoryHelper<GetGraphicsDeviceVendorExp>());
+        m_Calculator.Register("getgfxversion", new ExpressionFactoryHelper<GetGraphicsDeviceVersionExp>());
+        m_Calculator.Register("getiosgeneration", new ExpressionFactoryHelper<GetIosGenerationExp>());
+        m_Calculator.Register("getiosversion", new ExpressionFactoryHelper<GetIosVersionExp>());
+        m_Calculator.Register("getiosvendor", new ExpressionFactoryHelper<GetIosVendorExp>());
         m_Calculator.Register("getpss", new ExpressionFactoryHelper<GetPssExp>());
         m_Calculator.Register("getvss", new ExpressionFactoryHelper<GetVssExp>());
         m_Calculator.Register("getnative", new ExpressionFactoryHelper<GetNativeExp>());
@@ -328,6 +338,88 @@ namespace ExpressionAPI
                 return new ObjectcObject(objId);
             }
             return r;
+        }
+    }
+    internal sealed class SystemInfoExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return typeof(SystemInfo);
+        }
+    }
+    internal sealed class GetDeviceModelExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return SystemInfo.deviceModel;
+        }
+    }
+    internal sealed class GetDeviceNameExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return SystemInfo.deviceName;
+        }
+    }
+    internal sealed class GetDeviceUidExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return SystemInfo.deviceUniqueIdentifier;
+        }
+    }
+    internal sealed class GetGraphicsDeviceNameExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return SystemInfo.graphicsDeviceName;
+        }
+    }
+    internal sealed class GetGraphicsDeviceVendorExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return SystemInfo.graphicsDeviceVendor;
+        }
+    }
+    internal sealed class GetGraphicsDeviceVersionExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            return SystemInfo.graphicsDeviceVersion;
+        }
+    }
+    internal sealed class GetIosGenerationExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+#if UNITY_ANDROID
+            return 0;
+#else
+            return UnityEngine.iOS.Device.generation;
+#endif
+        }
+    }
+    internal sealed class GetIosVersionExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+#if UNITY_ANDROID
+            return string.Empty;
+#else
+            return UnityEngine.iOS.Device.systemVersion;
+#endif
+        }
+    }
+    internal sealed class GetIosVendorExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+#if UNITY_ANDROID
+            return string.Empty;
+#else
+            return UnityEngine.iOS.Device.vendorIdentifier;
+#endif
         }
     }
     internal sealed class GetPssExp : SimpleExpressionBase
@@ -916,7 +1008,7 @@ namespace ExpressionAPI
         {
             float vss = 0;
 #if UNITY_ANDROID && !UNITY_EDITOR
-            using (System.IO.StreamReader reader = System.IO.File.OpenText("/proc/self/status")) {
+            using (FileStream reader = new FileStream("/proc/self/status", FileMode.Open, FileAccess.Read, FileShare.Read, s_VssBuffer.Length, FileOptions.SequentialScan)) {
                 int ct = reader.Read(s_VssBuffer, 0, s_VssBuffer.Length);
                 int index = -1;
                 int k = 0;
@@ -944,13 +1036,14 @@ namespace ExpressionAPI
                     }
                     vss = vssKb / 1024.0f;
                 }
+                reader.Close();
             }
 #endif
             return vss;
         }
 #if UNITY_ANDROID && !UNITY_EDITOR
-        private static char[] s_VssBuffer = new char[4096];
-        private static char[] s_VmPeak = new char[] { 'V', 'm', 'P', 'e', 'a', 'k', ':' };
+        private static byte[] s_VssBuffer = new byte[1024];
+        private static byte[] s_VmPeak = new byte[] { (byte)'V', (byte)'m', (byte)'P', (byte)'e', (byte)'a', (byte)'k', (byte)':' };
 #endif
 #if UNITY_ANDROID
         private static AndroidJavaClass s_MemoryActivity = null;
