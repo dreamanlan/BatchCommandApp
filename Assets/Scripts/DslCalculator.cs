@@ -3061,7 +3061,7 @@ namespace DslExpression
             return r;
         }
     }
-    internal class StringLowerExp : SimpleExpressionBase
+    internal class StringToLowerExp : SimpleExpressionBase
     {
         protected override object OnCalc(IList<object> operands)
         {
@@ -3073,7 +3073,7 @@ namespace DslExpression
             return r;
         }
     }
-    internal class StringUpperExp : SimpleExpressionBase
+    internal class StringToUpperExp : SimpleExpressionBase
     {
         protected override object OnCalc(IList<object> operands)
         {
@@ -6336,8 +6336,8 @@ namespace DslExpression
             Register("stringtrim", new ExpressionFactoryHelper<StringTrimExp>());
             Register("stringtrimstart", new ExpressionFactoryHelper<StringTrimStartExp>());
             Register("stringtrimend", new ExpressionFactoryHelper<StringTrimEndExp>());
-            Register("stringlower", new ExpressionFactoryHelper<StringLowerExp>());
-            Register("stringupper", new ExpressionFactoryHelper<StringUpperExp>());
+            Register("stringtolower", new ExpressionFactoryHelper<StringToLowerExp>());
+            Register("stringtoupper", new ExpressionFactoryHelper<StringToUpperExp>());
             Register("stringreplace", new ExpressionFactoryHelper<StringReplaceExp>());
             Register("stringreplacechar", new ExpressionFactoryHelper<StringReplaceCharExp>());
             Register("makestring", new ExpressionFactoryHelper<MakeStringExp>());
