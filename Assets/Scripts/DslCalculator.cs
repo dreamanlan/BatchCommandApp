@@ -4522,20 +4522,20 @@ namespace DslExpression
                 baseDir = Environment.ExpandEnvironmentVariables(baseDir);
                 IList<string> filterList = new string[] { "*" };
                 if (operands.Count >= 2) {
-                    var strList = operands[1] as IList<string>;
-                    if (null != strList && operands.Count == 2) {
-                        filterList = strList;
-                    }
-                    else {
-                        var list = new List<string>();
-                        for (int i = 1; i < operands.Count; ++i) {
-                            var str = operands[i] as string;
-                            if (null != str) {
-                                list.Add(str);
+                    var list = new List<string>();
+                    for (int i = 1; i < operands.Count; ++i) {
+                        var str = operands[i] as string;
+                        if (null != str) {
+                            list.Add(str);
+                        }
+                        else {
+                            var strList = operands[i] as IList<string>;
+                            if (null != strList) {
+                                list.AddRange(strList);
                             }
                         }
-                        filterList = list;
                     }
+                    filterList = list;
                 }
                 if (null != baseDir && Directory.Exists(baseDir)) {
                     var fullList = new List<string>();
@@ -4559,20 +4559,20 @@ namespace DslExpression
                 baseDir = Environment.ExpandEnvironmentVariables(baseDir);
                 IList<string> filterList = new string[] { "*" };
                 if (operands.Count >= 2) {
-                    var strList = operands[1] as IList<string>;
-                    if (null != strList && operands.Count == 2) {
-                        filterList = strList;
-                    }
-                    else {
-                        var list = new List<string>();
-                        for (int i = 1; i < operands.Count; ++i) {
-                            var str = operands[i] as string;
-                            if (null != str) {
-                                list.Add(str);
+                    var list = new List<string>();
+                    for (int i = 1; i < operands.Count; ++i) {
+                        var str = operands[i] as string;
+                        if (null != str) {
+                            list.Add(str);
+                        }
+                        else {
+                            var strList = operands[i] as IList<string>;
+                            if (null != strList) {
+                                list.AddRange(strList);
                             }
                         }
-                        filterList = list;
                     }
+                    filterList = list;
                 }
                 if (null != baseDir && Directory.Exists(baseDir)) {
                     var fullList = new List<string>();
@@ -4596,20 +4596,20 @@ namespace DslExpression
                 baseDir = Environment.ExpandEnvironmentVariables(baseDir);
                 IList<string> filterList = new string[] { "*" };
                 if (operands.Count >= 2) {
-                    var strList = operands[1] as IList<string>;
-                    if (null != strList && operands.Count == 2) {
-                        filterList = strList;
-                    }
-                    else {
-                        var list = new List<string>();
-                        for (int i = 1; i < operands.Count; ++i) {
-                            var str = operands[i] as string;
-                            if (null != str) {
-                                list.Add(str);
+                    var list = new List<string>();
+                    for (int i = 1; i < operands.Count; ++i) {
+                        var str = operands[i] as string;
+                        if (null != str) {
+                            list.Add(str);
+                        }
+                        else {
+                            var strList = operands[i] as IList<string>;
+                            if (null != strList) {
+                                list.AddRange(strList);
                             }
                         }
-                        filterList = list;
                     }
+                    filterList = list;
                 }
                 if (null != baseDir && Directory.Exists(baseDir)) {
                     var fullList = new List<string>();
@@ -4633,20 +4633,20 @@ namespace DslExpression
                 baseDir = Environment.ExpandEnvironmentVariables(baseDir);
                 IList<string> filterList = new string[] { "*" };
                 if (operands.Count >= 2) {
-                    var strList = operands[1] as IList<string>;
-                    if (null != strList && operands.Count == 2) {
-                        filterList = strList;
-                    }
-                    else {
-                        var list = new List<string>();
-                        for (int i = 1; i < operands.Count; ++i) {
-                            var str = operands[i] as string;
-                            if (null != str) {
-                                list.Add(str);
+                    var list = new List<string>();
+                    for (int i = 1; i < operands.Count; ++i) {
+                        var str = operands[i] as string;
+                        if (null != str) {
+                            list.Add(str);
+                        }
+                        else {
+                            var strList = operands[i] as IList<string>;
+                            if (null != strList) {
+                                list.AddRange(strList);
                             }
                         }
-                        filterList = list;
                     }
+                    filterList = list;
                 }
                 if (null != baseDir && Directory.Exists(baseDir)) {
                     var fullList = new List<string>();
@@ -4692,6 +4692,12 @@ namespace DslExpression
                     var str = operands[i] as string;
                     if (null != str) {
                         filterAndNewExts.Add(str);
+                    }
+                    else {
+                        var strList = operands[i] as IList<string>;
+                        if (null != strList) {
+                            filterAndNewExts.AddRange(strList);
+                        }
                     }
                 }
                 if (filterAndNewExts.Count <= 0) {
@@ -4820,6 +4826,12 @@ namespace DslExpression
                     if (null != str) {
                         filterAndNewExts.Add(str);
                     }
+                    else {
+                        var strList = operands[i] as IList<string>;
+                        if (null != strList) {
+                            filterAndNewExts.AddRange(strList);
+                        }
+                    }
                 }
                 if (filterAndNewExts.Count <= 0) {
                     filterAndNewExts.Add("*");
@@ -4910,6 +4922,12 @@ namespace DslExpression
                     if (null != str) {
                         filters.Add(str);
                     }
+                    else {
+                        var strList = operands[i] as IList<string>;
+                        if (null != strList) {
+                            filters.AddRange(strList);
+                        }
+                    }
                 }
                 if (filters.Count <= 0) {
                     filters.Add("*");
@@ -4940,6 +4958,12 @@ namespace DslExpression
                     var str = operands[i] as string;
                     if (null != str) {
                         filters.Add(str);
+                    }
+                    else {
+                        var strList = operands[i] as IList<string>;
+                        if (null != strList) {
+                            filters.AddRange(strList);
+                        }
                     }
                 }
                 if (filters.Count <= 0) {
