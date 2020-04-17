@@ -95,7 +95,8 @@ public class Main : MonoBehaviour
     {
         Dsl.DslFile file = new Dsl.DslFile();
         if(file.LoadFromString(string.Format("script(){{{0};}};", cmd), "cmd", msg => Debug.LogWarning(msg))) {
-            m_Calculator.LoadDsl("main", file.DslInfos[0].First);
+            var func = file.DslInfos[0] as Dsl.FunctionData;
+            m_Calculator.LoadDsl("main", func);
             var r = m_Calculator.Calc("main");
             if (null != r) {
                 DebugConsole.Log(string.Format("result:{0}", r.ToString()));
