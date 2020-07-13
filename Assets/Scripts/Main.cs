@@ -62,6 +62,7 @@ public class Main : MonoBehaviour
         m_Calculator.Register("loggc", new ExpressionFactoryHelper<LogGcExp>());
         m_Calculator.Register("setloggcsize", new ExpressionFactoryHelper<SetLogGcSizeExp>());
         m_Calculator.Register("setlognativesize", new ExpressionFactoryHelper<SetLogNativeSizeExp>());
+        m_Calculator.Register("gc", new ExpressionFactoryHelper<GCExp>());
         m_Calculator.Register("getactivity", new ExpressionFactoryHelper<GetActivityExp>());
         m_Calculator.Register("getintent", new ExpressionFactoryHelper<GetIntentExp>());
         m_Calculator.Register("getstring", new ExpressionFactoryHelper<GetStringExp>());
@@ -670,6 +671,18 @@ namespace ExpressionAPI
                 uint minSize = (uint)System.Convert.ChangeType(operands[0], typeof(uint));
                 uint maxSize = (uint)System.Convert.ChangeType(operands[1], typeof(uint));
                 UnityHacker.SetLogNativeAllocSize(minSize, maxSize);
+                r = true;
+            }
+            return r;
+        }
+    }
+    internal sealed class GCExp : SimpleExpressionBase
+    {
+        protected override object OnCalc(IList<object> operands)
+        {
+            object r = false;
+            if (operands.Count >= 0) {
+                System.GC.Collect(1);
                 r = true;
             }
             return r;
