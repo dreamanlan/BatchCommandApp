@@ -99,7 +99,7 @@ public class Main : MonoBehaviour
             var func = file.DslInfos[0] as Dsl.FunctionData;
             m_Calculator.LoadDsl("main", func);
             var r = m_Calculator.Calc("main");
-            if (null != r) {
+            if (!r.IsNullObject) {
                 DebugConsole.Log(string.Format("result:{0}", r.ToString()));
             }
             else {
@@ -144,8 +144,13 @@ public class Main : MonoBehaviour
     {
         if (null == s_Instance)
             return null;
-        object r = s_Instance.m_Calculator.Calc(proc, args);
-        return r;
+        var vargs = s_Instance.m_Calculator.NewCalculatorValueList();
+        foreach(var arg in args) {
+            vargs.Add(CalculatorValue.FromObject(arg));
+        }
+        var r = s_Instance.m_Calculator.Calc(proc, vargs);
+        s_Instance.m_Calculator.RecycleCalculatorValueList(vargs);
+        return r.Get<object>();
     }
     public static void AddKeyValue(string key, object val)
     {
@@ -166,11 +171,11 @@ namespace ExpressionAPI
 {
     internal sealed class CopyPdfExp : AbstractExpression
     {
-        protected override object DoCalc()
+        protected override CalculatorValue DoCalc()
         {
-            string file = m_File.Calc() as string;
-            int start = ToInt(m_Start.Calc());
-            int count = ToInt(m_Count.Calc());
+            string file = m_File.Calc().AsString;
+            int start = m_Start.Calc().Get<int>();
+            int count = m_Count.Calc().Get<int>();
             CopyPdf(file, start, count);
             return count;
         }
@@ -219,11 +224,11 @@ namespace ExpressionAPI
     }
     internal sealed class SetClipboardExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
             if (operands.Count >= 1) {
-                var str = operands[0] as string;
+                var str = operands[0].AsString;
                 if (null != str) {
 #if UNITY_EDITOR
                     GUIUtility.systemCopyBuffer = str;
@@ -245,9 +250,9 @@ namespace ExpressionAPI
     }
     internal sealed class GetClipboardExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
 #if UNITY_EDITOR
             r = GUIUtility.systemCopyBuffer;
 #elif UNITY_IOS
@@ -265,17 +270,17 @@ namespace ExpressionAPI
     }
     internal sealed class JavaClassExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
             if (operands.Count >= 1) {
-                var obj = operands[0] as AndroidJavaClass;
+                var obj = operands[0].As<AndroidJavaClass>();
                 if (null != obj) {
-                    r = new JavaClass(obj);
+                    r = CalculatorValue.FromObject(new JavaClass(obj));
                 }
                 else {
-                    var str = operands[0] as string;
-                    r = new JavaClass(str);
+                    var str = operands[0].AsString;
+                    r = CalculatorValue.FromObject(new JavaClass(str));
                 }
             }
             return r;
@@ -283,22 +288,22 @@ namespace ExpressionAPI
     }
     internal sealed class JavaObjectExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
             if (operands.Count >= 1) {
-                var obj = operands[0] as AndroidJavaObject;
+                var obj = operands[0].As<AndroidJavaObject>();
                 if (null != obj) {
-                    r = new JavaObject(obj);
+                    r = CalculatorValue.FromObject(new JavaObject(obj));
                 }
                 else {
-                    var str = operands[0] as string;
+                    var str = operands[0].AsString;
                     var al = new ArrayList();
                     for (int i = 1; i < operands.Count; ++i) {
-                        al.Add(operands[i]);
+                        al.Add(operands[i].Get<object>());
                     }
                     if (!string.IsNullOrEmpty(str)) {
-                        r = new JavaObject(str, al.ToArray());
+                        r = CalculatorValue.FromObject(new JavaObject(str, al.ToArray()));
                     }
                 }
             }
@@ -307,93 +312,93 @@ namespace ExpressionAPI
     }
     internal sealed class JavaProxyExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
             if (operands.Count >= 2) {
-                var _class = operands[0] as string;
-                var scpMethod = operands[1] as string;
-                r = new JavaProxy(_class, scpMethod);
+                var _class = operands[0].AsString;
+                var scpMethod = operands[1].AsString;
+                r = CalculatorValue.FromObject(new JavaProxy(_class, scpMethod));
             }
             return r;
         }
     }
     internal sealed class ObjectcClassExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
             if (operands.Count >= 1) {
-                var str = operands[0] as string;
-                r = new ObjectcClass(str);
+                var str = operands[0].AsString;
+                r = CalculatorValue.FromObject(new ObjectcClass(str));
             }
             return r;
         }
     }
     internal sealed class ObjectcObjectExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
             if (operands.Count >= 1) {
-                int objId = (int)System.Convert.ChangeType(operands[0], typeof(int));
-                return new ObjectcObject(objId);
+                int objId = operands[0].Get<int>();
+                return CalculatorValue.FromObject(new ObjectcObject(objId));
             }
             return r;
         }
     }
     internal sealed class SystemInfoExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return typeof(SystemInfo);
         }
     }
     internal sealed class GetDeviceModelExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return SystemInfo.deviceModel;
         }
     }
     internal sealed class GetDeviceNameExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return SystemInfo.deviceName;
         }
     }
     internal sealed class GetDeviceUidExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return SystemInfo.deviceUniqueIdentifier;
         }
     }
     internal sealed class GetGraphicsDeviceNameExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return SystemInfo.graphicsDeviceName;
         }
     }
     internal sealed class GetGraphicsDeviceVendorExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return SystemInfo.graphicsDeviceVendor;
         }
     }
     internal sealed class GetGraphicsDeviceVersionExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return SystemInfo.graphicsDeviceVersion;
         }
     }
     internal sealed class GetIosGenerationExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
 #if UNITY_ANDROID
             return 0;
@@ -404,7 +409,7 @@ namespace ExpressionAPI
     }
     internal sealed class GetIosVersionExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
 #if UNITY_ANDROID
             return string.Empty;
@@ -415,7 +420,7 @@ namespace ExpressionAPI
     }
     internal sealed class GetIosVendorExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
 #if UNITY_ANDROID
             return string.Empty;
@@ -426,70 +431,70 @@ namespace ExpressionAPI
     }
     internal sealed class GetPssExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return MemoryInfo.GetAppMemory();
         }
     }
     internal sealed class GetVssExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return MemoryInfo.GetVssMemory();
         }
     }
     internal sealed class GetNativeExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return MemoryInfo.GetNativeMemory();
         }
     }
     internal sealed class GetGraphicsExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return MemoryInfo.GetGraphicsMemory();
         }
     }
     internal sealed class GetUnknownExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return MemoryInfo.GetUnknownMemory();
         }
     }
     internal sealed class GetJavaExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return MemoryInfo.GetJavaMemory();
         }
     }
     internal sealed class GetCodeExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return MemoryInfo.GetCodeMemory();
         }
     }
     internal sealed class GetStackExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return MemoryInfo.GetStackMemory();
         }
     }
     internal sealed class GetSystemExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return MemoryInfo.GetSystemMemory();
         }
     }
     internal sealed class ShowMemoryExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             string info = string.Format("pss:{0} n:{1} g:{2} u:{3} j:{4} c:{5} t:{6} s:{7} vss:{8}", MemoryInfo.GetAppMemory(), MemoryInfo.GetNativeMemory(), MemoryInfo.GetGraphicsMemory(), MemoryInfo.GetUnknownMemory(), MemoryInfo.GetJavaMemory(), MemoryInfo.GetCodeMemory(), MemoryInfo.GetStackMemory(), MemoryInfo.GetSystemMemory(), MemoryInfo.GetVssMemory());
             Debug.LogFormat("{0}", info);
@@ -498,12 +503,12 @@ namespace ExpressionAPI
     }
     internal sealed class AllocMemoryExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
             if (operands.Count >= 2) {
-                string key = operands[0] as string;
-                int size = (int)System.Convert.ChangeType(operands[1], typeof(int));
+                string key = operands[0].AsString;
+                int size = operands[1].Get<int>();
                 if (null != key) {
                     byte[] m = new byte[size];
                     for (int i = 0; i < size; ++i) {
@@ -518,11 +523,11 @@ namespace ExpressionAPI
     }
     internal sealed class FreeMemoryExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
             if (operands.Count >= 1) {
-                string key = operands[0] as string;
+                string key = operands[0].AsString;
                 if (null != key) {
                     Main.RemoveKeyValue(key);
                     System.GC.Collect();
@@ -534,12 +539,12 @@ namespace ExpressionAPI
     }
     internal sealed class AllocHGlobalExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
             if (operands.Count >= 2) {
-                string key = operands[0] as string;
-                int size = (int)System.Convert.ChangeType(operands[1], typeof(int));
+                string key = operands[0].AsString;
+                int size = operands[1].Get<int>();
                 if (null != key) {
                     System.IntPtr m = System.Runtime.InteropServices.Marshal.AllocHGlobal(size);
                     unsafe {
@@ -557,11 +562,11 @@ namespace ExpressionAPI
     }
     internal sealed class FreeHGlobalExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
             if (operands.Count >= 1) {
-                string key = operands[0] as string;
+                string key = operands[0].AsString;
                 if (null != key) {
                     object v;
                     if(Main.TryGetValue(key, out v)) {
@@ -577,9 +582,9 @@ namespace ExpressionAPI
     }
     internal sealed class UnloadUnusedExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = true;
+            bool r = true;
             for(int i = 0; i < 8; ++i) {
                 System.GC.Collect();
             }
@@ -589,12 +594,12 @@ namespace ExpressionAPI
     }
     internal sealed class CaptureMemorySnapshotExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = false;
+            bool r = false;
             if (operands.Count >= 2) {
-                string file = operands[0] as string;
-                uint flags = (uint)System.Convert.ChangeType(operands[1], typeof(uint));
+                string file = operands[0].AsString;
+                uint flags = operands[1].Get<uint>();
                 if (null != file) {
                     if (System.IO.Path.GetExtension(file) != ".snap")
                         file = System.IO.Path.ChangeExtension(file, ".snap");
@@ -616,14 +621,14 @@ namespace ExpressionAPI
     }
     internal sealed class LogGcExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = false;
+            bool r = false;
             if (operands.Count >= 1) {
-                int val = (int)System.Convert.ChangeType(operands[0], typeof(int));
+                int val = operands[0].Get<int>();
                 string file = string.Empty;
                 if (operands.Count >= 2)
-                    file = operands[1] as string;
+                    file = operands[1].AsString;
                 if (val != 0) {
                     if (!string.IsNullOrEmpty(file)) {
                         if (System.IO.Path.GetExtension(file) != ".txt")
@@ -650,12 +655,12 @@ namespace ExpressionAPI
     }
     internal sealed class SetLogGcSizeExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = false;
+            bool r = false;
             if (operands.Count >= 2) {
-                uint minSize = (uint)System.Convert.ChangeType(operands[0], typeof(uint));
-                uint maxSize = (uint)System.Convert.ChangeType(operands[1], typeof(uint));
+                uint minSize = operands[0].Get<uint>();
+                uint maxSize = operands[1].Get<uint>();
                 UnityHacker.SetLogGcAllocSize(minSize, maxSize);
                 r = true;
             }
@@ -664,12 +669,12 @@ namespace ExpressionAPI
     }
     internal sealed class SetLogNativeSizeExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = false;
+            bool r = false;
             if (operands.Count >= 2) {
-                uint minSize = (uint)System.Convert.ChangeType(operands[0], typeof(uint));
-                uint maxSize = (uint)System.Convert.ChangeType(operands[1], typeof(uint));
+                uint minSize = operands[0].Get<uint>();
+                uint maxSize = operands[1].Get<uint>();
                 UnityHacker.SetLogNativeAllocSize(minSize, maxSize);
                 r = true;
             }
@@ -678,9 +683,9 @@ namespace ExpressionAPI
     }
     internal sealed class GCExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = false;
+            bool r = false;
             if (operands.Count >= 0) {
                 System.GC.Collect(1);
                 r = true;
@@ -690,35 +695,35 @@ namespace ExpressionAPI
     }
     internal sealed class GetActivityExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
 #if UNITY_ANDROID
-            r = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+            r = CalculatorValue.FromObject(new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"));
 #endif
             return r;
         }
     }
     internal sealed class GetIntentExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
 #if UNITY_ANDROID
             var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
-            r = act.Call<AndroidJavaObject>("getIntent");
+            r = CalculatorValue.FromObject(act.Call<AndroidJavaObject>("getIntent"));
 #endif
             return r;
         }
     }
     internal sealed class GetStringExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
-                var str = operands[0] as string;
+                var str = operands[0].AsString;
                 if (!string.IsNullOrEmpty(str)) {
                     var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                     var intent = act.Call<AndroidJavaObject>("getIntent");
@@ -731,16 +736,16 @@ namespace ExpressionAPI
     }
     internal sealed class GetStringArrayExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
-                var str = operands[0] as string;
+                var str = operands[0].AsString;
                 if (!string.IsNullOrEmpty(str)) {
                     var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                     var intent = act.Call<AndroidJavaObject>("getIntent");
-                    r = intent.Call<string[]>("getStringArrayExtra", str);
+                    r = CalculatorValue.FromObject(intent.Call<string[]>("getStringArrayExtra", str));
                 }
             }
 #endif
@@ -749,12 +754,12 @@ namespace ExpressionAPI
     }
     internal sealed class GetIntExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
-                var str = operands[0] as string;
+                var str = operands[0].AsString;
                 if (!string.IsNullOrEmpty(str)) {
                     var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                     var intent = act.Call<AndroidJavaObject>("getIntent");
@@ -767,16 +772,16 @@ namespace ExpressionAPI
     }
     internal sealed class GetIntArrayExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
-                var str = operands[0] as string;
+                var str = operands[0].AsString;
                 if (!string.IsNullOrEmpty(str)) {
                     var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                     var intent = act.Call<AndroidJavaObject>("getIntent");
-                    r = intent.Call<int[]>("getIntArrayExtra", str);
+                    r = CalculatorValue.FromObject(intent.Call<int[]>("getIntArrayExtra", str));
                 }
             }
 #endif
@@ -785,12 +790,12 @@ namespace ExpressionAPI
     }
     internal sealed class GetLongExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
-                var str = operands[0] as string;
+                var str = operands[0].AsString;
                 if (!string.IsNullOrEmpty(str)) {
                     var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                     var intent = act.Call<AndroidJavaObject>("getIntent");
@@ -803,16 +808,16 @@ namespace ExpressionAPI
     }
     internal sealed class GetLongArrayExp : SimpleExpressionBase
     {
-        protected override object OnCalc(IList<object> operands)
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
-            object r = null;
+            var r = CalculatorValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
-                var str = operands[0] as string;
+                var str = operands[0].AsString;
                 if (!string.IsNullOrEmpty(str)) {
                     var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                     var intent = act.Call<AndroidJavaObject>("getIntent");
-                    r = intent.Call<long[]>("getLongArrayExtra", str);
+                    r = CalculatorValue.FromObject(intent.Call<long[]>("getLongArrayExtra", str));
                 }
             }
 #endif
