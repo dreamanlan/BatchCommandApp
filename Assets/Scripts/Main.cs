@@ -24,6 +24,7 @@ public class Main : MonoBehaviour
 
         Application.logMessageReceived += HandleLog;
 
+        m_Calculator.OnLog = msg => { Debug.LogErrorFormat("{0}", msg); };
         m_Calculator.Init();
         m_Calculator.Register("copypdf", new ExpressionFactoryHelper<CopyPdfExp>());
         m_Calculator.Register("setclipboard", new ExpressionFactoryHelper<SetClipboardExp>());
