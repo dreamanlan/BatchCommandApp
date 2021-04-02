@@ -38,6 +38,8 @@ public class Main : MonoBehaviour
         m_Calculator.Register("getdevicemodel", new ExpressionFactoryHelper<GetDeviceModelExp>());
         m_Calculator.Register("getdevicename", new ExpressionFactoryHelper<GetDeviceNameExp>());
         m_Calculator.Register("getdeviceuid", new ExpressionFactoryHelper<GetDeviceUidExp>());
+        m_Calculator.Register("getprocessortype", new ExpressionFactoryHelper<GetProcessorTypeExp>());
+        m_Calculator.Register("getos", new ExpressionFactoryHelper<GetOSExp>());
         m_Calculator.Register("getgfxname", new ExpressionFactoryHelper<GetGraphicsDeviceNameExp>());
         m_Calculator.Register("getgfxvendor", new ExpressionFactoryHelper<GetGraphicsDeviceVendorExp>());
         m_Calculator.Register("getgfxversion", new ExpressionFactoryHelper<GetGraphicsDeviceVersionExp>());
@@ -374,6 +376,20 @@ namespace ExpressionAPI
         protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             return SystemInfo.deviceUniqueIdentifier;
+        }
+    }
+    internal sealed class GetProcessorTypeExp : SimpleExpressionBase
+    {
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        {
+            return SystemInfo.processorType;
+        }
+    }
+    internal sealed class GetOSExp : SimpleExpressionBase
+    {
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        {
+            return SystemInfo.operatingSystem;
         }
     }
     internal sealed class GetGraphicsDeviceNameExp : SimpleExpressionBase
