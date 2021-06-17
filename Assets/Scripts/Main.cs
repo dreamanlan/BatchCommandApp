@@ -76,6 +76,8 @@ public class Main : MonoBehaviour
         m_Calculator.Register("getlongarray", new ExpressionFactoryHelper<GetLongArrayExp>());
 
         StartCoroutine(Loop());
+
+        OnExecCommand("setloggcsize(16,40960000);loggc(1);showmemory();loop(10){allocmemory('m'+$$,1024);};unloadunused();gc();showmemory();loggc(0);");
     }
 
     private IEnumerator Loop()
@@ -618,6 +620,9 @@ namespace ExpressionAPI
                 string file = operands[0].AsString;
                 uint flags = operands[1].Get<uint>();
                 if (null != file) {
+                    if (string.IsNullOrEmpty(file)) {
+                        file = string.Format("cms_{0}_snapshot", System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fff"));
+                    }
                     if (System.IO.Path.GetExtension(file) != ".snap")
                         file = System.IO.Path.ChangeExtension(file, ".snap");
                     if (!System.IO.Path.IsPathRooted(file)) {
@@ -647,6 +652,9 @@ namespace ExpressionAPI
                 if (operands.Count >= 2)
                     file = operands[1].AsString;
                 if (val != 0) {
+                    if (string.IsNullOrEmpty(file)) {
+                        file = string.Format("loggc_{0}_alloc", System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fff"));
+                    }
                     if (!string.IsNullOrEmpty(file)) {
                         if (System.IO.Path.GetExtension(file) != ".txt")
                             file = System.IO.Path.ChangeExtension(file, ".txt");
