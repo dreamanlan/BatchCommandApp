@@ -422,7 +422,7 @@ namespace ExpressionAPI
 #if UNITY_ANDROID
             return 0;
 #else
-            return UnityEngine.iOS.Device.generation;
+            return (int)UnityEngine.iOS.Device.generation;
 #endif
         }
     }
