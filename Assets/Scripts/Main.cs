@@ -628,7 +628,7 @@ namespace ExpressionAPI
                     if (!System.IO.Path.IsPathRooted(file)) {
                         file = System.IO.Path.Combine(Application.persistentDataPath, file);
                     }
-                    UnityHacker.CaptureMemorySnapshot(file, flags);
+                    //UnityHacker.CaptureMemorySnapshot(file, flags);
 #if UNITY_ANDROID
                     string dirName = System.IO.Path.GetDirectoryName(file);
                     string fileName = System.IO.Path.GetFileNameWithoutExtension(file);
@@ -666,12 +666,12 @@ namespace ExpressionAPI
                         string fileName = System.IO.Path.GetFileNameWithoutExtension(file);
                         File.WriteAllText(System.IO.Path.Combine(dirName, fileName + "_maps.txt"), File.ReadAllText("/proc/self/maps"));
 #endif
-                        UnityHacker.StartGcLogger(file);
+                        //UnityHacker.StartGcLogger(file);
                         r = true;
                     }
                 }
                 else {
-                    UnityHacker.StopGcLogger();
+                    //UnityHacker.StopGcLogger();
                     r = true;
                 }
             }
@@ -686,7 +686,7 @@ namespace ExpressionAPI
             if (operands.Count >= 2) {
                 uint minSize = operands[0].Get<uint>();
                 uint maxSize = operands[1].Get<uint>();
-                UnityHacker.SetLogGcAllocSize(minSize, maxSize);
+                //UnityHacker.SetLogGcAllocSize(minSize, maxSize);
                 r = true;
             }
             return r;
@@ -700,7 +700,7 @@ namespace ExpressionAPI
             if (operands.Count >= 2) {
                 uint minSize = operands[0].Get<uint>();
                 uint maxSize = operands[1].Get<uint>();
-                UnityHacker.SetLogNativeAllocSize(minSize, maxSize);
+                //UnityHacker.SetLogNativeAllocSize(minSize, maxSize);
                 r = true;
             }
             return r;

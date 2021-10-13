@@ -109,13 +109,19 @@ public class DebugConsole : MonoBehaviour
     bool dirty;
     #region GUI position values
     // Make these values public if you want to adjust layout of console window
-
-    readonly Rect scrollRect = new Rect(10, 20, 280, 560);
-    readonly Rect inputRect = new Rect(10, 584, 228, 24);
-    readonly Rect enterRect = new Rect(240, 584, 50, 24);
-    readonly Rect toolbarRect = new Rect(16, 612, 266, 25);
+#if MOBILE
+    readonly Rect scrollRect = new Rect(10, 20, 280, 190);
+    readonly Rect inputRect = new Rect(10, 214, 228, 24);
+    readonly Rect enterRect = new Rect(240, 214, 50, 24);
+    readonly Rect toolbarRect = new Rect(16, 242, 266, 25);
     Rect messageLine = new Rect(4, 0, 264, 20);
-
+#else
+    readonly Rect scrollRect = new Rect(10, 20, 280, 360);
+    readonly Rect inputRect = new Rect(10, 384, 228, 24);
+    readonly Rect enterRect = new Rect(240, 384, 50, 24);
+    readonly Rect toolbarRect = new Rect(16, 412, 266, 25);
+    Rect messageLine = new Rect(4, 0, 264, 20);
+#endif
     int lineOffset = -4;
     string[] tabs = new string[] { "Log", "View" };
 
@@ -336,11 +342,9 @@ public class DebugConsole : MonoBehaviour
 
     void OnEnable()
     {
-        var scaleh = Screen.height / 720f;
-        var scalew = Screen.width / 300;
-        var scale = scaleh <= scalew ? scaleh : scalew;
+        var scale = Screen.dpi / 160.0f;
 
-        if (scale != 0.0f) {
+        if (scale != 0.0f && scale >= 1.1f) {
             _scaled = true;
             _guiScale.Set(scale, scale, scale);
         }
@@ -355,11 +359,13 @@ public class DebugConsole : MonoBehaviour
         Message.outputColor = outputColor;
 #if MOBILE
         this.useGUILayout = false;
-        _windowRect = new Rect(5.0f, 35.0f, 300.0f, 640.0f);
+        //_windowRect = new Rect(5.0f, 5.0f, 300.0f, 450.0f);
+        _windowRect = new Rect(5.0f, 5.0f, 300.0f, 280.0f);
         _fakeWindowRect = new Rect(0.0f, 0.0f, _windowRect.width, _windowRect.height);
         _fakeDragRect = new Rect(0.0f, 0.0f, _windowRect.width - 32, 24);
 #else
-        _windowRect = new Rect(30.0f, 60.0f, 300.0f, 640.0f);
+        _windowRect = new Rect(30.0f, 30.0f, 300.0f, 450.0f);
+        //_windowRect = new Rect(30.0f, 30.0f, 300.0f, 280.0f);
 #endif
 
         LogMessage(Message.System(string.Format(" DebugConsole version {0}", VERSION)));
