@@ -8568,7 +8568,7 @@ namespace DslExpression
                 m_ExpressionFactories[name] = factory;
             }
         }
-        public void Cleanup()
+        public void Clear()
         {
             m_Procs.Clear();
             m_Stack.Clear();

@@ -124,7 +124,7 @@ public class Main : MonoBehaviour
 
     private void OnReset()
     {
-        m_Calculator.Cleanup();
+        m_Calculator.Clear();
     }
 
     private void OnCommand(string cmd)
