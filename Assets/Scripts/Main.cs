@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -155,7 +155,7 @@ public class Main : MonoBehaviour
         }
         var r = s_Instance.m_Calculator.Calc(proc, vargs);
         s_Instance.m_Calculator.RecycleCalculatorValueList(vargs);
-        return r.Get<object>();
+        return r.GetObject();
     }
     public static void AddKeyValue(string key, object val)
     {
@@ -179,8 +179,8 @@ namespace ExpressionAPI
         protected override CalculatorValue DoCalc()
         {
             string file = m_File.Calc().AsString;
-            int start = m_Start.Calc().Get<int>();
-            int count = m_Count.Calc().Get<int>();
+            int start = m_Start.Calc().GetInt();
+            int count = m_Count.Calc().GetInt();
             CopyPdf(file, start, count);
             return count;
         }
@@ -305,7 +305,7 @@ namespace ExpressionAPI
                     var str = operands[0].AsString;
                     var al = new ArrayList();
                     for (int i = 1; i < operands.Count; ++i) {
-                        al.Add(operands[i].Get<object>());
+                        al.Add(operands[i].GetObject());
                     }
                     if (!string.IsNullOrEmpty(str)) {
                         r = CalculatorValue.FromObject(new JavaObject(str, al.ToArray()));
@@ -346,7 +346,7 @@ namespace ExpressionAPI
         {
             var r = CalculatorValue.NullObject;
             if (operands.Count >= 1) {
-                int objId = operands[0].Get<int>();
+                int objId = operands[0].GetInt();
                 return CalculatorValue.FromObject(new ObjectcObject(objId));
             }
             return r;
@@ -527,7 +527,7 @@ namespace ExpressionAPI
             var r = CalculatorValue.NullObject;
             if (operands.Count >= 2) {
                 string key = operands[0].AsString;
-                int size = operands[1].Get<int>();
+                int size = operands[1].GetInt();
                 if (null != key) {
                     byte[] m = new byte[size];
                     for (int i = 0; i < size; ++i) {
@@ -563,7 +563,7 @@ namespace ExpressionAPI
             var r = CalculatorValue.NullObject;
             if (operands.Count >= 2) {
                 string key = operands[0].AsString;
-                int size = operands[1].Get<int>();
+                int size = operands[1].GetInt();
                 if (null != key) {
                     System.IntPtr m = System.Runtime.InteropServices.Marshal.AllocHGlobal(size);
                     unsafe {
@@ -618,7 +618,7 @@ namespace ExpressionAPI
             bool r = false;
             if (operands.Count >= 2) {
                 string file = operands[0].AsString;
-                uint flags = operands[1].Get<uint>();
+                uint flags = operands[1].GetUInt();
                 if (null != file) {
                     if (string.IsNullOrEmpty(file)) {
                         file = string.Format("cms_{0}_snapshot", System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fff"));
@@ -647,7 +647,7 @@ namespace ExpressionAPI
         {
             bool r = false;
             if (operands.Count >= 1) {
-                int val = operands[0].Get<int>();
+                int val = operands[0].GetInt();
                 string file = string.Empty;
                 if (operands.Count >= 2)
                     file = operands[1].AsString;
@@ -684,8 +684,8 @@ namespace ExpressionAPI
         {
             bool r = false;
             if (operands.Count >= 2) {
-                uint minSize = operands[0].Get<uint>();
-                uint maxSize = operands[1].Get<uint>();
+                uint minSize = operands[0].GetUInt();
+                uint maxSize = operands[1].GetUInt();
                 //UnityHacker.SetLogGcAllocSize(minSize, maxSize);
                 r = true;
             }
@@ -698,8 +698,8 @@ namespace ExpressionAPI
         {
             bool r = false;
             if (operands.Count >= 2) {
-                uint minSize = operands[0].Get<uint>();
-                uint maxSize = operands[1].Get<uint>();
+                uint minSize = operands[0].GetUInt();
+                uint maxSize = operands[1].GetUInt();
                 //UnityHacker.SetLogNativeAllocSize(minSize, maxSize);
                 r = true;
             }
