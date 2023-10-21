@@ -2,14 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
-using UnityEngine.Scripting;
 using UnityEngine;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
 using DslExpression;
 using ExpressionAPI;
+using Dsl;
 
 public class Main : MonoBehaviour
 {
@@ -91,13 +89,11 @@ public class Main : MonoBehaviour
             }
         }
     }
-
     private void HandleLog(string logString, string stackTrace, LogType type)
     {
         DebugConsole.Log("[" + type.ToString() + "]" + logString);
     }
-
-    private void OnExecCommand(string cmd)
+    private CalculatorValue OnExecCommand(string cmd)
     {
         Dsl.DslFile file = new Dsl.DslFile();
         if(file.LoadFromString(string.Format("script(){{{0};}};", cmd), msg => Debug.LogWarning(msg))) {
@@ -110,10 +106,11 @@ public class Main : MonoBehaviour
             else {
                 DebugConsole.Log("result:null");
             }
+            return r;
         }
+        return CalculatorValue.NullObject;
     }
-
-    private void OnScript(string file)
+    private void OnLoadScript(string file)
     {
         var basePath = Application.persistentDataPath;
         if (!System.IO.Path.IsPathRooted(file)) {
@@ -121,31 +118,77 @@ public class Main : MonoBehaviour
         }
         m_Calculator.LoadDsl(file);
     }
-
     private void OnReset()
     {
         m_Calculator.Clear();
-    }
-
-    private void OnCommand(string cmd)
-    {
-        var vals = cmd.Split(' ', ',', ';', '|');
-        string proc = vals[0];
-        ArrayList al = new ArrayList(vals);
-        al.RemoveAt(0);
-        Call(proc, al.ToArray());
-    }
-
-    private void OnLog(string info)
-    {
-        DebugConsole.Log(info);
     }
 
     private StringBuilder m_LogBuilder = new StringBuilder();
     private DslExpression.DslCalculator m_Calculator = new DslExpression.DslCalculator();
     private Dictionary<string, object> m_KeyValues = new Dictionary<string, object>();
 
-    public static object Call(string proc, params object[] args)
+    public static void Reset()
+    {
+        s_Instance.OnReset();
+    }
+    public static void LoadScript(string file)
+    {
+        s_Instance.OnLoadScript(file);
+    }
+    public static CalculatorValue ExecCommand(string cmd)
+    {
+        return s_Instance.OnExecCommand(cmd);
+    }
+    public static void ResetStory()
+    {
+        GameObject obj = GameObject.Find("StartScript");
+        if (null != obj) {
+            obj.SendMessage("OnResetStory");
+        }
+    }
+    public static void ExecStoryCommand(string cmd)
+    {
+        GameObject obj = GameObject.Find("StartScript");
+        if (null != obj) {
+            obj.SendMessage("OnExecStoryCommand", cmd);
+        }
+    }
+    public static void ExecStoryFile(string file)
+    {
+        GameObject obj = GameObject.Find("StartScript");
+        if (null != obj) {
+            obj.SendMessage("OnExecStoryFile", file);
+        }
+    }
+
+    public static CalculatorValue EvalAndRun(string code)
+    {
+        CalculatorValue r = CalculatorValue.EmptyString;
+        var file = new Dsl.DslFile();
+        if (file.LoadFromString(code, msg => Debug.LogWarning(msg))) {
+            r = EvalAndRun(file.DslInfos);
+        }
+        return r;
+    }
+    public static CalculatorValue EvalAndRun(params ISyntaxComponent[] expressions)
+    {
+        IList<ISyntaxComponent> exps = expressions;
+        return EvalAndRun(exps);
+    }
+    public static CalculatorValue EvalAndRun(IList<ISyntaxComponent> expressions)
+    {
+        CalculatorValue r = CalculatorValue.EmptyString;
+        List<IExpression> exps = new List<IExpression>();
+        s_Instance.m_Calculator.LoadDsl(expressions, exps);
+        r = s_Instance.m_Calculator.CalcInCurrentContext(exps);
+        return r;
+    }
+    public static void EvalAsFunc(string name, Dsl.FunctionData func, IList<string> argNames)
+    {
+        Debug.Assert(null != func);
+        s_Instance.m_Calculator.LoadDsl(name, argNames, func);
+    }
+    public static object Call(string func, params object[] args)
     {
         if (null == s_Instance)
             return null;
@@ -153,7 +196,7 @@ public class Main : MonoBehaviour
         foreach(var arg in args) {
             vargs.Add(CalculatorValue.FromObject(arg));
         }
-        var r = s_Instance.m_Calculator.Calc(proc, vargs);
+        var r = s_Instance.m_Calculator.Calc(func, vargs);
         s_Instance.m_Calculator.RecycleCalculatorValueList(vargs);
         return r.GetObject();
     }
@@ -169,7 +212,197 @@ public class Main : MonoBehaviour
     {
         return s_Instance.m_KeyValues.TryGetValue(key, out val);
     }
+
     private static Main s_Instance = null;
+}
+
+public static class VariantValue
+{
+    public static BoxedValue ToBoxedValue(CalculatorValue other)
+    {
+        BoxedValue newVal = new BoxedValue();
+        switch (other.Type) {
+            case CalculatorValue.c_ObjectType:
+                var objVal = other.ObjectVal;
+                if (objVal is Vector2) {
+                    newVal.Type = BoxedValue.c_Vector2Type;
+                    newVal.Union.Vector2Val = (Vector2)other.ObjectVal;
+                }
+                else if (objVal is Vector3) {
+                    newVal.Type = BoxedValue.c_Vector3Type;
+                    newVal.Union.Vector3Val = (Vector3)other.ObjectVal;
+                }
+                else if (objVal is Vector4) {
+                    newVal.Type = BoxedValue.c_Vector4Type;
+                    newVal.Union.Vector4Val = (Vector4)other.ObjectVal;
+                }
+                else if (objVal is Quaternion) {
+                    newVal.Type = BoxedValue.c_QuaternionType;
+                    newVal.Union.QuaternionVal = (Quaternion)other.ObjectVal;
+                }
+                else if (objVal is Color) {
+                    newVal.Type = BoxedValue.c_ColorType;
+                    newVal.Union.ColorVal = (Color)other.ObjectVal;
+                }
+                else if (objVal is Color32) {
+                    newVal.Type = BoxedValue.c_Color32Type;
+                    newVal.Union.Color32Val = (Color32)other.ObjectVal;
+                }
+                else {
+                    newVal.Type = BoxedValue.c_ObjectType;
+                    newVal.ObjectVal = other.ObjectVal;
+                }
+                break;
+            case CalculatorValue.c_StringType:
+                newVal.Type = BoxedValue.c_StringType;
+                newVal.StringVal = other.StringVal;
+                break;
+            case CalculatorValue.c_BoolType:
+                newVal.Type = BoxedValue.c_BoolType;
+                newVal.Union.BoolVal = other.Union.BoolVal;
+                break;
+            case CalculatorValue.c_CharType:
+                newVal.Type = BoxedValue.c_CharType;
+                newVal.Union.CharVal = other.Union.CharVal;
+                break;
+            case CalculatorValue.c_SByteType:
+                newVal.Type = BoxedValue.c_SByteType;
+                newVal.Union.SByteVal = other.Union.SByteVal;
+                break;
+            case CalculatorValue.c_ShortType:
+                newVal.Type = BoxedValue.c_ShortType;
+                newVal.Union.ShortVal = other.Union.ShortVal;
+                break;
+            case CalculatorValue.c_IntType:
+                newVal.Type = BoxedValue.c_IntType;
+                newVal.Union.IntVal = other.Union.IntVal;
+                break;
+            case CalculatorValue.c_LongType:
+                newVal.Type = BoxedValue.c_LongType;
+                newVal.Union.LongVal = other.Union.LongVal;
+                break;
+            case CalculatorValue.c_ByteType:
+                newVal.Type = BoxedValue.c_ByteType;
+                newVal.Union.ByteVal = other.Union.ByteVal;
+                break;
+            case CalculatorValue.c_UShortType:
+                newVal.Type = BoxedValue.c_UShortType;
+                newVal.Union.UShortVal = other.Union.UShortVal;
+                break;
+            case CalculatorValue.c_UIntType:
+                newVal.Type = BoxedValue.c_UIntType;
+                newVal.Union.UIntVal = other.Union.UIntVal;
+                break;
+            case CalculatorValue.c_ULongType:
+                newVal.Type = BoxedValue.c_ULongType;
+                newVal.Union.ULongVal = other.Union.ULongVal;
+                break;
+            case CalculatorValue.c_FloatType:
+                newVal.Type = BoxedValue.c_FloatType;
+                newVal.Union.FloatVal = other.Union.FloatVal;
+                break;
+            case CalculatorValue.c_DoubleType:
+                newVal.Type = BoxedValue.c_DoubleType;
+                newVal.Union.DoubleVal = other.Union.DoubleVal;
+                break;
+            case CalculatorValue.c_DecimalType:
+                newVal.Type = BoxedValue.c_DecimalType;
+                newVal.Union.DecimalVal = other.Union.DecimalVal;
+                break;
+        }
+        return newVal;
+    }
+    public static CalculatorValue ToCalculatorValue(BoxedValue other)
+    {
+        CalculatorValue newVal = new CalculatorValue();
+        switch (other.Type) {
+            case BoxedValue.c_ObjectType:
+                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.ObjectVal = other.ObjectVal;
+                break;
+            case BoxedValue.c_StringType:
+                newVal.Type = CalculatorValue.c_StringType;
+                newVal.StringVal = other.StringVal;
+                break;
+            case BoxedValue.c_BoolType:
+                newVal.Type = CalculatorValue.c_BoolType;
+                newVal.Union.BoolVal = other.Union.BoolVal;
+                break;
+            case BoxedValue.c_CharType:
+                newVal.Type = CalculatorValue.c_CharType;
+                newVal.Union.CharVal = other.Union.CharVal;
+                break;
+            case BoxedValue.c_SByteType:
+                newVal.Type = CalculatorValue.c_SByteType;
+                newVal.Union.SByteVal = other.Union.SByteVal;
+                break;
+            case BoxedValue.c_ShortType:
+                newVal.Type = CalculatorValue.c_ShortType;
+                newVal.Union.ShortVal = other.Union.ShortVal;
+                break;
+            case BoxedValue.c_IntType:
+                newVal.Type = CalculatorValue.c_IntType;
+                newVal.Union.IntVal = other.Union.IntVal;
+                break;
+            case BoxedValue.c_LongType:
+                newVal.Type = CalculatorValue.c_LongType;
+                newVal.Union.LongVal = other.Union.LongVal;
+                break;
+            case BoxedValue.c_ByteType:
+                newVal.Type = CalculatorValue.c_ByteType;
+                newVal.Union.ByteVal = other.Union.ByteVal;
+                break;
+            case BoxedValue.c_UShortType:
+                newVal.Type = CalculatorValue.c_UShortType;
+                newVal.Union.UShortVal = other.Union.UShortVal;
+                break;
+            case BoxedValue.c_UIntType:
+                newVal.Type = CalculatorValue.c_UIntType;
+                newVal.Union.UIntVal = other.Union.UIntVal;
+                break;
+            case BoxedValue.c_ULongType:
+                newVal.Type = CalculatorValue.c_ULongType;
+                newVal.Union.ULongVal = other.Union.ULongVal;
+                break;
+            case BoxedValue.c_FloatType:
+                newVal.Type = CalculatorValue.c_FloatType;
+                newVal.Union.FloatVal = other.Union.FloatVal;
+                break;
+            case BoxedValue.c_DoubleType:
+                newVal.Type = CalculatorValue.c_DoubleType;
+                newVal.Union.DoubleVal = other.Union.DoubleVal;
+                break;
+            case BoxedValue.c_DecimalType:
+                newVal.Type = CalculatorValue.c_DecimalType;
+                newVal.Union.DecimalVal = other.Union.DecimalVal;
+                break;
+            case BoxedValue.c_Vector2Type:
+                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.ObjectVal = other.Union.Vector2Val;
+                break;
+            case BoxedValue.c_Vector3Type:
+                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.ObjectVal = other.Union.Vector3Val;
+                break;
+            case BoxedValue.c_Vector4Type:
+                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.ObjectVal = other.Union.Vector4Val;
+                break;
+            case BoxedValue.c_QuaternionType:
+                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.ObjectVal = other.Union.QuaternionVal;
+                break;
+            case BoxedValue.c_ColorType:
+                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.ObjectVal = other.Union.ColorVal;
+                break;
+            case BoxedValue.c_Color32Type:
+                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.ObjectVal = other.Union.Color32Val;
+                break;
+        }
+        return newVal;
+    }
 }
 
 namespace ExpressionAPI

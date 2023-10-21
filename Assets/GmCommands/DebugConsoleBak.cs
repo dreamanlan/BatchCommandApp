@@ -13,7 +13,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 #if DEBUG_CONSOLE
-public class DebugConsole : MonoBehaviour
+public class DebugConsoleBak : MonoBehaviour
 {
     readonly string VERSION = "3.0";
     readonly string ENTRYFIELD = "DebugConsoleEntryField";
@@ -40,36 +40,36 @@ public class DebugConsole : MonoBehaviour
     /// </summary>
     public static bool IsOpen
     {
-        get { return DebugConsole.Instance._isOpen; }
-        set { DebugConsole.Instance._isOpen = value; }
+        get { return DebugConsoleBak.Instance._isOpen; }
+        set { DebugConsoleBak.Instance._isOpen = value; }
     }
 
     public static bool IsLastHitUi
     {
-        get { return DebugConsole.Instance._isLastHitUi; }
-        set { DebugConsole.Instance._isLastHitUi = value; }
+        get { return DebugConsoleBak.Instance._isLastHitUi; }
+        set { DebugConsoleBak.Instance._isLastHitUi = value; }
     }
 
     /// <summary>
     /// Static instance of the console.
     ///
     /// When you want to access the console without a direct
-    /// reference (which you do in mose cases), use DebugConsole.Instance and the required
+    /// reference (which you do in mose cases), use DebugConsoleBak.Instance and the required
     /// GameObject initialization will be done for you.
     /// </summary>
-    static DebugConsole Instance
+    static DebugConsoleBak Instance
     {
         get
         {
             if (_instance == null) {
-                _instance = FindObjectOfType(typeof(DebugConsole)) as DebugConsole;
+                _instance = FindObjectOfType(typeof(DebugConsoleBak)) as DebugConsoleBak;
 
                 if (_instance != null) {
                     return _instance;
                 }
 
                 GameObject console = new GameObject("__Debug Console__");
-                _instance = console.AddComponent<DebugConsole>();
+                _instance = console.AddComponent<DebugConsoleBak>();
             }
 
             return _instance;
@@ -80,7 +80,7 @@ public class DebugConsole : MonoBehaviour
     /// Key to press to toggle the visibility of the console.
     /// </summary>
     public static KeyCode toggleKey = KeyCode.BackQuote;
-    static DebugConsole _instance;
+    static DebugConsoleBak _instance;
     Dictionary<string, DebugCommand> _cmdTable = new Dictionary<string, DebugCommand>();
     string _inputString = string.Empty;
     Rect _windowRect;
@@ -390,7 +390,7 @@ public class DebugConsole : MonoBehaviour
         //_windowRect = new Rect(30.0f, 30.0f, 300.0f, 280.0f);
 #endif
 
-        LogMessage(Message.System(string.Format(" DebugConsole version {0}", VERSION)));
+        LogMessage(Message.System(string.Format(" DebugConsoleBak version {0}", VERSION)));
         LogMessage(Message.System(" Copyright 2008-2010 Jeremy Hollingsworth "));
         LogMessage(Message.System(" Ennanzus-Interactive.com "));
         LogMessage(Message.System(" type '/?' for available commands."));
@@ -401,15 +401,12 @@ public class DebugConsole : MonoBehaviour
         this.RegisterCommandCallback("sys", CMDSystemInfo);
         this.RegisterCommandCallback("level", CMDLevel);
         this.RegisterCommandCallback("vsync", CMDVSync);
+        this.RegisterCommandCallback("reset", CMDReset);
         this.RegisterCommandCallback("script", CMDScript);
         this.RegisterCommandCallback("scp", CMDScript);
         this.RegisterCommandCallback("command", CMDCommand);
         this.RegisterCommandCallback("cmd", CMDCommand);
-        this.RegisterCommandCallback("story", CMDStory);
-        this.RegisterCommandCallback("s", CMDStory);
-        this.RegisterCommandCallback("storyfile", CMDStoryFile);
-        this.RegisterCommandCallback("sf", CMDStoryFile);
-        this.RegisterCommandCallback("reset", CMDReset);
+        this.RegisterCommandCallback("gm", CMDGm);
         this.RegisterCommandCallback("filter", CMDFilter);
         this.RegisterCommandCallback("/?", CMDHelp);
     }
@@ -609,7 +606,7 @@ public class DebugConsole : MonoBehaviour
     /// <param name="message">Message to print.</param>
     public static object Log(object message)
     {
-        DebugConsole.Instance.LogMessage(Message.Log(message));
+        DebugConsoleBak.Instance.LogMessage(Message.Log(message));
 
         return message;
     }
@@ -627,7 +624,7 @@ public class DebugConsole : MonoBehaviour
     /// formatting in order to distinguish between message types.</param>
     public static object Log(object message, MessageType messageType)
     {
-        DebugConsole.Instance.LogMessage(new Message(message, messageType));
+        DebugConsoleBak.Instance.LogMessage(new Message(message, messageType));
 
         return message;
     }
@@ -639,7 +636,7 @@ public class DebugConsole : MonoBehaviour
     /// <param name="displayColor">The text color to use when displaying the message.</param>
     public static object Log(object message, Color displayColor)
     {
-        DebugConsole.Instance.LogMessage(new Message(message, displayColor));
+        DebugConsoleBak.Instance.LogMessage(new Message(message, displayColor));
 
         return message;
     }
@@ -655,7 +652,7 @@ public class DebugConsole : MonoBehaviour
     /// if the default color for the message type should be used instead.</param>
     public static object Log(object message, MessageType messageType, Color displayColor)
     {
-        DebugConsole.Instance.LogMessage(new Message(message, messageType, displayColor));
+        DebugConsoleBak.Instance.LogMessage(new Message(message, messageType, displayColor));
 
         return message;
     }
@@ -666,7 +663,7 @@ public class DebugConsole : MonoBehaviour
     /// <param name="message">Message to print.</param>
     public static object LogWarning(object message)
     {
-        DebugConsole.Instance.LogMessage(Message.Warning(message));
+        DebugConsoleBak.Instance.LogMessage(Message.Warning(message));
 
         return message;
     }
@@ -677,7 +674,7 @@ public class DebugConsole : MonoBehaviour
     /// <param name="message">Message to print.</param>
     public static object LogError(object message)
     {
-        DebugConsole.Instance.LogMessage(Message.Error(message));
+        DebugConsoleBak.Instance.LogMessage(Message.Error(message));
 
         return message;
     }
@@ -690,7 +687,7 @@ public class DebugConsole : MonoBehaviour
      Conditional("DEVELOPMENT_BUILD")]
     public static void Clear()
     {
-        DebugConsole.Instance.ClearLog();
+        DebugConsoleBak.Instance.ClearLog();
     }
 
     /// <summary>
@@ -702,7 +699,7 @@ public class DebugConsole : MonoBehaviour
      Conditional("DEVELOPMENT_BUILD")]
     public static void Execute(string commandString)
     {
-        DebugConsole.Instance.EvalInputString(commandString);
+        DebugConsoleBak.Instance.EvalInputString(commandString);
     }
 
     /// <summary>
@@ -716,7 +713,7 @@ public class DebugConsole : MonoBehaviour
      Conditional("DEVELOPMENT_BUILD")]
     public static void RegisterCommand(string commandString, DebugCommand commandCallback)
     {
-        DebugConsole.Instance.RegisterCommandCallback(commandString, commandCallback);
+        DebugConsoleBak.Instance.RegisterCommandCallback(commandString, commandCallback);
     }
 
     /// <summary>
@@ -728,7 +725,7 @@ public class DebugConsole : MonoBehaviour
      Conditional("DEVELOPMENT_BUILD")]
     public static void UnRegisterCommand(string commandString)
     {
-        DebugConsole.Instance.UnRegisterCommandCallback(commandString);
+        DebugConsoleBak.Instance.UnRegisterCommandCallback(commandString);
     }
 
 #endregion
@@ -827,57 +824,57 @@ public class DebugConsole : MonoBehaviour
         count = QualitySettings.vSyncCount;
         return string.Format("frame rate:{0} vsync count:{1}", frameRate, count);
     }
-    
+
+    object CMDReset(params string[] args)
+    {
+        GameObject obj = GameObject.Find("StartScript");
+        if (null != obj) {
+            obj.SendMessage("OnResetStory", null);
+        }
+        return "reset finish.";
+    }
+
+    object CMDScript(params string[] args)
+    {
+        if (args.Length == 2) {
+            GameObject obj = GameObject.Find("StartScript");
+            if (null != obj) {
+                obj.SendMessage("OnExecStoryFile", args[1]);
+            }
+            return "script " + args[1];
+        } else {
+            GameObject obj = GameObject.Find("StartScript");
+            if (null != obj) {
+                obj.SendMessage("OnExecStoryFile", "");
+            }
+            return "script";
+        }
+    }
+
     object CMDCommand(params string[] args)
     {
         if (args.Length == 2) {
-            Main.ExecCommand(args[1]);
+            GameObject obj = GameObject.Find("StartScript");
+            if (null != obj) {
+                obj.SendMessage("OnExecStoryCommand", args[1]);
+            }
             return "command " + args[1];
         } else {
             return "cmd need argument command.";
         }
     }
 
-    object CMDScript(params string[] args)
+    object CMDGm(params string[] args)
     {
         if (args.Length == 2) {
-            Main.LoadScript(args[1]);
-            return "script " + args[1];
+            GameObject obj = GameObject.Find("StartScript");
+            if (null != obj) {
+                obj.SendMessage("OnExecStoryCommand", "gm(\"" + args[1] + "\");");
+            }
+            return "gm " + args[1];
         } else {
-            return "scp need argument script_file.";
+            return "gm need argument gm_command.";
         }
-    }
-
-    object CMDStory(params string[] args)
-    {
-        if (args.Length == 2) {
-            Main.ExecStoryCommand(args[1]);
-            return "s " + args[1];
-        }
-        else {
-            return "s need argument story_command.";
-        }
-    }
-
-    object CMDStoryFile(params string[] args)
-    {
-        if (args.Length == 2) {
-            Main.ExecStoryFile(args[1]);
-            return "sf " + args[1];
-        }
-        else {
-            return "sf need argument story_file.";
-        }
-    }
-
-    object CMDReset(params string[] args)
-    {
-        GameObject obj = GameObject.Find("StartScript");
-        if (null != obj) {
-            obj.SendMessage("OnReset");
-            obj.SendMessage("OnResetStory");
-        }
-        return "reset";
     }
 	
     object CMDFilter(params string[] args)
@@ -1056,11 +1053,7 @@ public class DebugConsole : MonoBehaviour
             cmd = inputString.Substring(0, startIx).Trim().ToLower();
             string leftCmd = inputString.Substring(startIx + 1).Trim();
             input.Add(cmd);
-            if (0 == cmd.CompareTo("command") || 0 == cmd.CompareTo("cmd") ||
-                0 == cmd.CompareTo("script") || 0 == cmd.CompareTo("scp") ||
-                0 == cmd.CompareTo("story") || 0 == cmd.CompareTo("s") ||
-                0 == cmd.CompareTo("storyfile") || 0 == cmd.CompareTo("sf") ||
-                0 == cmd.CompareTo("gm")) {
+            if (0 == cmd.CompareTo("command") || 0 == cmd.CompareTo("cmd") || 0 == cmd.CompareTo("script") || 0 == cmd.CompareTo("scp") || 0 == cmd.CompareTo("gm")) {
                 input.Add(leftCmd);
             } else {
                 input.AddRange(leftCmd.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries));
@@ -1082,7 +1075,7 @@ public class DebugConsole : MonoBehaviour
     #endregion
 }
 #else
-public static class DebugConsole {
+public static class DebugConsoleBak {
   public static bool IsOpen;  
   public static KeyCode toggleKey;
   public delegate object DebugCommand(params string[] args);
