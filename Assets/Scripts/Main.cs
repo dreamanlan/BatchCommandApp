@@ -8,6 +8,9 @@ using iTextSharp.text.pdf.parser;
 using DslExpression;
 using ExpressionAPI;
 using Dsl;
+using StoryScript;
+using GmCommands;
+using StoryApi;
 
 public class Main : MonoBehaviour
 {
@@ -24,6 +27,7 @@ public class Main : MonoBehaviour
 
         m_Calculator.OnLog = msg => { Debug.LogErrorFormat("{0}", msg); };
         m_Calculator.Init();
+        m_Calculator.Register("regstoryapi", new ExpressionFactoryHelper<RegisterStoryApiExp>());
         m_Calculator.Register("copypdf", new ExpressionFactoryHelper<CopyPdfExp>());
         m_Calculator.Register("setclipboard", new ExpressionFactoryHelper<SetClipboardExp>());
         m_Calculator.Register("getclipboard", new ExpressionFactoryHelper<GetClipboardExp>());
@@ -405,24 +409,238 @@ public static class VariantValue
     }
 }
 
+namespace StoryApi
+{
+    internal class CallScriptCommand : AbstractStoryCommand
+    {
+        protected override IStoryCommand CloneCommand()
+        {
+            CallScriptCommand cmd = new CallScriptCommand();
+            cmd.m_FuncName = m_FuncName;
+            for (int i = 0; i < m_Args.Count; ++i) {
+                IStoryValue val = m_Args[i];
+                cmd.m_Args.Add(val.Clone());
+            }
+            return cmd;
+        }
+        protected override void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            for (int i = 0; i < m_Args.Count; ++i) {
+                IStoryValue val = m_Args[i];
+                val.Evaluate(instance, handler, iterator, args);
+            }
+        }
+
+        protected override bool ExecCommand(StoryInstance instance, StoryMessageHandler handler, long delta)
+        {
+            string func = m_FuncName;
+            ArrayList arglist = new ArrayList();
+            for (int i = 0; i < m_Args.Count; ++i) {
+                IStoryValue val = m_Args[i];
+                arglist.Add(val.Value.GetObject());
+            }
+            object[] args = arglist.ToArray();
+            Main.Call(func, args);
+            return false;
+        }
+        protected override bool Load(Dsl.FunctionData callData)
+        {
+            int num = callData.GetParamNum();
+            if (num > 0) {
+                for (int i = 0; i < callData.GetParamNum(); ++i) {
+                    StoryValue val = new StoryValue();
+                    val.InitFromDsl(callData.GetParam(i));
+                    m_Args.Add(val);
+                }
+            }
+            return true;
+        }
+
+        internal string m_FuncName = string.Empty;
+        private List<IStoryValue> m_Args = new List<IStoryValue>();
+    }
+    internal sealed class CallScriptValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData) {
+                int num = callData.GetParamNum();
+                if (num > 0) {
+                    for (int i = 0; i < callData.GetParamNum(); ++i) {
+                        StoryValue val = new StoryValue();
+                        val.InitFromDsl(callData.GetParam(i));
+                        m_Args.Add(val);
+                    }
+                }
+            }
+        }
+        public IStoryValue Clone()
+        {
+            CallScriptValue val = new CallScriptValue();
+            val.m_FuncName = m_FuncName;
+            for (int i = 0; i < m_Args.Count; ++i) {
+                IStoryValue varg = m_Args[i];
+                val.m_Args.Add(varg.Clone());
+            }
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            for (int i = 0; i < m_Args.Count; ++i) {
+                IStoryValue val = m_Args[i];
+                val.Evaluate(instance, handler, iterator, args);
+            }
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            string funcName = m_FuncName;
+            m_HaveValue = true;
+            if (!string.IsNullOrEmpty(funcName)) {
+                ArrayList al = new ArrayList();
+                foreach (var varg in m_Args) {
+                    al.Add(varg.Value.GetObject());
+                }
+                m_Value = BoxedValue.FromObject(Main.Call(funcName, al.ToArray()));
+            }
+            else {
+                m_Value = BoxedValue.NullObject;
+            }
+        }
+
+        internal string m_FuncName = string.Empty;
+        private List<IStoryValue> m_Args = new List<IStoryValue>();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class CallScriptCommandFactory : IStoryCommandFactory
+    {
+        public IStoryCommand Create()
+        {
+            var cmd = new CallScriptCommand();
+            cmd.m_FuncName = m_Name;
+            return cmd;
+        }
+        internal CallScriptCommandFactory(string name)
+        {
+            m_Name = name;
+        }
+        private string m_Name;
+    }
+    internal sealed class CallScriptValueFactory : IStoryValueFactory
+    {
+        public IStoryValue Build()
+        {
+            var cmd = new CallScriptValue();
+            cmd.m_FuncName = m_Name;
+            return cmd;
+        }
+        internal CallScriptValueFactory(string name)
+        {
+            m_Name = name;
+        }
+        private string m_Name;
+    }
+}
+
 namespace ExpressionAPI
 {
-    internal sealed class CopyPdfExp : AbstractExpression
+    internal sealed class RegisterStoryApiExp : AbstractExpression
     {
         protected override CalculatorValue DoCalc()
         {
-            string file = m_File.Calc().AsString;
-            int start = m_Start.Calc().GetInt();
-            int count = m_Count.Calc().GetInt();
-            CopyPdf(file, start, count);
-            return count;
+            string name = string.Empty;
+            if (null != m_FuncCall) {
+                if (m_ArgNum == 1) {
+                    name = m_Name;
+                    var func = new Dsl.FunctionData();
+                    func.AddParam(m_FuncCall);
+                    Main.EvalAsFunc(name, func, m_Params);
+                }
+                else if (m_ArgNum == 2) {
+                    name = m_NameExp.Calc().AsString;
+                    var func = new Dsl.FunctionData();
+                    func.AddParam(m_FuncCall);
+                    Main.EvalAsFunc(name, func, m_Params);
+                }
+            }
+            else {
+                name = m_Name;
+            }
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, name, new StoryApi.CallScriptCommandFactory(name));
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, name, new StoryApi.CallScriptValueFactory(name));
+            return name;
         }
-        protected override bool Load(IList<IExpression> exps)
+        protected override bool Load(FunctionData callData)
         {
-            m_File = exps[0];
-            m_Start = exps[1];
-            m_Count = exps[2];
+            m_ArgNum = callData.GetParamNum();
+            if (m_ArgNum == 1) {
+                var func = callData.GetParam(0) as Dsl.FunctionData;
+                if (null != func){
+                    if (func.IsOperatorParamClass() && func.GetId() == "=>") {
+                        m_Name = func.GetParamId(0);
+                        m_FuncCall = func.GetParam(1) as Dsl.FunctionData;
+                        if (null != m_FuncCall) {
+                            foreach (var p in m_FuncCall.Params) {
+                                m_Params.Add(p.GetId());
+                            }
+                        }
+                    }
+                    else if (func.IsParenthesisParamClass()) {
+                        m_Name = func.GetId();
+                        foreach (var p in func.Params) {
+                            m_Params.Add(p.GetId());
+                        }
+                    }
+                }
+            }
+            else if (m_ArgNum == 2) {
+                m_NameExp = Calculator.Load(callData.GetParam(0));
+                if (m_ArgNum > 1) {
+                    m_FuncCall = callData.GetParam(1) as Dsl.FunctionData;
+                    if (null != m_FuncCall) {
+                        foreach (var p in m_FuncCall.Params) {
+                            m_Params.Add(p.GetId());
+                        }
+                    }
+                }
+            }
             return true;
+        }
+
+        private int m_ArgNum = 0;
+        private IExpression m_NameExp;
+        private string m_Name = string.Empty;
+        private Dsl.FunctionData m_FuncCall;
+        private List<string> m_Params = new List<string>();
+    }
+    internal sealed class CopyPdfExp : SimpleExpressionBase
+    {
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        {
+            var r = CalculatorValue.NullObject;
+            if(operands.Count > 2) {
+                string file = operands[0].AsString;
+                int start = operands[1].GetInt();
+                int count = operands[2].GetInt();
+                CopyPdf(file, start, count);
+                r = count;
+            }
+            return r;
         }
         private void CopyPdf(string file, int start, int count)
         {
@@ -451,10 +669,6 @@ namespace ExpressionAPI
             cb.CallStatic ("setText", sb.ToString());
 #endif
         }
-
-        private IExpression m_File;
-        private IExpression m_Start;
-        private IExpression m_Count;
 #if UNITY_IOS
         [DllImport("__Internal")]
         static extern void SetClipboard(string str);

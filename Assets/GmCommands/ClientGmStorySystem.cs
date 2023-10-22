@@ -63,9 +63,9 @@ namespace GmCommands
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "gameobjectanimation", new StoryCommandFactoryHelper<GameObjectAnimationCommand>());
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "gameobjectanimationparam", new StoryCommandFactoryHelper<GameObjectAnimationParamCommand>());
 
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "load", new StoryCommandFactoryHelper<LoadScriptCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "call", new StoryCommandFactoryHelper<CallScriptCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "eval", new StoryCommandFactoryHelper<EvalScriptCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "loadscp", new StoryCommandFactoryHelper<LoadScriptCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "callscp", new StoryCommandFactoryHelper<CallScriptCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "evalscp", new StoryCommandFactoryHelper<EvalScriptCommand>());
 
             //注册值与函数处理
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "gettime", new StoryValueFactoryHelper<GetTimeValue>());
@@ -84,7 +84,7 @@ namespace GmCommands
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getchild", new StoryValueFactoryHelper<GetChildValue>());
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getunitytype", new StoryValueFactoryHelper<GetUnityTypeValue>());
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getunityuitype", new StoryValueFactoryHelper<GetUnityUiTypeValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getscripttype", new StoryValueFactoryHelper<GetScriptTypeValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getusertype", new StoryValueFactoryHelper<GetUserTypeValue>());
 
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "deg2rad", new StoryValueFactoryHelper<Deg2RadValue>());
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "rad2deg", new StoryValueFactoryHelper<Rad2DegValue>());
@@ -96,8 +96,8 @@ namespace GmCommands
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getstreamingassets", new StoryValueFactoryHelper<GetStreamingAssetsValue>());
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getpersistentpath", new StoryValueFactoryHelper<GetPersistentPathValue>());
 
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "call", new StoryValueFactoryHelper<CallScriptValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "eval", new StoryValueFactoryHelper<EvalScriptValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "callscp", new StoryValueFactoryHelper<CallScriptValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "evalscp", new StoryValueFactoryHelper<EvalScriptValue>());
         }
 
         public int ActiveStoryCount
