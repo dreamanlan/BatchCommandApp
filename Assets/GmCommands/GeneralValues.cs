@@ -1449,6 +1449,954 @@ namespace GmCommands
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
+    internal sealed class GetPositionValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() >= 1) {
+                m_ParamNum = callData.GetParamNum();
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+                if (m_ParamNum > 1)
+                    m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetPositionValue val = new GetPositionValue();
+            val.m_ParamNum = m_ParamNum;
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_LocalOrWorld = m_LocalOrWorld.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+            m_LocalOrWorld.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                int worldOrLocal = m_LocalOrWorld.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    if (0 == worldOrLocal)
+                        pt = obj.transform.localPosition;
+                    else
+                        pt = obj.transform.position;
+                    m_Value = pt;
+                }
+                else {
+                    m_Value = UnityEngine.Vector3.zero;
+                }
+            }
+        }
+
+        private int m_ParamNum = 0;
+        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class GetPositionXValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() >= 1) {
+                m_ParamNum = callData.GetParamNum();
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+                if (m_ParamNum > 1)
+                    m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetPositionXValue val = new GetPositionXValue();
+            val.m_ParamNum = m_ParamNum;
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_LocalOrWorld = m_LocalOrWorld.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+            m_LocalOrWorld.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                int worldOrLocal = m_LocalOrWorld.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    if (0 == worldOrLocal)
+                        pt = obj.transform.localPosition;
+                    else
+                        pt = obj.transform.position;
+                    m_Value = pt.x;
+                }
+                else {
+                    m_Value = 0.0f;
+                }
+            }
+        }
+
+        private int m_ParamNum = 0;
+        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class GetPositionYValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() >= 1) {
+                m_ParamNum = callData.GetParamNum();
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+                if (m_ParamNum > 1)
+                    m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetPositionYValue val = new GetPositionYValue();
+            val.m_ParamNum = m_ParamNum;
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_LocalOrWorld = m_LocalOrWorld.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+            m_LocalOrWorld.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                int worldOrLocal = m_LocalOrWorld.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    if (0 == worldOrLocal)
+                        pt = obj.transform.localPosition;
+                    else
+                        pt = obj.transform.position;
+                    m_Value = pt.y;
+                }
+                else {
+                    m_Value = 0.0f;
+                }
+            }
+        }
+
+        private int m_ParamNum = 0;
+        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class GetPositionZValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() >= 1) {
+                m_ParamNum = callData.GetParamNum();
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+                if (m_ParamNum > 1)
+                    m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetPositionZValue val = new GetPositionZValue();
+            val.m_ParamNum = m_ParamNum;
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_LocalOrWorld = m_LocalOrWorld.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+            m_LocalOrWorld.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                int worldOrLocal = m_LocalOrWorld.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    if (0 == worldOrLocal)
+                        pt = obj.transform.localPosition;
+                    else
+                        pt = obj.transform.position;
+                    m_Value = pt.z;
+                }
+                else {
+                    m_Value = 0.0f;
+                }
+            }
+        }
+
+        private int m_ParamNum = 0;
+        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class GetRotationValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() >= 1) {
+                m_ParamNum = callData.GetParamNum();
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+                if (m_ParamNum > 1)
+                    m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetRotationValue val = new GetRotationValue();
+            val.m_ParamNum = m_ParamNum;
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_LocalOrWorld = m_LocalOrWorld.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+            m_LocalOrWorld.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                int worldOrLocal = m_LocalOrWorld.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    if (0 == worldOrLocal)
+                        pt = obj.transform.localEulerAngles;
+                    else
+                        pt = obj.transform.eulerAngles;
+                    m_Value = pt;
+                }
+                else {
+                    m_Value = UnityEngine.Vector3.zero;
+                }
+            }
+        }
+
+        private int m_ParamNum = 0;
+        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class GetRotationXValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() >= 1) {
+                m_ParamNum = callData.GetParamNum();
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+                if (m_ParamNum > 1)
+                    m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetRotationXValue val = new GetRotationXValue();
+            val.m_ParamNum = m_ParamNum;
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_LocalOrWorld = m_LocalOrWorld.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+            m_LocalOrWorld.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                int worldOrLocal = m_LocalOrWorld.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    if (0 == worldOrLocal)
+                        pt = obj.transform.localEulerAngles;
+                    else
+                        pt = obj.transform.eulerAngles;
+                    m_Value = pt.x;
+                }
+                else {
+                    m_Value = 0.0f;
+                }
+            }
+        }
+
+        private int m_ParamNum = 0;
+        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class GetRotationYValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() >= 1) {
+                m_ParamNum = callData.GetParamNum();
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+                if (m_ParamNum > 1)
+                    m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetRotationYValue val = new GetRotationYValue();
+            val.m_ParamNum = m_ParamNum;
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_LocalOrWorld = m_LocalOrWorld.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+            m_LocalOrWorld.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                int worldOrLocal = m_LocalOrWorld.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    if (0 == worldOrLocal)
+                        pt = obj.transform.localEulerAngles;
+                    else
+                        pt = obj.transform.eulerAngles;
+                    m_Value = pt.y;
+                }
+                else {
+                    m_Value = 0.0f;
+                }
+            }
+        }
+
+        private int m_ParamNum = 0;
+        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class GetRotationZValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() >= 1) {
+                m_ParamNum = callData.GetParamNum();
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+                if (m_ParamNum > 1)
+                    m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetRotationZValue val = new GetRotationZValue();
+            val.m_ParamNum = m_ParamNum;
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_LocalOrWorld = m_LocalOrWorld.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+            m_LocalOrWorld.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                int worldOrLocal = m_LocalOrWorld.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    if (0 == worldOrLocal)
+                        pt = obj.transform.localEulerAngles;
+                    else
+                        pt = obj.transform.eulerAngles;
+                    m_Value = pt.z;
+                }
+                else {
+                    m_Value = 0.0f;
+                }
+            }
+        }
+
+        private int m_ParamNum = 0;
+        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class GetScaleValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() == 1) {
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetScaleValue val = new GetScaleValue();
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    pt = obj.transform.localScale;
+                    m_Value = pt;
+                }
+                else {
+                    m_Value = new UnityEngine.Vector3(1, 1, 1);
+                }
+            }
+        }
+
+        private IStoryValue m_ObjId = new StoryValue();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class GetScaleXValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() == 1) {
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetScaleXValue val = new GetScaleXValue();
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    pt = obj.transform.localScale;
+                    m_Value = pt.x;
+                }
+                else {
+                    m_Value = 1.0f;
+                }
+            }
+        }
+
+        private IStoryValue m_ObjId = new StoryValue();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class GetScaleYValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() == 1) {
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetScaleYValue val = new GetScaleYValue();
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    pt = obj.transform.localScale;
+                    m_Value = pt.y;
+                }
+                else {
+                    m_Value = 1.0f;
+                }
+            }
+        }
+
+        private IStoryValue m_ObjId = new StoryValue();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
+    internal sealed class GetScaleZValue : IStoryValue
+    {
+        public void InitFromDsl(Dsl.ISyntaxComponent param)
+        {
+            Dsl.FunctionData callData = param as Dsl.FunctionData;
+            if (null != callData && callData.GetParamNum() == 1) {
+                m_ObjId.InitFromDsl(callData.GetParam(0));
+            }
+        }
+        public IStoryValue Clone()
+        {
+            GetScaleZValue val = new GetScaleZValue();
+            val.m_ObjId = m_ObjId.Clone();
+            val.m_HaveValue = m_HaveValue;
+            val.m_Value = m_Value;
+
+            return val;
+        }
+        public void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
+        {
+            m_HaveValue = false;
+            m_ObjId.Evaluate(instance, handler, iterator, args);
+
+            TryUpdateValue(instance);
+        }
+        public bool HaveValue {
+            get {
+                return m_HaveValue;
+            }
+        }
+        public BoxedValue Value {
+            get {
+                return m_Value;
+            }
+        }
+        private void TryUpdateValue(StoryInstance instance)
+        {
+            if (m_ObjId.HaveValue) {
+                m_HaveValue = true;
+                var objPathVal = m_ObjId.Value;
+                UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
+                if (null == obj) {
+                    string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
+                    if (null != objPath) {
+                        obj = UnityEngine.GameObject.Find(objPath);
+                    }
+                    else {
+                        try {
+                            int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
+                            obj = null;
+                        }
+                        catch {
+                            obj = null;
+                        }
+                    }
+                }
+                if (null != obj) {
+                    UnityEngine.Vector3 pt;
+                    pt = obj.transform.localScale;
+                    m_Value = pt.z;
+                }
+                else {
+                    m_Value = 1.0f;
+                }
+            }
+        }
+
+        private IStoryValue m_ObjId = new StoryValue();
+        private bool m_HaveValue;
+        private BoxedValue m_Value;
+    }
     internal sealed class Deg2RadValue : IStoryValue
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)

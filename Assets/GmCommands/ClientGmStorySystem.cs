@@ -51,6 +51,7 @@ namespace GmCommands
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "sendmessagewithgameobject", new StoryCommandFactoryHelper<SendMessageWithGameObjectCommand>());
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "creategameobject", new StoryCommandFactoryHelper<CreateGameObjectCommand>());
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "settransform", new StoryCommandFactoryHelper<SetTransformCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "addtransform", new StoryCommandFactoryHelper<AddTransformCommand>());
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "destroygameobject", new StoryCommandFactoryHelper<DestroyGameObjectCommand>());
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setparent", new StoryCommandFactoryHelper<SetParentCommand>());
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setactive", new StoryCommandFactoryHelper<SetActiveCommand>());
@@ -85,6 +86,23 @@ namespace GmCommands
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getunitytype", new StoryValueFactoryHelper<GetUnityTypeValue>());
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getunityuitype", new StoryValueFactoryHelper<GetUnityUiTypeValue>());
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getusertype", new StoryValueFactoryHelper<GetUserTypeValue>());
+
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getposition", new StoryValueFactoryHelper<GetPositionValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getpositionx", new StoryValueFactoryHelper<GetPositionXValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getpositiony", new StoryValueFactoryHelper<GetPositionYValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getpositionz", new StoryValueFactoryHelper<GetPositionZValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getrotation", new StoryValueFactoryHelper<GetRotationValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getrotationx", new StoryValueFactoryHelper<GetRotationXValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getrotationy", new StoryValueFactoryHelper<GetRotationYValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getrotationz", new StoryValueFactoryHelper<GetRotationZValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getscale", new StoryValueFactoryHelper<GetScaleValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getscalex", new StoryValueFactoryHelper<GetScaleXValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getscaley", new StoryValueFactoryHelper<GetScaleYValue>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getscalez", new StoryValueFactoryHelper<GetScaleZValue>());
+
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "position", new StoryValueFactoryHelper<StoryScript.CommonValues.Vector3Value>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "rotation", new StoryValueFactoryHelper<StoryScript.CommonValues.Vector3Value>());
+            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "scale", new StoryValueFactoryHelper<StoryScript.CommonValues.Vector3Value>());
 
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "deg2rad", new StoryValueFactoryHelper<Deg2RadValue>());
             StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "rad2deg", new StoryValueFactoryHelper<Rad2DegValue>());
