@@ -16,33 +16,37 @@ namespace GmCommands
     {
         public void Init()
         {
-            StoryCommandManager.ThreadCommandGroupsMask = 1 << (int)StoryCommandGroupDefine.GM;
-            StoryValueManager.ThreadValueGroupsMask = 1 << (int)StoryValueGroupDefine.GM;
+            try {
+                StoryCommandManager.ThreadCommandGroupsMask = 1 << (int)StoryCommandGroupDefine.GM;
+                StoryValueManager.ThreadValueGroupsMask = 1 << (int)StoryValueGroupDefine.GM;
 
-            RegisterCommon();
+                RegisterCommon();
 
-            //注册Gm命令
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setdebug", new StoryCommandFactoryHelper<SetDebugCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "editorbreak", new StoryCommandFactoryHelper<EditorBreakCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "debugbreak", new StoryCommandFactoryHelper<DebugBreakCommand>());
+                //注册Gm命令
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setdebug", new StoryCommandFactoryHelper<SetDebugCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "editorbreak", new StoryCommandFactoryHelper<EditorBreakCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "debugbreak", new StoryCommandFactoryHelper<DebugBreakCommand>());
 
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportstex", new StoryCommandFactoryHelper<SupportsTexCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsrt", new StoryCommandFactoryHelper<SupportsRTCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsblendingonrt", new StoryCommandFactoryHelper<SupportsBlendingOnRTCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "devicesupports", new StoryCommandFactoryHelper<DeviceSupportsCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportstex", new StoryCommandFactoryHelper<SupportsTexCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsrt", new StoryCommandFactoryHelper<SupportsRTCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsblendingonrt", new StoryCommandFactoryHelper<SupportsBlendingOnRTCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "devicesupports", new StoryCommandFactoryHelper<DeviceSupportsCommand>());
 
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "allocmemory", new StoryCommandFactoryHelper<AllocMemoryCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "freememory", new StoryCommandFactoryHelper<FreeMemoryCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "consumecpu", new StoryCommandFactoryHelper<ConsumeCpuCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "allocmemory", new StoryCommandFactoryHelper<AllocMemoryCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "freememory", new StoryCommandFactoryHelper<FreeMemoryCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "consumecpu", new StoryCommandFactoryHelper<ConsumeCpuCommand>());
 
-            //注册值与函数处理
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "istexsupported", new StoryValueFactoryHelper<IsFormatSupportedValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getcompatibleformat", new StoryValueFactoryHelper<GetCompatibleFormatValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getgraphicsformat", new StoryValueFactoryHelper<GetGraphicsFormatValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getmsaasamplecount", new StoryValueFactoryHelper<GetMSAASampleCountValue>());
+                //注册值与函数处理
+                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "istexsupported", new StoryValueFactoryHelper<IsFormatSupportedValue>());
+                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getcompatibleformat", new StoryValueFactoryHelper<GetCompatibleFormatValue>());
+                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getgraphicsformat", new StoryValueFactoryHelper<GetGraphicsFormatValue>());
+                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getmsaasamplecount", new StoryValueFactoryHelper<GetMSAASampleCountValue>());
 
+            }
+            catch (Exception ex) {
+                LogSystem.Error("exception:{0}\n{1}", ex.Message, ex.StackTrace);
+            }
         }
-
         private void RegisterCommon()
         {
             //注册命令

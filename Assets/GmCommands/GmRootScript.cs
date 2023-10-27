@@ -39,8 +39,17 @@ public class GmRootScript : MonoBehaviour
     }
     void Update()
     {
-        TimeUtility.UpdateGfxTime(Time.time, Time.realtimeSinceStartup, Time.timeScale);
-        ClientGmStorySystem.Instance.Tick();
+        try {
+            TimeUtility.UpdateGfxTime(Time.time, Time.realtimeSinceStartup, Time.timeScale);
+            ClientGmStorySystem.Instance.Tick();
+        }
+        catch (Exception ex) {
+            LogSystem.Error("Exception:{0}\n{1}", ex.Message, ex.StackTrace);
+        }
+    }
+    private void LogToConsole(string msg)
+    {
+        DebugConsole.Log(msg);
     }
 
     private void OnResetStory()
@@ -84,10 +93,6 @@ public class GmRootScript : MonoBehaviour
         }
     }
 
-    private void LogToConsole(string msg)
-    {
-        DebugConsole.Log(msg);
-    }
     private void ResetGmCode()
     {
         ClientGmStorySystem.Instance.Reset();
