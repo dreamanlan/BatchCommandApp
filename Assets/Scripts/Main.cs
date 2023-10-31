@@ -28,6 +28,9 @@ public class Main : MonoBehaviour
         m_Calculator.OnLog = msg => { Debug.LogErrorFormat("{0}", msg); };
         m_Calculator.Init();
         m_Calculator.Register("regstoryapi", new ExpressionFactoryHelper<RegisterStoryApiExp>());
+        m_Calculator.Register("loadui", new ExpressionFactoryHelper<LoadUiExp>());
+        m_Calculator.Register("showui", new ExpressionFactoryHelper<ShowUiExp>());
+        m_Calculator.Register("hideui", new ExpressionFactoryHelper<HideUiExp>());
         m_Calculator.Register("copypdf", new ExpressionFactoryHelper<CopyPdfExp>());
         m_Calculator.Register("setclipboard", new ExpressionFactoryHelper<SetClipboardExp>());
         m_Calculator.Register("getclipboard", new ExpressionFactoryHelper<GetClipboardExp>());
@@ -145,21 +148,21 @@ public class Main : MonoBehaviour
     }
     public static void ResetStory()
     {
-        GameObject obj = GameObject.Find("StartScript");
+        GameObject obj = GameObject.Find("GmScript");
         if (null != obj) {
             obj.SendMessage("OnResetStory");
         }
     }
     public static void ExecStoryCommand(string cmd)
     {
-        GameObject obj = GameObject.Find("StartScript");
+        GameObject obj = GameObject.Find("GmScript");
         if (null != obj) {
             obj.SendMessage("OnExecStoryCommand", cmd);
         }
     }
     public static void ExecStoryFile(string file)
     {
-        GameObject obj = GameObject.Find("StartScript");
+        GameObject obj = GameObject.Find("GmScript");
         if (null != obj) {
             obj.SendMessage("OnExecStoryFile", file);
         }
@@ -627,6 +630,67 @@ namespace ExpressionAPI
         private string m_Name = string.Empty;
         private Dsl.FunctionData m_FuncCall;
         private List<string> m_Params = new List<string>();
+    }
+    internal sealed class LoadUiExp : SimpleExpressionBase
+    {
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        {
+            var r = false;
+            if (operands.Count > 0) {
+                var uiRes = operands[0].AsString;
+
+                var fv = GameObject.Find("GmScript");
+                if (null != fv) {
+                    var uihandler = fv.GetComponent<UiHanlder>();
+                    if (null != uihandler) {
+                        uihandler.LoadUi(uiRes);
+                        r = true;
+                    }
+                }
+                else {
+                    LogSystem.Error("can't find GmScript");
+                }
+            }
+            return r;
+        }
+    }
+    internal sealed class ShowUiExp : SimpleExpressionBase
+    {
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        {
+            var r = false;
+            var fv = GameObject.Find("GmScript");
+            if (null != fv) {
+                var uihandler = fv.GetComponent<UiHanlder>();
+                if (null != uihandler) {
+                    uihandler.ShowUi();
+                    r = true;
+                }
+            }
+            else {
+                LogSystem.Error("can't find GmScript");
+            }
+            return r;
+        }
+    }
+    internal sealed class HideUiExp : SimpleExpressionBase
+    {
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        {
+            var r = false;
+            var fv = GameObject.Find("GmScript");
+            if (null != fv) {
+                var uihandler = fv.GetComponent<UiHanlder>();
+                if (null != uihandler) {
+                    uihandler.HideUi();
+                    r = true;
+                }
+            }
+            else {
+                LogSystem.Error("can't find GmScript");
+            }
+            return r;
+        }
     }
     internal sealed class CopyPdfExp : SimpleExpressionBase
     {

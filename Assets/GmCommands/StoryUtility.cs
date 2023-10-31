@@ -4,13 +4,13 @@ using System.Text;
 using System.IO;
 using UnityEngine;
 
-public static partial class Utility
+public static partial class StoryUtility
 {
     [System.Diagnostics.Conditional("DEBUG")]
     public static void GfxLog(string format, params object[] args)
     {
         string msg = string.Format(format, args);
-        SendMessageImpl("StartScript", "LogToConsole", msg, false);
+        SendMessageImpl("GmScript", "LogToConsole", msg, false);
 #if DEBUG
         UnityEngine.Debug.LogWarning(msg);
 #endif
@@ -19,7 +19,7 @@ public static partial class Utility
     public static void GfxErrorLog(string format, params object[] args)
     {
         string msg = string.Format(format, args);
-        SendMessageImpl("StartScript", "LogToConsole", msg, false);
+        SendMessageImpl("GmScript", "LogToConsole", msg, false);
 #if DEBUG
         UnityEngine.Debug.LogError(msg);
 #endif
@@ -198,7 +198,7 @@ public static partial class Utility
 
     public static void SendScriptMessage(string msg, object arg)
     {
-        SendMessage("StartScript", msg, arg, false);
+        SendMessage("GmScript", msg, arg, false);
     }
     public static void SendMessage(string objname, string msg, object arg)
     {

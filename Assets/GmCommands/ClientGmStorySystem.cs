@@ -36,6 +36,10 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "freememory", new StoryCommandFactoryHelper<FreeMemoryCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "consumecpu", new StoryCommandFactoryHelper<ConsumeCpuCommand>());
 
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "loadui", new StoryCommandFactoryHelper<LoadUiCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showui", new StoryCommandFactoryHelper<ShowUiCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "hideui", new StoryCommandFactoryHelper<HideUiCommand>());
+
                 //注册值与函数处理
                 StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "istexsupported", new StoryValueFactoryHelper<IsFormatSupportedValue>());
                 StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getcompatibleformat", new StoryValueFactoryHelper<GetCompatibleFormatValue>());

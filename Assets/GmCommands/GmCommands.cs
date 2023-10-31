@@ -238,7 +238,59 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
+    internal class LoadUiCommand : SimpleStoryCommandBase<LoadUiCommand, StoryValueParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
+        {
+            string uiRes = _params.Param1Value;
 
+            var fv = GameObject.Find("GmScript");
+            if (null != fv) {
+                var uihandler = fv.GetComponent<UiHanlder>();
+                if (null != uihandler) {
+                    uihandler.LoadUi(uiRes);
+                }
+            }
+            else {
+                LogSystem.Error("can't find GmScript");
+            }
+            return false;
+        }
+    }
+    internal class ShowUiCommand : SimpleStoryCommandBase<ShowUiCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            var fv = GameObject.Find("GmScript");
+            if (null != fv) {
+                var uihandler = fv.GetComponent<UiHanlder>();
+                if (null != uihandler) {
+                    uihandler.ShowUi();
+                }
+            }
+            else {
+                LogSystem.Error("can't find GmScript");
+            }
+            return false;
+        }
+    }
+    internal class HideUiCommand : SimpleStoryCommandBase<HideUiCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            var fv = GameObject.Find("GmScript");
+            if (null != fv) {
+                var uihandler = fv.GetComponent<UiHanlder>();
+                if (null != uihandler) {
+                    uihandler.HideUi();
+                }
+            }
+            else {
+                LogSystem.Error("can't find GmScript");
+            }
+            return false;
+        }
+    }
     //---------------------------------------------------------------------------------------------------------------
 
 }

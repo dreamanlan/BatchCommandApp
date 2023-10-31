@@ -29,9 +29,16 @@ public class GmRootScript : MonoBehaviour
         LogSystem.OnOutput = (StoryLogType type, string msg) => {
             switch (type) {
                 case StoryLogType.Error:
+                    LogToConsole(msg);
+                    Debug.LogError(msg);
+                    break;
                 case StoryLogType.Warn:
+                    LogToConsole(msg);
+                    Debug.LogWarning(msg);
+                    break;
                 case StoryLogType.Info:
                     LogToConsole(msg);
+                    Debug.Log(msg);
                     break;
             }
             m_Logger.Log("{0}", msg);

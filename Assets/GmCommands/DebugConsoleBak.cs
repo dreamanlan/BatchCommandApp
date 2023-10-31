@@ -827,7 +827,7 @@ public class DebugConsoleBak : MonoBehaviour
 
     object CMDReset(params string[] args)
     {
-        GameObject obj = GameObject.Find("StartScript");
+        GameObject obj = GameObject.Find("GmScript");
         if (null != obj) {
             obj.SendMessage("OnResetStory", null);
         }
@@ -837,13 +837,13 @@ public class DebugConsoleBak : MonoBehaviour
     object CMDScript(params string[] args)
     {
         if (args.Length == 2) {
-            GameObject obj = GameObject.Find("StartScript");
+            GameObject obj = GameObject.Find("GmScript");
             if (null != obj) {
                 obj.SendMessage("OnExecStoryFile", args[1]);
             }
             return "script " + args[1];
         } else {
-            GameObject obj = GameObject.Find("StartScript");
+            GameObject obj = GameObject.Find("GmScript");
             if (null != obj) {
                 obj.SendMessage("OnExecStoryFile", "");
             }
@@ -854,7 +854,7 @@ public class DebugConsoleBak : MonoBehaviour
     object CMDCommand(params string[] args)
     {
         if (args.Length == 2) {
-            GameObject obj = GameObject.Find("StartScript");
+            GameObject obj = GameObject.Find("GmScript");
             if (null != obj) {
                 obj.SendMessage("OnExecStoryCommand", args[1]);
             }
@@ -867,7 +867,7 @@ public class DebugConsoleBak : MonoBehaviour
     object CMDGm(params string[] args)
     {
         if (args.Length == 2) {
-            GameObject obj = GameObject.Find("StartScript");
+            GameObject obj = GameObject.Find("GmScript");
             if (null != obj) {
                 obj.SendMessage("OnExecStoryCommand", "gm(\"" + args[1] + "\");");
             }

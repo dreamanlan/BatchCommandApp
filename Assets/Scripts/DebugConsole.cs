@@ -872,7 +872,7 @@ public class DebugConsole : MonoBehaviour
 
     object CMDReset(params string[] args)
     {
-        GameObject obj = GameObject.Find("StartScript");
+        GameObject obj = GameObject.Find("GmScript");
         if (null != obj) {
             obj.SendMessage("OnReset");
             obj.SendMessage("OnResetStory");

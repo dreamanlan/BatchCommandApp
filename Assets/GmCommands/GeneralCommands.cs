@@ -43,11 +43,11 @@ namespace GmCommands
             }
             object[] args = arglist.ToArray();
             if (args.Length == 0)
-                Utility.SendMessage(objname, msg, null);
+                StoryUtility.SendMessage(objname, msg, null);
             else if (args.Length == 1)
-                Utility.SendMessage(objname, msg, args[0]);
+                StoryUtility.SendMessage(objname, msg, args[0]);
             else
-                Utility.SendMessage(objname, msg, args);
+                StoryUtility.SendMessage(objname, msg, args);
             return false;
         }
         protected override bool Load(Dsl.FunctionData callData)
@@ -105,11 +105,11 @@ namespace GmCommands
             }
             object[] args = arglist.ToArray();
             if (args.Length == 0)
-                Utility.SendMessageWithTag(objtag, msg, null);
+                StoryUtility.SendMessageWithTag(objtag, msg, null);
             else if (args.Length == 1)
-                Utility.SendMessageWithTag(objtag, msg, args[0]);
+                StoryUtility.SendMessageWithTag(objtag, msg, args[0]);
             else
-                Utility.SendMessageWithTag(objtag, msg, args);
+                StoryUtility.SendMessageWithTag(objtag, msg, args);
             return false;
         }
         protected override bool Load(Dsl.FunctionData callData)
@@ -281,7 +281,7 @@ namespace GmCommands
             var obj = o as UnityEngine.GameObject;
             if (null != obj) {
                 foreach (string disable in disables) {
-                    var type = Utility.GetType(disable);
+                    var type = StoryUtility.GetType(disable);
                     if (null != type) {
                         var comps = obj.GetComponentsInChildren(type);
                         for (int i = 0; i < comps.Length; ++i) {
@@ -291,11 +291,11 @@ namespace GmCommands
                     }
                 }
                 foreach (string remove in removes) {
-                    var type = Utility.GetType(remove);
+                    var type = StoryUtility.GetType(remove);
                     if (null != type) {
                         var comps = obj.GetComponentsInChildren(type);
                         for (int i = 0; i < comps.Length; ++i) {
-                            Utility.DestroyObject(comps[i]);
+                            StoryUtility.DestroyObject(comps[i]);
                         }
                     }
                 }
@@ -754,7 +754,7 @@ namespace GmCommands
                 var obj = pathVal.IsObject ? pathVal.ObjectVal as UnityEngine.GameObject : null;
                 if (null != obj) {
                     obj.transform.SetParent(null);
-                    Utility.DestroyObject(obj);
+                    StoryUtility.DestroyObject(obj);
                 }
             }
             return false;
@@ -1177,13 +1177,13 @@ namespace GmCommands
                 Type t = componentType.IsObject ? componentType.ObjectVal as Type : null;
                 if (null != t) {
                     var comp = obj.GetComponent(t);
-                    Utility.DestroyObject(comp);
+                    StoryUtility.DestroyObject(comp);
                 } else {
                     string name = componentType.IsString ? componentType.StringVal : null;
                     if (null != name) {
                         t = Type.GetType(name);
                         var comp = obj.GetComponent(t);
-                        Utility.DestroyObject(comp);
+                        StoryUtility.DestroyObject(comp);
                     }
                 }
             }
