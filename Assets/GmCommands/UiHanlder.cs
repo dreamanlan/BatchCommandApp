@@ -254,9 +254,9 @@ public class UiHanlder : MonoBehaviour
     {
         var buttonObj = AddToCell(ButtonTemplate, id, row, col);
         var button = buttonObj.GetComponent<UnityEngine.UI.Button>();
-        var labelObj = buttonObj.transform.Find("Text");
+        var labelObj = buttonObj.transform.Find("Text (TMP)");
         if (null != labelObj) {
-            var label = labelObj.GetComponent<Text>();
+            var label = labelObj.GetComponent<TMPro.TextMeshProUGUI>();
             label.text = caption;
 
             AddUiControl(id + "|Text", label);
