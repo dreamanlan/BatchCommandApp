@@ -114,6 +114,7 @@ public class UiHanlder : MonoBehaviour
         var fd = info as Dsl.FunctionData;
         if (null != fd) {
             var id = fd.GetParamId(0);
+            id = ResolveId(id);
             var rowStr = fd.GetParamId(1);
             var colStr = fd.GetParamId(2);
             var caption = fd.GetParamId(3);
@@ -127,6 +128,7 @@ public class UiHanlder : MonoBehaviour
         var fd = info as Dsl.FunctionData;
         if (null != fd) {
             var id = fd.GetParamId(0);
+            id = ResolveId(id);
             var rowStr = fd.GetParamId(1);
             var colStr = fd.GetParamId(2);
             var dataType = fd.GetParamId(3);
@@ -141,6 +143,7 @@ public class UiHanlder : MonoBehaviour
         var fd = info as Dsl.FunctionData;
         if (null != fd) {
             var id = fd.GetParamId(0);
+            id = ResolveId(id);
             var rowStr = fd.GetParamId(1);
             var colStr = fd.GetParamId(2);
             var caption = fd.GetParamId(3);
@@ -156,6 +159,7 @@ public class UiHanlder : MonoBehaviour
         if (null != fd && fd.IsHighOrder && fd.HaveStatement()) {
             var cd = fd.LowerOrderFunction;
             var id = cd.GetParamId(0);
+            id = ResolveId(id);
             var rowStr = cd.GetParamId(1);
             var colStr = cd.GetParamId(2);
             var method = cd.GetParamId(3);
@@ -176,6 +180,7 @@ public class UiHanlder : MonoBehaviour
         var fd = info as Dsl.FunctionData;
         if (null != fd) {
             var id = fd.GetParamId(0);
+            id = ResolveId(id);
             var rowStr = fd.GetParamId(1);
             var colStr = fd.GetParamId(2);
             var caption = fd.GetParamId(3);
@@ -192,6 +197,7 @@ public class UiHanlder : MonoBehaviour
         if (null != fd && fd.IsHighOrder && fd.HaveStatement()) {
             var cd = fd.LowerOrderFunction;
             var id = cd.GetParamId(0);
+            id = ResolveId(id);
             var rowStr = cd.GetParamId(1);
             var colStr = cd.GetParamId(2);
             if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
@@ -200,6 +206,7 @@ public class UiHanlder : MonoBehaviour
                     var pfd = p as Dsl.FunctionData;
                     if (null != pfd && pfd.GetId() == "toggle") {
                         var pid = pfd.GetParamId(0);
+                        pid = ResolveId(pid);
                         var pcap = pfd.GetParamId(1);
                         var method = pfd.GetParamId(2);
                         var pchecked = pfd.GetParamId(3);
@@ -214,6 +221,7 @@ public class UiHanlder : MonoBehaviour
         var fd = info as Dsl.FunctionData;
         if (null != fd) {
             var id = fd.GetParamId(0);
+            id = ResolveId(id);
             var rowStr = fd.GetParamId(1);
             var colStr = fd.GetParamId(2);
             var method = fd.GetParamId(3);
@@ -417,10 +425,25 @@ public class UiHanlder : MonoBehaviour
         LogSystem.Warn("OnSliderChanged {0}", val);
     }
 
+    private string ResolveId(string id)
+    {
+        if (id == c_AutoIdKeyword)
+            return GenAutoId();
+        else
+            return id;
+    }
+    private string GenAutoId()
+    {
+        ++m_CurAutoId;
+        return c_AutoIdKeyword + "_" + m_CurAutoId.ToString();
+    }
+
     private GameObject m_RootUi;
     private RectTransform[,] m_Cells;
     private Dictionary<string, UIBehaviour> m_UiControls = new Dictionary<string, UIBehaviour>();
+    private int m_CurAutoId = 0;
 
+    private const string c_AutoIdKeyword = "@auto";
     private const int c_CellRowNum = 20;
     private const int c_CellColNum = 6;
 }

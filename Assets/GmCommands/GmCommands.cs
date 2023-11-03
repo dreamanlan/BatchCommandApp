@@ -238,17 +238,17 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal class LoadUiCommand : SimpleStoryCommandBase<LoadUiCommand, StoryValueParam<string>>
+    internal class LoadUiCommand : SimpleStoryCommandBase<LoadUiCommand, StoryValueParam<Dsl.ValueData>>
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<Dsl.ValueData> _params, long delta)
         {
-            string uiRes = _params.Param1Value;
+            var uiRes = _params.Param1Value;
 
             var fv = GameObject.Find("GmScript");
             if (null != fv) {
                 var uihandler = fv.GetComponent<UiHanlder>();
                 if (null != uihandler) {
-                    uihandler.LoadUi(uiRes);
+                    uihandler.LoadUi(uiRes.GetId());
                 }
             }
             else {

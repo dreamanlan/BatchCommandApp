@@ -631,28 +631,31 @@ namespace ExpressionAPI
         private Dsl.FunctionData m_FuncCall;
         private List<string> m_Params = new List<string>();
     }
-    internal sealed class LoadUiExp : SimpleExpressionBase
+    internal sealed class LoadUiExp : AbstractExpression
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override CalculatorValue DoCalc()
         {
             var r = false;
-            if (operands.Count > 0) {
-                var uiRes = operands[0].AsString;
-
-                var fv = GameObject.Find("GmScript");
-                if (null != fv) {
-                    var uihandler = fv.GetComponent<UiHanlder>();
-                    if (null != uihandler) {
-                        uihandler.LoadUi(uiRes);
-                        r = true;
-                    }
+            var fv = GameObject.Find("GmScript");
+            if (null != fv) {
+                var uihandler = fv.GetComponent<UiHanlder>();
+                if (null != uihandler) {
+                    uihandler.LoadUi(m_UiRes);
+                    r = true;
                 }
-                else {
-                    LogSystem.Error("can't find GmScript");
-                }
+            }
+            else {
+                LogSystem.Error("can't find GmScript");
             }
             return r;
         }
+        protected override bool Load(FunctionData callData)
+        {
+            m_UiRes = callData.GetParamId(0);
+            return true;
+        }
+
+        private string m_UiRes = string.Empty;
     }
     internal sealed class ShowUiExp : SimpleExpressionBase
     {
