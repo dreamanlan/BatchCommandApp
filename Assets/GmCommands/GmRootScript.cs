@@ -11,6 +11,7 @@ public class GmRootScript : MonoBehaviour
 {
     void Start()
     {
+        TryInit();
 #if DEVELOPMENT_BUILD
         StoryScript.StoryConfigManager.Instance.IsDevelopment = true;
 #else
@@ -139,6 +140,33 @@ public class GmRootScript : MonoBehaviour
     private string m_LocalGmFile = string.Empty;
     private GmCommands.Logger m_Logger = new GmCommands.Logger();
 
+    public static GameObject GameObj
+    {
+        get
+        {
+            return s_GameObj;
+        }
+    }
+    public static void TryLoad()
+    {
+        if (null == s_GameObj)
+        {
+            var prefab = Resources.Load<GameObject>("GmScript");
+            var gobj = GameObject.Instantiate<GameObject>(prefab);
+            gobj.name = "GmScript";
+            TryInit();
+        }
+    }
+    public static void TryInit()
+    {
+        if (null == s_GameObj) {
+            s_GameObj = GameObject.Find("GmScript");
+            if (null != s_GameObj) {
+                GameObject.DontDestroyOnLoad(s_GameObj);
+            }
+        }
+    }
+
     private static byte[] LoadFileFromStreamingAssets(string file)
     {
         if (Application.platform == RuntimePlatform.Android) {
@@ -177,4 +205,6 @@ public class GmRootScript : MonoBehaviour
         }
         return null;
     }
+
+    private static GameObject s_GameObj = null;
 }

@@ -244,7 +244,7 @@ namespace GmCommands
         {
             var uiRes = _params.Param1Value;
 
-            var fv = GameObject.Find("GmScript");
+            var fv = GmRootScript.GameObj;
             if (null != fv) {
                 var uihandler = fv.GetComponent<UiHanlder>();
                 if (null != uihandler) {
@@ -261,7 +261,7 @@ namespace GmCommands
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
-            var fv = GameObject.Find("GmScript");
+            var fv = GmRootScript.GameObj;
             if (null != fv) {
                 var uihandler = fv.GetComponent<UiHanlder>();
                 if (null != uihandler) {
@@ -278,7 +278,7 @@ namespace GmCommands
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
-            var fv = GameObject.Find("GmScript");
+            var fv = GmRootScript.GameObj;
             if (null != fv) {
                 var uihandler = fv.GetComponent<UiHanlder>();
                 if (null != uihandler) {
