@@ -148,21 +148,21 @@ public class Main : MonoBehaviour
     }
     public static void ResetStory()
     {
-        GameObject obj = GameObject.Find("GmScript");
+        GameObject obj = GmRootScript.GameObj;
         if (null != obj) {
             obj.SendMessage("OnResetStory");
         }
     }
     public static void ExecStoryCommand(string cmd)
     {
-        GameObject obj = GameObject.Find("GmScript");
+        GameObject obj = GmRootScript.GameObj;
         if (null != obj) {
             obj.SendMessage("OnExecStoryCommand", cmd);
         }
     }
     public static void ExecStoryFile(string file)
     {
-        GameObject obj = GameObject.Find("GmScript");
+        GameObject obj = GmRootScript.GameObj;
         if (null != obj) {
             obj.SendMessage("OnExecStoryFile", file);
         }
@@ -636,7 +636,7 @@ namespace ExpressionAPI
         protected override CalculatorValue DoCalc()
         {
             var r = false;
-            var fv = GameObject.Find("GmScript");
+            var fv = GmRootScript.GameObj;
             if (null != fv) {
                 var uihandler = fv.GetComponent<UiHanlder>();
                 if (null != uihandler) {
@@ -662,7 +662,7 @@ namespace ExpressionAPI
         protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             var r = false;
-            var fv = GameObject.Find("GmScript");
+            var fv = GmRootScript.GameObj;
             if (null != fv) {
                 var uihandler = fv.GetComponent<UiHanlder>();
                 if (null != uihandler) {
@@ -681,7 +681,7 @@ namespace ExpressionAPI
         protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
         {
             var r = false;
-            var fv = GameObject.Find("GmScript");
+            var fv = GmRootScript.GameObj;
             if (null != fv) {
                 var uihandler = fv.GetComponent<UiHanlder>();
                 if (null != uihandler) {
