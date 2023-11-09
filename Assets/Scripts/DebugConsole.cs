@@ -323,7 +323,8 @@ public class DebugConsole : MonoBehaviour
         this.RegisterCommandCallback("scp", CMDScript);
         this.RegisterCommandCallback("command", CMDCommand);
         this.RegisterCommandCallback("cmd", CMDCommand);
-        this.RegisterCommandCallback("gm", CMDGm);
+        this.RegisterCommandCallback("story", CMDStory);
+        this.RegisterCommandCallback("s", CMDStory);
         this.RegisterCommandCallback("filter", CMDFilter);
         this.RegisterCommandCallback("/?", CMDHelp);
     }
@@ -419,7 +420,7 @@ public class DebugConsole : MonoBehaviour
             }
         }
 
-        //GUI.FocusControl(ENTRYFIELD);
+        GUI.FocusControl(ENTRYFIELD);
     }
 #else
     [Conditional("UNITY_EDITOR"),
@@ -803,27 +804,19 @@ public class DebugConsole : MonoBehaviour
 
     private object CMDResetDsl(params string[] args)
     {
-        GameObject obj = GmRootScript.GameObj;
-        if (null != obj) {
-            obj.SendMessage("OnResetDsl", null);
-        }
+        Main.Reset();
+        Main.ResetStory();
         return "resetdsl finish.";
     }
 
     private object CMDScript(params string[] args)
     {
         if (args.Length == 2) {
-            GameObject obj = GmRootScript.GameObj;
-            if (null != obj) {
-                obj.SendMessage("OnExecScript", args[1]);
-            }
+            Main.LoadScript(args[1]);
             return "script " + args[1];
         }
         else {
-            GameObject obj = GmRootScript.GameObj;
-            if (null != obj) {
-                obj.SendMessage("OnExecScript", "");
-            }
+            Main.LoadScript(string.Empty);
             return "script";
         }
     }
@@ -831,10 +824,7 @@ public class DebugConsole : MonoBehaviour
     private object CMDCommand(params string[] args)
     {
         if (args.Length == 2) {
-            GameObject obj = GmRootScript.GameObj;
-            if (null != obj) {
-                obj.SendMessage("OnExecCommand", args[1]);
-            }
+            Main.ExecCommand(args[1]);
             return "command " + args[1];
         }
         else {
@@ -842,17 +832,14 @@ public class DebugConsole : MonoBehaviour
         }
     }
 
-    private object CMDGm(params string[] args)
+    private object CMDStory(params string[] args)
     {
         if (args.Length == 2) {
-            GameObject obj = GmRootScript.GameObj;
-            if (null != obj) {
-                obj.SendMessage("OnExecCommand", "gm(\"" + args[1] + "\");");
-            }
-            return "gm " + args[1];
+            Main.ExecStoryCommand(args[1]);
+            return "story " + args[1];
         }
         else {
-            return "gm need argument command.";
+            return "story need argument command.";
         }
     }
 
@@ -928,7 +915,7 @@ public class DebugConsole : MonoBehaviour
             cmd = inputString.Substring(0, startIx).Trim().ToLower();
             string leftCmd = inputString.Substring(startIx + 1).Trim();
             input.Add(cmd);
-            if (0 == cmd.CompareTo("command") || 0 == cmd.CompareTo("cmd") || 0 == cmd.CompareTo("script") || 0 == cmd.CompareTo("scp") || 0 == cmd.CompareTo("gm")) {
+            if (0 == cmd.CompareTo("command") || 0 == cmd.CompareTo("cmd") || 0 == cmd.CompareTo("script") || 0 == cmd.CompareTo("scp") || 0 == cmd.CompareTo("story") || 0 == cmd.CompareTo("s")) {
                 input.Add(leftCmd);
             }
             else {
