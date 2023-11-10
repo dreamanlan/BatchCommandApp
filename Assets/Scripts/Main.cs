@@ -31,6 +31,7 @@ public class Main : MonoBehaviour
         m_Calculator.Register("loadui", new ExpressionFactoryHelper<LoadUiExp>());
         m_Calculator.Register("showui", new ExpressionFactoryHelper<ShowUiExp>());
         m_Calculator.Register("hideui", new ExpressionFactoryHelper<HideUiExp>());
+        m_Calculator.Register("cmd", new ExpressionFactoryHelper<CmdExp>());
         m_Calculator.Register("copypdf", new ExpressionFactoryHelper<CopyPdfExp>());
         m_Calculator.Register("setclipboard", new ExpressionFactoryHelper<SetClipboardExp>());
         m_Calculator.Register("getclipboard", new ExpressionFactoryHelper<GetClipboardExp>());
@@ -691,6 +692,19 @@ namespace ExpressionAPI
             }
             else {
                 LogSystem.Error("can't find GmScript");
+            }
+            return r;
+        }
+    }
+    internal sealed class CmdExp : SimpleExpressionBase
+    {
+        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        {
+            var r = CalculatorValue.NullObject;
+            if (operands.Count > 0) {
+                string cmd = operands[0].AsString;
+                DebugConsole.Execute(cmd);
+                r = cmd;
             }
             return r;
         }

@@ -154,6 +154,15 @@ namespace GmCommands
             return false;
         }
     }
+    internal class CmdCommand : SimpleStoryCommandBase<CmdCommand, StoryValueParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
+        {
+            string cmd = _params.Param1Value;
+            DebugConsole.Execute(cmd);
+            return false;
+        }
+    }
     //---------------------------------------------------------------------------------------------------------------------------------
     internal class IsFormatSupportedValue : SimpleStoryValueBase<IsFormatSupportedValue, StoryValueParam<string, string>>
     {
