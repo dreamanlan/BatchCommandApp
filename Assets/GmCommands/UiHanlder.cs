@@ -102,7 +102,7 @@ public class UiHanlder : MonoBehaviour
             }
             cell.DetachChildren();
             foreach (var gobj in list) {
-                StoryUtility.DestroyObject(gobj);
+                StoryScriptUtility.DestroyObject(gobj);
             }
         }
 

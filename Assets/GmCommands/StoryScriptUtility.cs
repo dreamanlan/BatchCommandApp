@@ -4,7 +4,7 @@ using System.Text;
 using System.IO;
 using UnityEngine;
 
-public static partial class StoryUtility
+public static partial class StoryScriptUtility
 {
     [System.Diagnostics.Conditional("DEBUG")]
     public static void GfxLog(string format, params object[] args)

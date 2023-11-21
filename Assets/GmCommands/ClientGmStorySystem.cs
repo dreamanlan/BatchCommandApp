@@ -4,14 +4,6 @@ using StoryScript;
 
 namespace GmCommands
 {
-    /// <summary>
-    /// Gm剧情系统是在游戏剧情系统之上添加GM命令构成的特殊剧情系统。游戏剧情系统添加的命令与值都可以在Gm剧情脚本里使用（反之亦然）
-    /// </summary>
-    /// <remarks>
-    /// 1、在剧情系统中注册的命令与值是共享的，亦即Gm剧情系统注册的Gm命令与值在正常剧情脚本里也可以使用！
-    /// （在发布时此系统应该从客户端移除。）
-    /// 2、剧情脚本与Gm剧情脚本不是一套体系，互不相干。
-    /// </remarks>
     public sealed class ClientGmStorySystem
     {
         public void Init()

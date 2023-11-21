@@ -510,7 +510,7 @@ namespace GmCommands
                     else {
                         string name = componentType.IsString ? componentType.StringVal : null;
                         if (null != name) {
-                            t = StoryUtility.GetType(name);
+                            t = StoryScriptUtility.GetType(name);
                             if (null != t) {
                                 UnityEngine.Component component = obj.GetComponentInParent(t);
                                 m_Value = component;
@@ -610,7 +610,7 @@ namespace GmCommands
                     else {
                         string name = componentType.IsString ? componentType.StringVal : null;
                         if (null != name) {
-                            t = StoryUtility.GetType(name);
+                            t = StoryScriptUtility.GetType(name);
                             if (null != t) {
                                 UnityEngine.Component component = obj.GetComponentInChildren(t, includeInactive != 0);
                                 m_Value = component;
@@ -705,7 +705,7 @@ namespace GmCommands
                     else {
                         string name = componentType.IsString ? componentType.StringVal : null;
                         if (null != name) {
-                            t = StoryUtility.GetType(name);
+                            t = StoryScriptUtility.GetType(name);
                             if (null != t) {
                                 var comps = obj.GetComponents(t);
                                 if (null != comps)
@@ -812,7 +812,7 @@ namespace GmCommands
                     else {
                         string name = componentType.IsString ? componentType.StringVal : null;
                         if (null != name) {
-                            t = StoryUtility.GetType(name);
+                            t = StoryScriptUtility.GetType(name);
                             if (null != t) {
                                 var comps = obj.GetComponentsInParent(t, includeInactive != 0);
                                 if (null != comps)
@@ -923,7 +923,7 @@ namespace GmCommands
                     else {
                         string name = componentType.IsString ? componentType.StringVal : null;
                         if (null != name) {
-                            t = StoryUtility.GetType(name);
+                            t = StoryScriptUtility.GetType(name);
                             if (null != t) {
                                 var comps = obj.GetComponentsInChildren(t, includeInactive != 0);
                                 if (null != comps)
@@ -1030,7 +1030,7 @@ namespace GmCommands
                 }
                 if (null != obj) {
                     foreach (string disable in disables) {
-                        var type = StoryUtility.GetType(disable);
+                        var type = StoryScriptUtility.GetType(disable);
                         if (null != type) {
                             var comps = obj.GetComponentsInChildren(type);
                             for (int i = 0; i < comps.Length; ++i) {
@@ -1040,11 +1040,11 @@ namespace GmCommands
                         }
                     }
                     foreach (string remove in removes) {
-                        var type = StoryUtility.GetType(remove);
+                        var type = StoryScriptUtility.GetType(remove);
                         if (null != type) {
                             var comps = obj.GetComponentsInChildren(type);
                             for (int i = 0; i < comps.Length; ++i) {
-                                StoryUtility.DestroyObject(comps[i]);
+                                StoryScriptUtility.DestroyObject(comps[i]);
                             }
                         }
                     }
@@ -1227,7 +1227,7 @@ namespace GmCommands
                 if (null != objPath) {
                     var obj = UnityEngine.GameObject.Find(objPath);
                     if (null != obj) {
-                        var t = StoryUtility.FindChildRecursive(obj.transform, childPath);
+                        var t = StoryScriptUtility.FindChildRecursive(obj.transform, childPath);
                         if (null != t) {
                             m_Value = t.gameObject;
                         } else {
@@ -1237,7 +1237,7 @@ namespace GmCommands
                         m_Value = BoxedValue.NullObject;
                     }
                 } else if (null != uobj) {
-                    var t = StoryUtility.FindChildRecursive(uobj.transform, childPath);
+                    var t = StoryScriptUtility.FindChildRecursive(uobj.transform, childPath);
                     if (null != t) {
                         m_Value = t.gameObject;
                     } else {
