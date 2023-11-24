@@ -163,7 +163,73 @@ namespace GmCommands
             return false;
         }
     }
+    internal class PlayerPrefIntCommand : SimpleStoryCommandBase<PlayerPrefIntCommand, StoryValueParam<string, int>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, int> _params, long delta)
+        {
+            string key = _params.Param1Value;
+            int val = _params.Param2Value;
+            PlayerPrefs.SetInt(key, val);
+            PlayerPrefs.Save();
+            return false;
+        }
+    }
+    internal class PlayerPrefFloatCommand : SimpleStoryCommandBase<PlayerPrefFloatCommand, StoryValueParam<string, float>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, float> _params, long delta)
+        {
+            string key = _params.Param1Value;
+            float val = _params.Param2Value;
+            PlayerPrefs.SetFloat(key, val);
+            PlayerPrefs.Save();
+            return false;
+        }
+    }
+    internal class PlayerPrefStringCommand : SimpleStoryCommandBase<PlayerPrefStringCommand, StoryValueParam<string, string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, string> _params, long delta)
+        {
+            string key = _params.Param1Value;
+            string val = _params.Param2Value;
+            PlayerPrefs.SetString(key, val);
+            PlayerPrefs.Save();
+            return false;
+        }
+    }
     //---------------------------------------------------------------------------------------------------------------------------------
+    internal class PlayerPrefIntValue : SimpleStoryValueBase<PlayerPrefIntValue, StoryValueParam<string, int>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, int> _params, StoryValueResult result)
+        {
+            string key = _params.Param1Value;
+            int def = _params.Param2Value;
+            int val = PlayerPrefs.GetInt(key, def);
+
+            result.Value = val;
+        }
+    }
+    internal class PlayerPrefFloatValue : SimpleStoryValueBase<PlayerPrefFloatValue, StoryValueParam<string, float>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, float> _params, StoryValueResult result)
+        {
+            string key = _params.Param1Value;
+            float def = _params.Param2Value;
+            float val = PlayerPrefs.GetFloat(key, def);
+
+            result.Value = val;
+        }
+    }
+    internal class PlayerPrefStringValue : SimpleStoryValueBase<PlayerPrefStringValue, StoryValueParam<string, string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, string> _params, StoryValueResult result)
+        {
+            string key = _params.Param1Value;
+            string def = _params.Param2Value;
+            string val = PlayerPrefs.GetString(key, def);
+
+            result.Value = val;
+        }
+    }
     internal class IsFormatSupportedValue : SimpleStoryValueBase<IsFormatSupportedValue, StoryValueParam<string, string>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, string> _params, StoryValueResult result)

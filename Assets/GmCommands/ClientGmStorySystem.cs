@@ -29,11 +29,20 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "consumecpu", new StoryCommandFactoryHelper<ConsumeCpuCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "cmd", new StoryCommandFactoryHelper<CmdCommand>());
+
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefint", new StoryCommandFactoryHelper<PlayerPrefIntCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "preffloat", new StoryCommandFactoryHelper<PlayerPrefFloatCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefstr", new StoryCommandFactoryHelper<PlayerPrefStringCommand>());
+
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "loadui", new StoryCommandFactoryHelper<LoadUiCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showui", new StoryCommandFactoryHelper<ShowUiCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "hideui", new StoryCommandFactoryHelper<HideUiCommand>());
 
                 //注册值与函数处理
+                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "prefint", new StoryValueFactoryHelper<PlayerPrefIntValue>());
+                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "preffloat", new StoryValueFactoryHelper<PlayerPrefFloatValue>());
+                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "prefstr", new StoryValueFactoryHelper<PlayerPrefStringValue>());
+
                 StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "istexsupported", new StoryValueFactoryHelper<IsFormatSupportedValue>());
                 StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getcompatibleformat", new StoryValueFactoryHelper<GetCompatibleFormatValue>());
                 StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getgraphicsformat", new StoryValueFactoryHelper<GetGraphicsFormatValue>());

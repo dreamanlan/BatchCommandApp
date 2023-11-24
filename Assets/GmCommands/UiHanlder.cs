@@ -27,11 +27,12 @@ public class UiHanlder : MonoBehaviour
         HideUi();
 
         //这里加载当前实验的UI，只能有一个是当前的
-        LoadUi("TestUI");
+        LoadUi(c_TestUI);
     }
     public void ShowUi()
     {
         m_RootUi.SetActive(true);
+        OnUiShow(m_CurUiRes);
     }
     public void HideUi()
     {
@@ -70,6 +71,9 @@ public class UiHanlder : MonoBehaviour
                 }
             }
         }
+
+        m_CurUiRes = res;
+        OnUiLoaded(res);
     }
 
     private void InitUiCells()
@@ -369,8 +373,34 @@ public class UiHanlder : MonoBehaviour
     {
         m_UiControls[id] = ui;
     }
+    private string ResolveId(string id)
+    {
+        if (id == c_AutoIdKeyword)
+            return GenAutoId();
+        else
+            return id;
+    }
+    private string GenAutoId()
+    {
+        ++m_CurAutoId;
+        return c_AutoIdKeyword + "_" + m_CurAutoId.ToString();
+    }
 
     //UI配置是Resources目录下的.txt文件
+    //UI加载完成的处理，主要是初始值设定
+    private void OnUiLoaded(string res)
+    {
+        if (res == c_TestUI) {
+            InitTestUi();
+        }
+    }
+    private void OnUiShow(string res)
+    {
+        if (res == c_TestUI) {
+            InitTestUi();
+        }
+    }
+
     //这2个方法用于关联UI配置里的事件处理方法到UiHandler的对应的C#方法（实际方法在本文件稍后）
     private UnityAction GetEventHandler(string method)
     {
@@ -400,6 +430,9 @@ public class UiHanlder : MonoBehaviour
     }
 
     //与TestUI配置对应的事件处理
+	private void InitTestUI()
+	{
+	}
     private void OnButton()
     {
         LogSystem.Warn("OnButton");
@@ -424,24 +457,12 @@ public class UiHanlder : MonoBehaviour
     {
         LogSystem.Warn("OnSliderChanged {0}", val);
     }
-
-    private string ResolveId(string id)
-    {
-        if (id == c_AutoIdKeyword)
-            return GenAutoId();
-        else
-            return id;
-    }
-    private string GenAutoId()
-    {
-        ++m_CurAutoId;
-        return c_AutoIdKeyword + "_" + m_CurAutoId.ToString();
-    }
-
+    private const string c_TestUI = "TestUI";
     private GameObject m_RootUi;
     private RectTransform[,] m_Cells;
     private Dictionary<string, UIBehaviour> m_UiControls = new Dictionary<string, UIBehaviour>();
     private int m_CurAutoId = 0;
+    private string m_CurUiRes = string.Empty;
 
     private const string c_AutoIdKeyword = "@auto";
     private const int c_CellRowNum = 20;
