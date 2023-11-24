@@ -41,6 +41,8 @@ public class UiHanlder : MonoBehaviour
     public void LoadUi(string res)
     {
         ClearCells();
+        m_UiLoaded = false;
+        m_UiInited = false;
 
         var ta = Resources.Load<TextAsset>(res);
         string txt = ta.text;
@@ -73,7 +75,9 @@ public class UiHanlder : MonoBehaviour
         }
 
         m_CurUiRes = res;
-        OnUiLoaded(res);
+        m_UiLoaded = true;
+        OnUiInit(res);
+        m_UiInited = true;
     }
 
     private void InitUiCells()
@@ -136,9 +140,10 @@ public class UiHanlder : MonoBehaviour
             var rowStr = fd.GetParamId(1);
             var colStr = fd.GetParamId(2);
             var dataType = fd.GetParamId(3);
-            var defStr = fd.GetParamId(4);
+            bool hasDef = fd.GetParamNum() > 4;
+            var defStr = hasDef ? fd.GetParamId(4) : string.Empty;
             if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
-                AddInput(id, row, col, dataType, defStr);
+                AddInput(id, row, col, dataType, hasDef, defStr);
             }
         }
     }
@@ -167,15 +172,18 @@ public class UiHanlder : MonoBehaviour
             var rowStr = cd.GetParamId(1);
             var colStr = cd.GetParamId(2);
             var method = cd.GetParamId(3);
-            var selStr = cd.GetParamId(4);
-            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col) && int.TryParse(selStr, out var select)) {
+            bool hasDef = fd.GetParamNum() > 4;
+            var selStr = hasDef ? cd.GetParamId(4) : string.Empty;
+            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
                 var dropdown = AddDropdown(id, row, col, method);
                 var list = new List<string>();
                 foreach (var p in fd.Params) {
                     list.Add(p.GetId());
                 }
                 dropdown.AddOptions(list);
-                dropdown.value = select;
+                if (hasDef && int.TryParse(selStr, out var select)) {
+                    dropdown.value = select;
+                }
             }
         }
     }
@@ -189,9 +197,10 @@ public class UiHanlder : MonoBehaviour
             var colStr = fd.GetParamId(2);
             var caption = fd.GetParamId(3);
             var method = fd.GetParamId(4);
-            var checkStr = fd.GetParamId(5);
+            bool hasDef = fd.GetParamNum() > 5;
+            var checkStr = hasDef ? fd.GetParamId(5) : string.Empty;
             if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
-                AddToggle(id, row, col, caption, method, checkStr == "true" || checkStr == "True");
+                AddToggle(id, row, col, caption, method, hasDef, checkStr == "true" || checkStr == "True");
             }
         }
     }
@@ -213,8 +222,9 @@ public class UiHanlder : MonoBehaviour
                         pid = ResolveId(pid);
                         var pcap = pfd.GetParamId(1);
                         var method = pfd.GetParamId(2);
-                        var pchecked = pfd.GetParamId(3);
-                        AddToToggleGroup(group, pid, row, col++, pcap, method, pchecked == "true" || pchecked == "True");
+                        bool hasDef = fd.GetParamNum() > 3;
+                        var pchecked = hasDef ? pfd.GetParamId(3) : string.Empty;
+                        AddToToggleGroup(group, pid, row, col++, pcap, method, hasDef, pchecked == "true" || pchecked == "True");
                     }
                 }
             }
@@ -231,10 +241,11 @@ public class UiHanlder : MonoBehaviour
             var method = fd.GetParamId(3);
             var minValStr = fd.GetParamId(4);
             var maxValStr = fd.GetParamId(5);
-            var defValStr = fd.GetParamId(6);
+            bool hasDef = fd.GetParamNum() > 6;
+            var defValStr = hasDef ? fd.GetParamId(6) : string.Empty;
             if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)
                 && float.TryParse(minValStr, out var minVal) && float.TryParse(maxValStr, out var maxVal) && float.TryParse(defValStr, out var defVal)) {
-                AddSlider(id, row, col, method, minVal, maxVal, defVal);
+                AddSlider(id, row, col, method, minVal, maxVal, hasDef, defVal);
             }
         }
     }
@@ -247,7 +258,7 @@ public class UiHanlder : MonoBehaviour
 
         AddUiControl(id, label);
     }
-    private void AddInput(string id, int row, int col, string dataType, string defStr)
+    private void AddInput(string id, int row, int col, string dataType, bool hasDef, string defStr)
     {
         var inputObj = AddToCell(InputTemplate, id, row, col);
         var input = inputObj.GetComponent<TMPro.TMP_InputField>();
@@ -258,7 +269,9 @@ public class UiHanlder : MonoBehaviour
             input.contentType = TMPro.TMP_InputField.ContentType.DecimalNumber;
         else
             input.contentType = TMPro.TMP_InputField.ContentType.Standard;
-        input.text = defStr;
+        if (hasDef) {
+            input.text = defStr;
+        }
 
         AddUiControl(id, input);
     }
@@ -292,7 +305,7 @@ public class UiHanlder : MonoBehaviour
         AddUiControl(id, dropdown);
         return dropdown;
     }
-    private void AddToggle(string id, int row, int col, string caption, string method, bool isChecked)
+    private void AddToggle(string id, int row, int col, string caption, string method, bool hasDef, bool isChecked)
     {
         var toggleObj = AddToCell(ToggleTemplate, id, row, col);
         var toggle = toggleObj.GetComponent<UnityEngine.UI.Toggle>();
@@ -303,7 +316,9 @@ public class UiHanlder : MonoBehaviour
 
             AddUiControl(id + "|Label", label);
         }
-        toggle.isOn = isChecked;
+        if (hasDef) {
+            toggle.isOn = isChecked;
+        }
         toggle.group = null;
         var mobj = GetEventHandler<bool>(method);
         if (null != mobj) {
@@ -320,7 +335,7 @@ public class UiHanlder : MonoBehaviour
         AddUiControl(id, toggle);
         return toggle;
     }
-    private void AddToToggleGroup(UnityEngine.UI.ToggleGroup group, string id, int row, int col, string caption, string method, bool isChecked)
+    private void AddToToggleGroup(UnityEngine.UI.ToggleGroup group, string id, int row, int col, string caption, string method, bool hasDef, bool isChecked)
     {
         var toggleObj = AddToCell(ToggleTemplate, id, row, col);
         var toggle = toggleObj.GetComponent<UnityEngine.UI.Toggle>();
@@ -331,7 +346,9 @@ public class UiHanlder : MonoBehaviour
 
             AddUiControl(id + "|Label", label);
         }
-        toggle.isOn = isChecked;
+        if (hasDef) {
+            toggle.isOn = isChecked;
+        }
         toggle.group = group;
         var mobj = GetEventHandler<bool>(method);
         if (null != mobj) {
@@ -340,13 +357,15 @@ public class UiHanlder : MonoBehaviour
 
         AddUiControl(id, toggle);
     }
-    private void AddSlider(string id, int row, int col, string method, float minVal, float maxVal, float defVal)
+    private void AddSlider(string id, int row, int col, string method, float minVal, float maxVal, bool hasDef, float defVal)
     {
         var sliderObj = AddToCell(SliderTemplate, id, row, col);
         var slider = sliderObj.GetComponent<UnityEngine.UI.Slider>();
         slider.minValue = minVal;
         slider.maxValue = maxVal;
-        slider.value = defVal;
+        if (hasDef) {
+            slider.value = defVal;
+        }
         var mobj = GetEventHandler<float>(method);
         if (null != mobj) {
             slider.onValueChanged.AddListener(mobj);
@@ -387,13 +406,14 @@ public class UiHanlder : MonoBehaviour
     }
 
     //UI配置是Resources目录下的.txt文件
-    //UI加载完成的处理，主要是初始值设定
-    private void OnUiLoaded(string res)
+    //UI加载完成后进行初始化处理，主要是初始值设定
+    private void OnUiInit(string res)
     {
         if (res == c_TestUI) {
             InitTestUi();
         }
     }
+    //UI显示时可以重置或同步UI上的值
     private void OnUiShow(string res)
     {
         if (res == c_TestUI) {
@@ -430,7 +450,7 @@ public class UiHanlder : MonoBehaviour
     }
 
     //与TestUI配置对应的事件处理
-	private void InitTestUI()
+	private void InitTestUi()
 	{
 	}
     private void OnButton()
@@ -463,6 +483,8 @@ public class UiHanlder : MonoBehaviour
     private Dictionary<string, UIBehaviour> m_UiControls = new Dictionary<string, UIBehaviour>();
     private int m_CurAutoId = 0;
     private string m_CurUiRes = string.Empty;
+    private bool m_UiLoaded = false;
+    private bool m_UiInited = false;
 
     private const string c_AutoIdKeyword = "@auto";
     private const int c_CellRowNum = 20;
