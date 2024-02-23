@@ -27,6 +27,9 @@ public class GmRootScript : MonoBehaviour
         m_Logger.Init(Application.persistentDataPath, string.Empty);
         ClientGmStorySystem.Instance.Init();
 
+        m_CommandDocs = StoryScript.StoryCommandManager.Instance.GenCommandDocs();
+        m_FunctionDocs = StoryScript.StoryFunctionManager.Instance.GenFunctionDocs();
+
         LogSystem.OnOutput = (StoryLogType type, string msg) => {
             switch (type) {
                 case StoryLogType.Error:
@@ -137,9 +140,19 @@ public class GmRootScript : MonoBehaviour
         }
     }
 
+    private SortedList<string, string> m_CommandDocs;
+    private SortedList<string, string> m_FunctionDocs;
     private string m_LocalGmFile = string.Empty;
     private GmCommands.Logger m_Logger = new GmCommands.Logger();
 
+    public static SortedList<string,string> CommandDocs
+    {
+        get { return GetGmRootScript().m_CommandDocs; }
+    }
+    public static SortedList<string, string> FunctionDocs
+    {
+        get { return GetGmRootScript().m_FunctionDocs; }
+    }
     public static GameObject GameObj
     {
         get
@@ -167,6 +180,13 @@ public class GmRootScript : MonoBehaviour
         }
     }
 
+    private static GmRootScript GetGmRootScript()
+    {
+        var obj = s_GameObj;
+        Debug.Assert(null != obj);
+        var scp = obj.GetComponent<GmRootScript>();
+        return scp;
+    }
     private static byte[] LoadFileFromStreamingAssets(string file)
     {
         if (Application.platform == RuntimePlatform.Android) {

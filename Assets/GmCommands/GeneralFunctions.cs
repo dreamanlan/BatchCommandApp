@@ -7,7 +7,7 @@ using Dsl;
 
 namespace GmCommands
 {
-    internal sealed class GetTimeValue : IStoryValue
+    internal sealed class GetTimeFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -15,9 +15,9 @@ namespace GmCommands
             if (null != callData) {
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetTimeValue val = new GetTimeValue();
+            GetTimeFunction val = new GetTimeFunction();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
             return val;
@@ -52,7 +52,7 @@ namespace GmCommands
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetTimeScaleValue : IStoryValue
+    internal sealed class GetTimeScaleFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -60,9 +60,9 @@ namespace GmCommands
             if (null != callData) {
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetTimeScaleValue val = new GetTimeScaleValue();
+            GetTimeScaleFunction val = new GetTimeScaleFunction();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
             return val;
@@ -97,7 +97,7 @@ namespace GmCommands
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetTimeSinceStartupValue : IStoryValue
+    internal sealed class GetTimeSinceStartupValue : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -105,7 +105,7 @@ namespace GmCommands
             if (null != callData) {
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
             GetTimeSinceStartupValue val = new GetTimeSinceStartupValue();
             val.m_HaveValue = m_HaveValue;
@@ -140,7 +140,7 @@ namespace GmCommands
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class IsActiveValue : IStoryValue
+    internal sealed class IsActiveFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -152,9 +152,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            IsActiveValue val = new IsActiveValue();
+            IsActiveFunction val = new IsActiveFunction();
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -206,11 +206,11 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryValue m_ObjPath = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryValue();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class IsReallyActiveValue : IStoryValue
+    internal sealed class IsReallyActiveFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -222,9 +222,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            IsReallyActiveValue val = new IsReallyActiveValue();
+            IsReallyActiveFunction val = new IsReallyActiveFunction();
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -276,11 +276,11 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryValue m_ObjPath = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryValue();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class IsVisibleValue : IStoryValue
+    internal sealed class IsVisibleFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -292,9 +292,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            IsVisibleValue val = new IsVisibleValue();
+            IsVisibleFunction val = new IsVisibleFunction();
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -351,11 +351,11 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryValue m_ObjPath = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryValue();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetComponentValue : IStoryValue
+    internal sealed class GetComponentFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -368,9 +368,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetComponentValue val = new GetComponentValue();
+            GetComponentFunction val = new GetComponentFunction();
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_ComponentType = m_ComponentType.Clone();
             val.m_HaveValue = m_HaveValue;
@@ -433,12 +433,12 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue m_ComponentType = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ComponentType = new StoryValue();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetComponentInParentValue : IStoryValue
+    internal sealed class GetComponentInParentFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -451,9 +451,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetComponentInParentValue val = new GetComponentInParentValue();
+            GetComponentInParentFunction val = new GetComponentInParentFunction();
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_ComponentType = m_ComponentType.Clone();
             val.m_HaveValue = m_HaveValue;
@@ -522,12 +522,12 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue m_ComponentType = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ComponentType = new StoryValue();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetComponentInChildrenValue : IStoryValue
+    internal sealed class GetComponentInChildrenFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -543,9 +543,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetComponentInChildrenValue val = new GetComponentInChildrenValue();
+            GetComponentInChildrenFunction val = new GetComponentInChildrenFunction();
             val.m_ParamNum = m_ParamNum;
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_ComponentType = m_ComponentType.Clone();
@@ -624,13 +624,13 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue m_ComponentType = new StoryValue();
-        private IStoryValue<int> m_IncludeInactive = new StoryValue<int>();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ComponentType = new StoryValue();
+        private IStoryFunction<int> m_IncludeInactive = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetComponentsValue : IStoryValue
+    internal sealed class GetComponentsFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -643,9 +643,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetComponentsValue val = new GetComponentsValue();
+            GetComponentsFunction val = new GetComponentsFunction();
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_ComponentType = m_ComponentType.Clone();
             val.m_HaveValue = m_HaveValue;
@@ -720,12 +720,12 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue m_ComponentType = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ComponentType = new StoryValue();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetComponentsInParentValue : IStoryValue
+    internal sealed class GetComponentsInParentFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -741,9 +741,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetComponentsInParentValue val = new GetComponentsInParentValue();
+            GetComponentsInParentFunction val = new GetComponentsInParentFunction();
             val.m_ParamNum = m_ParamNum;
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_ComponentType = m_ComponentType.Clone();
@@ -830,13 +830,13 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue m_ComponentType = new StoryValue();
-        private IStoryValue<int> m_IncludeInactive = new StoryValue<int>();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ComponentType = new StoryValue();
+        private IStoryFunction<int> m_IncludeInactive = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetComponentsInChildrenValue : IStoryValue
+    internal sealed class GetComponentsInChildrenFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -852,9 +852,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetComponentsInChildrenValue val = new GetComponentsInChildrenValue();
+            GetComponentsInChildrenFunction val = new GetComponentsInChildrenFunction();
             val.m_ParamNum = m_ParamNum;
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_ComponentType = m_ComponentType.Clone();
@@ -941,13 +941,13 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue m_ComponentType = new StoryValue();
-        private IStoryValue<int> m_IncludeInactive = new StoryValue<int>();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ComponentType = new StoryValue();
+        private IStoryFunction<int> m_IncludeInactive = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetGameObjectValue : IStoryValue
+    internal sealed class GetGameObjectFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -956,9 +956,9 @@ namespace GmCommands
                 Load(funcData);
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetGameObjectValue val = new GetGameObjectValue();
+            GetGameObjectFunction val = new GetGameObjectFunction();
             val.m_ObjPath = m_ObjPath.Clone();
             for (int i = 0; i < m_DisableComponents.Count; ++i) {
                 val.m_DisableComponents.Add(m_DisableComponents[i].Clone());
@@ -1093,13 +1093,13 @@ namespace GmCommands
             }
         }
 
-        private IStoryValue m_ObjPath = new StoryValue();
-        private List<IStoryValue<string>> m_DisableComponents = new List<IStoryValue<string>>();
-        private List<IStoryValue<string>> m_RemoveComponents = new List<IStoryValue<string>>();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private List<IStoryFunction<string>> m_DisableComponents = new List<IStoryFunction<string>>();
+        private List<IStoryFunction<string>> m_RemoveComponents = new List<IStoryFunction<string>>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetParentValue : IStoryValue
+    internal sealed class GetParentFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1111,9 +1111,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetParentValue val = new GetParentValue();
+            GetParentFunction val = new GetParentFunction();
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -1169,11 +1169,11 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryValue m_ObjPath = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryValue();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetChildValue : IStoryValue
+    internal sealed class GetChildFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1186,9 +1186,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetChildValue val = new GetChildValue();
+            GetChildFunction val = new GetChildFunction();
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_ChildPath = m_ChildPath.Clone();
             val.m_HaveValue = m_HaveValue;
@@ -1254,12 +1254,12 @@ namespace GmCommands
             }
         }
 
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue<string> m_ChildPath = new StoryValue<string>();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction<string> m_ChildPath = new StoryValue<string>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetUnityTypeValue : IStoryValue
+    internal sealed class GetUnityTypeFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1271,9 +1271,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetUnityTypeValue val = new GetUnityTypeValue();
+            GetUnityTypeFunction val = new GetUnityTypeFunction();
             val.m_TypeName = m_TypeName.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -1319,11 +1319,11 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryValue<string> m_TypeName = new StoryValue<string>();
+        private IStoryFunction<string> m_TypeName = new StoryValue<string>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetUnityUiTypeValue : IStoryValue
+    internal sealed class GetUnityUiTypeFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1335,9 +1335,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetUnityUiTypeValue val = new GetUnityUiTypeValue();
+            GetUnityUiTypeFunction val = new GetUnityUiTypeFunction();
             val.m_TypeName = m_TypeName.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -1383,11 +1383,11 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryValue<string> m_TypeName = new StoryValue<string>();
+        private IStoryFunction<string> m_TypeName = new StoryValue<string>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetUserTypeValue : IStoryValue
+    internal sealed class GetUserTypeFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1399,9 +1399,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetUserTypeValue val = new GetUserTypeValue();
+            GetUserTypeFunction val = new GetUserTypeFunction();
             val.m_TypeName = m_TypeName.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -1445,11 +1445,11 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryValue<string> m_TypeName = new StoryValue<string>();
+        private IStoryFunction<string> m_TypeName = new StoryValue<string>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetPositionValue : IStoryValue
+    internal sealed class GetPositionFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1461,9 +1461,9 @@ namespace GmCommands
                     m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetPositionValue val = new GetPositionValue();
+            GetPositionFunction val = new GetPositionFunction();
             val.m_ParamNum = m_ParamNum;
             val.m_ObjId = m_ObjId.Clone();
             val.m_LocalOrWorld = m_LocalOrWorld.Clone();
@@ -1527,12 +1527,12 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjId = new StoryValue();
-        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetPositionXValue : IStoryValue
+    internal sealed class GetPositionXFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1544,9 +1544,9 @@ namespace GmCommands
                     m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetPositionXValue val = new GetPositionXValue();
+            GetPositionXFunction val = new GetPositionXFunction();
             val.m_ParamNum = m_ParamNum;
             val.m_ObjId = m_ObjId.Clone();
             val.m_LocalOrWorld = m_LocalOrWorld.Clone();
@@ -1610,12 +1610,12 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjId = new StoryValue();
-        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetPositionYValue : IStoryValue
+    internal sealed class GetPositionYFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1627,9 +1627,9 @@ namespace GmCommands
                     m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetPositionYValue val = new GetPositionYValue();
+            GetPositionYFunction val = new GetPositionYFunction();
             val.m_ParamNum = m_ParamNum;
             val.m_ObjId = m_ObjId.Clone();
             val.m_LocalOrWorld = m_LocalOrWorld.Clone();
@@ -1693,12 +1693,12 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjId = new StoryValue();
-        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetPositionZValue : IStoryValue
+    internal sealed class GetPositionZFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1710,9 +1710,9 @@ namespace GmCommands
                     m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetPositionZValue val = new GetPositionZValue();
+            GetPositionZFunction val = new GetPositionZFunction();
             val.m_ParamNum = m_ParamNum;
             val.m_ObjId = m_ObjId.Clone();
             val.m_LocalOrWorld = m_LocalOrWorld.Clone();
@@ -1776,12 +1776,12 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjId = new StoryValue();
-        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetRotationValue : IStoryValue
+    internal sealed class GetRotationFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1793,9 +1793,9 @@ namespace GmCommands
                     m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetRotationValue val = new GetRotationValue();
+            GetRotationFunction val = new GetRotationFunction();
             val.m_ParamNum = m_ParamNum;
             val.m_ObjId = m_ObjId.Clone();
             val.m_LocalOrWorld = m_LocalOrWorld.Clone();
@@ -1859,12 +1859,12 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjId = new StoryValue();
-        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetRotationXValue : IStoryValue
+    internal sealed class GetRotationXFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1876,9 +1876,9 @@ namespace GmCommands
                     m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetRotationXValue val = new GetRotationXValue();
+            GetRotationXFunction val = new GetRotationXFunction();
             val.m_ParamNum = m_ParamNum;
             val.m_ObjId = m_ObjId.Clone();
             val.m_LocalOrWorld = m_LocalOrWorld.Clone();
@@ -1942,12 +1942,12 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjId = new StoryValue();
-        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetRotationYValue : IStoryValue
+    internal sealed class GetRotationYFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -1959,9 +1959,9 @@ namespace GmCommands
                     m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetRotationYValue val = new GetRotationYValue();
+            GetRotationYFunction val = new GetRotationYFunction();
             val.m_ParamNum = m_ParamNum;
             val.m_ObjId = m_ObjId.Clone();
             val.m_LocalOrWorld = m_LocalOrWorld.Clone();
@@ -2025,12 +2025,12 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjId = new StoryValue();
-        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetRotationZValue : IStoryValue
+    internal sealed class GetRotationZFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2042,9 +2042,9 @@ namespace GmCommands
                     m_LocalOrWorld.InitFromDsl(callData.GetParam(1));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetRotationZValue val = new GetRotationZValue();
+            GetRotationZFunction val = new GetRotationZFunction();
             val.m_ParamNum = m_ParamNum;
             val.m_ObjId = m_ObjId.Clone();
             val.m_LocalOrWorld = m_LocalOrWorld.Clone();
@@ -2108,12 +2108,12 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjId = new StoryValue();
-        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetScaleValue : IStoryValue
+    internal sealed class GetScaleFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2122,9 +2122,9 @@ namespace GmCommands
                 m_ObjId.InitFromDsl(callData.GetParam(0));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetScaleValue val = new GetScaleValue();
+            GetScaleFunction val = new GetScaleFunction();
             val.m_ObjId = m_ObjId.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -2180,11 +2180,11 @@ namespace GmCommands
             }
         }
 
-        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryFunction m_ObjId = new StoryValue();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetScaleXValue : IStoryValue
+    internal sealed class GetScaleXFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2193,9 +2193,9 @@ namespace GmCommands
                 m_ObjId.InitFromDsl(callData.GetParam(0));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetScaleXValue val = new GetScaleXValue();
+            GetScaleXFunction val = new GetScaleXFunction();
             val.m_ObjId = m_ObjId.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -2251,11 +2251,11 @@ namespace GmCommands
             }
         }
 
-        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryFunction m_ObjId = new StoryValue();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetScaleYValue : IStoryValue
+    internal sealed class GetScaleYFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2264,9 +2264,9 @@ namespace GmCommands
                 m_ObjId.InitFromDsl(callData.GetParam(0));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetScaleYValue val = new GetScaleYValue();
+            GetScaleYFunction val = new GetScaleYFunction();
             val.m_ObjId = m_ObjId.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -2322,11 +2322,11 @@ namespace GmCommands
             }
         }
 
-        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryFunction m_ObjId = new StoryValue();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetScaleZValue : IStoryValue
+    internal sealed class GetScaleZFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2335,9 +2335,9 @@ namespace GmCommands
                 m_ObjId.InitFromDsl(callData.GetParam(0));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetScaleZValue val = new GetScaleZValue();
+            GetScaleZFunction val = new GetScaleZFunction();
             val.m_ObjId = m_ObjId.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -2393,11 +2393,11 @@ namespace GmCommands
             }
         }
 
-        private IStoryValue m_ObjId = new StoryValue();
+        private IStoryFunction m_ObjId = new StoryValue();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class Deg2RadValue : IStoryValue
+    internal sealed class Deg2RadFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2406,9 +2406,9 @@ namespace GmCommands
                 m_Degree.InitFromDsl(callData.GetParam(0));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            Deg2RadValue val = new Deg2RadValue();
+            Deg2RadFunction val = new Deg2RadFunction();
             val.m_Degree = m_Degree.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
@@ -2445,11 +2445,11 @@ namespace GmCommands
             }
         }
 
-        private IStoryValue<float> m_Degree = new StoryValue<float>();
+        private IStoryFunction<float> m_Degree = new StoryValue<float>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class Rad2DegValue : IStoryValue
+    internal sealed class Rad2DegValue : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2458,7 +2458,7 @@ namespace GmCommands
                 m_Radian.InitFromDsl(callData.GetParam(0));
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
             Rad2DegValue val = new Rad2DegValue();
             val.m_Radian = m_Radian.Clone();
@@ -2497,11 +2497,11 @@ namespace GmCommands
             }
         }
 
-        private IStoryValue<float> m_Radian = new StoryValue<float>();
+        private IStoryFunction<float> m_Radian = new StoryValue<float>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetFileNameValue : IStoryValue
+    internal sealed class GetFileNameFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2513,9 +2513,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetFileNameValue val = new GetFileNameValue();
+            GetFileNameFunction val = new GetFileNameFunction();
             val.m_Path = m_Path.Clone();
             val.m_ParamNum = m_ParamNum;
             val.m_HaveValue = m_HaveValue;
@@ -2545,12 +2545,12 @@ namespace GmCommands
             m_Value = Path.GetFileName(path);
         }
 
-        private IStoryValue<string> m_Path = new StoryValue<string>();
+        private IStoryFunction<string> m_Path = new StoryValue<string>();
         private int m_ParamNum;
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetDirectoryNameValue : IStoryValue
+    internal sealed class GetDirectoryNameFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2562,9 +2562,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetDirectoryNameValue val = new GetDirectoryNameValue();
+            GetDirectoryNameFunction val = new GetDirectoryNameFunction();
             val.m_Path = m_Path.Clone();
             val.m_ParamNum = m_ParamNum;
             val.m_HaveValue = m_HaveValue;
@@ -2594,12 +2594,12 @@ namespace GmCommands
             m_Value = Path.GetDirectoryName(path);
         }
 
-        private IStoryValue<string> m_Path = new StoryValue<string>();
+        private IStoryFunction<string> m_Path = new StoryValue<string>();
         private int m_ParamNum;
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetExtensionValue : IStoryValue
+    internal sealed class GetExtensionFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2611,9 +2611,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetExtensionValue val = new GetExtensionValue();
+            GetExtensionFunction val = new GetExtensionFunction();
             val.m_Path = m_Path.Clone();
             val.m_ParamNum = m_ParamNum;
             val.m_HaveValue = m_HaveValue;
@@ -2643,12 +2643,12 @@ namespace GmCommands
             m_Value = Path.GetExtension(path);
         }
 
-        private IStoryValue<string> m_Path = new StoryValue<string>();
+        private IStoryFunction<string> m_Path = new StoryValue<string>();
         private int m_ParamNum;
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class CombinePathValue : IStoryValue
+    internal sealed class CombinePathFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2661,9 +2661,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            CombinePathValue val = new CombinePathValue();
+            CombinePathFunction val = new CombinePathFunction();
             val.m_Path1 = m_Path1.Clone();
             val.m_Path2 = m_Path2.Clone();
             val.m_ParamNum = m_ParamNum;
@@ -2696,13 +2696,13 @@ namespace GmCommands
             m_Value = Path.Combine(path1, path2);
         }
 
-        private IStoryValue<string> m_Path1 = new StoryValue<string>();
-        private IStoryValue<string> m_Path2 = new StoryValue<string>();
+        private IStoryFunction<string> m_Path1 = new StoryValue<string>();
+        private IStoryFunction<string> m_Path2 = new StoryValue<string>();
         private int m_ParamNum;
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetStreamingAssetsValue : IStoryValue
+    internal sealed class GetStreamingAssetsFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2710,9 +2710,9 @@ namespace GmCommands
             if (null != callData) {
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetStreamingAssetsValue val = new GetStreamingAssetsValue();
+            GetStreamingAssetsFunction val = new GetStreamingAssetsFunction();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
             return val;
@@ -2741,7 +2741,7 @@ namespace GmCommands
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class GetPersistentPathValue : IStoryValue
+    internal sealed class GetPersistentPathFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2749,9 +2749,9 @@ namespace GmCommands
             if (null != callData) {
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            GetPersistentPathValue val = new GetPersistentPathValue();
+            GetPersistentPathFunction val = new GetPersistentPathFunction();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
             return val;
@@ -2780,7 +2780,7 @@ namespace GmCommands
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class CallScriptValue : IStoryValue
+    internal sealed class CallScriptFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2809,14 +2809,14 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            CallScriptValue val = new CallScriptValue();
+            CallScriptFunction val = new CallScriptFunction();
             val.m_FuncName = m_FuncName;
             if (string.IsNullOrEmpty(m_FuncName))
                 val.m_Func = m_Func.Clone();
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue varg = m_Args[i];
+                IStoryFunction varg = m_Args[i];
                 val.m_Args.Add(varg.Clone());
             }
             val.m_HaveValue = m_HaveValue;
@@ -2829,7 +2829,7 @@ namespace GmCommands
             if (string.IsNullOrEmpty(m_FuncName))
                 m_Func.Evaluate(instance, handler, iterator, args);
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 val.Evaluate(instance, handler, iterator, args);
             }
             TryUpdateValue(instance);
@@ -2864,12 +2864,12 @@ namespace GmCommands
         }
 
         private string m_FuncName = string.Empty;
-        private IStoryValue<string> m_Func = new StoryValue<string>();
-        private List<IStoryValue> m_Args = new List<IStoryValue>();
+        private IStoryFunction<string> m_Func = new StoryValue<string>();
+        private List<IStoryFunction> m_Args = new List<IStoryFunction>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class EvalScriptValue : IStoryValue
+    internal sealed class EvalScriptFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2891,9 +2891,9 @@ namespace GmCommands
                 }
             }
         }
-        public IStoryValue Clone()
+        public IStoryFunction Clone()
         {
-            EvalScriptValue val = new EvalScriptValue();
+            EvalScriptFunction val = new EvalScriptFunction();
             val.m_IsString = m_IsString;
             if (m_IsString)
                 val.m_Code = m_Code.Clone();
@@ -2936,7 +2936,7 @@ namespace GmCommands
         }
 
         private bool m_IsString = false;
-        private IStoryValue<string> m_Code = new StoryValue<string>();
+        private IStoryFunction<string> m_Code = new StoryValue<string>();
         private List<ISyntaxComponent> m_Exps = new List<ISyntaxComponent>();
         private bool m_HaveValue;
         private BoxedValue m_Value;

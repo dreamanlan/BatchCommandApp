@@ -197,7 +197,7 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------------------------
-    internal class PlayerPrefIntValue : SimpleStoryValueBase<PlayerPrefIntValue, StoryValueParam<string, int>>
+    internal class PlayerPrefIntFunction : SimpleStoryValueBase<PlayerPrefIntFunction, StoryValueParam<string, int>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, int> _params, StoryValueResult result)
         {
@@ -208,7 +208,7 @@ namespace GmCommands
             result.Value = val;
         }
     }
-    internal class PlayerPrefFloatValue : SimpleStoryValueBase<PlayerPrefFloatValue, StoryValueParam<string, float>>
+    internal class PlayerPrefFloatFunction : SimpleStoryValueBase<PlayerPrefFloatFunction, StoryValueParam<string, float>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, float> _params, StoryValueResult result)
         {
@@ -219,7 +219,7 @@ namespace GmCommands
             result.Value = val;
         }
     }
-    internal class PlayerPrefStringValue : SimpleStoryValueBase<PlayerPrefStringValue, StoryValueParam<string, string>>
+    internal class PlayerPrefStringFunction : SimpleStoryValueBase<PlayerPrefStringFunction, StoryValueParam<string, string>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, string> _params, StoryValueResult result)
         {
@@ -230,7 +230,7 @@ namespace GmCommands
             result.Value = val;
         }
     }
-    internal class IsFormatSupportedValue : SimpleStoryValueBase<IsFormatSupportedValue, StoryValueParam<string, string>>
+    internal class IsFormatSupportedFunction : SimpleStoryValueBase<IsFormatSupportedFunction, StoryValueParam<string, string>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, string> _params, StoryValueResult result)
         {
@@ -250,7 +250,7 @@ namespace GmCommands
             result.Value = r;
         }
     }
-    internal class GetCompatibleFormatValue : SimpleStoryValueBase<GetCompatibleFormatValue, StoryValueParam<string, string>>
+    internal class GetCompatibleFormatFunction : SimpleStoryValueBase<GetCompatibleFormatFunction, StoryValueParam<string, string>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, string> _params, StoryValueResult result)
         {
@@ -271,7 +271,7 @@ namespace GmCommands
             result.Value = r;
         }
     }
-    internal class GetGraphicsFormatValue : SimpleStoryValueBase<GetGraphicsFormatValue, StoryValueParam<string>>
+    internal class GetGraphicsFormatFunction : SimpleStoryValueBase<GetGraphicsFormatFunction, StoryValueParam<string>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
         {
@@ -290,7 +290,7 @@ namespace GmCommands
             result.Value = r;
         }
     }
-    internal class GetMSAASampleCountValue : SimpleStoryValueBase<GetMSAASampleCountValue, StoryValueParam<int, int, string, int, int>>
+    internal class GetMSAASampleCountFunction : SimpleStoryValueBase<GetMSAASampleCountFunction, StoryValueParam<int, int, string, int, int>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<int, int, string, int, int> _params, StoryValueResult result)
         {

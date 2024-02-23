@@ -10,43 +10,43 @@ namespace GmCommands
         {
             try {
                 StoryCommandManager.ThreadCommandGroupsMask = 1 << (int)StoryCommandGroupDefine.GM;
-                StoryValueManager.ThreadValueGroupsMask = 1 << (int)StoryValueGroupDefine.GM;
+                StoryFunctionManager.ThreadFunctionGroupsMask = 1 << (int)StoryFunctionGroupDefine.GM;
 
                 RegisterCommon();
 
                 //注册Gm命令
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setdebug", new StoryCommandFactoryHelper<SetDebugCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "editorbreak", new StoryCommandFactoryHelper<EditorBreakCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "debugbreak", new StoryCommandFactoryHelper<DebugBreakCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setdebug", "setdebug command", new StoryCommandFactoryHelper<SetDebugCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "editorbreak", "editorbreak command", new StoryCommandFactoryHelper<EditorBreakCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "debugbreak", "debugbreak command", new StoryCommandFactoryHelper<DebugBreakCommand>());
 
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportstex", new StoryCommandFactoryHelper<SupportsTexCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsrt", new StoryCommandFactoryHelper<SupportsRTCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsblendingonrt", new StoryCommandFactoryHelper<SupportsBlendingOnRTCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "devicesupports", new StoryCommandFactoryHelper<DeviceSupportsCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportstex", "supportstex command", new StoryCommandFactoryHelper<SupportsTexCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsrt", "supportsrt command", new StoryCommandFactoryHelper<SupportsRTCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsblendingonrt", "supportsblendingonrt command", new StoryCommandFactoryHelper<SupportsBlendingOnRTCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "devicesupports", "devicesupports command", new StoryCommandFactoryHelper<DeviceSupportsCommand>());
 
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "allocmemory", new StoryCommandFactoryHelper<AllocMemoryCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "freememory", new StoryCommandFactoryHelper<FreeMemoryCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "consumecpu", new StoryCommandFactoryHelper<ConsumeCpuCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "allocmemory", "allocmemory command", new StoryCommandFactoryHelper<AllocMemoryCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "freememory", "freememory command", new StoryCommandFactoryHelper<FreeMemoryCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "consumecpu", "consumecpu command", new StoryCommandFactoryHelper<ConsumeCpuCommand>());
 
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "cmd", new StoryCommandFactoryHelper<CmdCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "cmd", "cmd command", new StoryCommandFactoryHelper<CmdCommand>());
 
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefint", new StoryCommandFactoryHelper<PlayerPrefIntCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "preffloat", new StoryCommandFactoryHelper<PlayerPrefFloatCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefstr", new StoryCommandFactoryHelper<PlayerPrefStringCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefint", "prefint command", new StoryCommandFactoryHelper<PlayerPrefIntCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "preffloat", "preffloat command", new StoryCommandFactoryHelper<PlayerPrefFloatCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefstr", "prefstr command", new StoryCommandFactoryHelper<PlayerPrefStringCommand>());
 
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "loadui", new StoryCommandFactoryHelper<LoadUiCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showui", new StoryCommandFactoryHelper<ShowUiCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "hideui", new StoryCommandFactoryHelper<HideUiCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "loadui", "loadui command", new StoryCommandFactoryHelper<LoadUiCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showui", "showui command", new StoryCommandFactoryHelper<ShowUiCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "hideui", "hideui command", new StoryCommandFactoryHelper<HideUiCommand>());
 
                 //注册值与函数处理
-                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "prefint", new StoryValueFactoryHelper<PlayerPrefIntValue>());
-                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "preffloat", new StoryValueFactoryHelper<PlayerPrefFloatValue>());
-                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "prefstr", new StoryValueFactoryHelper<PlayerPrefStringValue>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "prefint", "prefint function", new StoryFunctionFactoryHelper<PlayerPrefIntFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "preffloat", "preffloat function", new StoryFunctionFactoryHelper<PlayerPrefFloatFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "prefstr", "prefstr function", new StoryFunctionFactoryHelper<PlayerPrefStringFunction>());
 
-                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "istexsupported", new StoryValueFactoryHelper<IsFormatSupportedValue>());
-                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getcompatibleformat", new StoryValueFactoryHelper<GetCompatibleFormatValue>());
-                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getgraphicsformat", new StoryValueFactoryHelper<GetGraphicsFormatValue>());
-                StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getmsaasamplecount", new StoryValueFactoryHelper<GetMSAASampleCountValue>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "istexsupported", "istexsupported function", new StoryFunctionFactoryHelper<IsFormatSupportedFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getcompatibleformat", "getcompatibleformat function", new StoryFunctionFactoryHelper<GetCompatibleFormatFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getgraphicsformat", "getgraphicsformat function", new StoryFunctionFactoryHelper<GetGraphicsFormatFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getmsaasamplecount", "getmsaasamplecount function", new StoryFunctionFactoryHelper<GetMSAASampleCountFunction>());
 
             }
             catch (Exception ex) {
@@ -56,76 +56,76 @@ namespace GmCommands
         private void RegisterCommon()
         {
             //注册命令
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "sendmessage", new StoryCommandFactoryHelper<SendMessageCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "sendmessagewithtag", new StoryCommandFactoryHelper<SendMessageWithTagCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "sendmessagewithgameobject", new StoryCommandFactoryHelper<SendMessageWithGameObjectCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "creategameobject", new StoryCommandFactoryHelper<CreateGameObjectCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "settransform", new StoryCommandFactoryHelper<SetTransformCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "addtransform", new StoryCommandFactoryHelper<AddTransformCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "destroygameobject", new StoryCommandFactoryHelper<DestroyGameObjectCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setparent", new StoryCommandFactoryHelper<SetParentCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setactive", new StoryCommandFactoryHelper<SetActiveCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setvisible", new StoryCommandFactoryHelper<SetVisibleCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "addcomponent", new StoryCommandFactoryHelper<AddComponentCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "removecomponent", new StoryCommandFactoryHelper<RemoveComponentCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "openurl", new StoryCommandFactoryHelper<OpenUrlCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "quit", new StoryCommandFactoryHelper<QuitCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "sendmessage", "sendmessage command", new StoryCommandFactoryHelper<GmCommands.SendMessageCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "sendmessagewithtag", "sendmessagewithtag command", new StoryCommandFactoryHelper<GmCommands.SendMessageWithTagCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "sendmessagewithgameobject", "sendmessagewithgameobject command", new StoryCommandFactoryHelper<GmCommands.SendMessageWithGameObjectCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "creategameobject", "creategameobject command", new StoryCommandFactoryHelper<GmCommands.CreateGameObjectCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "settransform", "settransform command", new StoryCommandFactoryHelper<GmCommands.SetTransformCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "addtransform", "addtransform command", new StoryCommandFactoryHelper<GmCommands.AddTransformCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "destroygameobject", "destroygameobject command", new StoryCommandFactoryHelper<GmCommands.DestroyGameObjectCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setparent", "setparent command", new StoryCommandFactoryHelper<GmCommands.SetParentCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setactive", "setactive command", new StoryCommandFactoryHelper<GmCommands.SetActiveCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setvisible", "setvisible command", new StoryCommandFactoryHelper<GmCommands.SetVisibleCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "addcomponent", "addcomponent command", new StoryCommandFactoryHelper<GmCommands.AddComponentCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "removecomponent", "removecomponent command", new StoryCommandFactoryHelper<GmCommands.RemoveComponentCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "openurl", "openurl command", new StoryCommandFactoryHelper<GmCommands.OpenUrlCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "quit", "quit command", new StoryCommandFactoryHelper<GmCommands.QuitCommand>());
 
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "gameobjectanimation", new StoryCommandFactoryHelper<GameObjectAnimationCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "gameobjectanimationparam", new StoryCommandFactoryHelper<GameObjectAnimationParamCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "gameobjectanimation", "gameobjectanimation command", new StoryCommandFactoryHelper<GmCommands.GameObjectAnimationCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "gameobjectanimationparam", "gameobjectanimationparam command", new StoryCommandFactoryHelper<GmCommands.GameObjectAnimationParamCommand>());
 
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "loadscp", new StoryCommandFactoryHelper<LoadScriptCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "callscp", new StoryCommandFactoryHelper<CallScriptCommand>());
-            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "evalscp", new StoryCommandFactoryHelper<EvalScriptCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "loadscp", "loadscp(dsl_script_file) or loadscp(\"name\", func(param1, param2, ...)) or loadscp(name => func(param1, param2, ...)) command", new StoryCommandFactoryHelper<LoadScriptCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "callscp", "callscp(\"func\", arg1, arg2, ...) or callscp(func(arg1, arg2, ...)) command", new StoryCommandFactoryHelper<CallScriptCommand>());
+            StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "evalscp", "evalscp(code_str) or evalscp(exp1,exp2,...) command", new StoryCommandFactoryHelper<EvalScriptCommand>());
 
             //注册值与函数处理
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "gettime", new StoryValueFactoryHelper<GetTimeValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "gettimescale", new StoryValueFactoryHelper<GetTimeScaleValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "isactive", new StoryValueFactoryHelper<IsActiveValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "isreallyactive", new StoryValueFactoryHelper<IsReallyActiveValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "isvisible", new StoryValueFactoryHelper<IsVisibleValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getcomponent", new StoryValueFactoryHelper<GetComponentValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getcomponentinparent", new StoryValueFactoryHelper<GetComponentInParentValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getcomponentinchildren", new StoryValueFactoryHelper<GetComponentInChildrenValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getcomponents", new StoryValueFactoryHelper<GetComponentsValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getcomponentsinparent", new StoryValueFactoryHelper<GetComponentsInParentValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getcomponentsinchildren", new StoryValueFactoryHelper<GetComponentsInChildrenValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getgameobject", new StoryValueFactoryHelper<GetGameObjectValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getparent", new StoryValueFactoryHelper<GetParentValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getchild", new StoryValueFactoryHelper<GetChildValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getunitytype", new StoryValueFactoryHelper<GetUnityTypeValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getunityuitype", new StoryValueFactoryHelper<GetUnityUiTypeValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getusertype", new StoryValueFactoryHelper<GetUserTypeValue>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "gettime", "gettime function", new StoryFunctionFactoryHelper<GmCommands.GetTimeFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "gettimescale", "gettimescale function", new StoryFunctionFactoryHelper<GmCommands.GetTimeScaleFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isactive", "isactive function", new StoryFunctionFactoryHelper<GmCommands.IsActiveFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isreallyactive", "isreallyactive function", new StoryFunctionFactoryHelper<GmCommands.IsReallyActiveFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isvisible", "isvisible function", new StoryFunctionFactoryHelper<GmCommands.IsVisibleFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getcomponent", "getcomponent function", new StoryFunctionFactoryHelper<GmCommands.GetComponentFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getcomponentinparent", "getcomponentinparent function", new StoryFunctionFactoryHelper<GmCommands.GetComponentInParentFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getcomponentinchildren", "getcomponentinchildren function", new StoryFunctionFactoryHelper<GmCommands.GetComponentInChildrenFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getcomponents", "getcomponents function", new StoryFunctionFactoryHelper<GmCommands.GetComponentsFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getcomponentsinparent", "getcomponentsinparent function", new StoryFunctionFactoryHelper<GmCommands.GetComponentsInParentFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getcomponentsinchildren", "getcomponentsinchildren function", new StoryFunctionFactoryHelper<GmCommands.GetComponentsInChildrenFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getgameobject", "getgameobject function", new StoryFunctionFactoryHelper<GmCommands.GetGameObjectFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getparent", "getparent function", new StoryFunctionFactoryHelper<GmCommands.GetParentFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getchild", "getchild function", new StoryFunctionFactoryHelper<GmCommands.GetChildFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getunitytype", "getunitytype function", new StoryFunctionFactoryHelper<GmCommands.GetUnityTypeFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getunityuitype", "getunityuitype function", new StoryFunctionFactoryHelper<GmCommands.GetUnityUiTypeFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getusertype", "getusertype function", new StoryFunctionFactoryHelper<GmCommands.GetUserTypeFunction>());
 
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getposition", new StoryValueFactoryHelper<GetPositionValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getpositionx", new StoryValueFactoryHelper<GetPositionXValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getpositiony", new StoryValueFactoryHelper<GetPositionYValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getpositionz", new StoryValueFactoryHelper<GetPositionZValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getrotation", new StoryValueFactoryHelper<GetRotationValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getrotationx", new StoryValueFactoryHelper<GetRotationXValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getrotationy", new StoryValueFactoryHelper<GetRotationYValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getrotationz", new StoryValueFactoryHelper<GetRotationZValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getscale", new StoryValueFactoryHelper<GetScaleValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getscalex", new StoryValueFactoryHelper<GetScaleXValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getscaley", new StoryValueFactoryHelper<GetScaleYValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getscalez", new StoryValueFactoryHelper<GetScaleZValue>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getposition", "getposition function", new StoryFunctionFactoryHelper<GmCommands.GetPositionFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getpositionx", "getpositionx function", new StoryFunctionFactoryHelper<GmCommands.GetPositionXFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getpositiony", "getpositiony function", new StoryFunctionFactoryHelper<GmCommands.GetPositionYFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getpositionz", "getpositionz function", new StoryFunctionFactoryHelper<GmCommands.GetPositionZFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getrotation", "getrotation function", new StoryFunctionFactoryHelper<GmCommands.GetRotationFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getrotationx", "getrotationx function", new StoryFunctionFactoryHelper<GmCommands.GetRotationXFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getrotationy", "getrotationy function", new StoryFunctionFactoryHelper<GmCommands.GetRotationYFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getrotationz", "getrotationz function", new StoryFunctionFactoryHelper<GmCommands.GetRotationZFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getscale", "getscale function", new StoryFunctionFactoryHelper<GmCommands.GetScaleFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getscalex", "getscalex function", new StoryFunctionFactoryHelper<GmCommands.GetScaleXFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getscaley", "getscaley function", new StoryFunctionFactoryHelper<GmCommands.GetScaleYFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getscalez", "getscalez function", new StoryFunctionFactoryHelper<GmCommands.GetScaleZFunction>());
 
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "position", new StoryValueFactoryHelper<StoryScript.CommonValues.Vector3Value>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "rotation", new StoryValueFactoryHelper<StoryScript.CommonValues.Vector3Value>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "scale", new StoryValueFactoryHelper<StoryScript.CommonValues.Vector3Value>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "position", "position function", new StoryFunctionFactoryHelper<StoryScript.CommonFunctions.Vector3Function>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "rotation", "rotation function", new StoryFunctionFactoryHelper<StoryScript.CommonFunctions.Vector3Function>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "scale", "scale function", new StoryFunctionFactoryHelper<StoryScript.CommonFunctions.Vector3Function>());
 
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "deg2rad", new StoryValueFactoryHelper<Deg2RadValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "rad2deg", new StoryValueFactoryHelper<Rad2DegValue>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "deg2rad", "deg2rad function", new StoryFunctionFactoryHelper<GmCommands.Deg2RadFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "rad2deg", "rad2deg function", new StoryFunctionFactoryHelper<GmCommands.Rad2DegValue>());
 
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getfilename", new StoryValueFactoryHelper<GetFileNameValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getdirname", new StoryValueFactoryHelper<GetDirectoryNameValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getextension", new StoryValueFactoryHelper<GetExtensionValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "combinepath", new StoryValueFactoryHelper<CombinePathValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getstreamingassets", new StoryValueFactoryHelper<GetStreamingAssetsValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "getpersistentpath", new StoryValueFactoryHelper<GetPersistentPathValue>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getfilename", "getfilename function", new StoryFunctionFactoryHelper<GmCommands.GetFileNameFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getdirname", "getdirname function", new StoryFunctionFactoryHelper<GmCommands.GetDirectoryNameFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getextension", "getextension function", new StoryFunctionFactoryHelper<GmCommands.GetExtensionFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "combinepath", "combinepath function", new StoryFunctionFactoryHelper<GmCommands.CombinePathFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getstreamingassets", "getstreamingassets function", new StoryFunctionFactoryHelper<GmCommands.GetStreamingAssetsFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getpersistentpath", "getpersistentpath function", new StoryFunctionFactoryHelper<GmCommands.GetPersistentPathFunction>());
 
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "callscp", new StoryValueFactoryHelper<CallScriptValue>());
-            StoryValueManager.Instance.RegisterValueFactory(StoryValueGroupDefine.GM, "evalscp", new StoryValueFactoryHelper<EvalScriptValue>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "callscp", "callscp(func_name,arg1,arg2,...) or callscp(func(arg1,arg2,...)) function", new StoryFunctionFactoryHelper<CallScriptFunction>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "evalscp", "evalscp(str) or evalscp(exp1,exp2,...) function", new StoryFunctionFactoryHelper<EvalScriptFunction>());
         }
 
         public int ActiveStoryCount

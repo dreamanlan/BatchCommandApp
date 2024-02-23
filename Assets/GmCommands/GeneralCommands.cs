@@ -17,7 +17,7 @@ namespace GmCommands
             cmd.m_ObjName = m_ObjName.Clone();
             cmd.m_Msg = m_Msg.Clone();
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 cmd.m_Args.Add(val.Clone());
             }
             return cmd;
@@ -27,7 +27,7 @@ namespace GmCommands
             m_ObjName.Evaluate(instance, handler, iterator, args);
             m_Msg.Evaluate(instance, handler, iterator, args);
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 val.Evaluate(instance, handler, iterator, args);
             }
         }
@@ -38,7 +38,7 @@ namespace GmCommands
             string msg = m_Msg.Value;
             ArrayList arglist = new ArrayList();
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 arglist.Add(val.Value.GetObject());
             }
             object[] args = arglist.ToArray();
@@ -64,9 +64,9 @@ namespace GmCommands
             }
             return true;
         }
-        private IStoryValue<string> m_ObjName = new StoryValue<string>();
-        private IStoryValue<string> m_Msg = new StoryValue<string>();
-        private List<IStoryValue> m_Args = new List<IStoryValue>();
+        private IStoryFunction<string> m_ObjName = new StoryValue<string>();
+        private IStoryFunction<string> m_Msg = new StoryValue<string>();
+        private List<IStoryFunction> m_Args = new List<IStoryFunction>();
     }
     /// <summary>
     /// sendmessagewithtag(tagname,msg,arg1,arg2,...);
@@ -79,7 +79,7 @@ namespace GmCommands
             cmd.m_ObjTag = m_ObjTag.Clone();
             cmd.m_Msg = m_Msg.Clone();
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 cmd.m_Args.Add(val.Clone());
             }
             return cmd;
@@ -89,7 +89,7 @@ namespace GmCommands
             m_ObjTag.Evaluate(instance, handler, iterator, args);
             m_Msg.Evaluate(instance, handler, iterator, args);
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 val.Evaluate(instance, handler, iterator, args);
             }
         }
@@ -100,7 +100,7 @@ namespace GmCommands
             string msg = m_Msg.Value;
             ArrayList arglist = new ArrayList();
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 arglist.Add(val.Value.GetObject());
             }
             object[] args = arglist.ToArray();
@@ -126,9 +126,9 @@ namespace GmCommands
             }
             return true;
         }
-        private IStoryValue<string> m_ObjTag = new StoryValue<string>();
-        private IStoryValue<string> m_Msg = new StoryValue<string>();
-        private List<IStoryValue> m_Args = new List<IStoryValue>();
+        private IStoryFunction<string> m_ObjTag = new StoryValue<string>();
+        private IStoryFunction<string> m_Msg = new StoryValue<string>();
+        private List<IStoryFunction> m_Args = new List<IStoryFunction>();
     }
     /// <summary>
     /// sendmessagewithgameobject(gameobject,msg,arg1,arg2,...);
@@ -141,7 +141,7 @@ namespace GmCommands
             cmd.m_Object = m_Object.Clone();
             cmd.m_Msg = m_Msg.Clone();
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 cmd.m_Args.Add(val.Clone());
             }
             return cmd;
@@ -151,7 +151,7 @@ namespace GmCommands
             m_Object.Evaluate(instance, handler, iterator, args);
             m_Msg.Evaluate(instance, handler, iterator, args);
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 val.Evaluate(instance, handler, iterator, args);
             }
         }
@@ -172,7 +172,7 @@ namespace GmCommands
                 string msg = m_Msg.Value;
                 ArrayList arglist = new ArrayList();
                 for (int i = 0; i < m_Args.Count; ++i) {
-                    IStoryValue val = m_Args[i];
+                    IStoryFunction val = m_Args[i];
                     arglist.Add(val.Value.GetObject());
                 }
                 object[] args = arglist.ToArray();
@@ -199,9 +199,9 @@ namespace GmCommands
             }
             return true;
         }
-        private IStoryValue m_Object = new StoryValue();
-        private IStoryValue<string> m_Msg = new StoryValue<string>();
-        private List<IStoryValue> m_Args = new List<IStoryValue>();
+        private IStoryFunction m_Object = new StoryValue();
+        private IStoryFunction<string> m_Msg = new StoryValue<string>();
+        private List<IStoryFunction> m_Args = new List<IStoryFunction>();
     }
     /// <summary>
     /// creategameobject(name, prefab[, parent])[obj("varname")]{
@@ -433,17 +433,17 @@ namespace GmCommands
             }
         }
 
-        private IStoryValue<string> m_Name = new StoryValue<string>();
-        private IStoryValue<string> m_Prefab = new StoryValue<string>();
-        private IStoryValue m_Parent = new StoryValue();
+        private IStoryFunction<string> m_Name = new StoryValue<string>();
+        private IStoryFunction<string> m_Prefab = new StoryValue<string>();
+        private IStoryFunction m_Parent = new StoryValue();
         private bool m_HaveParent = false;
         private bool m_HaveObj = false;
-        private IStoryValue<string> m_ObjVarName = new StoryValue<string>();
-        private IStoryValue<UnityEngine.Vector3> m_Position = new StoryValue<UnityEngine.Vector3>();
-        private IStoryValue<UnityEngine.Vector3> m_Rotation = new StoryValue<UnityEngine.Vector3>();
-        private IStoryValue<UnityEngine.Vector3> m_Scale = new StoryValue<UnityEngine.Vector3>();
-        private List<IStoryValue<string>> m_DisableComponents = new List<IStoryValue<string>>();
-        private List<IStoryValue<string>> m_RemoveComponents = new List<IStoryValue<string>>();
+        private IStoryFunction<string> m_ObjVarName = new StoryValue<string>();
+        private IStoryFunction<UnityEngine.Vector3> m_Position = new StoryValue<UnityEngine.Vector3>();
+        private IStoryFunction<UnityEngine.Vector3> m_Rotation = new StoryValue<UnityEngine.Vector3>();
+        private IStoryFunction<UnityEngine.Vector3> m_Scale = new StoryValue<UnityEngine.Vector3>();
+        private List<IStoryFunction<string>> m_DisableComponents = new List<IStoryFunction<string>>();
+        private List<IStoryFunction<string>> m_RemoveComponents = new List<IStoryFunction<string>>();
     }
     /// <summary>
     /// settransform(name, world_or_local){
@@ -574,11 +574,11 @@ namespace GmCommands
             }
         }
 
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
-        private IStoryValue<UnityEngine.Vector3> m_Position = new StoryValue<UnityEngine.Vector3>();
-        private IStoryValue<UnityEngine.Vector3> m_Rotation = new StoryValue<UnityEngine.Vector3>();
-        private IStoryValue<UnityEngine.Vector3> m_Scale = new StoryValue<UnityEngine.Vector3>();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction<UnityEngine.Vector3> m_Position = new StoryValue<UnityEngine.Vector3>();
+        private IStoryFunction<UnityEngine.Vector3> m_Rotation = new StoryValue<UnityEngine.Vector3>();
+        private IStoryFunction<UnityEngine.Vector3> m_Scale = new StoryValue<UnityEngine.Vector3>();
 
         private bool m_Handled = false;
         private UnityEngine.GameObject m_Object = null;
@@ -716,11 +716,11 @@ namespace GmCommands
             }
         }
 
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue<int> m_LocalOrWorld = new StoryValue<int>();
-        private IStoryValue<UnityEngine.Vector3> m_Position = new StoryValue<UnityEngine.Vector3>();
-        private IStoryValue<UnityEngine.Vector3> m_Rotation = new StoryValue<UnityEngine.Vector3>();
-        private IStoryValue<UnityEngine.Vector3> m_Scale = new StoryValue<UnityEngine.Vector3>();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction<UnityEngine.Vector3> m_Position = new StoryValue<UnityEngine.Vector3>();
+        private IStoryFunction<UnityEngine.Vector3> m_Rotation = new StoryValue<UnityEngine.Vector3>();
+        private IStoryFunction<UnityEngine.Vector3> m_Scale = new StoryValue<UnityEngine.Vector3>();
 
         private bool m_Handled = false;
         private UnityEngine.GameObject m_Object = null;
@@ -768,7 +768,7 @@ namespace GmCommands
             return true;
         }
 
-        private IStoryValue m_ObjPath = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryValue();
     }
     /// <summary>
     /// setparent(objpath,parent,stay_world_pos);
@@ -880,9 +880,9 @@ namespace GmCommands
             return true;
         }
 
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue m_Parent = new StoryValue();
-        private IStoryValue<int> m_StayWorldPos = new StoryValue<int>();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_Parent = new StoryValue();
+        private IStoryFunction<int> m_StayWorldPos = new StoryValue<int>();
 
         private bool m_Handled = false;
         private UnityEngine.GameObject m_Object = null;
@@ -956,8 +956,8 @@ namespace GmCommands
             return true;
         }
 
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue<int> m_Active = new StoryValue<int>();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction<int> m_Active = new StoryValue<int>();
 
         private bool m_Handled = false;
         private UnityEngine.GameObject m_Object = null;
@@ -1038,8 +1038,8 @@ namespace GmCommands
             return true;
         }
 
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue<int> m_Visible = new StoryValue<int>();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction<int> m_Visible = new StoryValue<int>();
 
         private bool m_Handled = false;
         private UnityEngine.GameObject m_Object = null;
@@ -1132,10 +1132,10 @@ namespace GmCommands
                 m_HaveObj = true;
             }
         }
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue m_ComponentType = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ComponentType = new StoryValue();
         private bool m_HaveObj = false;
-        private IStoryValue<string> m_ObjVarName = new StoryValue<string>();
+        private IStoryFunction<string> m_ObjVarName = new StoryValue<string>();
     }
     /// <summary>
     /// removecomponent(objpath,type);
@@ -1199,8 +1199,8 @@ namespace GmCommands
             return true;
         }
 
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue m_ComponentType = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ComponentType = new StoryValue();
     }
     /// <summary>
     /// openurl(url);
@@ -1233,7 +1233,7 @@ namespace GmCommands
             }
             return true;
         }
-        private IStoryValue<string> m_Url = new StoryValue<string>();
+        private IStoryFunction<string> m_Url = new StoryValue<string>();
     }
     /// <summary>
     /// quit();
@@ -1325,9 +1325,9 @@ namespace GmCommands
             return true;
         }
         private int m_ParamNum = 0;
-        private IStoryValue m_ObjPath = new StoryValue();
-        private IStoryValue<string> m_Anim = new StoryValue<string>();
-        private IStoryValue<float> m_Time = new StoryValue<float>();
+        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction<string> m_Anim = new StoryValue<string>();
+        private IStoryFunction<float> m_Time = new StoryValue<float>();
     }
     /// <summary>
     /// gameobjectanimationparam(obj)
@@ -1445,8 +1445,8 @@ namespace GmCommands
         private class ParamInfo
         {
             internal string Type;
-            internal IStoryValue<string> Key;
-            internal IStoryValue Value;
+            internal IStoryFunction<string> Key;
+            internal IStoryFunction Value;
             internal ParamInfo()
             {
                 Init();
@@ -1471,15 +1471,15 @@ namespace GmCommands
                 Value = new StoryValue();
             }
         }
-        private IStoryValue m_ObjPath = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryValue();
         private List<ParamInfo> m_Params = new List<ParamInfo>();
     }
     /// <summary>
-    /// load(dsl_script_file);
+    /// loadscp(dsl_script_file);
     /// or
-    /// load("name", func(param1, param2, ...));
+    /// loadscp("name", func(param1, param2, ...));
     /// or
-    /// load(name => func(param1, param2, ...));
+    /// loadscp(name => func(param1, param2, ...));
     /// </summary>
     internal sealed class LoadScriptCommand : AbstractStoryCommand
     {
@@ -1553,15 +1553,15 @@ namespace GmCommands
         }
 
         private int m_ArgNum = 0;
-        private IStoryValue<string> m_FileOrId = new StoryValue<string>();
+        private IStoryFunction<string> m_FileOrId = new StoryValue<string>();
         private string m_Name = string.Empty;
         private Dsl.FunctionData m_FuncCall;
         private List<string> m_Params = new List<string>();
     }
     /// <summary>
-    /// call("func", arg1, arg2, ...);
+    /// callscp("func", arg1, arg2, ...);
     /// or
-    /// call(func(arg1, arg2, ...));
+    /// callscp(func(arg1, arg2, ...));
     /// </summary>
     internal class CallScriptCommand : AbstractStoryCommand
     {
@@ -1572,7 +1572,7 @@ namespace GmCommands
             if(string.IsNullOrEmpty(m_FuncName))
                 cmd.m_Func = m_Func.Clone();
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 cmd.m_Args.Add(val.Clone());
             }
             return cmd;
@@ -1582,7 +1582,7 @@ namespace GmCommands
             if (string.IsNullOrEmpty(m_FuncName))
                 m_Func.Evaluate(instance, handler, iterator, args);
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 val.Evaluate(instance, handler, iterator, args);
             }
         }
@@ -1594,7 +1594,7 @@ namespace GmCommands
                 func = m_Func.Value;
             ArrayList arglist = new ArrayList();
             for (int i = 0; i < m_Args.Count; ++i) {
-                IStoryValue val = m_Args[i];
+                IStoryFunction val = m_Args[i];
                 arglist.Add(val.Value.GetObject());
             }
             object[] args = arglist.ToArray();
@@ -1628,13 +1628,13 @@ namespace GmCommands
         }
 
         private string m_FuncName = string.Empty;
-        private IStoryValue<string> m_Func = new StoryValue<string>();
-        private List<IStoryValue> m_Args = new List<IStoryValue>();
+        private IStoryFunction<string> m_Func = new StoryValue<string>();
+        private List<IStoryFunction> m_Args = new List<IStoryFunction>();
     }
     /// <summary>
-    /// eval(code_string);
+    /// evalscp(code_string);
     /// or
-    /// eval(code_dsl);
+    /// evalscp(code_dsl);
     /// </summary>
     internal class EvalScriptCommand : AbstractStoryCommand
     {
@@ -1682,7 +1682,7 @@ namespace GmCommands
         }
 
         private bool m_IsString = false;
-        private IStoryValue<string> m_Code = new StoryValue<string>();
+        private IStoryFunction<string> m_Code = new StoryValue<string>();
         private List<ISyntaxComponent> m_Exps = new List<ISyntaxComponent>();
     }
 }
