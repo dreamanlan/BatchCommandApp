@@ -480,7 +480,7 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryMessageHandler handler, long delta)
         {
             var objVal = m_ObjPath.Value;
-            int worldOrLocal = m_LocalOrWorld.Value;
+            int local0OrWorld1 = m_LocalOrWorld.Value;
             string objPath = objVal.IsString ? objVal.StringVal : null;
             if (!m_Handled) {
                 m_Handled = true;
@@ -502,7 +502,7 @@ namespace GmCommands
                     m_Object = obj;
                     if (m_Position.HaveValue) {
                         var v = m_Position.Value;
-                        if (0 == worldOrLocal) {
+                        if (0 == local0OrWorld1) {
                             obj.transform.localPosition = new UnityEngine.Vector3(v.x, v.y, v.z);
                         }
                         else {
@@ -511,7 +511,7 @@ namespace GmCommands
                     }
                     if (m_Rotation.HaveValue) {
                         var v = m_Rotation.Value;
-                        if (0 == worldOrLocal)
+                        if (0 == local0OrWorld1)
                             obj.transform.localEulerAngles = new UnityEngine.Vector3(v.x, v.y, v.z);
                         else
                             obj.transform.eulerAngles = new UnityEngine.Vector3(v.x, v.y, v.z);
@@ -618,7 +618,7 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryMessageHandler handler, long delta)
         {
             var objVal = m_ObjPath.Value;
-            int worldOrLocal = m_LocalOrWorld.Value;
+            int local0OrWorld1 = m_LocalOrWorld.Value;
             string objPath = objVal.IsString ? objVal.StringVal : null;
             if (!m_Handled) {
                 m_Handled = true;
@@ -642,7 +642,7 @@ namespace GmCommands
                     m_Object = obj;
                     if (m_Position.HaveValue) {
                         var v = m_Position.Value;
-                        if (0 == worldOrLocal) {
+                        if (0 == local0OrWorld1) {
                             obj.transform.localPosition += new UnityEngine.Vector3(v.x, v.y, v.z);
                         }
                         else {
@@ -651,7 +651,7 @@ namespace GmCommands
                     }
                     if (m_Rotation.HaveValue) {
                         var v = m_Rotation.Value;
-                        if (0 == worldOrLocal)
+                        if (0 == local0OrWorld1)
                             obj.transform.localEulerAngles += new UnityEngine.Vector3(v.x, v.y, v.z);
                         else
                             obj.transform.eulerAngles += new UnityEngine.Vector3(v.x, v.y, v.z);

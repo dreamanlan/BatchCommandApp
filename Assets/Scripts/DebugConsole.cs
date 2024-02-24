@@ -318,7 +318,7 @@ public class DebugConsole : MonoBehaviour
         LogMessage(Message.System(" Copyright 2008-2010 Jeremy Hollingsworth "));
         LogMessage(Message.System(" Ennanzus-Interactive.com "));
         LogMessage(Message.System(" type '/?' for available commands."));
-        LogMessage(Message.System(" type '/? filter' for available story commands."));
+        LogMessage(Message.System(" type '/? filter' for available story commands and script apis."));
         LogMessage(Message.Log(""));
 
         this.RegisterCommandCallback("close", CMDClose);

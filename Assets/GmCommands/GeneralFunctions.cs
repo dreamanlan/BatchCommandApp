@@ -444,18 +444,23 @@ namespace GmCommands
         {
             Dsl.FunctionData callData = param as Dsl.FunctionData;
             if (null != callData) {
-                int num = callData.GetParamNum();
-                if (num > 1) {
+                m_ParamNum = callData.GetParamNum();
+                if (m_ParamNum > 1) {
                     m_ObjPath.InitFromDsl(callData.GetParam(0));
                     m_ComponentType.InitFromDsl(callData.GetParam(1));
+                }
+                if (m_ParamNum > 2) {
+                    m_IncludeInactive.InitFromDsl(callData.GetParam(2));
                 }
             }
         }
         public IStoryFunction Clone()
         {
             GetComponentInParentFunction val = new GetComponentInParentFunction();
+            val.m_ParamNum = m_ParamNum;
             val.m_ObjPath = m_ObjPath.Clone();
             val.m_ComponentType = m_ComponentType.Clone();
+            val.m_IncludeInactive = m_IncludeInactive.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
             return val;
@@ -465,6 +470,9 @@ namespace GmCommands
             m_HaveValue = false;
             m_ObjPath.Evaluate(instance, handler, iterator, args);
             m_ComponentType.Evaluate(instance, handler, iterator, args);
+            if (m_ParamNum > 2) {
+                m_IncludeInactive.Evaluate(instance, handler, iterator, args);
+            }
             TryUpdateValue(instance);
         }
         public bool HaveValue
@@ -485,6 +493,10 @@ namespace GmCommands
                 m_HaveValue = true;
                 var objPath = m_ObjPath.Value;
                 var componentType = m_ComponentType.Value;
+                int includeInactive = 1;
+                if (m_ParamNum > 2) {
+                    includeInactive = m_IncludeInactive.Value;
+                }
                 UnityEngine.GameObject obj = objPath.IsObject ? objPath.ObjectVal as UnityEngine.GameObject : null;
                 if (null == obj) {
                     string path = objPath.IsString ? objPath.StringVal : null;
@@ -494,7 +506,6 @@ namespace GmCommands
                     else {
                         try {
                             int objId = objPath.GetInt();
-                            obj = null;
                         }
                         catch {
                             obj = null;
@@ -504,7 +515,7 @@ namespace GmCommands
                 if (null != obj) {
                     Type t = componentType.IsObject ? componentType.ObjectVal as Type : null;
                     if (null != t) {
-                        UnityEngine.Component component = obj.GetComponentInParent(t);
+                        UnityEngine.Component component = obj.GetComponentInParent(t, includeInactive != 0);
                         m_Value = component;
                     }
                     else {
@@ -512,9 +523,10 @@ namespace GmCommands
                         if (null != name) {
                             t = StoryScriptUtility.GetType(name);
                             if (null != t) {
-                                UnityEngine.Component component = obj.GetComponentInParent(t);
+                                UnityEngine.Component component = obj.GetComponentInParent(t, includeInactive != 0);
                                 m_Value = component;
-                            } else {
+                            }
+                            else {
                                 m_Value = BoxedValue.NullObject;
                             }
                         }
@@ -522,8 +534,11 @@ namespace GmCommands
                 }
             }
         }
+
+        private int m_ParamNum = 0;
         private IStoryFunction m_ObjPath = new StoryValue();
         private IStoryFunction m_ComponentType = new StoryValue();
+        private IStoryFunction<int> m_IncludeInactive = new StoryValue<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1495,7 +1510,7 @@ namespace GmCommands
             if (m_ObjId.HaveValue) {
                 m_HaveValue = true;
                 var objPathVal = m_ObjId.Value;
-                int worldOrLocal = m_LocalOrWorld.Value;
+                int local0OrWorld1 = m_LocalOrWorld.Value;
                 UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
                 if (null == obj) {
                     string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
@@ -1514,7 +1529,7 @@ namespace GmCommands
                 }
                 if (null != obj) {
                     UnityEngine.Vector3 pt;
-                    if (0 == worldOrLocal)
+                    if (0 == local0OrWorld1)
                         pt = obj.transform.localPosition;
                     else
                         pt = obj.transform.position;
@@ -1578,7 +1593,7 @@ namespace GmCommands
             if (m_ObjId.HaveValue) {
                 m_HaveValue = true;
                 var objPathVal = m_ObjId.Value;
-                int worldOrLocal = m_LocalOrWorld.Value;
+                int local0OrWorld1 = m_LocalOrWorld.Value;
                 UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
                 if (null == obj) {
                     string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
@@ -1597,7 +1612,7 @@ namespace GmCommands
                 }
                 if (null != obj) {
                     UnityEngine.Vector3 pt;
-                    if (0 == worldOrLocal)
+                    if (0 == local0OrWorld1)
                         pt = obj.transform.localPosition;
                     else
                         pt = obj.transform.position;
@@ -1661,7 +1676,7 @@ namespace GmCommands
             if (m_ObjId.HaveValue) {
                 m_HaveValue = true;
                 var objPathVal = m_ObjId.Value;
-                int worldOrLocal = m_LocalOrWorld.Value;
+                int local0OrWorld1 = m_LocalOrWorld.Value;
                 UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
                 if (null == obj) {
                     string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
@@ -1680,7 +1695,7 @@ namespace GmCommands
                 }
                 if (null != obj) {
                     UnityEngine.Vector3 pt;
-                    if (0 == worldOrLocal)
+                    if (0 == local0OrWorld1)
                         pt = obj.transform.localPosition;
                     else
                         pt = obj.transform.position;
@@ -1744,7 +1759,7 @@ namespace GmCommands
             if (m_ObjId.HaveValue) {
                 m_HaveValue = true;
                 var objPathVal = m_ObjId.Value;
-                int worldOrLocal = m_LocalOrWorld.Value;
+                int local0OrWorld1 = m_LocalOrWorld.Value;
                 UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
                 if (null == obj) {
                     string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
@@ -1763,7 +1778,7 @@ namespace GmCommands
                 }
                 if (null != obj) {
                     UnityEngine.Vector3 pt;
-                    if (0 == worldOrLocal)
+                    if (0 == local0OrWorld1)
                         pt = obj.transform.localPosition;
                     else
                         pt = obj.transform.position;
@@ -1827,7 +1842,7 @@ namespace GmCommands
             if (m_ObjId.HaveValue) {
                 m_HaveValue = true;
                 var objPathVal = m_ObjId.Value;
-                int worldOrLocal = m_LocalOrWorld.Value;
+                int local0OrWorld1 = m_LocalOrWorld.Value;
                 UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
                 if (null == obj) {
                     string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
@@ -1846,7 +1861,7 @@ namespace GmCommands
                 }
                 if (null != obj) {
                     UnityEngine.Vector3 pt;
-                    if (0 == worldOrLocal)
+                    if (0 == local0OrWorld1)
                         pt = obj.transform.localEulerAngles;
                     else
                         pt = obj.transform.eulerAngles;
@@ -1910,7 +1925,7 @@ namespace GmCommands
             if (m_ObjId.HaveValue) {
                 m_HaveValue = true;
                 var objPathVal = m_ObjId.Value;
-                int worldOrLocal = m_LocalOrWorld.Value;
+                int local0OrWorld1 = m_LocalOrWorld.Value;
                 UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
                 if (null == obj) {
                     string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
@@ -1929,7 +1944,7 @@ namespace GmCommands
                 }
                 if (null != obj) {
                     UnityEngine.Vector3 pt;
-                    if (0 == worldOrLocal)
+                    if (0 == local0OrWorld1)
                         pt = obj.transform.localEulerAngles;
                     else
                         pt = obj.transform.eulerAngles;
@@ -1993,7 +2008,7 @@ namespace GmCommands
             if (m_ObjId.HaveValue) {
                 m_HaveValue = true;
                 var objPathVal = m_ObjId.Value;
-                int worldOrLocal = m_LocalOrWorld.Value;
+                int local0OrWorld1 = m_LocalOrWorld.Value;
                 UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
                 if (null == obj) {
                     string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
@@ -2012,7 +2027,7 @@ namespace GmCommands
                 }
                 if (null != obj) {
                     UnityEngine.Vector3 pt;
-                    if (0 == worldOrLocal)
+                    if (0 == local0OrWorld1)
                         pt = obj.transform.localEulerAngles;
                     else
                         pt = obj.transform.eulerAngles;
@@ -2076,7 +2091,7 @@ namespace GmCommands
             if (m_ObjId.HaveValue) {
                 m_HaveValue = true;
                 var objPathVal = m_ObjId.Value;
-                int worldOrLocal = m_LocalOrWorld.Value;
+                int local0OrWorld1 = m_LocalOrWorld.Value;
                 UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
                 if (null == obj) {
                     string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
@@ -2095,7 +2110,7 @@ namespace GmCommands
                 }
                 if (null != obj) {
                     UnityEngine.Vector3 pt;
-                    if (0 == worldOrLocal)
+                    if (0 == local0OrWorld1)
                         pt = obj.transform.localEulerAngles;
                     else
                         pt = obj.transform.eulerAngles;

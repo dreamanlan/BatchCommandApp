@@ -27,59 +27,55 @@ public class Main : MonoBehaviour
 
         m_Calculator.OnLog = msg => { Debug.LogErrorFormat("{0}", msg); };
         m_Calculator.Init();
-        m_Calculator.Register("regstoryapi", "regstoryapi api", new ExpressionFactoryHelper<RegisterStoryApiExp>());
-        m_Calculator.Register("loadui", "loadui api", new ExpressionFactoryHelper<LoadUiExp>());
-        m_Calculator.Register("showui", "showui api", new ExpressionFactoryHelper<ShowUiExp>());
-        m_Calculator.Register("hideui", "hideui api", new ExpressionFactoryHelper<HideUiExp>());
-        m_Calculator.Register("cmd", "cmd api", new ExpressionFactoryHelper<CmdExp>());
-        m_Calculator.Register("copypdf", "copypdf api", new ExpressionFactoryHelper<CopyPdfExp>());
-        m_Calculator.Register("setclipboard", "setclipboard api", new ExpressionFactoryHelper<SetClipboardExp>());
-        m_Calculator.Register("getclipboard", "getclipboard api", new ExpressionFactoryHelper<GetClipboardExp>());
-        m_Calculator.Register("jc", "jc api", new ExpressionFactoryHelper<JavaClassExp>());
-        m_Calculator.Register("jo", "jo api", new ExpressionFactoryHelper<JavaObjectExp>());
-        m_Calculator.Register("jp", "jp api", new ExpressionFactoryHelper<JavaProxyExp>());
-        m_Calculator.Register("oc", "oc api", new ExpressionFactoryHelper<ObjectcClassExp>());
-        m_Calculator.Register("oo", "oo api", new ExpressionFactoryHelper<ObjectcObjectExp>());
-        m_Calculator.Register("systeminfo", "systeminfo api", new ExpressionFactoryHelper<SystemInfoExp>());
-        m_Calculator.Register("getdevicemodel", "getdevicemodel api", new ExpressionFactoryHelper<GetDeviceModelExp>());
-        m_Calculator.Register("getdevicename", "getdevicename api", new ExpressionFactoryHelper<GetDeviceNameExp>());
-        m_Calculator.Register("getdeviceuid", "getdeviceuid api", new ExpressionFactoryHelper<GetDeviceUidExp>());
-        m_Calculator.Register("getprocessortype", "getprocessortype api", new ExpressionFactoryHelper<GetProcessorTypeExp>());
-        m_Calculator.Register("getos", "getos api", new ExpressionFactoryHelper<GetOSExp>());
-        m_Calculator.Register("getgfxname", "getgfxname api", new ExpressionFactoryHelper<GetGraphicsDeviceNameExp>());
-        m_Calculator.Register("getgfxvendor", "getgfxvendor api", new ExpressionFactoryHelper<GetGraphicsDeviceVendorExp>());
-        m_Calculator.Register("getgfxversion", "getgfxversion api", new ExpressionFactoryHelper<GetGraphicsDeviceVersionExp>());
-        m_Calculator.Register("getiosgeneration", "getiosgeneration api", new ExpressionFactoryHelper<GetIosGenerationExp>());
-        m_Calculator.Register("getiosversion", "getiosversion api", new ExpressionFactoryHelper<GetIosVersionExp>());
-        m_Calculator.Register("getiosvendor", "getiosvendor api", new ExpressionFactoryHelper<GetIosVendorExp>());
-        m_Calculator.Register("getpss", "getpss api", new ExpressionFactoryHelper<GetPssExp>());
-        m_Calculator.Register("getvss", "getvss api", new ExpressionFactoryHelper<GetVssExp>());
-        m_Calculator.Register("getnative", "getnative api", new ExpressionFactoryHelper<GetNativeExp>());
-        m_Calculator.Register("getgraphics", "getgraphics api", new ExpressionFactoryHelper<GetGraphicsExp>());
-        m_Calculator.Register("getunknown", "getunknown api", new ExpressionFactoryHelper<GetUnknownExp>());
-        m_Calculator.Register("getjava", "getjava api", new ExpressionFactoryHelper<GetJavaExp>());
-        m_Calculator.Register("getcode", "getcode api", new ExpressionFactoryHelper<GetCodeExp>());
-        m_Calculator.Register("getstack", "getstack api", new ExpressionFactoryHelper<GetStackExp>());
-        m_Calculator.Register("getsystem", "getsystem api", new ExpressionFactoryHelper<GetSystemExp>());
-        m_Calculator.Register("showmemory", "showmemory api", new ExpressionFactoryHelper<ShowMemoryExp>());
-        m_Calculator.Register("allocmemory", "allocmemory api", new ExpressionFactoryHelper<AllocMemoryExp>());
-        m_Calculator.Register("freememory", "freememory api", new ExpressionFactoryHelper<FreeMemoryExp>());
-        m_Calculator.Register("allochglobal", "allochglobal api", new ExpressionFactoryHelper<AllocHGlobalExp>());
-        m_Calculator.Register("freehglobal", "freehglobal api", new ExpressionFactoryHelper<FreeHGlobalExp>());
-        m_Calculator.Register("unloadunused", "unloadunused api", new ExpressionFactoryHelper<UnloadUnusedExp>());
-        m_Calculator.Register("cms", "cms api", new ExpressionFactoryHelper<CaptureMemorySnapshotExp>());
-        m_Calculator.Register("loggc", "loggc api", new ExpressionFactoryHelper<LogGcExp>());
-        m_Calculator.Register("setloggcsize", "setloggcsize api", new ExpressionFactoryHelper<SetLogGcSizeExp>());
-        m_Calculator.Register("setlognativesize", "setlognativesize api", new ExpressionFactoryHelper<SetLogNativeSizeExp>());
-        m_Calculator.Register("gc", "gc api", new ExpressionFactoryHelper<GCExp>());
-        m_Calculator.Register("getactivity", "getactivity api", new ExpressionFactoryHelper<GetActivityExp>());
-        m_Calculator.Register("getintent", "getintent api", new ExpressionFactoryHelper<GetIntentExp>());
-        m_Calculator.Register("getstring", "getstring api", new ExpressionFactoryHelper<GetStringExp>());
-        m_Calculator.Register("getstringarray", "getstringarray api", new ExpressionFactoryHelper<GetStringArrayExp>());
-        m_Calculator.Register("getint", "getint api", new ExpressionFactoryHelper<GetIntExp>());
-        m_Calculator.Register("getintarray", "getintarray api", new ExpressionFactoryHelper<GetIntArrayExp>());
-        m_Calculator.Register("getlong", "getlong api", new ExpressionFactoryHelper<GetLongExp>());
-        m_Calculator.Register("getlongarray", "getlongarray api", new ExpressionFactoryHelper<GetLongArrayExp>());
+        m_Calculator.Register("regstoryapi", "regstoryapi(f(params){...}) or regstoryapi(f=>(params){...}) or regstoryapi(fn,(params){...}) api", new ExpressionFactoryHelper<RegisterStoryApiExp>());
+        m_Calculator.Register("loadui", "loadui(ui_name_dsl) api", new ExpressionFactoryHelper<LoadUiExp>());
+        m_Calculator.Register("showui", "showui() api", new ExpressionFactoryHelper<ShowUiExp>());
+        m_Calculator.Register("hideui", "hideui() api", new ExpressionFactoryHelper<HideUiExp>());
+        m_Calculator.Register("cmd", "cmd(str) api", new ExpressionFactoryHelper<CmdExp>());
+        m_Calculator.Register("copypdf", "copypdf(file,page_start,page_count) api, copy pdf to clipboard", new ExpressionFactoryHelper<CopyPdfExp>());
+        m_Calculator.Register("setclipboard", "setclipboard(str) api", new ExpressionFactoryHelper<SetClipboardExp>());
+        m_Calculator.Register("getclipboard", "getclipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
+        m_Calculator.Register("jc", "jc(jclass) or jc(str) api", new ExpressionFactoryHelper<JavaClassExp>());
+        m_Calculator.Register("jo", "jo(jobj) or jo(str,arg1,arg2,...) api", new ExpressionFactoryHelper<JavaObjectExp>());
+        m_Calculator.Register("jp", "jp(class_str,scp_method) api", new ExpressionFactoryHelper<JavaProxyExp>());
+        m_Calculator.Register("oc", "oc(str) api", new ExpressionFactoryHelper<ObjectcClassExp>());
+        m_Calculator.Register("oo", "oo(objId) api", new ExpressionFactoryHelper<ObjectcObjectExp>());
+        m_Calculator.Register("systeminfo", "systeminfo() api, return typeof(SystemInfo)", new ExpressionFactoryHelper<SystemInfoExp>());
+        m_Calculator.Register("getdevicemodel", "getdevicemodel() api", new ExpressionFactoryHelper<GetDeviceModelExp>());
+        m_Calculator.Register("getdevicename", "getdevicename() api", new ExpressionFactoryHelper<GetDeviceNameExp>());
+        m_Calculator.Register("getdeviceuid", "getdeviceuid() api", new ExpressionFactoryHelper<GetDeviceUidExp>());
+        m_Calculator.Register("getprocessortype", "getprocessortype() api", new ExpressionFactoryHelper<GetProcessorTypeExp>());
+        m_Calculator.Register("getos", "getos() api", new ExpressionFactoryHelper<GetOSExp>());
+        m_Calculator.Register("getgfxname", "getgfxname() api", new ExpressionFactoryHelper<GetGraphicsDeviceNameExp>());
+        m_Calculator.Register("getgfxvendor", "getgfxvendor() api", new ExpressionFactoryHelper<GetGraphicsDeviceVendorExp>());
+        m_Calculator.Register("getgfxversion", "getgfxversion() api", new ExpressionFactoryHelper<GetGraphicsDeviceVersionExp>());
+        m_Calculator.Register("getiosgeneration", "getiosgeneration() api", new ExpressionFactoryHelper<GetIosGenerationExp>());
+        m_Calculator.Register("getiosversion", "getiosversion() api", new ExpressionFactoryHelper<GetIosVersionExp>());
+        m_Calculator.Register("getiosvendor", "getiosvendor() api", new ExpressionFactoryHelper<GetIosVendorExp>());
+        m_Calculator.Register("getpss", "getpss() api", new ExpressionFactoryHelper<GetPssExp>());
+        m_Calculator.Register("getvss", "getvss() api", new ExpressionFactoryHelper<GetVssExp>());
+        m_Calculator.Register("getnative", "getnative() api", new ExpressionFactoryHelper<GetNativeExp>());
+        m_Calculator.Register("getgraphics", "getgraphics() api", new ExpressionFactoryHelper<GetGraphicsExp>());
+        m_Calculator.Register("getunknown", "getunknown() api", new ExpressionFactoryHelper<GetUnknownExp>());
+        m_Calculator.Register("getjava", "getjava() api", new ExpressionFactoryHelper<GetJavaExp>());
+        m_Calculator.Register("getcode", "getcode() api", new ExpressionFactoryHelper<GetCodeExp>());
+        m_Calculator.Register("getstack", "getstack() api", new ExpressionFactoryHelper<GetStackExp>());
+        m_Calculator.Register("getsystem", "getsystem() api", new ExpressionFactoryHelper<GetSystemExp>());
+        m_Calculator.Register("showmemory", "showmemory() api", new ExpressionFactoryHelper<ShowMemoryExp>());
+        m_Calculator.Register("allocmemory", "allocmemory(key,size) api", new ExpressionFactoryHelper<AllocMemoryExp>());
+        m_Calculator.Register("freememory", "freememory(key) api", new ExpressionFactoryHelper<FreeMemoryExp>());
+        m_Calculator.Register("allochglobal", "allochglobal(key,size) api", new ExpressionFactoryHelper<AllocHGlobalExp>());
+        m_Calculator.Register("freehglobal", "freehglobal(key) api", new ExpressionFactoryHelper<FreeHGlobalExp>());
+        m_Calculator.Register("unloadunused", "unloadunused() api", new ExpressionFactoryHelper<UnloadUnusedExp>());
+        m_Calculator.Register("gc", "gc() api", new ExpressionFactoryHelper<GCExp>());
+        m_Calculator.Register("getactivity", "getactivity() api", new ExpressionFactoryHelper<GetActivityExp>());
+        m_Calculator.Register("getintent", "getintent() api", new ExpressionFactoryHelper<GetIntentExp>());
+        m_Calculator.Register("getstring", "getstring(str) api", new ExpressionFactoryHelper<GetStringExp>());
+        m_Calculator.Register("getstringarray", "getstringarray(str) api", new ExpressionFactoryHelper<GetStringArrayExp>());
+        m_Calculator.Register("getint", "getint(str) api", new ExpressionFactoryHelper<GetIntExp>());
+        m_Calculator.Register("getintarray", "getintarray(str) api", new ExpressionFactoryHelper<GetIntArrayExp>());
+        m_Calculator.Register("getlong", "getlong(str) api", new ExpressionFactoryHelper<GetLongExp>());
+        m_Calculator.Register("getlongarray", "getlongarray(str) api", new ExpressionFactoryHelper<GetLongArrayExp>());
 
         StartCoroutine(Loop());
 
@@ -618,12 +614,10 @@ namespace ExpressionAPI
             }
             else if (m_ArgNum == 2) {
                 m_NameExp = Calculator.Load(callData.GetParam(0));
-                if (m_ArgNum > 1) {
-                    m_FuncCall = callData.GetParam(1) as Dsl.FunctionData;
-                    if (null != m_FuncCall) {
-                        foreach (var p in m_FuncCall.Params) {
-                            m_Params.Add(p.GetId());
-                        }
+                m_FuncCall = callData.GetParam(1) as Dsl.FunctionData;
+                if (null != m_FuncCall) {
+                    foreach (var p in m_FuncCall.Params) {
+                        m_Params.Add(p.GetId());
                     }
                 }
             }
@@ -1139,102 +1133,7 @@ namespace ExpressionAPI
             for(int i = 0; i < 8; ++i) {
                 System.GC.Collect();
             }
-            Resources.UnloadUnusedAssets();            
-            return r;
-        }
-    }
-    internal sealed class CaptureMemorySnapshotExp : SimpleExpressionBase
-    {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
-        {
-            bool r = false;
-            if (operands.Count >= 2) {
-                string file = operands[0].AsString;
-                uint flags = operands[1].GetUInt();
-                if (null != file) {
-                    if (string.IsNullOrEmpty(file)) {
-                        file = string.Format("cms_{0}_snapshot", System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fff"));
-                    }
-                    if (System.IO.Path.GetExtension(file) != ".snap")
-                        file = System.IO.Path.ChangeExtension(file, ".snap");
-                    if (!System.IO.Path.IsPathRooted(file)) {
-                        file = System.IO.Path.Combine(Application.persistentDataPath, file);
-                    }
-                    //UnityHacker.CaptureMemorySnapshot(file, flags);
-#if UNITY_ANDROID
-                    string dirName = System.IO.Path.GetDirectoryName(file);
-                    string fileName = System.IO.Path.GetFileNameWithoutExtension(file);
-                    File.WriteAllText(System.IO.Path.Combine(dirName, fileName + "_maps.txt"), File.ReadAllText("/proc/self/maps"));
-                    File.WriteAllText(System.IO.Path.Combine(dirName, fileName + "_smaps.txt"), File.ReadAllText("/proc/self/smaps"));
-#endif
-                    r = true;
-                }
-            }
-            return r;
-        }
-    }
-    internal sealed class LogGcExp : SimpleExpressionBase
-    {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
-        {
-            bool r = false;
-            if (operands.Count >= 1) {
-                int val = operands[0].GetInt();
-                string file = string.Empty;
-                if (operands.Count >= 2)
-                    file = operands[1].AsString;
-                if (val != 0) {
-                    if (string.IsNullOrEmpty(file)) {
-                        file = string.Format("loggc_{0}_alloc", System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fff"));
-                    }
-                    if (!string.IsNullOrEmpty(file)) {
-                        if (System.IO.Path.GetExtension(file) != ".txt")
-                            file = System.IO.Path.ChangeExtension(file, ".txt");
-                        if (!System.IO.Path.IsPathRooted(file)) {
-                            file = System.IO.Path.Combine(Application.persistentDataPath, file);
-                        }
-#if UNITY_ANDROID
-                        string dirName = System.IO.Path.GetDirectoryName(file);
-                        string fileName = System.IO.Path.GetFileNameWithoutExtension(file);
-                        File.WriteAllText(System.IO.Path.Combine(dirName, fileName + "_maps.txt"), File.ReadAllText("/proc/self/maps"));
-#endif
-                        //UnityHacker.StartGcLogger(file);
-                        r = true;
-                    }
-                }
-                else {
-                    //UnityHacker.StopGcLogger();
-                    r = true;
-                }
-            }
-            return r;
-        }
-    }
-    internal sealed class SetLogGcSizeExp : SimpleExpressionBase
-    {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
-        {
-            bool r = false;
-            if (operands.Count >= 2) {
-                uint minSize = operands[0].GetUInt();
-                uint maxSize = operands[1].GetUInt();
-                //UnityHacker.SetLogGcAllocSize(minSize, maxSize);
-                r = true;
-            }
-            return r;
-        }
-    }
-    internal sealed class SetLogNativeSizeExp : SimpleExpressionBase
-    {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
-        {
-            bool r = false;
-            if (operands.Count >= 2) {
-                uint minSize = operands[0].GetUInt();
-                uint maxSize = operands[1].GetUInt();
-                //UnityHacker.SetLogNativeAllocSize(minSize, maxSize);
-                r = true;
-            }
+            Resources.UnloadUnusedAssets();
             return r;
         }
     }
