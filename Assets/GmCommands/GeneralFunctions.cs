@@ -506,6 +506,7 @@ namespace GmCommands
                     else {
                         try {
                             int objId = objPath.GetInt();
+                            obj = null;
                         }
                         catch {
                             obj = null;
