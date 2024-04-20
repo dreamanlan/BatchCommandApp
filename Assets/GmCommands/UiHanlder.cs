@@ -6,9 +6,15 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// 这个文件里处理所有GM相关的UI逻辑，考虑到一个工程可能用于多个功能的实验，UI采用可配置的方式，但逻辑都是写在这里的
-/// 我们提供了一个loadui("ui配置资源")命令来加载资源，但一般还是直接在Start里加载当前实验想用的资源即可，不想重新出包时可以使用命令切换ui
-/// ui配置使用MetaDSL语法，但这里不考虑使用脚本解释器，因为实验的功能代码都是在工程里写死的，使用脚本意义不大，并且可能把事情搞复杂了
+/// This file handles all GM-related UI logic. Considering that one project may be used for
+/// experiments with multiple functions, the UI is configurable, but the logic is all written
+/// here.
+/// We provide a loadui ("ui configuration resource") command to load resources, but generally
+/// you can load the resources you want to use for the current experiment directly in Start.
+/// If you don't want to re-output the package, you can use the command to switch ui.
+/// The ui configuration uses MetaDSL syntax, but the script interpreter is not considered here,
+/// because the functional codes of the experiment are hard-coded in the project, and using
+/// scripts is of little significance and may complicate things.
 /// </summary>
 public class UiHanlder : MonoBehaviour
 {
@@ -26,7 +32,7 @@ public class UiHanlder : MonoBehaviour
         InitUiCells();
         HideUi();
 
-        //这里加载当前实验的UI，只能有一个是当前的
+        //The UI of the current experiment is loaded here. Only one is the current one.
         LoadUi(c_TestUI);
     }
     public void ShowUi()
@@ -405,15 +411,15 @@ public class UiHanlder : MonoBehaviour
         return c_AutoIdKeyword + "_" + m_CurAutoId.ToString();
     }
 
-    //UI配置是Resources目录下的.txt文件
-    //UI加载完成后进行初始化处理，主要是初始值设定
+    //UI configuration is a .txt file in the Resources directory
+    //After the UI is loaded, initialization processing is performed, mainly initial value setting.
     private void OnUiInit(string res)
     {
         if (res == c_TestUI) {
             InitTestUi();
         }
     }
-    //UI显示时可以重置或同步UI上的值
+    //Values on the UI can be reset or synchronized while the UI is displayed
     private void OnUiShow(string res)
     {
         if (res == c_TestUI) {
@@ -421,7 +427,8 @@ public class UiHanlder : MonoBehaviour
         }
     }
 
-    //这2个方法用于关联UI配置里的事件处理方法到UiHandler的对应的C#方法（实际方法在本文件稍后）
+    //These two methods are used to associate the event processing method in the UI configuration
+    //to the corresponding C# method of UiHandler (the actual method is later in this document)
     private UnityAction GetEventHandler(string method)
     {
         if (method == "OnButton") {
@@ -449,8 +456,8 @@ public class UiHanlder : MonoBehaviour
         return null;
     }
 
-    //与TestUI配置对应的事件处理
-	private void InitTestUi()
+    //Event handling corresponding to TestUI configuration
+    private void InitTestUi()
 	{
 	}
     private void OnButton()

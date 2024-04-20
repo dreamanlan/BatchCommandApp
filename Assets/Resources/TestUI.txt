@@ -1,4 +1,4 @@
-//相关C#代码见UiHandler.cs
+//For relevant C# code, see UiHandler.cs
 
 label(@auto, 0, 1, "test label:");
 dropdown(@auto, 0, 2, "OnValueChanged", 0){

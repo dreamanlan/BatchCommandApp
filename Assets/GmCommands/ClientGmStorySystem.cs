@@ -14,7 +14,7 @@ namespace GmCommands
 
                 RegisterCommon();
 
-                //注册Gm命令
+                //register Gm command
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setdebug", "setdebug(1_or_0) command", new StoryCommandFactoryHelper<SetDebugCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "editorbreak", "editorbreak() command", new StoryCommandFactoryHelper<EditorBreakCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "debugbreak", "debugbreak() command", new StoryCommandFactoryHelper<DebugBreakCommand>());
@@ -38,7 +38,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showui", "showui() command", new StoryCommandFactoryHelper<ShowUiCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "hideui", "hideui() command", new StoryCommandFactoryHelper<HideUiCommand>());
 
-                //注册值与函数处理
+                //register value or function
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "prefint", "prefint(key,defval) function", new StoryFunctionFactoryHelper<PlayerPrefIntFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "preffloat", "preffloat(key,defval) function", new StoryFunctionFactoryHelper<PlayerPrefFloatFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "prefstr", "prefstr(key,defval) function", new StoryFunctionFactoryHelper<PlayerPrefStringFunction>());
@@ -55,7 +55,7 @@ namespace GmCommands
         }
         private void RegisterCommon()
         {
-            //注册命令
+            //register command
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "sendmessage", "sendmessage(objname,msg,arg1,arg2,...) command", new StoryCommandFactoryHelper<GmCommands.SendMessageCommand>());
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "sendmessagewithtag", "sendmessagewithtag(tagname,msg,arg1,arg2,...) command", new StoryCommandFactoryHelper<GmCommands.SendMessageWithTagCommand>());
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "sendmessagewithgameobject", "sendmessagewithgameobject(gameobject,msg,arg1,arg2,...) command", new StoryCommandFactoryHelper<GmCommands.SendMessageWithGameObjectCommand>());
@@ -78,7 +78,7 @@ namespace GmCommands
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "callscp", "callscp(\"func\", arg1, arg2, ...) or callscp(func(arg1, arg2, ...)) command", new StoryCommandFactoryHelper<CallScriptCommand>());
             StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "evalscp", "evalscp(code_str) or evalscp(exp1,exp2,...) command", new StoryCommandFactoryHelper<EvalScriptCommand>());
 
-            //注册值与函数处理
+            //register value or function
             StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "gettime", "gettime() function", new StoryFunctionFactoryHelper<GmCommands.GetTimeFunction>());
             StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "gettimescale", "gettimescale() function", new StoryFunctionFactoryHelper<GmCommands.GetTimeScaleFunction>());
             StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isactive", "isactive(obj_or_path) function", new StoryFunctionFactoryHelper<GmCommands.IsActiveFunction>());
