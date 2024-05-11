@@ -143,8 +143,16 @@ public static partial class StoryScriptUtility
     }
     public static void DestroyObject(UnityEngine.Object obj)
     {
-        if (Application.isPlaying) {
-            UnityEngine.Object.Destroy(obj);
+        if (obj != null) {
+            if (Application.isPlaying) {
+                if (Application.isEditor) {
+                    if(obj is GameObject)
+                        UnityEngine.Object.Destroy(obj);
+                }
+                else {
+                    UnityEngine.Object.Destroy(obj);
+                }
+            }
         }
     }
     public static void DestroyObjectFull(UnityEngine.Object obj)

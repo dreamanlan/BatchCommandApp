@@ -115,7 +115,7 @@ namespace GmCommands
             StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "scale", "scale(x,y,z) function", new StoryFunctionFactoryHelper<StoryScript.CommonFunctions.Vector3Function>());
 
             StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "deg2rad", "deg2rad(deg) function", new StoryFunctionFactoryHelper<GmCommands.Deg2RadFunction>());
-            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "rad2deg", "rad2deg(rad) function", new StoryFunctionFactoryHelper<GmCommands.Rad2DegValue>());
+            StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "rad2deg", "rad2deg(rad) function", new StoryFunctionFactoryHelper<GmCommands.Rad2DegFunction>());
 
             StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getfilename", "getfilename(path) function", new StoryFunctionFactoryHelper<GmCommands.GetFileNameFunction>());
             StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getdirname", "getdirname(path) function", new StoryFunctionFactoryHelper<GmCommands.GetDirectoryNameFunction>());

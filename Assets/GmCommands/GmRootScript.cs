@@ -92,9 +92,19 @@ public class GmRootScript : MonoBehaviour
     {
         try {
             if (string.IsNullOrEmpty(scriptFile)) {
-                scriptFile = "Dsl/gm.dsl";
+                if (string.IsNullOrEmpty(m_LocalGmFile)) {
+                    if (Application.platform == RuntimePlatform.Android) {
+                        scriptFile = "/data/local/tmp/gm.dsl";
+                    }
+                    else {
+                        scriptFile = "gm/gm.dsl";
+                    }
+                    m_LocalGmFile = scriptFile;
+                }
             }
-            m_LocalGmFile = scriptFile;
+            else {
+                m_LocalGmFile = scriptFile;
+            }
             RunLocalGmFile();
 
             LogSystem.Warn("ExecStoryFile {0} finish.", scriptFile);
@@ -145,7 +155,7 @@ public class GmRootScript : MonoBehaviour
     private string m_LocalGmFile = string.Empty;
     private GmCommands.Logger m_Logger = new GmCommands.Logger();
 
-    public static SortedList<string,string> CommandDocs
+    public static SortedList<string, string> CommandDocs
     {
         get { return GetGmRootScript().m_CommandDocs; }
     }
@@ -155,15 +165,13 @@ public class GmRootScript : MonoBehaviour
     }
     public static GameObject GameObj
     {
-        get
-        {
+        get {
             return s_GameObj;
         }
     }
     public static void TryLoad()
     {
-        if (null == s_GameObj)
-        {
+        if (null == s_GameObj) {
             var prefab = Resources.Load<GameObject>("GmScript");
             var gobj = GameObject.Instantiate<GameObject>(prefab);
             gobj.name = "GmScript";

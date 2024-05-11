@@ -7,6 +7,7 @@ using System.Reflection;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Assertions.Must;
 using System.Linq.Expressions;
+using System.Text;
 
 namespace GmCommands
 {
@@ -60,7 +61,7 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
             var vs = Enum.GetValues(typeof(RenderTextureFormat));
-            foreach(var e in vs) {
+            foreach (var e in vs) {
                 var rtf = (RenderTextureFormat)e;
                 try {
                     if (!SystemInfo.SupportsRenderTextureFormat(rtf)) {
@@ -97,19 +98,34 @@ namespace GmCommands
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
+            var log1 = new StringBuilder();
+            var log2 = new StringBuilder();
+            int ct = 0;
             var t = typeof(SystemInfo);
             var pis = t.GetProperties(BindingFlags.Static | BindingFlags.Public);
-            foreach(var pi in pis) {
+            foreach (var pi in pis) {
                 var v = pi.GetValue(null);
-                if(v is bool) {
+                if (v is bool) {
                     if (!(bool)v) {
-                        LogSystem.Error("{0} = false", pi.Name);
+                        log1.AppendFormat("{0} = false", pi.Name);
+                        log1.AppendLine();
+
+                        log2.AppendFormat("{0} = false", pi.Name);
+                        log2.AppendLine();
+                        ++ct;
                     }
                 }
                 else {
-                    LogSystem.Info("{0} = {1}", pi.Name, v);
+                    log2.AppendFormat("{0} = {1}", pi.Name, v);
+                    log2.AppendLine();
+                    ++ct;
+                }
+                if (ct % 10 == 0) {
+                    Debug.Log(log2.ToString());
+                    log2.Length = 0;
                 }
             }
+            DebugConsole.Log(log1.ToString());
             return false;
         }
     }
@@ -123,7 +139,8 @@ namespace GmCommands
             BoxedValue m = BoxedValue.FromObject(new byte[size]);
             if (instance.GlobalVariables.ContainsKey(key)) {
                 instance.GlobalVariables[key] = m;
-            } else {
+            }
+            else {
                 instance.GlobalVariables.Add(key, m);
             }
             return false;
@@ -137,7 +154,8 @@ namespace GmCommands
             if (instance.GlobalVariables.ContainsKey(key)) {
                 instance.GlobalVariables.Remove(key);
                 GC.Collect();
-            } else {
+            }
+            else {
                 GC.Collect();
             }
             return false;

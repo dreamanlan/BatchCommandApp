@@ -2465,7 +2465,7 @@ namespace GmCommands
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
-    internal sealed class Rad2DegValue : IStoryFunction
+    internal sealed class Rad2DegFunction : IStoryFunction
     {
         public void InitFromDsl(Dsl.ISyntaxComponent param)
         {
@@ -2476,7 +2476,7 @@ namespace GmCommands
         }
         public IStoryFunction Clone()
         {
-            Rad2DegValue val = new Rad2DegValue();
+            Rad2DegFunction val = new Rad2DegFunction();
             val.m_Radian = m_Radian.Clone();
             val.m_HaveValue = m_HaveValue;
             val.m_Value = m_Value;
