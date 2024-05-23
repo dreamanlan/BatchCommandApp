@@ -431,27 +431,31 @@ public class UiHanlder : MonoBehaviour
     //to the corresponding C# method of UiHandler (the actual method is later in this document)
     private UnityAction GetEventHandler(string method)
     {
-        if (method == "OnButton") {
-            return this.OnButton;
+        var t = this.GetType();
+        var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (null != mi) {
+            return () => { mi.Invoke(this, null); };
+        }
+        else {
+            mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            if (null != mi) {
+                return () => { mi.Invoke(null, null); };
+            }
         }
         return null;
     }
     private UnityAction<T> GetEventHandler<T>(string method)
     {
-        if (method == "OnValueChanged") {
-            return (UnityAction<int>)this.OnValueChanged as UnityAction<T>;
+        var t = this.GetType();
+        var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (null != mi) {
+            return (T val) => { mi.Invoke(this, new object[] { val }); };
         }
-        else if (method == "OnCheckedChanged") {
-            return (UnityAction<bool>)this.OnCheckedChanged as UnityAction<T>;
-        }
-        else if (method == "OnOneChanged") {
-            return (UnityAction<bool>)this.OnOneChanged as UnityAction<T>;
-        }
-        else if (method == "OnTwoChanged") {
-            return (UnityAction<bool>)this.OnTwoChanged as UnityAction<T>;
-        }
-        else if (method == "OnSliderChanged") {
-            return (UnityAction<float>)this.OnSliderChanged as UnityAction<T>;
+        else {
+            mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            if (null != mi) {
+                return (T val) => { mi.Invoke(null, new object[] { val }); };
+            }
         }
         return null;
     }
