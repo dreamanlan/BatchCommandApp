@@ -434,12 +434,20 @@ public class UiHanlder : MonoBehaviour
         var t = this.GetType();
         var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         if (null != mi) {
-            return () => { mi.Invoke(this, null); };
+            var delegation = System.Delegate.CreateDelegate(typeof(UnityAction), this, mi, false);
+            if (null != delegation)
+                return (UnityAction)delegation;
+            else
+                return () => { mi.Invoke(this, null); };
         }
         else {
             mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             if (null != mi) {
-                return () => { mi.Invoke(null, null); };
+                var delegation = System.Delegate.CreateDelegate(typeof(UnityAction), mi, false);
+                if (null != delegation)
+                    return (UnityAction)delegation;
+                else
+                    return () => { mi.Invoke(null, null); };
             }
         }
         return null;
@@ -449,12 +457,20 @@ public class UiHanlder : MonoBehaviour
         var t = this.GetType();
         var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         if (null != mi) {
-            return (T val) => { mi.Invoke(this, new object[] { val }); };
+            var delegation = System.Delegate.CreateDelegate(typeof(UnityAction<T>), this, mi, false);
+            if (null != delegation)
+                return (UnityAction<T>)delegation;
+            else
+                return (T val) => { mi.Invoke(this, new object[] { val }); };
         }
         else {
             mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             if (null != mi) {
-                return (T val) => { mi.Invoke(null, new object[] { val }); };
+                var delegation = System.Delegate.CreateDelegate(typeof(UnityAction<T>), mi, false);
+                if (null != delegation)
+                    return (UnityAction<T>)delegation;
+                else
+                    return (T val) => { mi.Invoke(null, new object[] { val }); };
             }
         }
         return null;
