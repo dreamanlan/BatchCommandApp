@@ -464,8 +464,8 @@ public class DebugConsole : MonoBehaviour
             GUI.matrix = GUI.matrix * Matrix4x4.Scale(m_GuiScale);
         }
 
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR
-        // Toggle key shows the console in non-iOS dev builds
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR || MOBILE
+        // Toggle key shows the console
         if (evt.keyCode == ToggleKey && evt.type == EventType.KeyUp)
             m_IsOpen = !m_IsOpen;
 #endif
