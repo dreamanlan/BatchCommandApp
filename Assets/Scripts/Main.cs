@@ -27,6 +27,7 @@ public class Main : MonoBehaviour
 
         m_Calculator.OnLog = msg => { Debug.LogErrorFormat("{0}", msg); };
         m_Calculator.Init();
+        UnityEditorApi.Register(m_Calculator);
         m_Calculator.Register("regstoryapi", "regstoryapi(f(params){...}) or regstoryapi(f=>(params){...}) or regstoryapi(fn,(params){...}) api", new ExpressionFactoryHelper<RegisterStoryApiExp>());
         m_Calculator.Register("loadui", "loadui(ui_name_dsl) api", new ExpressionFactoryHelper<LoadUiExp>());
         m_Calculator.Register("showui", "showui() api", new ExpressionFactoryHelper<ShowUiExp>());
@@ -97,7 +98,7 @@ public class Main : MonoBehaviour
     {
         DebugConsole.Log("[" + type.ToString() + "]" + logString);
     }
-    private CalculatorValue OnExecCommand(string cmd)
+    private BoxedValue OnExecCommand(string cmd)
     {
         Dsl.DslFile file = new Dsl.DslFile();
         if(file.LoadFromString(string.Format("script(){{{0};}};", cmd), msg => Debug.LogWarning(msg))) {
@@ -112,7 +113,7 @@ public class Main : MonoBehaviour
             }
             return r;
         }
-        return CalculatorValue.NullObject;
+        return BoxedValue.NullObject;
     }
     private void OnLoadScript(string file)
     {
@@ -139,7 +140,7 @@ public class Main : MonoBehaviour
     {
         s_Instance.OnLoadScript(file);
     }
-    public static CalculatorValue ExecCommand(string cmd)
+    public static BoxedValue ExecCommand(string cmd)
     {
         return s_Instance.OnExecCommand(cmd);
     }
@@ -169,23 +170,23 @@ public class Main : MonoBehaviour
     {
         return s_Instance.m_Calculator.ApiDocs;
     }
-    public static CalculatorValue EvalAndRun(string code)
+    public static BoxedValue EvalAndRun(string code)
     {
-        CalculatorValue r = CalculatorValue.EmptyString;
+        BoxedValue r = BoxedValue.EmptyString;
         var file = new Dsl.DslFile();
         if (file.LoadFromString(code, msg => Debug.LogWarning(msg))) {
             r = EvalAndRun(file.DslInfos);
         }
         return r;
     }
-    public static CalculatorValue EvalAndRun(params ISyntaxComponent[] expressions)
+    public static BoxedValue EvalAndRun(params ISyntaxComponent[] expressions)
     {
         IList<ISyntaxComponent> exps = expressions;
         return EvalAndRun(exps);
     }
-    public static CalculatorValue EvalAndRun(IList<ISyntaxComponent> expressions)
+    public static BoxedValue EvalAndRun(IList<ISyntaxComponent> expressions)
     {
-        CalculatorValue r = CalculatorValue.EmptyString;
+        BoxedValue r = BoxedValue.EmptyString;
         List<IExpression> exps = new List<IExpression>();
         s_Instance.m_Calculator.LoadDsl(expressions, exps);
         r = s_Instance.m_Calculator.CalcInCurrentContext(exps);
@@ -202,7 +203,7 @@ public class Main : MonoBehaviour
             return null;
         var vargs = s_Instance.m_Calculator.NewCalculatorValueList();
         foreach(var arg in args) {
-            vargs.Add(CalculatorValue.FromObject(arg));
+            vargs.Add(BoxedValue.FromObject(arg));
         }
         var r = s_Instance.m_Calculator.Calc(func, vargs);
         s_Instance.m_Calculator.RecycleCalculatorValueList(vargs);
@@ -226,11 +227,11 @@ public class Main : MonoBehaviour
 
 public static class VariantValue
 {
-    public static BoxedValue ToBoxedValue(CalculatorValue other)
+    public static BoxedValue ToBoxedValue(BoxedValue other)
     {
         BoxedValue newVal = new BoxedValue();
         switch (other.Type) {
-            case CalculatorValue.c_ObjectType:
+            case BoxedValue.c_ObjectType:
                 var objVal = other.ObjectVal;
                 if (objVal is Vector2) {
                     newVal.Type = BoxedValue.c_Vector2Type;
@@ -261,151 +262,151 @@ public static class VariantValue
                     newVal.ObjectVal = other.ObjectVal;
                 }
                 break;
-            case CalculatorValue.c_StringType:
+            case BoxedValue.c_StringType:
                 newVal.Type = BoxedValue.c_StringType;
                 newVal.StringVal = other.StringVal;
                 break;
-            case CalculatorValue.c_BoolType:
+            case BoxedValue.c_BoolType:
                 newVal.Type = BoxedValue.c_BoolType;
                 newVal.Union.BoolVal = other.Union.BoolVal;
                 break;
-            case CalculatorValue.c_CharType:
+            case BoxedValue.c_CharType:
                 newVal.Type = BoxedValue.c_CharType;
                 newVal.Union.CharVal = other.Union.CharVal;
                 break;
-            case CalculatorValue.c_SByteType:
+            case BoxedValue.c_SByteType:
                 newVal.Type = BoxedValue.c_SByteType;
                 newVal.Union.SByteVal = other.Union.SByteVal;
                 break;
-            case CalculatorValue.c_ShortType:
+            case BoxedValue.c_ShortType:
                 newVal.Type = BoxedValue.c_ShortType;
                 newVal.Union.ShortVal = other.Union.ShortVal;
                 break;
-            case CalculatorValue.c_IntType:
+            case BoxedValue.c_IntType:
                 newVal.Type = BoxedValue.c_IntType;
                 newVal.Union.IntVal = other.Union.IntVal;
                 break;
-            case CalculatorValue.c_LongType:
+            case BoxedValue.c_LongType:
                 newVal.Type = BoxedValue.c_LongType;
                 newVal.Union.LongVal = other.Union.LongVal;
                 break;
-            case CalculatorValue.c_ByteType:
+            case BoxedValue.c_ByteType:
                 newVal.Type = BoxedValue.c_ByteType;
                 newVal.Union.ByteVal = other.Union.ByteVal;
                 break;
-            case CalculatorValue.c_UShortType:
+            case BoxedValue.c_UShortType:
                 newVal.Type = BoxedValue.c_UShortType;
                 newVal.Union.UShortVal = other.Union.UShortVal;
                 break;
-            case CalculatorValue.c_UIntType:
+            case BoxedValue.c_UIntType:
                 newVal.Type = BoxedValue.c_UIntType;
                 newVal.Union.UIntVal = other.Union.UIntVal;
                 break;
-            case CalculatorValue.c_ULongType:
+            case BoxedValue.c_ULongType:
                 newVal.Type = BoxedValue.c_ULongType;
                 newVal.Union.ULongVal = other.Union.ULongVal;
                 break;
-            case CalculatorValue.c_FloatType:
+            case BoxedValue.c_FloatType:
                 newVal.Type = BoxedValue.c_FloatType;
                 newVal.Union.FloatVal = other.Union.FloatVal;
                 break;
-            case CalculatorValue.c_DoubleType:
+            case BoxedValue.c_DoubleType:
                 newVal.Type = BoxedValue.c_DoubleType;
                 newVal.Union.DoubleVal = other.Union.DoubleVal;
                 break;
-            case CalculatorValue.c_DecimalType:
+            case BoxedValue.c_DecimalType:
                 newVal.Type = BoxedValue.c_DecimalType;
                 newVal.Union.DecimalVal = other.Union.DecimalVal;
                 break;
         }
         return newVal;
     }
-    public static CalculatorValue ToCalculatorValue(BoxedValue other)
+    public static BoxedValue ToCalculatorValue(BoxedValue other)
     {
-        CalculatorValue newVal = new CalculatorValue();
+        BoxedValue newVal = new BoxedValue();
         switch (other.Type) {
             case BoxedValue.c_ObjectType:
-                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.Type = BoxedValue.c_ObjectType;
                 newVal.ObjectVal = other.ObjectVal;
                 break;
             case BoxedValue.c_StringType:
-                newVal.Type = CalculatorValue.c_StringType;
+                newVal.Type = BoxedValue.c_StringType;
                 newVal.StringVal = other.StringVal;
                 break;
             case BoxedValue.c_BoolType:
-                newVal.Type = CalculatorValue.c_BoolType;
+                newVal.Type = BoxedValue.c_BoolType;
                 newVal.Union.BoolVal = other.Union.BoolVal;
                 break;
             case BoxedValue.c_CharType:
-                newVal.Type = CalculatorValue.c_CharType;
+                newVal.Type = BoxedValue.c_CharType;
                 newVal.Union.CharVal = other.Union.CharVal;
                 break;
             case BoxedValue.c_SByteType:
-                newVal.Type = CalculatorValue.c_SByteType;
+                newVal.Type = BoxedValue.c_SByteType;
                 newVal.Union.SByteVal = other.Union.SByteVal;
                 break;
             case BoxedValue.c_ShortType:
-                newVal.Type = CalculatorValue.c_ShortType;
+                newVal.Type = BoxedValue.c_ShortType;
                 newVal.Union.ShortVal = other.Union.ShortVal;
                 break;
             case BoxedValue.c_IntType:
-                newVal.Type = CalculatorValue.c_IntType;
+                newVal.Type = BoxedValue.c_IntType;
                 newVal.Union.IntVal = other.Union.IntVal;
                 break;
             case BoxedValue.c_LongType:
-                newVal.Type = CalculatorValue.c_LongType;
+                newVal.Type = BoxedValue.c_LongType;
                 newVal.Union.LongVal = other.Union.LongVal;
                 break;
             case BoxedValue.c_ByteType:
-                newVal.Type = CalculatorValue.c_ByteType;
+                newVal.Type = BoxedValue.c_ByteType;
                 newVal.Union.ByteVal = other.Union.ByteVal;
                 break;
             case BoxedValue.c_UShortType:
-                newVal.Type = CalculatorValue.c_UShortType;
+                newVal.Type = BoxedValue.c_UShortType;
                 newVal.Union.UShortVal = other.Union.UShortVal;
                 break;
             case BoxedValue.c_UIntType:
-                newVal.Type = CalculatorValue.c_UIntType;
+                newVal.Type = BoxedValue.c_UIntType;
                 newVal.Union.UIntVal = other.Union.UIntVal;
                 break;
             case BoxedValue.c_ULongType:
-                newVal.Type = CalculatorValue.c_ULongType;
+                newVal.Type = BoxedValue.c_ULongType;
                 newVal.Union.ULongVal = other.Union.ULongVal;
                 break;
             case BoxedValue.c_FloatType:
-                newVal.Type = CalculatorValue.c_FloatType;
+                newVal.Type = BoxedValue.c_FloatType;
                 newVal.Union.FloatVal = other.Union.FloatVal;
                 break;
             case BoxedValue.c_DoubleType:
-                newVal.Type = CalculatorValue.c_DoubleType;
+                newVal.Type = BoxedValue.c_DoubleType;
                 newVal.Union.DoubleVal = other.Union.DoubleVal;
                 break;
             case BoxedValue.c_DecimalType:
-                newVal.Type = CalculatorValue.c_DecimalType;
+                newVal.Type = BoxedValue.c_DecimalType;
                 newVal.Union.DecimalVal = other.Union.DecimalVal;
                 break;
             case BoxedValue.c_Vector2Type:
-                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.Type = BoxedValue.c_ObjectType;
                 newVal.ObjectVal = other.Union.Vector2Val;
                 break;
             case BoxedValue.c_Vector3Type:
-                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.Type = BoxedValue.c_ObjectType;
                 newVal.ObjectVal = other.Union.Vector3Val;
                 break;
             case BoxedValue.c_Vector4Type:
-                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.Type = BoxedValue.c_ObjectType;
                 newVal.ObjectVal = other.Union.Vector4Val;
                 break;
             case BoxedValue.c_QuaternionType:
-                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.Type = BoxedValue.c_ObjectType;
                 newVal.ObjectVal = other.Union.QuaternionVal;
                 break;
             case BoxedValue.c_ColorType:
-                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.Type = BoxedValue.c_ObjectType;
                 newVal.ObjectVal = other.Union.ColorVal;
                 break;
             case BoxedValue.c_Color32Type:
-                newVal.Type = CalculatorValue.c_ObjectType;
+                newVal.Type = BoxedValue.c_ObjectType;
                 newVal.ObjectVal = other.Union.Color32Val;
                 break;
         }
@@ -565,7 +566,7 @@ namespace ExpressionAPI
 {
     internal sealed class RegisterStoryApiExp : AbstractExpression
     {
-        protected override CalculatorValue DoCalc()
+        protected override BoxedValue DoCalc()
         {
             string name = string.Empty;
             if (null != m_FuncCall) {
@@ -632,7 +633,7 @@ namespace ExpressionAPI
     }
     internal sealed class LoadUiExp : AbstractExpression
     {
-        protected override CalculatorValue DoCalc()
+        protected override BoxedValue DoCalc()
         {
             var r = false;
             var fv = GmRootScript.GameObj;
@@ -658,7 +659,7 @@ namespace ExpressionAPI
     }
     internal sealed class ShowUiExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             var r = false;
             var fv = GmRootScript.GameObj;
@@ -677,7 +678,7 @@ namespace ExpressionAPI
     }
     internal sealed class HideUiExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             var r = false;
             var fv = GmRootScript.GameObj;
@@ -696,9 +697,9 @@ namespace ExpressionAPI
     }
     internal sealed class CmdExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if (operands.Count > 0) {
                 string cmd = operands[0].AsString;
                 DebugConsole.Execute(cmd);
@@ -709,9 +710,9 @@ namespace ExpressionAPI
     }
     internal sealed class CopyPdfExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if(operands.Count > 2) {
                 string file = operands[0].AsString;
                 int start = operands[1].GetInt();
@@ -755,9 +756,9 @@ namespace ExpressionAPI
     }
     internal sealed class SetClipboardExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
                 var str = operands[0].AsString;
                 if (null != str) {
@@ -781,9 +782,9 @@ namespace ExpressionAPI
     }
     internal sealed class GetClipboardExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
             r = GUIUtility.systemCopyBuffer;
 #elif UNITY_IOS
@@ -801,17 +802,17 @@ namespace ExpressionAPI
     }
     internal sealed class JavaClassExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
                 var obj = operands[0].As<AndroidJavaClass>();
                 if (null != obj) {
-                    r = CalculatorValue.FromObject(new JavaClass(obj));
+                    r = BoxedValue.FromObject(new JavaClass(obj));
                 }
                 else {
                     var str = operands[0].AsString;
-                    r = CalculatorValue.FromObject(new JavaClass(str));
+                    r = BoxedValue.FromObject(new JavaClass(str));
                 }
             }
             return r;
@@ -819,13 +820,13 @@ namespace ExpressionAPI
     }
     internal sealed class JavaObjectExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
                 var obj = operands[0].As<AndroidJavaObject>();
                 if (null != obj) {
-                    r = CalculatorValue.FromObject(new JavaObject(obj));
+                    r = BoxedValue.FromObject(new JavaObject(obj));
                 }
                 else {
                     var str = operands[0].AsString;
@@ -834,7 +835,7 @@ namespace ExpressionAPI
                         al.Add(operands[i].GetObject());
                     }
                     if (!string.IsNullOrEmpty(str)) {
-                        r = CalculatorValue.FromObject(new JavaObject(str, al.ToArray()));
+                        r = BoxedValue.FromObject(new JavaObject(str, al.ToArray()));
                     }
                 }
             }
@@ -843,107 +844,107 @@ namespace ExpressionAPI
     }
     internal sealed class JavaProxyExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
                 var _class = operands[0].AsString;
                 var scpMethod = operands[1].AsString;
-                r = CalculatorValue.FromObject(new JavaProxy(_class, scpMethod));
+                r = BoxedValue.FromObject(new JavaProxy(_class, scpMethod));
             }
             return r;
         }
     }
     internal sealed class ObjectcClassExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
                 var str = operands[0].AsString;
-                r = CalculatorValue.FromObject(new ObjectcClass(str));
+                r = BoxedValue.FromObject(new ObjectcClass(str));
             }
             return r;
         }
     }
     internal sealed class ObjectcObjectExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
                 int objId = operands[0].GetInt();
-                return CalculatorValue.FromObject(new ObjectcObject(objId));
+                return BoxedValue.FromObject(new ObjectcObject(objId));
             }
             return r;
         }
     }
     internal sealed class SystemInfoExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return typeof(SystemInfo);
         }
     }
     internal sealed class GetDeviceModelExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return SystemInfo.deviceModel;
         }
     }
     internal sealed class GetDeviceNameExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return SystemInfo.deviceName;
         }
     }
     internal sealed class GetDeviceUidExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return SystemInfo.deviceUniqueIdentifier;
         }
     }
     internal sealed class GetProcessorTypeExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return SystemInfo.processorType;
         }
     }
     internal sealed class GetOSExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return SystemInfo.operatingSystem;
         }
     }
     internal sealed class GetGraphicsDeviceNameExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return SystemInfo.graphicsDeviceName;
         }
     }
     internal sealed class GetGraphicsDeviceVendorExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return SystemInfo.graphicsDeviceVendor;
         }
     }
     internal sealed class GetGraphicsDeviceVersionExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return SystemInfo.graphicsDeviceVersion;
         }
     }
     internal sealed class GetIosGenerationExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
             return 0;
@@ -954,7 +955,7 @@ namespace ExpressionAPI
     }
     internal sealed class GetIosVersionExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
             return string.Empty;
@@ -965,7 +966,7 @@ namespace ExpressionAPI
     }
     internal sealed class GetIosVendorExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
             return string.Empty;
@@ -976,70 +977,70 @@ namespace ExpressionAPI
     }
     internal sealed class GetPssExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return MemoryInfo.GetAppMemory();
         }
     }
     internal sealed class GetVssExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return MemoryInfo.GetVssMemory();
         }
     }
     internal sealed class GetNativeExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return MemoryInfo.GetNativeMemory();
         }
     }
     internal sealed class GetGraphicsExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return MemoryInfo.GetGraphicsMemory();
         }
     }
     internal sealed class GetUnknownExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return MemoryInfo.GetUnknownMemory();
         }
     }
     internal sealed class GetJavaExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return MemoryInfo.GetJavaMemory();
         }
     }
     internal sealed class GetCodeExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return MemoryInfo.GetCodeMemory();
         }
     }
     internal sealed class GetStackExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return MemoryInfo.GetStackMemory();
         }
     }
     internal sealed class GetSystemExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             return MemoryInfo.GetSystemMemory();
         }
     }
     internal sealed class ShowMemoryExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             string info = string.Format("pss:{0} n:{1} g:{2} u:{3} j:{4} c:{5} t:{6} s:{7} vss:{8}", MemoryInfo.GetAppMemory(), MemoryInfo.GetNativeMemory(), MemoryInfo.GetGraphicsMemory(), MemoryInfo.GetUnknownMemory(), MemoryInfo.GetJavaMemory(), MemoryInfo.GetCodeMemory(), MemoryInfo.GetStackMemory(), MemoryInfo.GetSystemMemory(), MemoryInfo.GetVssMemory());
             Debug.LogFormat("{0}", info);
@@ -1048,9 +1049,9 @@ namespace ExpressionAPI
     }
     internal sealed class AllocMemoryExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
                 string key = operands[0].AsString;
                 int size = operands[1].GetInt();
@@ -1068,9 +1069,9 @@ namespace ExpressionAPI
     }
     internal sealed class FreeMemoryExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
                 string key = operands[0].AsString;
                 if (null != key) {
@@ -1084,9 +1085,9 @@ namespace ExpressionAPI
     }
     internal sealed class AllocHGlobalExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
                 string key = operands[0].AsString;
                 int size = operands[1].GetInt();
@@ -1107,9 +1108,9 @@ namespace ExpressionAPI
     }
     internal sealed class FreeHGlobalExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
                 string key = operands[0].AsString;
                 if (null != key) {
@@ -1127,7 +1128,7 @@ namespace ExpressionAPI
     }
     internal sealed class UnloadUnusedExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             bool r = true;
             for(int i = 0; i < 8; ++i) {
@@ -1139,7 +1140,7 @@ namespace ExpressionAPI
     }
     internal sealed class GCExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 0) {
@@ -1151,32 +1152,32 @@ namespace ExpressionAPI
     }
     internal sealed class GetActivityExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
 #if UNITY_ANDROID
-            r = CalculatorValue.FromObject(new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"));
+            r = BoxedValue.FromObject(new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"));
 #endif
             return r;
         }
     }
     internal sealed class GetIntentExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
 #if UNITY_ANDROID
             var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
-            r = CalculatorValue.FromObject(act.Call<AndroidJavaObject>("getIntent"));
+            r = BoxedValue.FromObject(act.Call<AndroidJavaObject>("getIntent"));
 #endif
             return r;
         }
     }
     internal sealed class GetStringExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
                 var str = operands[0].AsString;
@@ -1192,16 +1193,16 @@ namespace ExpressionAPI
     }
     internal sealed class GetStringArrayExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
                 var str = operands[0].AsString;
                 if (!string.IsNullOrEmpty(str)) {
                     var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                     var intent = act.Call<AndroidJavaObject>("getIntent");
-                    r = CalculatorValue.FromObject(intent.Call<string[]>("getStringArrayExtra", str));
+                    r = BoxedValue.FromObject(intent.Call<string[]>("getStringArrayExtra", str));
                 }
             }
 #endif
@@ -1210,9 +1211,9 @@ namespace ExpressionAPI
     }
     internal sealed class GetIntExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
                 var str = operands[0].AsString;
@@ -1228,16 +1229,16 @@ namespace ExpressionAPI
     }
     internal sealed class GetIntArrayExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
                 var str = operands[0].AsString;
                 if (!string.IsNullOrEmpty(str)) {
                     var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                     var intent = act.Call<AndroidJavaObject>("getIntent");
-                    r = CalculatorValue.FromObject(intent.Call<int[]>("getIntArrayExtra", str));
+                    r = BoxedValue.FromObject(intent.Call<int[]>("getIntArrayExtra", str));
                 }
             }
 #endif
@@ -1246,9 +1247,9 @@ namespace ExpressionAPI
     }
     internal sealed class GetLongExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
                 var str = operands[0].AsString;
@@ -1264,16 +1265,16 @@ namespace ExpressionAPI
     }
     internal sealed class GetLongArrayExp : SimpleExpressionBase
     {
-        protected override CalculatorValue OnCalc(IList<CalculatorValue> operands)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var r = CalculatorValue.NullObject;
+            var r = BoxedValue.NullObject;
 #if UNITY_ANDROID
             if (operands.Count >= 1) {
                 var str = operands[0].AsString;
                 if (!string.IsNullOrEmpty(str)) {
                     var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                     var intent = act.Call<AndroidJavaObject>("getIntent");
-                    r = CalculatorValue.FromObject(intent.Call<long[]>("getLongArrayExtra", str));
+                    r = BoxedValue.FromObject(intent.Call<long[]>("getLongArrayExtra", str));
                 }
             }
 #endif
