@@ -9,9 +9,33 @@ using StoryScript;
 
 public class GmRootScript : MonoBehaviour
 {
+    void OnEnable()
+    {
+        m_Logger.Init(Application.persistentDataPath, string.Empty);
+    }
+    void OnDisable()
+    {
+        m_Logger.Dispose();
+    }
     void Start()
     {
         TryInit();
+    }
+    void Update()
+    {
+        try {
+            TimeUtility.UpdateGfxTime(Time.time, Time.realtimeSinceStartup, Time.timeScale);
+            ClientGmStorySystem.Instance.Tick();
+        }
+        catch (Exception ex) {
+            LogSystem.Error("Exception:{0}\n{1}", ex.Message, ex.StackTrace);
+        }
+    }
+    private void TryInitGmRoot()
+    {
+        if(m_Inited) return;
+        m_Inited = true;
+
 #if DEVELOPMENT_BUILD
         StoryScript.StoryConfigManager.Instance.IsDevelopment = true;
 #else
@@ -24,8 +48,8 @@ public class GmRootScript : MonoBehaviour
         StoryScript.StoryConfigManager.Instance.IsDevice = true;
 #endif
 
-        m_Logger.Init(Application.persistentDataPath, string.Empty);
         ClientGmStorySystem.Instance.Init();
+        PerfGradeGm.TryInit();
 
         m_CommandDocs = StoryScript.StoryCommandManager.Instance.GenCommandDocs();
         m_FunctionDocs = StoryScript.StoryFunctionManager.Instance.GenFunctionDocs();
@@ -47,16 +71,6 @@ public class GmRootScript : MonoBehaviour
             }
             m_Logger.Log("{0}", msg);
         };
-    }
-    void Update()
-    {
-        try {
-            TimeUtility.UpdateGfxTime(Time.time, Time.realtimeSinceStartup, Time.timeScale);
-            ClientGmStorySystem.Instance.Tick();
-        }
-        catch (Exception ex) {
-            LogSystem.Error("Exception:{0}\n{1}", ex.Message, ex.StackTrace);
-        }
     }
     private void LogToConsole(string msg)
     {
@@ -97,7 +111,7 @@ public class GmRootScript : MonoBehaviour
                         scriptFile = "/data/local/tmp/gm.dsl";
                     }
                     else {
-                        scriptFile = "gm/gm.dsl";
+                        scriptFile = "gm.dsl";
                     }
                     m_LocalGmFile = scriptFile;
                 }
@@ -129,7 +143,11 @@ public class GmRootScript : MonoBehaviour
                 ClientGmStorySystem.Instance.StartStory("main");
             }
             else {
-                var path = Path.Combine(Application.persistentDataPath, m_LocalGmFile);
+                string basePath = Application.persistentDataPath;
+                if (Application.platform == RuntimePlatform.Android) {
+                    basePath = "/data/local/tmp";
+                }
+                var path = Path.Combine(basePath, m_LocalGmFile);
                 if (File.Exists(path)) {
                     ClientGmStorySystem.Instance.Reset();
                     ClientGmStorySystem.Instance.LoadStory(path);
@@ -154,6 +172,7 @@ public class GmRootScript : MonoBehaviour
     private SortedList<string, string> m_FunctionDocs;
     private string m_LocalGmFile = string.Empty;
     private GmCommands.Logger m_Logger = new GmCommands.Logger();
+    private bool m_Inited = false;
 
     public static SortedList<string, string> CommandDocs
     {
@@ -185,6 +204,9 @@ public class GmRootScript : MonoBehaviour
             if (null != s_GameObj) {
                 GameObject.DontDestroyOnLoad(s_GameObj);
             }
+        }
+        if (null != s_GameObj) {
+            GetGmRootScript().TryInitGmRoot();
         }
     }
 

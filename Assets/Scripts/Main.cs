@@ -81,6 +81,57 @@ public class Main : MonoBehaviour
         StartCoroutine(Loop());
 
         OnExecCommand("setloggcsize(16,40960000);loggc(1);showmemory();loop(10){allocmemory('m'+$$,1024);};unloadunused();gc();showmemory();loggc(0);");
+
+        TestGM();
+        PerfGradeGm.TryInit(); //PerfGradeGm.TryLoad();
+        TestPerfGrade();
+    }
+
+    public static void TestGM()
+    {
+        string path = Application.persistentDataPath;
+        if (Application.platform == RuntimePlatform.Android) {
+            path = "/data/local/tmp";
+        }
+        string file = System.IO.Path.Combine(path, "initgm.txt");
+        if (File.Exists(file)) {
+            GmRootScript.TryInit();
+            GameObject obj = GmRootScript.GameObj;
+            if (null != obj) {
+                //DebugConsole.Execute will reset the dsl, so the commands must be concatenated into one command
+                var sb = new StringBuilder();
+                var lines = File.ReadAllLines(file);
+                foreach (string line in lines) {
+                    string str = line.Trim();
+                    if (!str.StartsWith("//") && !str.StartsWith('#')) {
+                        if (str.IndexOf(';') < 0 && str.IndexOf('(') < 0 && str.IndexOf(')') < 0 && str.IndexOfAny(s_WhiteChars) > 0) {
+                            sb.Append("cmd(\"");
+                            sb.Append(str.Replace("\"", "\\\""));
+                            sb.Append("\");");
+                        }
+                        else {
+                            sb.Append(str);
+                            if (!str.EndsWith(";"))
+                                sb.Append(";");
+                        }
+                    }
+                }
+                DebugConsole.Execute(sb.ToString());
+            }
+        }
+    }
+    public static void TestPerfGrade()
+    {
+#if UNITY_ANDROID || UNITY_EDITOR || UNITY_STANDALONE
+        PerfGradeGm.ClearPerfGradeScripts();
+        for (int i = 0; i < PerfGrade.c_max_perf_grade_cfgs; ++i) {
+            string file = System.IO.Path.Combine(PerfGradeGm.ScriptPath, string.Format("perf{0}.dsl", i));
+            if (File.Exists(file)) {
+                PerfGradeGm.LoadPerfGradeScript(file);
+            }
+        }
+        PerfGradeGm.RunPerfGrade();
+#endif
     }
 
     private IEnumerator Loop()
@@ -223,6 +274,7 @@ public class Main : MonoBehaviour
     }
 
     private static Main s_Instance = null;
+    private static char[] s_WhiteChars = new char[] { ' ', '\t' };
 }
 
 public static class VariantValue

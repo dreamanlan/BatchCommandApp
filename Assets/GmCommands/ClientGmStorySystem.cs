@@ -21,12 +21,14 @@ namespace GmCommands
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportstex", "supportstex() command, print unsupported tex", new StoryCommandFactoryHelper<SupportsTexCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsrt", "supportsrt() command, print unsupported rt", new StoryCommandFactoryHelper<SupportsRTCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsblendingonrt", "supportsblendingonrt() command, print unsupported blending", new StoryCommandFactoryHelper<SupportsBlendingOnRTCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsva", "supportsva() command, print unsupported vertex attribute format", new StoryCommandFactoryHelper<SupportsVertexAttributeFormatCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "devicesupports", "devicesupports() command, print unsupported feature", new StoryCommandFactoryHelper<DeviceSupportsCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "allocmemory", "allocmemory(key,size) command", new StoryCommandFactoryHelper<AllocMemoryCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "freememory", "freememory(key) command", new StoryCommandFactoryHelper<FreeMemoryCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "consumecpu", "consumecpu(time) command", new StoryCommandFactoryHelper<ConsumeCpuCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "gc", "gc() command, force Garbage Collect", new StoryCommandFactoryHelper<GcCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logprofiler", "logprofiler() command", new StoryCommandFactoryHelper<LogProfilerCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "cmd", "cmd(str) command", new StoryCommandFactoryHelper<CmdCommand>());
 
@@ -34,11 +36,23 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "preffloat", "preffloat(key,val) command", new StoryCommandFactoryHelper<PlayerPrefFloatCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefstr", "prefstr(key,val) command", new StoryCommandFactoryHelper<PlayerPrefStringCommand>());
 
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logcperfs", "logcperfs() command", new StoryCommandFactoryHelper<LogCompiledPerfsCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "reloadperfs", "reloadperfs() command", new StoryCommandFactoryHelper<ReloadPerfsCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "runperf", "runperf(perf_dsl_file) command", new StoryCommandFactoryHelper<RunPerfCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "compileperf", "compileperf(perf_dsl_file) command", new StoryCommandFactoryHelper<CompilePerfCommand>());
+
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "loadui", "loadui(ui_name_dsl) command", new StoryCommandFactoryHelper<LoadUiCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showui", "showui() command", new StoryCommandFactoryHelper<ShowUiCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "hideui", "hideui() command", new StoryCommandFactoryHelper<HideUiCommand>());
 
                 //register value or function
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "mono", "mono() function, get total mono memory", new StoryFunctionFactoryHelper<GetMonoMemoryFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "native", "native() function, get used native memory", new StoryFunctionFactoryHelper<GetNativeMemoryFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "gfx", "gfx() function, get used gfx memory", new StoryFunctionFactoryHelper<GetGfxMemoryFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "unused", "unused() function, get unused reserved native memory", new StoryFunctionFactoryHelper<GetUnusedMemoryFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "total", "total() function, get total native memory", new StoryFunctionFactoryHelper<GetTotalMemoryFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "deviceinfo", "deviceinfo() function, get device name/model and gpu model", new StoryFunctionFactoryHelper<DeviceInfoFunction>());
+
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "prefint", "prefint(key,defval) function", new StoryFunctionFactoryHelper<PlayerPrefIntFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "preffloat", "preffloat(key,defval) function", new StoryFunctionFactoryHelper<PlayerPrefFloatFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "prefstr", "prefstr(key,defval) function", new StoryFunctionFactoryHelper<PlayerPrefStringFunction>());
@@ -48,6 +62,12 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getgraphicsformat", "getgraphicsformat(def_fmt) function", new StoryFunctionFactoryHelper<GetGraphicsFormatFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getmsaasamplecount", "getmsaasamplecount(w,h,color_fmt,depth_bit,mip_ct) function", new StoryFunctionFactoryHelper<GetMSAASampleCountFunction>());
 
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findcomp", "findcomp(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<FindComponentFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "searchcomps", "searchcomps(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<SearchComponentsFunction>());
+
+                //failback to call perf grade api
+                StoryCommandManager.Instance.OnCreateFailback = this.OnCreateCommandFailback;
+                StoryFunctionManager.Instance.OnCreateFailback = this.OnCreateFunctionFailback;
             }
             catch (Exception ex) {
                 LogSystem.Error("exception:{0}\n{1}", ex.Message, ex.StackTrace);
@@ -126,6 +146,50 @@ namespace GmCommands
 
             StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "callscp", "callscp(func_name,arg1,arg2,...) or callscp(func(arg1,arg2,...)) function", new StoryFunctionFactoryHelper<CallScriptFunction>());
             StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "evalscp", "evalscp(str) or evalscp(exp1,exp2,...) function", new StoryFunctionFactoryHelper<EvalScriptFunction>());
+        }
+        private bool OnCreateCommandFailback(Dsl.ISyntaxComponent comp, out IStoryCommand expression)
+        {
+            bool ret = false;
+            expression = null;
+
+            var funcData = comp as Dsl.FunctionData;
+            if (null != funcData) {
+                //all perf grade apis are in the form of function calls.
+                if (funcData.HaveParam()) {
+                    var callData = funcData;
+                    string fn = callData.GetId();
+                    if (PerfGrade.Instance.ExistsApi(fn)) {
+                        var exp = new PerfApiCommand();
+                        exp.SetApi(fn);
+                        exp.Init(callData);
+                        expression = exp;
+                        ret = true;
+                    }
+                }
+            }
+            return ret;
+        }
+        private bool OnCreateFunctionFailback(Dsl.ISyntaxComponent comp, out IStoryFunction expression)
+        {
+            bool ret = false;
+            expression = null;
+
+            var funcData = comp as Dsl.FunctionData;
+            if (null != funcData) {
+                //all perf grade apis are in the form of function calls.
+                if (funcData.HaveParam()) {
+                    var callData = funcData;
+                    string fn = callData.GetId();
+                    if (PerfGrade.Instance.ExistsApi(fn)) {
+                        var exp = new PerfApiFunction();
+                        exp.SetApi(fn);
+                        exp.InitFromDsl(callData);
+                        expression = exp;
+                        ret = true;
+                    }
+                }
+            }
+            return ret;
         }
 
         public int ActiveStoryCount
@@ -259,5 +323,75 @@ namespace GmCommands
             }
         }
         private static ClientGmStorySystem s_Instance = new ClientGmStorySystem();
+    }
+
+    internal class PerfApiCommand : SimpleStoryCommandBase<PerfApiCommand, StoryValueParams>
+    {
+        public void SetApi(string method)
+        {
+            m_Method = method;
+            if (!PerfGradeGm.GetApi(method, out m_Api)) {
+                LogSystem.Error("Can't find method '{0}'", method);
+            }
+        }
+        protected override void CopyFields(PerfApiCommand other)
+        {
+            m_Method = other.m_Method;
+            m_Api = other.m_Api;
+        }
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
+        {
+            var list = PerfGradeGm.NewArgList();
+            foreach (var operand in _params.Values) {
+                list.Add(operand);
+            }
+            try {
+                if (null != m_Api) {
+                    m_Api(list);
+                }
+            }
+            finally {
+                PerfGradeGm.RecycleArgList(list);
+            }
+            return false;
+        }
+
+        private string m_Method;
+        private PerfGrade.PerfApiDelegation m_Api;
+    }
+    internal class PerfApiFunction : SimpleStoryFunctionBase<PerfApiFunction, StoryValueParams>
+    {
+        public void SetApi(string method)
+        {
+            m_Method = method;
+            if (!PerfGradeGm.GetApi(method, out m_Api)) {
+                LogSystem.Error("Can't find method '{0}'", method);
+            }
+        }
+        protected override void CopyFields(PerfApiFunction other)
+        {
+            m_Method = other.m_Method;
+            m_Api = other.m_Api;
+        }
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            var list = PerfGradeGm.NewArgList();
+            foreach (var operand in _params.Values) {
+                list.Add(operand);
+            }
+            try {
+                BoxedValue r = BoxedValue.NullObject;
+                if (null != m_Api) {
+                    r = m_Api(list);
+                }
+                result.Value = r;
+            }
+            finally {
+                PerfGradeGm.RecycleArgList(list);
+            }
+        }
+
+        private string m_Method;
+        private PerfGrade.PerfApiDelegation m_Api;
     }
 }

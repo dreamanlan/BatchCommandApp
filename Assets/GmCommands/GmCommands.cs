@@ -8,9 +8,67 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Assertions.Must;
 using System.Linq.Expressions;
 using System.Text;
+using System.IO;
+using UnityEngine.Profiling;
+using System.Runtime.CompilerServices;
 
 namespace GmCommands
 {
+    internal static class FakeProfiler
+    {
+        internal static long GetAllocatorCount()
+        {
+            return 0;
+        }
+        internal static long GetTotalAllocationCount()
+        {
+            return 0;
+        }
+        internal static long GetMallocLLAllocBytes()
+        {
+            return 0;
+        }
+        internal static long GetMallocOverrideBytes()
+        {
+            return 0;
+        }
+        internal static long GetTotalProfilerMemoryLong()
+        {
+            return 0;
+        }
+        internal static float ProfilerGetMainThreadFrameTime()
+        {
+            return 0.0f;
+        }
+        internal static float ProfilerGetRenderThreadFrameTime()
+        {
+            return 0.0f;
+        }
+        internal static int ProfilerGetVertsCount()
+        {
+            return 0;
+        }
+        internal static int ProfilerGetTriangleCount()
+        {
+            return 0;
+        }
+        internal static int ProfilerGetDrawCallCount()
+        {
+            return 0;
+        }
+        internal static int ProfilerGetSetPassCalls()
+        {
+            return 0;
+        }
+        internal static long ProfilerGetUsedTextureBytes()
+        {
+            return 0;
+        }
+        internal static int ProfilerGetUsedTextureCount()
+        {
+            return 0;
+        }
+    }
     //---------------------------------------------------------------------------------------------------------------
     internal class SetDebugCommand : SimpleStoryCommandBase<SetDebugCommand, StoryValueParam<int>>
     {
@@ -44,6 +102,7 @@ namespace GmCommands
             var vs = Enum.GetValues(typeof(TextureFormat));
             foreach (var e in vs) {
                 var tf = (TextureFormat)e;
+                LogSystem.Warn("[check tex {0}]", tf);
                 try {
                     if (!SystemInfo.SupportsTextureFormat(tf)) {
                         LogSystem.Error("can't support tex {0}", tf);
@@ -64,8 +123,17 @@ namespace GmCommands
             foreach (var e in vs) {
                 var rtf = (RenderTextureFormat)e;
                 try {
+                    var gfSrgb = GraphicsFormatUtility.GetGraphicsFormat(rtf, true);
+                    var gfLinear = GraphicsFormatUtility.GetGraphicsFormat(rtf, false);
+                    LogSystem.Warn("[check RT {0} <=> srgb:{1} linear:{2}]", rtf, gfSrgb, gfLinear);
                     if (!SystemInfo.SupportsRenderTextureFormat(rtf)) {
-                        LogSystem.Error("can't support RT {0}", rtf);
+                        LogSystem.Error("can't support RT {0}, srgb:{1} linear:{2}", rtf, gfSrgb, gfLinear);
+                    }
+                    if(!SystemInfo.SupportsBlendingOnRenderTextureFormat(rtf)) {
+                        LogSystem.Error("can't support blending on RT {0}, srgb:{1} linear:{2}", rtf, gfSrgb, gfLinear);
+                    }
+                    if (!SystemInfo.SupportsRandomWriteOnRenderTextureFormat(rtf)) {
+                        LogSystem.Error("can't support random write on RT {0}, srgb:{1} linear:{2}", rtf, gfSrgb, gfLinear);
                     }
                 }
                 catch {
@@ -75,20 +143,23 @@ namespace GmCommands
             return false;
         }
     }
-    internal class SupportsBlendingOnRTCommand : SimpleStoryCommandBase<SupportsBlendingOnRTCommand, StoryValueParam>
+    internal class SupportsVertexAttributeFormatCommand : SimpleStoryCommandBase<SupportsVertexAttributeFormatCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
-            var vs = Enum.GetValues(typeof(RenderTextureFormat));
+            var vs = Enum.GetValues(typeof(VertexAttributeFormat));
             foreach (var e in vs) {
-                var rtf = (RenderTextureFormat)e;
+                var vaf = (VertexAttributeFormat)e;
                 try {
-                    if (!SystemInfo.SupportsBlendingOnRenderTextureFormat(rtf)) {
-                        LogSystem.Error("can't support blending on {0}", rtf);
+                    for (int dim = 1; dim <= 4; ++dim) {
+                        LogSystem.Warn("[check vertex attribute format {0} dim {1}]", vaf, dim);
+                        if (!SystemInfo.SupportsVertexAttributeFormat(vaf, dim)) {
+                            LogSystem.Error("can't support vertex attribute format {0} dim {1}", vaf, dim);
+                        }
                     }
                 }
                 catch {
-                    LogSystem.Error("invalid rt format {0}", rtf);
+                    LogSystem.Error("invalid vertex attribute format {0}", vaf);
                 }
             }
             return false;
@@ -172,6 +243,31 @@ namespace GmCommands
             return false;
         }
     }
+    internal class GcCommand : SimpleStoryCommandBase<GcCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            GC.Collect();
+            return false;
+        }
+    }
+    internal class LogProfilerCommand : SimpleStoryCommandBase<LogProfilerCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            LogSystem.Warn("[memory] used heap:{0:f3} profiler:{1:f3} gfx:{2:f3} alloc:{3:f3} temp:{4:f3} unused reserved:{5:f3} reserved:{6:f3} alloc count:{7} total alloc count:{8} malloc LL:{9:f3} malloc override:{10:f3}", Profiler.usedHeapSizeLong / 1024.0f / 1024.0f, FakeProfiler.GetTotalProfilerMemoryLong() / 1024.0f / 1024.0f,
+                Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024.0f / 1024.0f, Profiler.GetTotalAllocatedMemoryLong() / 1024.0f / 1024.0f, Profiler.GetTempAllocatorSize() / 1024.0f / 1024.0f, Profiler.GetTotalUnusedReservedMemoryLong() / 1024.0f / 1024.0f,
+                Profiler.GetTotalReservedMemoryLong() / 1024.0f / 1024.0f,
+                FakeProfiler.GetAllocatorCount(), FakeProfiler.GetTotalAllocationCount(),
+                FakeProfiler.GetMallocLLAllocBytes() / 1024.0f / 1024.0f, FakeProfiler.GetMallocOverrideBytes() / 1024.0f / 1024.0f);
+            LogSystem.Warn("[mono] used:{0} heap:{1}", Profiler.GetMonoUsedSizeLong() / 1024.0f / 1024.0f, Profiler.GetMonoHeapSizeLong() / 1024.0f / 1024.0f);
+            LogSystem.Warn("[time] main:{0} rendering:{1}", FakeProfiler.ProfilerGetMainThreadFrameTime(), FakeProfiler.ProfilerGetRenderThreadFrameTime());
+            LogSystem.Warn("[rendering] vertex:{0} triangle:{1} dc:{2} set pass:{3} tex:{4:f3} tex count:{5}", FakeProfiler.ProfilerGetVertsCount(), FakeProfiler.ProfilerGetTriangleCount(),
+                FakeProfiler.ProfilerGetDrawCallCount(), FakeProfiler.ProfilerGetSetPassCalls(),
+                FakeProfiler.ProfilerGetUsedTextureBytes() / 1024.0f / 1024.0f, FakeProfiler.ProfilerGetUsedTextureCount());
+            return false;
+        }
+    }
     internal class CmdCommand : SimpleStoryCommandBase<CmdCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
@@ -215,6 +311,48 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------------------------
+    internal class GetMonoMemoryFunction : SimpleStoryFunctionBase<GetMonoMemoryFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = GC.GetTotalMemory(false) / 1024.0f / 1024.0f;
+        }
+    }
+    internal class GetNativeMemoryFunction : SimpleStoryFunctionBase<GetNativeMemoryFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Profiler.GetTotalAllocatedMemoryLong() / 1024.0f / 1024.0f;
+        }
+    }
+    internal class GetGfxMemoryFunction : SimpleStoryFunctionBase<GetGfxMemoryFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024.0f / 1024.0f;
+        }
+    }
+    internal class GetUnusedMemoryFunction : SimpleStoryFunctionBase<GetUnusedMemoryFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Profiler.GetTotalUnusedReservedMemoryLong() / 1024.0f / 1024.0f;
+        }
+    }
+    internal class GetTotalMemoryFunction : SimpleStoryFunctionBase<GetTotalMemoryFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Profiler.GetTotalReservedMemoryLong() / 1024.0f / 1024.0f;
+        }
+    }
+    internal class DeviceInfoFunction : SimpleStoryFunctionBase<DeviceInfoFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = SystemInfo.deviceName + " | " + SystemInfo.deviceModel + " | " + SystemInfo.graphicsDeviceName;
+        }
+    }
     internal class PlayerPrefIntFunction : SimpleStoryFunctionBase<PlayerPrefIntFunction, StoryValueParam<string, int>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, int> _params, StoryValueResult result)
@@ -331,6 +469,48 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
+    internal class LogCompiledPerfsCommand : SimpleStoryCommandBase<LogCompiledPerfsCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            PerfGradeGm.LogCompiledPerfGrades();
+            return false;
+        }
+    }
+    internal class ReloadPerfsCommand : SimpleStoryCommandBase<ReloadPerfsCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            Main.TestPerfGrade();
+            return false;
+        }
+    }
+    internal class RunPerfCommand : SimpleStoryCommandBase<RunPerfCommand, StoryValueParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
+        {
+            var perfFile = _params.Param1Value;
+            if(!Path.IsPathRooted(perfFile)) {
+                perfFile = PerfGradeGm.ScriptPath + perfFile;
+            }
+            PerfGradeGm.ClearPerfGradeScripts();
+            PerfGradeGm.LoadPerfGradeScript(perfFile);
+            PerfGradeGm.RunPerfGrade();
+            return false;
+        }
+    }
+    internal class CompilePerfCommand : SimpleStoryCommandBase<CompilePerfCommand, StoryValueParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
+        {
+            var perfFile = _params.Param1Value;
+            if (!Path.IsPathRooted(perfFile)) {
+                perfFile = PerfGradeGm.ScriptPath + perfFile;
+            }
+            PerfGradeGm.CompilePerfGradeScript(perfFile);
+            return false;
+        }
+    }
     internal class LoadUiCommand : SimpleStoryCommandBase<LoadUiCommand, StoryValueParam<Dsl.ValueData>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<Dsl.ValueData> _params, long delta)
@@ -385,5 +565,116 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
+    internal class FindComponentFunction : SimpleStoryFunctionBase<FindComponentFunction, StoryValueParam<string, System.Collections.IList, object>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object> _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+            var root = _params.Param1Value;
+            var vals = _params.Param2Value;
+            var typeObj = _params.Param3Value;
+            var names = new List<string>();
+            foreach (var v in vals)
+            {
+                names.Add(v.ToString());
+            }
+            var type = typeObj as Type;
+            var typeStr = typeObj as string;
+            if (null != typeStr)
+            {
+                type = StoryScriptUtility.GetType(typeStr);
+            }
+            if (null != type)
+            {
+                if (string.IsNullOrEmpty(root))
+                {
+                    var objs = GameObject.FindObjectsOfType(type, true);
+                    foreach (var obj in objs)
+                    {
+                        var comp = obj as Component;
+                        if (null != comp)
+                        {
+                            if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                            {
+                                result.Value = comp;
+                                return;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var rootObj = GameObject.Find(root);
+                    if (null != rootObj)
+                    {
+                        var comps = rootObj.GetComponentsInChildren(type, true);
+                        foreach (var comp in comps)
+                        {
+                            if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                            {
+                                result.Value = comp;
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    internal class SearchComponentsFunction : SimpleStoryFunctionBase<SearchComponentsFunction, StoryValueParam<string, System.Collections.IList, object>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object> _params, StoryValueResult result)
+        {
+            var list = new List<Component>();
+            var root = _params.Param1Value;
+            var vals = _params.Param2Value;
+            var typeObj = _params.Param3Value;
+            var names = new List<string>();
+            foreach (var v in vals)
+            {
+                names.Add(v.ToString());
+            }
+            var type = typeObj as Type;
+            var typeStr = typeObj as string;
+            if (null != typeStr)
+            {
+                type = StoryScriptUtility.GetType(typeStr);
+            }
+            if (null != type)
+            {
+                if (string.IsNullOrEmpty(root))
+                {
+                    var objs = GameObject.FindObjectsOfType(type, true);
+                    foreach (var obj in objs)
+                    {
+                        var comp = obj as Component;
+                        if (null != comp)
+                        {
+                            if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                            {
+                                list.Add(comp);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var rootObj = GameObject.Find(root);
+                    if (null != rootObj)
+                    {
+                        var comps = rootObj.GetComponentsInChildren(type, true);
+                        foreach (var comp in comps)
+                        {
+                            if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                            {
+                                list.Add(comp);
+                            }
+                        }
+                    }
+                }
+            }
+            result.Value = list;
+        }
+    }
 
 }

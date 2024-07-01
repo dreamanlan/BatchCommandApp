@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using UnityEngine;
@@ -89,6 +90,20 @@ public static partial class StoryScriptUtility
             }
             return child.GetComponent<T>();
         }
+    }
+    public static bool IsPathMatch(UnityEngine.Transform tr, IList<string> names)
+    {
+        int ix = names.Count - 1;
+        var p = tr;
+        while (null != p && ix >= 0)
+        {
+            if (p.name == names[ix])
+            {
+                --ix;
+            }
+            p = p.parent;
+        }
+        return ix < 0;
     }
     public static GameObject AttachUiAsset(GameObject targetObject, GameObject asset, string name)
     {
@@ -273,6 +288,73 @@ public static partial class StoryScriptUtility
                     Debug.LogErrorFormat("SendMessageWithTag({0} {1} {2} {3}) Exception {4}\n{5}", objtag, msg, arg, needReceiver, ex.Message, ex.StackTrace);
                 }
             }
+        }
+    }
+}
+
+internal static class Literal
+{
+    internal static string GetIndentString(int indent)
+    {
+        PrepareIndent(indent);
+        return s_IndentString.Substring(0, indent);
+    }
+    internal static string GetSpaceString(int indent)
+    {
+        PrepareSpace(indent * c_IndentSpaceString.Length);
+        return s_SpaceString.Substring(0, indent * c_IndentSpaceString.Length);
+    }
+
+    private static void PrepareIndent(int indent)
+    {
+        if (s_IndentString.Length < indent) {
+            int len = c_InitCount;
+            while (len < indent) {
+                len *= 2;
+            }
+            s_IndentString = new string('\t', indent);
+        }
+    }
+    private static void PrepareSpace(int indent)
+    {
+        if (s_SpaceString.Length < indent) {
+            int len = c_InitCount;
+            while (len < indent) {
+                len *= 2;
+            }
+            while (s_SpaceBuilder.Length < len) {
+                s_SpaceBuilder.Append(c_IndentSpaceString);
+            }
+            s_SpaceString = s_SpaceBuilder.ToString();
+        }
+    }
+
+    private static string s_IndentString = string.Empty;
+    private static string s_SpaceString = string.Empty;
+    private static StringBuilder s_SpaceBuilder = new StringBuilder();
+
+    private const int c_InitCount = 256;
+    private const string c_IndentSpaceString = "| ";
+}
+internal static class StringBuilderExtension
+{
+    public static void Append(this StringBuilder sb, string fmt, params object[] args)
+    {
+        if (args.Length == 0) {
+            sb.Append(fmt);
+        }
+        else {
+            sb.AppendFormat(fmt, args);
+        }
+    }
+    public static void AppendLine(this StringBuilder sb, string fmt, params object[] args)
+    {
+        if (args.Length == 0) {
+            sb.AppendLine(fmt);
+        }
+        else {
+            sb.AppendFormat(fmt, args);
+            sb.AppendLine();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace GmCommands
         public void Log(string format, params object[] args)
         {
             try {
-                if (!m_Enabled)
+                if (!m_Enabled || null == m_LogStream)
                     return;
                 string msg = DateTime.Now.ToString("HH-mm-ss-fff:") + string.Format(format, args);
                 m_LogStream.WriteLine(msg);
@@ -36,6 +36,9 @@ namespace GmCommands
 #else
             	string logFile = string.Format("{0}/Game{1}.log", logPath, suffix);
 #endif
+                if (null != m_LogStream) {
+                    Release();
+                }
                 m_LogStream = new StreamWriter(logFile, false);
                 Log("======GameLog Start ({0}, {1})======", DateTime.Now.ToLongDateString(), DateTime.Now.ToLongTimeString());
             }
@@ -52,9 +55,10 @@ namespace GmCommands
         {
             m_LogStream.Close();
             m_LogStream.Dispose();
+            m_LogStream = null;
         }
 
-        private StreamWriter m_LogStream;
+        private StreamWriter m_LogStream = null;
         private bool m_Enabled = true;
     }
 }

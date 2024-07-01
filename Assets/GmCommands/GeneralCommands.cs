@@ -1093,7 +1093,7 @@ namespace GmCommands
                 } else {
                     string name = componentType.IsString ? componentType.StringVal : null;
                     if (null != name) {
-                        t = Type.GetType(name);
+                        t = StoryScriptUtility.GetType(name);
                         component = obj.AddComponent(t);
                     }
                 }
@@ -1181,7 +1181,7 @@ namespace GmCommands
                 } else {
                     string name = componentType.IsString ? componentType.StringVal : null;
                     if (null != name) {
-                        t = Type.GetType(name);
+                        t = StoryScriptUtility.GetType(name);
                         var comp = obj.GetComponent(t);
                         StoryScriptUtility.DestroyObject(comp);
                     }
