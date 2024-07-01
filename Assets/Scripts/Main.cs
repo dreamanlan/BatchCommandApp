@@ -80,7 +80,7 @@ public class Main : MonoBehaviour
 
         StartCoroutine(Loop());
 
-        OnExecCommand("setloggcsize(16,40960000);loggc(1);showmemory();loop(10){allocmemory('m'+$$,1024);};unloadunused();gc();showmemory();loggc(0);");
+        OnExecCommand("showmemory();loop(10){allocmemory('m'+$$,1024);};unloadunused();gc();showmemory();");
 
         TestGM();
         PerfGradeGm.TryInit(); //PerfGradeGm.TryLoad();
