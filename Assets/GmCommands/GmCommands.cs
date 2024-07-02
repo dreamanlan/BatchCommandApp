@@ -469,15 +469,16 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal class ListComponentsCommand : SimpleStoryCommandBase<ListComponentsCommand, StoryValueParam<string, System.Collections.IList, object, int>>
+    internal class ListComponentsCommand : SimpleStoryCommandBase<ListComponentsCommand, StoryValueParam<string, System.Collections.IList, object, int, bool>>
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object, int> _params, long delta)
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object, int, bool> _params, long delta)
         {
             var list = new List<Component>();
             var root = _params.Param1Value;
             var vals = _params.Param2Value;
             var typeObj = _params.Param3Value;
             int up_level = _params.Param4Value;
+            bool include_inactive = _params.Param5Value;
             var names = new List<string>();
             foreach (var v in vals)
             {
@@ -493,7 +494,7 @@ namespace GmCommands
             {
                 if (string.IsNullOrEmpty(root))
                 {
-                    var objs = GameObject.FindObjectsOfType(type, true);
+                    var objs = GameObject.FindObjectsOfType(type, include_inactive);
                     foreach (var obj in objs)
                     {
                         var comp = obj as Component;
@@ -511,7 +512,7 @@ namespace GmCommands
                     var rootObj = GameObject.Find(root);
                     if (null != rootObj)
                     {
-                        var comps = rootObj.GetComponentsInChildren(type, true);
+                        var comps = rootObj.GetComponentsInChildren(type, include_inactive);
                         foreach (var comp in comps)
                         {
                             if (StoryScriptUtility.IsPathMatch(comp.transform, names))
@@ -644,7 +645,7 @@ namespace GmCommands
             {
                 if (string.IsNullOrEmpty(root))
                 {
-                    var objs = GameObject.FindObjectsOfType(type, true);
+                    var objs = GameObject.FindObjectsOfType(type, false);
                     foreach (var obj in objs)
                     {
                         var comp = obj as Component;
@@ -663,7 +664,7 @@ namespace GmCommands
                     var rootObj = GameObject.Find(root);
                     if (null != rootObj)
                     {
-                        var comps = rootObj.GetComponentsInChildren(type, true);
+                        var comps = rootObj.GetComponentsInChildren(type, false);
                         foreach (var comp in comps)
                         {
                             if (StoryScriptUtility.IsPathMatch(comp.transform, names))
