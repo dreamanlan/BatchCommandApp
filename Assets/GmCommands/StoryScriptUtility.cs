@@ -105,6 +105,24 @@ public static partial class StoryScriptUtility
         }
         return ix < 0;
     }
+    public static string GetScenePath(UnityEngine.Transform tr, int up_level)
+    {
+        var sb = new StringBuilder();
+        var stack = new Stack<string>();
+        int lvl = 0;
+        while (null != tr && lvl <= up_level)
+        {
+            stack.Push(tr.name);
+            tr = tr.parent;
+            ++lvl;
+        }
+        while (stack.Count > 0)
+        {
+            sb.Append('/');
+            sb.Append(stack.Pop());
+        }
+        return sb.ToString();
+    }
     public static GameObject AttachUiAsset(GameObject targetObject, GameObject asset, string name)
     {
         GameObject result = null;
