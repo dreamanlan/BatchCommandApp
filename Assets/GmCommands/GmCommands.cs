@@ -95,6 +95,32 @@ namespace GmCommands
             return false;
         }
     }
+    internal class SupportsGfxFormatCommand : SimpleStoryCommandBase<SupportsGfxFormatCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            var vs = Enum.GetValues(typeof(GraphicsFormat));
+            var us = Enum.GetValues(typeof(FormatUsage));
+            foreach (var e in vs) {
+                var gf = (GraphicsFormat)e;
+                try {
+                    var rtf = GraphicsFormatUtility.GetRenderTextureFormat(gf);
+                    var tf = GraphicsFormatUtility.GetTextureFormat(gf);
+                    LogSystem.Warn("[check graphics format {0} <=> rt:{1} tex:{2}]", gf, rtf, tf);
+                    foreach (var u in us) {
+                        var fu = (FormatUsage)u;
+                        if(!SystemInfo.IsFormatSupported(gf, fu)) {
+                            LogSystem.Error("can't support graphics format {0} usage {1} <=> rt:{2} tex:{3}", gf, fu, rtf, tf);
+                        }
+                    }
+                }
+                catch (Exception ex) {
+                    LogSystem.Error("invalid graphics format {0}, exception:{1}", gf, ex.Message);
+                }
+            }
+            return false;
+        }
+    }
     internal class SupportsTexCommand : SimpleStoryCommandBase<SupportsTexCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
@@ -102,14 +128,16 @@ namespace GmCommands
             var vs = Enum.GetValues(typeof(TextureFormat));
             foreach (var e in vs) {
                 var tf = (TextureFormat)e;
-                LogSystem.Warn("[check tex {0}]", tf);
                 try {
+                    var gfSrgb = GraphicsFormatUtility.GetGraphicsFormat(tf, true);
+                    var gfLinear = GraphicsFormatUtility.GetGraphicsFormat(tf, false);
+                    LogSystem.Warn("[check tex {0} <=> srgb:{1} linear:{2}]", tf, gfSrgb, gfLinear);
                     if (!SystemInfo.SupportsTextureFormat(tf)) {
-                        LogSystem.Error("can't support tex {0}", tf);
+                        LogSystem.Error("can't support tex {0}, srgb:{1} linear:{2}", tf, gfSrgb, gfLinear);
                     }
                 }
-                catch {
-                    LogSystem.Error("invalid tex format {0}", tf);
+                catch (Exception ex) {
+                    LogSystem.Error("invalid tex format {0}, exception:{1}", tf, ex.Message);
                 }
             }
             return false;
@@ -136,8 +164,8 @@ namespace GmCommands
                         LogSystem.Error("can't support random write on RT {0}, srgb:{1} linear:{2}", rtf, gfSrgb, gfLinear);
                     }
                 }
-                catch {
-                    LogSystem.Error("invalid rt format {0}", rtf);
+                catch (Exception ex) {
+                    LogSystem.Error("invalid rt format {0}, exception:{1}", rtf, ex.Message);
                 }
             }
             return false;
@@ -158,8 +186,8 @@ namespace GmCommands
                         }
                     }
                 }
-                catch {
-                    LogSystem.Error("invalid vertex attribute format {0}", vaf);
+                catch (Exception ex) {
+                    LogSystem.Error("invalid vertex attribute format {0}, exception:{1}", vaf, ex.Message);
                 }
             }
             return false;

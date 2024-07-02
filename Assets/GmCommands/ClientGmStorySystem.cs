@@ -19,6 +19,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "editorbreak", "editorbreak() command", new StoryCommandFactoryHelper<EditorBreakCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "debugbreak", "debugbreak() command", new StoryCommandFactoryHelper<DebugBreakCommand>());
 
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsgf", "supportsgf() command, print unsupported graphics format", new StoryCommandFactoryHelper<SupportsGfxFormatCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportstex", "supportstex() command, print unsupported tex", new StoryCommandFactoryHelper<SupportsTexCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsrt", "supportsrt() command, print unsupported rt", new StoryCommandFactoryHelper<SupportsRTCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsva", "supportsva() command, print unsupported vertex attribute format", new StoryCommandFactoryHelper<SupportsVertexAttributeFormatCommand>());
