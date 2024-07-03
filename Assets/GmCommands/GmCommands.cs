@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.IO;
 using UnityEngine.Profiling;
+using System.Threading;
 using System.Runtime.CompilerServices;
 
 namespace GmCommands
@@ -101,6 +102,7 @@ namespace GmCommands
         {
             var vs = Enum.GetValues(typeof(GraphicsFormat));
             var us = Enum.GetValues(typeof(FormatUsage));
+            int ct = 0;
             foreach (var e in vs) {
                 var gf = (GraphicsFormat)e;
                 try {
@@ -112,6 +114,10 @@ namespace GmCommands
                         if(!SystemInfo.IsFormatSupported(gf, fu)) {
                             LogSystem.Error("can't support graphics format {0} usage {1} <=> rt:{2} tex:{3}", gf, fu, rtf, tf);
                         }
+                    }
+                    ++ct;
+                    if (ct % 20 == 0) {
+                        Thread.Sleep(0);
                     }
                 }
                 catch (Exception ex) {
@@ -126,6 +132,7 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
             var vs = Enum.GetValues(typeof(TextureFormat));
+            int ct = 0;
             foreach (var e in vs) {
                 var tf = (TextureFormat)e;
                 try {
@@ -134,6 +141,10 @@ namespace GmCommands
                     LogSystem.Warn("[check tex {0} <=> srgb:{1} linear:{2}]", tf, gfSrgb, gfLinear);
                     if (!SystemInfo.SupportsTextureFormat(tf)) {
                         LogSystem.Error("can't support tex {0}, srgb:{1} linear:{2}", tf, gfSrgb, gfLinear);
+                    }
+                    ++ct;
+                    if (ct % 300 == 0) {
+                        Thread.Sleep(0);
                     }
                 }
                 catch (Exception ex) {
@@ -148,6 +159,7 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
             var vs = Enum.GetValues(typeof(RenderTextureFormat));
+            int ct = 0;
             foreach (var e in vs) {
                 var rtf = (RenderTextureFormat)e;
                 try {
@@ -163,6 +175,10 @@ namespace GmCommands
                     if (!SystemInfo.SupportsRandomWriteOnRenderTextureFormat(rtf)) {
                         LogSystem.Error("can't support random write on RT {0}, srgb:{1} linear:{2}", rtf, gfSrgb, gfLinear);
                     }
+                    ++ct;
+                    if (ct % 100 == 0) {
+                        Thread.Sleep(0);
+                    }
                 }
                 catch (Exception ex) {
                     LogSystem.Error("invalid rt format {0}, exception:{1}", rtf, ex.Message);
@@ -176,6 +192,7 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
             var vs = Enum.GetValues(typeof(VertexAttributeFormat));
+            int ct = 0;
             foreach (var e in vs) {
                 var vaf = (VertexAttributeFormat)e;
                 try {
@@ -184,6 +201,10 @@ namespace GmCommands
                         if (!SystemInfo.SupportsVertexAttributeFormat(vaf, dim)) {
                             LogSystem.Error("can't support vertex attribute format {0} dim {1}", vaf, dim);
                         }
+                    }
+                    ++ct;
+                    if (ct % 100 == 0) {
+                        Thread.Sleep(0);
                     }
                 }
                 catch (Exception ex) {
