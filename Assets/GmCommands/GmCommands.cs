@@ -80,6 +80,52 @@ namespace GmCommands
             return false;
         }
     }
+    internal class ListenClipboardCommand : SimpleStoryCommandBase<ListenClipboardCommand, StoryValueParam<int>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<int> _params, long delta)
+        {
+            int val = _params.Param1Value;
+            GmRootScript.ListenClipboard(val);
+            return false;
+        }
+    }
+    internal class ListenAndroidCommand : SimpleStoryCommandBase<ListenAndroidCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            GmRootScript.ListenAndroid();
+            return false;
+        }
+    }
+    internal class StartServiceCommand : SimpleStoryCommandBase<StartServiceCommand, StoryValueParam<string, string, BoxedValue>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, string, BoxedValue> _params, long delta)
+        {
+            string srvClass = _params.Param1Value;
+            string extraName = _params.Param2Value;
+            BoxedValue extraValue = _params.Param3Value;
+            GmRootScript.StartService(srvClass, extraName, extraValue);
+            return false;
+        }
+    }
+    internal class StopServiceCommand : SimpleStoryCommandBase<StopServiceCommand, StoryValueParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
+        {
+            string srvClass = _params.Param1Value;
+            GmRootScript.StopService(srvClass);
+            return false;
+        }
+    }
+    internal class SetClipboardCommand : SimpleStoryCommandBase<SetClipboardCommand, StoryValueParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
+        {
+            string text = _params.Param1Value;
+            GUIUtility.systemCopyBuffer = text;
+            return false;
+        }
+    }
     internal class EditorBreakCommand : SimpleStoryCommandBase<EditorBreakCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
@@ -399,7 +445,16 @@ namespace GmCommands
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
-            result.Value = SystemInfo.deviceName + " | " + SystemInfo.deviceModel + " | " + SystemInfo.graphicsDeviceName;
+            result.Value = SystemInfo.deviceName + " | " + SystemInfo.deviceModel + " | "
+                + SystemInfo.graphicsDeviceName + " | " + SystemInfo.graphicsDeviceVersion + " | "
+                + SystemInfo.operatingSystem + " | " + SystemInfo.processorType;
+        }
+    }
+    internal class GetClipboardFunction : SimpleStoryFunctionBase<GetClipboardFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = GUIUtility.systemCopyBuffer;
         }
     }
     internal class PlayerPrefIntFunction : SimpleStoryFunctionBase<PlayerPrefIntFunction, StoryValueParam<string, int>>

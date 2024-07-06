@@ -166,6 +166,16 @@ public sealed partial class PerfGrade
     }
 
     //perf grade apis
+    private BoxedValue device_name(BoxedValueList list)
+    {
+        string model = device_name_impl();
+        return BoxedValue.FromString(model);
+    }
+    private string device_name_impl()
+    {
+        return SystemInfo.deviceName;
+    }
+
     private BoxedValue device_model(BoxedValueList list)
     {
         string model = device_model_impl();
@@ -194,6 +204,16 @@ public sealed partial class PerfGrade
     private string gpu_ver_impl()
     {
         return SystemInfo.graphicsDeviceVersion;
+    }
+
+    private BoxedValue os_ver(BoxedValueList list)
+    {
+        string type = os_ver_impl();
+        return BoxedValue.FromString(type);
+    }
+    private string os_ver_impl()
+    {
+        return SystemInfo.operatingSystem;
     }
 
     private BoxedValue cpu_type(BoxedValueList list)
@@ -342,6 +362,94 @@ public sealed partial class PerfGrade
     {
         GradeSetState = true;
         return true;
+    }
+
+    private BoxedValue name_like(BoxedValueList list)
+    {
+        var regs = new List<string>();
+        foreach (var v in list) {
+            regs.Add(v.GetString());
+        }
+        return BoxedValue.FromBool(name_like_impl(regs));
+    }
+    private bool name_like_impl(params string[] regexes)
+    {
+        return name_like_impl(regexes);
+    }
+    private bool name_like_impl(IList<string> regexes)
+    {
+        if (GradeSetState) {
+            var model = SystemInfo.deviceName;
+            bool res = string_like_helper(model, regexes);
+            GradeSetState = GradeSetState && res;
+        }
+        return GradeSetState;
+    }
+
+    private BoxedValue name_in(BoxedValueList list)
+    {
+        var regs = new List<string>();
+        foreach (var v in list) {
+            regs.Add(v.GetString());
+        }
+        return BoxedValue.FromBool(name_in_impl(regs));
+    }
+    private bool name_in_impl(params string[] regexes)
+    {
+        return name_in_impl(regexes);
+    }
+    private bool name_in_impl(IList<string> regexes)
+    {
+        if (GradeSetState) {
+            var model = SystemInfo.deviceName;
+            bool res = string_in_helper(model, regexes);
+            GradeSetState = GradeSetState && res;
+        }
+        return GradeSetState;
+    }
+
+    private BoxedValue name_contains_all(BoxedValueList list)
+    {
+        var regs = new List<string>();
+        foreach (var v in list) {
+            regs.Add(v.GetString());
+        }
+        return BoxedValue.FromBool(name_contains_all_impl(regs));
+    }
+    private bool name_contains_all_impl(params string[] regexes)
+    {
+        return name_contains_all_impl(regexes);
+    }
+    private bool name_contains_all_impl(IList<string> regexes)
+    {
+        if (GradeSetState) {
+            var model = SystemInfo.deviceName;
+            bool res = string_contains_all_helper(model, regexes);
+            GradeSetState = GradeSetState && res;
+        }
+        return GradeSetState;
+    }
+
+    private BoxedValue name_contains_any(BoxedValueList list)
+    {
+        var regs = new List<string>();
+        foreach (var v in list) {
+            regs.Add(v.GetString());
+        }
+        return BoxedValue.FromBool(name_contains_any_impl(regs));
+    }
+    private bool name_contains_any_impl(params string[] regexes)
+    {
+        return name_contains_any_impl(regexes);
+    }
+    private bool name_contains_any_impl(IList<string> regexes)
+    {
+        if (GradeSetState) {
+            var model = SystemInfo.deviceName;
+            bool res = string_contains_any_helper(model, regexes);
+            GradeSetState = GradeSetState && res;
+        }
+        return GradeSetState;
     }
 
     private BoxedValue device_like(BoxedValueList list)
@@ -690,6 +798,94 @@ public sealed partial class PerfGrade
     {
         if (GradeSetState) {
             var model = SystemInfo.graphicsDeviceVersion;
+            bool res = string_contains_any_helper(model, regexes);
+            GradeSetState = GradeSetState && res;
+        }
+        return GradeSetState;
+    }
+
+    private BoxedValue os_ver_like(BoxedValueList list)
+    {
+        var regs = new List<string>();
+        foreach (var v in list) {
+            regs.Add(v.GetString());
+        }
+        return BoxedValue.FromBool(os_ver_like_impl(regs));
+    }
+    private bool os_ver_like_impl(params string[] regexes)
+    {
+        return os_ver_like_impl(regexes);
+    }
+    private bool os_ver_like_impl(IList<string> regexes)
+    {
+        if (GradeSetState) {
+            var model = SystemInfo.operatingSystem;
+            bool res = string_like_helper(model, regexes);
+            GradeSetState = GradeSetState && res;
+        }
+        return GradeSetState;
+    }
+
+    private BoxedValue os_ver_in(BoxedValueList list)
+    {
+        var regs = new List<string>();
+        foreach (var v in list) {
+            regs.Add(v.GetString());
+        }
+        return BoxedValue.FromBool(os_ver_in_impl(regs));
+    }
+    private bool os_ver_in_impl(params string[] regexes)
+    {
+        return os_ver_in_impl(regexes);
+    }
+    private bool os_ver_in_impl(IList<string> regexes)
+    {
+        if (GradeSetState) {
+            var model = SystemInfo.operatingSystem;
+            bool res = string_in_helper(model, regexes);
+            GradeSetState = GradeSetState && res;
+        }
+        return GradeSetState;
+    }
+
+    private BoxedValue os_ver_contains_all(BoxedValueList list)
+    {
+        var regs = new List<string>();
+        foreach (var v in list) {
+            regs.Add(v.GetString());
+        }
+        return BoxedValue.FromBool(os_ver_contains_all_impl(regs));
+    }
+    private bool os_ver_contains_all_impl(params string[] regexes)
+    {
+        return os_ver_contains_all_impl(regexes);
+    }
+    private bool os_ver_contains_all_impl(IList<string> regexes)
+    {
+        if (GradeSetState) {
+            var model = SystemInfo.operatingSystem;
+            bool res = string_contains_all_helper(model, regexes);
+            GradeSetState = GradeSetState && res;
+        }
+        return GradeSetState;
+    }
+
+    private BoxedValue os_ver_contains_any(BoxedValueList list)
+    {
+        var regs = new List<string>();
+        foreach (var v in list) {
+            regs.Add(v.GetString());
+        }
+        return BoxedValue.FromBool(os_ver_contains_any_impl(regs));
+    }
+    private bool os_ver_contains_any_impl(params string[] regexes)
+    {
+        return os_ver_contains_any_impl(regexes);
+    }
+    private bool os_ver_contains_any_impl(IList<string> regexes)
+    {
+        if (GradeSetState) {
+            var model = SystemInfo.operatingSystem;
             bool res = string_contains_any_helper(model, regexes);
             GradeSetState = GradeSetState && res;
         }

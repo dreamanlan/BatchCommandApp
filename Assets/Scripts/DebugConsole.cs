@@ -321,6 +321,7 @@ public class DebugConsole : MonoBehaviour
         LogMessage(Message.System(" type '/? filter' for available story commands and script apis."));
         LogMessage(Message.Log(""));
 
+        this.RegisterCommandCallback("open", CMDOpen);
         this.RegisterCommandCallback("close", CMDClose);
         this.RegisterCommandCallback("clear", CMDClear);
         this.RegisterCommandCallback("sys", CMDSystemInfo);
@@ -720,6 +721,13 @@ public class DebugConsole : MonoBehaviour
     #region Console commands
 
     //==== Built-in example DebugCommand handlers ====
+    private object CMDOpen(params string[] args)
+    {
+        ShowImpl();
+
+        return "opened";
+    }
+
     private object CMDClose(params string[] args)
     {
         HideImpl();

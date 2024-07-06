@@ -16,6 +16,11 @@ namespace GmCommands
 
                 //register Gm command
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setdebug", "setdebug(1_or_0) command", new StoryCommandFactoryHelper<SetDebugCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "listenclipboard", "listenclipboard(interval) command", new StoryCommandFactoryHelper<ListenClipboardCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "listenandroid", "listenandroid() command", new StoryCommandFactoryHelper<ListenAndroidCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "startservice", "startservice(srv_class, extra_name, extra_val) command", new StoryCommandFactoryHelper<StartServiceCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "stopservice", "stopservice(srv_class) command", new StoryCommandFactoryHelper<StopServiceCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setclipboard", "setclipboard(text) command", new StoryCommandFactoryHelper<SetClipboardCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "editorbreak", "editorbreak() command", new StoryCommandFactoryHelper<EditorBreakCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "debugbreak", "debugbreak() command", new StoryCommandFactoryHelper<DebugBreakCommand>());
 
@@ -55,6 +60,7 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "unused", "unused() function, get unused reserved native memory", new StoryFunctionFactoryHelper<GetUnusedMemoryFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "total", "total() function, get total native memory", new StoryFunctionFactoryHelper<GetTotalMemoryFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "deviceinfo", "deviceinfo() function, get device name/model and gpu model", new StoryFunctionFactoryHelper<DeviceInfoFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getclipboard", "getclipboard() function, get system clipboard content", new StoryFunctionFactoryHelper<GetClipboardFunction>());
 
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "prefint", "prefint(key,defval) function", new StoryFunctionFactoryHelper<PlayerPrefIntFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "preffloat", "preffloat(key,defval) function", new StoryFunctionFactoryHelper<PlayerPrefFloatFunction>());

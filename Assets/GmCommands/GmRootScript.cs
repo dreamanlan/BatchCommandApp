@@ -15,6 +15,7 @@ public class GmRootScript : MonoBehaviour
     }
     void OnDisable()
     {
+        DeinitAndroidReceiver();
         m_Logger.Dispose();
     }
     void Start()
@@ -25,6 +26,23 @@ public class GmRootScript : MonoBehaviour
     {
         try {
             TimeUtility.UpdateGfxTime(Time.time, Time.realtimeSinceStartup, Time.timeScale);
+            if (m_ClipboardInterval > 0) {
+                long curTime = TimeUtility.GetLocalRealMilliseconds();
+                if (m_LastClipboardTime + m_ClipboardInterval < curTime) {
+                    string cmd = GUIUtility.systemCopyBuffer.Trim();
+                    if (cmd.StartsWith(c_clipboard_cmd_tag)) {
+                        DebugConsole.Execute(cmd.Substring(c_clipboard_cmd_tag.Length));
+                        GUIUtility.systemCopyBuffer = string.Empty;
+                    }
+                    m_LastClipboardTime = curTime;
+                }
+                else if(m_LastClipboardTime > curTime) {
+                    m_LastClipboardTime = 0;
+                }
+            }
+            if (null != m_AndroidReceiver) {
+                HandleCommand();
+            }
             ClientGmStorySystem.Instance.Tick();
         }
         catch (Exception ex) {
@@ -75,6 +93,28 @@ public class GmRootScript : MonoBehaviour
     private void LogToConsole(string msg)
     {
         DebugConsole.Log(msg);
+    }
+
+    private void SetClipboardInterval(int interval)
+    {
+        m_ClipboardInterval = interval;
+    }
+    private void InitAndroidReceiver()
+    {
+#if UNITY_ANDROID
+        if (null == m_AndroidReceiver) {
+            m_AndroidReceiver = new BroadcastReceiverHandler();
+        }
+        m_AndroidReceiver.RegisterBroadcastReceiver("com.unity3d.command");
+#endif
+    }
+    private void DeinitAndroidReceiver()
+    {
+#if UNITY_ANDROID
+        if (null != m_AndroidReceiver) {
+            m_AndroidReceiver.UnregisterBroadcastReceiver();
+        }
+#endif
     }
 
     private void OnResetStory()
@@ -168,6 +208,10 @@ public class GmRootScript : MonoBehaviour
         }
     }
 
+    private int m_ClipboardInterval;
+    private long m_LastClipboardTime;
+    private BroadcastReceiverHandler m_AndroidReceiver;
+
     private SortedList<string, string> m_CommandDocs;
     private SortedList<string, string> m_FunctionDocs;
     private string m_LocalGmFile = string.Empty;
@@ -209,7 +253,43 @@ public class GmRootScript : MonoBehaviour
             GetGmRootScript().TryInitGmRoot();
         }
     }
+    public static void ListenClipboard(int interval)
+    {
+        if (null != s_GameObj) {
+            GetGmRootScript().SetClipboardInterval(interval);
+        }
+    }
+    public static void ListenAndroid()
+    {
+        if (null != s_GameObj) {
+            GetGmRootScript().InitAndroidReceiver();
+        }
+    }
+    public static void SendCommand(string cmd)
+    {
+#if UNITY_ANDROID
+        lock (s_Lock) {
+            if (s_CommandQueue.Count < c_max_command_in_queue) {
+                s_CommandQueue.Enqueue(cmd);
+            }
+            else {
+                LogSystem.Error("command queue overflow !");
+            }
+        }
+#endif
+    }
 
+    private static void HandleCommand()
+    {
+#if UNITY_ANDROID
+        lock (s_Lock) {
+            if (s_CommandQueue.Count > 0) {
+                string cmd = s_CommandQueue.Dequeue();
+                DebugConsole.Execute(cmd);
+            }
+        }
+#endif
+    }
     private static GmRootScript GetGmRootScript()
     {
         var obj = s_GameObj;
@@ -256,5 +336,138 @@ public class GmRootScript : MonoBehaviour
         return null;
     }
 
+    internal static void StartService(string srvClass, string extraName, BoxedValue extraValue)
+    {
+        AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
+        AndroidJavaObject context = unityActivity.Call<AndroidJavaObject>("getApplicationContext");
+
+        AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent");
+        AndroidJavaClass serviceClass = new AndroidJavaClass(srvClass);
+        intent.Call<AndroidJavaObject>("setClass", context, serviceClass);
+        switch (extraValue.Type) {
+            case BoxedValue.c_StringType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetString());
+                break;
+            case BoxedValue.c_ObjectType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetObject());
+                break;
+            case BoxedValue.c_BoolType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetBool());
+                break;
+            case BoxedValue.c_CharType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetChar());
+                break;
+            case BoxedValue.c_SByteType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetSByte());
+                break;
+            case BoxedValue.c_ByteType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetByte());
+                break;
+            case BoxedValue.c_ShortType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetShort());
+                break;
+            case BoxedValue.c_UShortType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetUShort());
+                break;
+            case BoxedValue.c_IntType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetInt());
+                break;
+            case BoxedValue.c_UIntType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetUInt());
+                break;
+            case BoxedValue.c_LongType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetLong());
+                break;
+            case BoxedValue.c_ULongType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetULong());
+                break;
+            case BoxedValue.c_FloatType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetFloat());
+                break;
+            case BoxedValue.c_DoubleType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetDouble());
+                break;
+            case BoxedValue.c_DecimalType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetDecimal());
+                break;
+            default:
+                // unsupported type, do nothing
+                break;
+        }
+        context.Call<AndroidJavaObject>("startService", intent);
+    }
+    internal static void StopService(string srvClass)
+    {
+        AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
+        AndroidJavaObject context = unityActivity.Call<AndroidJavaObject>("getApplicationContext");
+
+        AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent");
+        AndroidJavaClass serviceClass = new AndroidJavaClass(srvClass);
+        intent.Call<AndroidJavaObject>("setClass", context, serviceClass);
+
+        context.Call<bool>("stopService", intent);
+    }
+
     private static GameObject s_GameObj = null;
+    private static Queue<string> s_CommandQueue = new Queue<string>();
+    private static object s_Lock = new object();
+    private const int c_max_command_in_queue = 1024;
+    private const string c_clipboard_cmd_tag = "[cmd]:";
+}
+
+[UnityEngine.Scripting.Preserve]
+internal class BroadcastReceiverHandler
+{
+    internal void RegisterBroadcastReceiver(string actionName)
+    {
+        if (m_ReceiverInited) {
+            return;
+        }
+        AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
+        AndroidJavaObject context = unityActivity.Call<AndroidJavaObject>("getApplicationContext");
+
+        //AndroidJavaClass javaProxyClass = new AndroidJavaClass("com.unity3d.player.UnityPlayerNativeActivity");
+        //AndroidJavaObject javaProxy = javaProxyClass.GetStatic<AndroidJavaObject>("currentActivity");
+
+        var callback = new BroadcastReceiverCallback();
+        m_BroadcastReceiver = new AndroidJavaObject("com.unity3d.broadcastlib.BroadcastHelper", callback);
+
+        AndroidJavaObject intentFilter = new AndroidJavaObject("android.content.IntentFilter");
+        intentFilter.Call("addAction", actionName);
+        context.Call<AndroidJavaObject>("registerReceiver", m_BroadcastReceiver, intentFilter);
+
+        m_ReceiverInited = true;
+    }
+    internal void UnregisterBroadcastReceiver()
+    {
+        if (m_ReceiverInited && null != m_BroadcastReceiver) {
+            AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            AndroidJavaObject unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
+            AndroidJavaObject context = unityActivity.Call<AndroidJavaObject>("getApplicationContext");
+
+            context.Call("unregisterReceiver", m_BroadcastReceiver);
+        }
+    }
+
+    private bool m_ReceiverInited;
+    private AndroidJavaObject m_BroadcastReceiver;
+}
+
+[UnityEngine.Scripting.Preserve]
+internal class BroadcastReceiverCallback : AndroidJavaProxy
+{
+    public BroadcastReceiverCallback() : base("com.unity3d.broadcastlib.IBroadcastReceiver")
+    { }
+    void onReceive(AndroidJavaObject context, AndroidJavaObject intent)
+    {
+        string cmd = intent.Call<string>("getStringExtra", "cmd");
+        if(!string.IsNullOrEmpty(cmd)) {
+            GmRootScript.SendCommand(cmd);
+
+            LogSystem.Info("receive a command: {0}", cmd);
+        }
+    }
 }
