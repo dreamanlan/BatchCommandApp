@@ -343,11 +343,15 @@ public class DebugConsole : MonoBehaviour
         m_IsOpen = true;
         m_Filter = string.Empty;
         m_InputFilter = string.Empty;
+
+        GmRootScript.OnDebugConsoleShow();
     }
 
     private void HideImpl()
     {
         m_IsOpen = false;
+
+        GmRootScript.OnDebugConsoleHide();
     }
 
 #if EMBED_ONGUI

@@ -9,6 +9,8 @@ using StoryScript;
 
 public class GmRootScript : MonoBehaviour
 {
+    public delegate void DebugConsoleShowHideDelegation();
+
     void OnEnable()
     {
         m_Logger.Init(Application.persistentDataPath, string.Empty);
@@ -218,6 +220,9 @@ public class GmRootScript : MonoBehaviour
     private GmCommands.Logger m_Logger = new GmCommands.Logger();
     private bool m_Inited = false;
 
+    public static DebugConsoleShowHideDelegation OnConsoleShow;
+    public static DebugConsoleShowHideDelegation OnConsoleHide;
+
     public static SortedList<string, string> CommandDocs
     {
         get { return GetGmRootScript().m_CommandDocs; }
@@ -252,6 +257,16 @@ public class GmRootScript : MonoBehaviour
         if (null != s_GameObj) {
             GetGmRootScript().TryInitGmRoot();
         }
+    }
+    public static void OnDebugConsoleShow()
+    {
+        if (null != OnConsoleShow)
+            OnConsoleShow();
+    }
+    public static void OnDebugConsoleHide()
+    {
+        if (null != OnConsoleHide)
+            OnConsoleHide();
     }
     public static void ListenClipboard(int interval)
     {
