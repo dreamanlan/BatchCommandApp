@@ -272,8 +272,8 @@ public sealed partial class PerfGrade
     }
     private bool log_sysinfo_impl()
     {
-        Debug.LogFormat("device:{0} gpu:{1} ver:{2} sys memory:{3} gpu memory:{4} cpu:{5} core:{6} freq:{7}", SystemInfo.deviceModel, SystemInfo.graphicsDeviceName, SystemInfo.graphicsDeviceVersion,
-            SystemInfo.systemMemorySize, SystemInfo.graphicsMemorySize,
+        Debug.LogFormat("device:{0} | {1} gpu:{2} ver:{3} os:{4} sys memory:{5} gpu memory:{6} cpu:{7} core:{8} freq:{9}", SystemInfo.deviceName, SystemInfo.deviceModel, SystemInfo.graphicsDeviceName, SystemInfo.graphicsDeviceVersion,
+            SystemInfo.operatingSystem, SystemInfo.systemMemorySize, SystemInfo.graphicsMemorySize,
             SystemInfo.processorType, SystemInfo.processorCount, SystemInfo.processorFrequency);
         return true;
     }
