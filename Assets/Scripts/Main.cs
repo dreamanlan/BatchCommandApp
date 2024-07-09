@@ -5,12 +5,12 @@ using System.IO;
 using UnityEngine;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
-using DslExpression;
 using ExpressionAPI;
 using Dsl;
 using StoryScript;
 using GmCommands;
 using StoryApi;
+using StoryScript.DslExpression;
 
 public class Main : MonoBehaviour
 {
@@ -180,7 +180,7 @@ public class Main : MonoBehaviour
     }
 
     private StringBuilder m_LogBuilder = new StringBuilder();
-    private DslExpression.DslCalculator m_Calculator = new DslExpression.DslCalculator();
+    private DslCalculator m_Calculator = new DslCalculator();
     private Dictionary<string, object> m_KeyValues = new Dictionary<string, object>();
 
     public static void Reset()
