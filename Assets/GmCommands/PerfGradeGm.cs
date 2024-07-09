@@ -658,6 +658,6 @@ public static class PerfGradeGm
     private static SortedDictionary<int, List<string>> s_Settings = new SortedDictionary<int, List<string>>();
 
     private static DslCalculator s_Calculator = null;
-    private static StoryScript.SimpleObjectPool<BoxedValueList> s_BoxedValueListPool = new StoryScript.SimpleObjectPool<BoxedValueList>(256);
+    private static SimpleObjectPool<BoxedValueList> s_BoxedValueListPool = new SimpleObjectPool<BoxedValueList>(256);
     private static bool s_Inited = false;
 }
