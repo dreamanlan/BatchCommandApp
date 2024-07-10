@@ -638,6 +638,55 @@ namespace GmCommands
             result.Value = Application.productName;
         }
     }
+    internal class PlatformFunction : SimpleStoryFunctionBase<PlatformFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Application.platform.ToString();
+        }
+    }
+    internal class IsEditorFunction : SimpleStoryFunctionBase<IsEditorFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Application.isEditor;
+        }
+    }
+    internal class IsConsoleFunction : SimpleStoryFunctionBase<IsConsoleFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Application.isConsolePlatform;
+        }
+    }
+    internal class IsMobileFunction : SimpleStoryFunctionBase<IsMobileFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Application.isMobilePlatform;
+        }
+    }
+    internal class IsAndroidFunction : SimpleStoryFunctionBase<IsAndroidFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Application.platform == RuntimePlatform.Android;
+        }
+    }
+    internal class IsIPhoneFunction : SimpleStoryFunctionBase<IsIPhoneFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Application.platform == RuntimePlatform.IPhonePlayer;
+        }
+    }
+    internal class IsPCFunction : SimpleStoryFunctionBase<IsPCFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = !Application.isMobilePlatform && !Application.isConsolePlatform;
+        }
+    }
     //---------------------------------------------------------------------------------------------------------------
     internal class LogComponentsCommand : SimpleStoryCommandBase<LogComponentsCommand, StoryValueParam<string, System.Collections.IList, object, int, bool>>
     {

@@ -393,6 +393,72 @@ public sealed partial class PerfGrade
         return true;
     }
 
+    private BoxedValue is_mobile(BoxedValueList list)
+    {
+        bool r = is_mobile_impl();
+        return BoxedValue.From(r);
+    }
+    private bool is_mobile_impl()
+    {
+        GradeSetState = GradeSetState && Application.isMobilePlatform;
+        return GradeSetState;
+    }
+
+    private BoxedValue is_console(BoxedValueList list)
+    {
+        bool r = is_console_impl();
+        return BoxedValue.From(r);
+    }
+    private bool is_console_impl()
+    {
+        GradeSetState = GradeSetState && Application.isConsolePlatform;
+        return GradeSetState;
+    }
+
+    private BoxedValue is_editor(BoxedValueList list)
+    {
+        bool r = is_editor_impl();
+        return BoxedValue.From(r);
+    }
+    private bool is_editor_impl()
+    {
+        GradeSetState = GradeSetState && Application.isEditor;
+        return GradeSetState;
+    }
+
+    private BoxedValue is_android(BoxedValueList list)
+    {
+        bool r = is_android_impl();
+        return BoxedValue.From(r);
+    }
+    private bool is_android_impl()
+    {
+        GradeSetState = GradeSetState && (Application.platform == RuntimePlatform.Android);
+        return GradeSetState;
+    }
+
+    private BoxedValue is_iphone(BoxedValueList list)
+    {
+        bool r = is_iphone_impl();
+        return BoxedValue.From(r);
+    }
+    private bool is_iphone_impl()
+    {
+        GradeSetState = GradeSetState && (Application.platform == RuntimePlatform.IPhonePlayer);
+        return GradeSetState;
+    }
+
+    private BoxedValue is_pc(BoxedValueList list)
+    {
+        bool r = is_pc_impl();
+        return BoxedValue.From(r);
+    }
+    private bool is_pc_impl()
+    {
+        GradeSetState = GradeSetState && !Application.isMobilePlatform && !Application.isConsolePlatform;
+        return GradeSetState;
+    }
+
     private BoxedValue name_like(BoxedValueList list)
     {
         var regs = new List<string>();

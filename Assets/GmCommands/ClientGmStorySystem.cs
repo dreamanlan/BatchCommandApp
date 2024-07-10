@@ -79,6 +79,13 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "app", "app() function, return typeof(Application)", new StoryFunctionFactoryHelper<ApplicationFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "appid", "appid() function, return Application.identifier", new StoryFunctionFactoryHelper<AppIdFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "appname", "appname() function, return Application.productName", new StoryFunctionFactoryHelper<AppNameFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "platform", "platform() function, return Application.platform", new StoryFunctionFactoryHelper<PlatformFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "iseditor", "iseditor() function, return Application.isEditor", new StoryFunctionFactoryHelper<IsEditorFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isconsole", "isconsole() function, return Application.isConsolePlatform", new StoryFunctionFactoryHelper<IsConsoleFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "ismobile", "ismobile() function, return Application.isMobilePlatform", new StoryFunctionFactoryHelper<IsMobileFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isandroid", "isandroid() function, return Application.platform==Android", new StoryFunctionFactoryHelper<IsAndroidFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isiphone", "isiphone() function, return Application.platform==IPhone", new StoryFunctionFactoryHelper<IsIPhoneFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "ispc", "ispc() function, return not mobile and not console", new StoryFunctionFactoryHelper<IsPCFunction>());
 
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findcomp", "findcomp(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<FindComponentFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "searchcomps", "searchcomps(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<SearchComponentsFunction>());
