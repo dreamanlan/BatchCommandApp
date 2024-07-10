@@ -43,7 +43,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "preffloat", "preffloat(key,val) command", new StoryCommandFactoryHelper<PlayerPrefFloatCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefstr", "prefstr(key,val) command", new StoryCommandFactoryHelper<PlayerPrefStringCommand>());
 
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "listcomps", "listcomps(root_name,[name1,name2,...],type,up_level) command", new StoryCommandFactoryHelper<ListComponentsCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logcomps", "logcomps(root_name,[name1,name2,...],type,up_level,include_inactive) command", new StoryCommandFactoryHelper<LogComponentsCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logcperfs", "logcperfs() command", new StoryCommandFactoryHelper<LogCompiledPerfsCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "reloadperfs", "reloadperfs() command", new StoryCommandFactoryHelper<ReloadPerfsCommand>());

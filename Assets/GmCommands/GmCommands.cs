@@ -639,7 +639,7 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal class ListComponentsCommand : SimpleStoryCommandBase<ListComponentsCommand, StoryValueParam<string, System.Collections.IList, object, int, bool>>
+    internal class LogComponentsCommand : SimpleStoryCommandBase<LogComponentsCommand, StoryValueParam<string, System.Collections.IList, object, int, bool>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object, int, bool> _params, long delta)
         {
