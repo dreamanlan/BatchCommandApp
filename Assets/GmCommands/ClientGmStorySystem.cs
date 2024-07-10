@@ -29,6 +29,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsrt", "supportsrt() command, print unsupported rt", new StoryCommandFactoryHelper<SupportsRTCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsva", "supportsva() command, print unsupported vertex attribute format", new StoryCommandFactoryHelper<SupportsVertexAttributeFormatCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "devicesupports", "devicesupports() command, print unsupported feature", new StoryCommandFactoryHelper<DeviceSupportsCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logresolutions", "logresolutions() command, print supported resolutions", new StoryCommandFactoryHelper<LogResolutionsCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "allocmemory", "allocmemory(key,size) command", new StoryCommandFactoryHelper<AllocMemoryCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "freememory", "freememory(key) command", new StoryCommandFactoryHelper<FreeMemoryCommand>());
@@ -70,6 +71,14 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getcompatibleformat", "getcompatibleformat(fmt_str,usage_str) function", new StoryFunctionFactoryHelper<GetCompatibleFormatFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getgraphicsformat", "getgraphicsformat(def_fmt) function", new StoryFunctionFactoryHelper<GetGraphicsFormatFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getmsaasamplecount", "getmsaasamplecount(w,h,color_fmt,depth_bit,mip_ct) function", new StoryFunctionFactoryHelper<GetMSAASampleCountFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "sysinfo", "sysinfo() function, return typeof(SystemInfo)", new StoryFunctionFactoryHelper<SystemInfoFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "screen", "screen() function, return typeof(Screen)", new StoryFunctionFactoryHelper<ScreenFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "screenwidth", "screenwidth() function, return Screen.width", new StoryFunctionFactoryHelper<ScreenWidthFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "screenheight", "screenheight() function, return Screen.height", new StoryFunctionFactoryHelper<ScreenHeightFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "screendpi", "screendpi() function, return Screen.dpi", new StoryFunctionFactoryHelper<ScreenDPIFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "app", "app() function, return typeof(Application)", new StoryFunctionFactoryHelper<ApplicationFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "appid", "appid() function, return Application.identifier", new StoryFunctionFactoryHelper<AppIdFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "appname", "appname() function, return Application.productName", new StoryFunctionFactoryHelper<AppNameFunction>());
 
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findcomp", "findcomp(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<FindComponentFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "searchcomps", "searchcomps(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<SearchComponentsFunction>());

@@ -295,6 +295,16 @@ namespace GmCommands
             return false;
         }
     }
+    internal class LogResolutionsCommand : SimpleStoryCommandBase<LogResolutionsCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            foreach(var reso in Screen.resolutions) {
+                LogSystem.Warn("resolution:{0}x{1} refresh rate ratio:{2}", reso.width, reso.height, reso.refreshRateRatio);
+            }
+            return false;
+        }
+    }
     //---------------------------------------------------------------------------------------------------------------
     internal class AllocMemoryCommand : SimpleStoryCommandBase<AllocMemoryCommand, StoryValueParam<string, int>>
     {
@@ -570,6 +580,62 @@ namespace GmCommands
                 }
             }
             result.Value = r;
+        }
+    }
+    internal class SystemInfoFunction : SimpleStoryFunctionBase<SystemInfoFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = typeof(SystemInfo);
+        }
+    }
+    internal class ScreenFunction : SimpleStoryFunctionBase<ScreenFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = typeof(Screen);
+        }
+    }
+    internal class ScreenWidthFunction : SimpleStoryFunctionBase<ScreenWidthFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Screen.width;
+        }
+    }
+    internal class ScreenHeightFunction : SimpleStoryFunctionBase<ScreenHeightFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Screen.height;
+        }
+    }
+    internal class ScreenDPIFunction : SimpleStoryFunctionBase<ScreenDPIFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Screen.dpi;
+        }
+    }
+    internal class ApplicationFunction : SimpleStoryFunctionBase<ApplicationFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = typeof(Application);
+        }
+    }
+    internal class AppIdFunction : SimpleStoryFunctionBase<AppIdFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Application.identifier;
+        }
+    }
+    internal class AppNameFunction : SimpleStoryFunctionBase<AppNameFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Application.productName;
         }
     }
     //---------------------------------------------------------------------------------------------------------------

@@ -265,6 +265,36 @@ public sealed partial class PerfGrade
         return SystemInfo.graphicsMemorySize;
     }
 
+    private BoxedValue screen_width(BoxedValueList list)
+    {
+        int val = screen_width_impl();
+        return BoxedValue.From(val);
+    }
+    private int screen_width_impl()
+    {
+        return Screen.width;
+    }
+
+    private BoxedValue screen_height(BoxedValueList list)
+    {
+        int val = screen_height_impl();
+        return BoxedValue.From(val);
+    }
+    private int screen_height_impl()
+    {
+        return Screen.height;
+    }
+
+    private BoxedValue screen_dpi(BoxedValueList list)
+    {
+        float val = screen_dpi_impl();
+        return BoxedValue.From(val);
+    }
+    private float screen_dpi_impl()
+    {
+        return Screen.dpi;
+    }
+
     private BoxedValue log_sysinfo(BoxedValueList list)
     {
         return BoxedValue.FromBool(log_sysinfo_impl());
@@ -929,7 +959,7 @@ public sealed partial class PerfGrade
     }
     private bool gpu_memory_below_impl(int mem)
     {
-        GradeSetState = GradeSetState && (SystemInfo.graphicsMemorySize >= mem);
+        GradeSetState = GradeSetState && (SystemInfo.graphicsMemorySize <= mem);
         return GradeSetState;
     }
 
@@ -944,6 +974,36 @@ public sealed partial class PerfGrade
     private bool gpu_memory_above_impl(int mem)
     {
         GradeSetState = GradeSetState && (SystemInfo.graphicsMemorySize >= mem);
+        return GradeSetState;
+    }
+
+    private BoxedValue screen_below(BoxedValueList list)
+    {
+        bool r = false;
+        if (list.Count > 2)
+        {
+            r = screen_below_impl(list[0].GetInt(), list[1].GetInt(), list[2].GetFloat());
+        }
+        return BoxedValue.From(r);
+    }
+    private bool screen_below_impl(int width, int height, float dpi)
+    {
+        GradeSetState = GradeSetState && (Screen.width <= width && Screen.height <= height && Screen.dpi <= dpi);
+        return GradeSetState;
+    }
+
+    private BoxedValue screen_above(BoxedValueList list)
+    {
+        bool r = false;
+        if (list.Count > 2)
+        {
+            r = screen_above_impl(list[0].GetInt(), list[1].GetInt(), list[2].GetFloat());
+        }
+        return BoxedValue.From(r);
+    }
+    private bool screen_above_impl(int width, int height, float dpi)
+    {
+        GradeSetState = GradeSetState && (Screen.width >= width && Screen.height >= height && Screen.dpi >= dpi);
         return GradeSetState;
     }
 
