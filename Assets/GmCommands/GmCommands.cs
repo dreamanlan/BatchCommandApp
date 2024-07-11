@@ -415,6 +415,17 @@ namespace GmCommands
             return false;
         }
     }
+    internal class WeTestTouchCommand : SimpleStoryCommandBase<WeTestTouchCommand, StoryValueParam<int, float, float>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<int, float, float> _params, long delta)
+        {
+            int action = _params.Param1Value;
+            float x = _params.Param2Value;
+            float y = _params.Param3Value;
+            WeTestAutomation.InjectTouch(action, x, y);
+            return false;
+        }
+    }
     //---------------------------------------------------------------------------------------------------------------------------------
     internal class GetMonoMemoryFunction : SimpleStoryFunctionBase<GetMonoMemoryFunction, StoryValueParam>
     {
@@ -685,6 +696,34 @@ namespace GmCommands
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = !Application.isMobilePlatform && !Application.isConsolePlatform;
+        }
+    }
+    internal class WeTestGetXFunction : SimpleStoryFunctionBase<WeTestGetXFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = WeTestAutomation.GetX();
+        }
+    }
+    internal class WeTestGetYFunction : SimpleStoryFunctionBase<WeTestGetYFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = WeTestAutomation.GetY();
+        }
+    }
+    internal class WeTestGetWidthFunction : SimpleStoryFunctionBase<WeTestGetWidthFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = WeTestAutomation.GetWidth();
+        }
+    }
+    internal class WeTestGetHeightFunction : SimpleStoryFunctionBase<WeTestGetHeightFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = WeTestAutomation.GetHeight();
         }
     }
     //---------------------------------------------------------------------------------------------------------------

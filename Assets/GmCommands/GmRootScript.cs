@@ -7,7 +7,7 @@ using System.Text;
 using UnityEngine;
 using StoryScript;
 
-public class GmRootScript : MonoBehaviour
+public sealed class GmRootScript : MonoBehaviour
 {
     public delegate void DebugConsoleShowHideDelegation();
 
@@ -433,7 +433,7 @@ public class GmRootScript : MonoBehaviour
 }
 
 [UnityEngine.Scripting.Preserve]
-internal class BroadcastReceiverHandler
+internal sealed class BroadcastReceiverHandler
 {
     internal void RegisterBroadcastReceiver(string actionName)
     {
@@ -472,7 +472,7 @@ internal class BroadcastReceiverHandler
 }
 
 [UnityEngine.Scripting.Preserve]
-internal class BroadcastReceiverCallback : AndroidJavaProxy
+internal sealed class BroadcastReceiverCallback : AndroidJavaProxy
 {
     public BroadcastReceiverCallback() : base("com.unity3d.broadcastlib.IBroadcastReceiver")
     { }
@@ -485,4 +485,66 @@ internal class BroadcastReceiverCallback : AndroidJavaProxy
             LogSystem.Info("receive a command: {0}", cmd);
         }
     }
+}
+
+[UnityEngine.Scripting.Preserve]
+internal static class WeTestAutomation
+{
+    internal static void InjectTouch(int action, float x, float y)
+    {
+        Prepare();
+        if (null != s_WeTestAutomation)
+        {
+            s_WeTestAutomation.CallStatic("InjectTouchEvent", action, x, y);
+        }
+    }
+    internal static float GetX()
+    {
+        float x = 0;
+        Prepare();
+        if (null != s_WeTestAutomation)
+        {
+            x = s_WeTestAutomation.CallStatic<float>("GetX");
+        }
+        return x;
+    }
+    internal static float GetY()
+    {
+        float y = 0;
+        Prepare();
+        if (null != s_WeTestAutomation)
+        {
+            y = s_WeTestAutomation.CallStatic<float>("GetY");
+        }
+        return y;
+    }
+    internal static int GetWidth()
+    {
+        int w = 0;
+        Prepare();
+        if (null != s_WeTestAutomation)
+        {
+            w = s_WeTestAutomation.CallStatic<int>("GetWidth");
+        }
+        return w;
+    }
+    internal static int GetHeight()
+    {
+        int h = 0;
+        Prepare();
+        if (null != s_WeTestAutomation)
+        {
+            h = s_WeTestAutomation.CallStatic<int>("GetHeight");
+        }
+        return h;
+    }
+    private static void Prepare()
+    {
+        if (null == s_WeTestAutomation)
+        {
+            s_WeTestAutomation = new AndroidJavaClass("com.tencent.wetest.U3DAutomation");
+        }
+    }
+
+    private static AndroidJavaClass s_WeTestAutomation;
 }
