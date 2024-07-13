@@ -726,6 +726,93 @@ namespace GmCommands
             result.Value = WeTestAutomation.GetHeight();
         }
     }
+    internal class GetPointerFunction : SimpleStoryFunctionBase<GetPointerFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = Input.mousePosition;
+        }
+    }
+    internal class PointerRaycastUisFunction : SimpleStoryFunctionBase<PointerRaycastUisFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.FromObject(RaycastUisFunction.GetUiObjectsUnderMouse(Input.mousePosition));
+        }
+    }
+    internal class GetPointerComponentsFunction : SimpleStoryFunctionBase<GetPointerComponentsFunction, StoryValueParam<object>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<object> _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+            var typeObj = _params.Param1Value;
+            var list = RaycastComponentsFunction.GetUiComponentsUnderMouse(Input.mousePosition, typeObj);
+            if (null != list) {
+                result.Value = BoxedValue.FromObject(list);
+            }
+        }
+    }
+    internal class RaycastUisFunction : SimpleStoryFunctionBase<RaycastUisFunction, StoryValueParam<float, float>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<float, float> _params, StoryValueResult result)
+        {
+            float x = _params.Param1Value;
+            float y = _params.Param2Value;
+            result.Value = BoxedValue.FromObject(GetUiObjectsUnderMouse(new Vector2(x, y)));
+        }
+        internal static List<UnityEngine.EventSystems.RaycastResult> GetUiObjectsUnderMouse(Vector2 pos)
+        {
+            List<UnityEngine.EventSystems.RaycastResult> results = new List<UnityEngine.EventSystems.RaycastResult>();
+
+            var eventSystems = GameObject.FindObjectsOfType<UnityEngine.EventSystems.EventSystem>();
+            var graphicRaycasters = GameObject.FindObjectsOfType<UnityEngine.UI.GraphicRaycaster>();
+
+            foreach (var eventSystem in eventSystems) {
+                foreach (var graphicRaycaster in graphicRaycasters) {
+                    var pointerEventData = new UnityEngine.EventSystems.PointerEventData(eventSystem);
+                    pointerEventData.position = pos;
+
+                    graphicRaycaster.Raycast(pointerEventData, results);
+                }
+            }
+
+            return results;
+        }
+    }
+    internal class RaycastComponentsFunction : SimpleStoryFunctionBase<RaycastComponentsFunction, StoryValueParam<float, float, object>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<float, float, object> _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+            float x = _params.Param1Value;
+            float y = _params.Param2Value;
+            var typeObj = _params.Param3Value;
+            var list = GetUiComponentsUnderMouse(new Vector2(x, y), typeObj);
+            if(null != list) {
+                result.Value = BoxedValue.FromObject(list);
+            }
+        }
+        internal static List<Component> GetUiComponentsUnderMouse(Vector2 pos, object typeObj)
+        {
+            var type = typeObj as Type;
+            var typeStr = typeObj as string;
+            if (null != typeStr) {
+                type = StoryScriptUtility.GetType(typeStr);
+            }
+            if (null != type) {
+                var list = new List<Component>();
+                var objs = RaycastUisFunction.GetUiObjectsUnderMouse(pos);
+                foreach (var obj in objs) {
+                    var comp = obj.gameObject.GetComponent(type);
+                    if (null != comp) {
+                        list.Add(comp);
+                    }
+                }
+                return list;
+            }
+            return null;
+        }
+    }
     //---------------------------------------------------------------------------------------------------------------
     internal class LogComponentsCommand : SimpleStoryCommandBase<LogComponentsCommand, StoryValueParam<string, System.Collections.IList, object, int, bool>>
     {

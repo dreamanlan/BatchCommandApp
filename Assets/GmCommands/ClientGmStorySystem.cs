@@ -42,7 +42,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefint", "prefint(key,val) command", new StoryCommandFactoryHelper<PlayerPrefIntCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "preffloat", "preffloat(key,val) command", new StoryCommandFactoryHelper<PlayerPrefFloatCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefstr", "prefstr(key,val) command", new StoryCommandFactoryHelper<PlayerPrefStringCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "touch", "touch(action,x,y) command, simulate touch event with WeTest", new StoryCommandFactoryHelper<WeTestTouchCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "wetesttouch", "wetesttouch(action,x,y) command, simulate touch event with WeTest", new StoryCommandFactoryHelper<WeTestTouchCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logcomps", "logcomps(root_name,[name1,name2,...],type,up_level,include_inactive) command", new StoryCommandFactoryHelper<LogComponentsCommand>());
 
@@ -87,10 +87,15 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isandroid", "isandroid() function, return Application.platform==Android", new StoryFunctionFactoryHelper<IsAndroidFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isiphone", "isiphone() function, return Application.platform==IPhone", new StoryFunctionFactoryHelper<IsIPhoneFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "ispc", "ispc() function, return not mobile and not console", new StoryFunctionFactoryHelper<IsPCFunction>());
-                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getx", "getx() function, WeTest GetX", new StoryFunctionFactoryHelper<WeTestGetXFunction>());
-                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "gety", "gety() function, WeTest GetY", new StoryFunctionFactoryHelper<WeTestGetYFunction>());
-                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getwidth", "getwidth() function, WeTest GetWidth", new StoryFunctionFactoryHelper<WeTestGetWidthFunction>());
-                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getheight", "getheight() function, WeTest GetHeight", new StoryFunctionFactoryHelper<WeTestGetHeightFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "wetestx", "wetestx() function, WeTest GetX", new StoryFunctionFactoryHelper<WeTestGetXFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "wetesty", "wetesty() function, WeTest GetY", new StoryFunctionFactoryHelper<WeTestGetYFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "wetestwidth", "wetestwidth() function, WeTest GetWidth", new StoryFunctionFactoryHelper<WeTestGetWidthFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "wetestheight", "wetestheight() function, WeTest GetHeight", new StoryFunctionFactoryHelper<WeTestGetHeightFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getpointer", "getpointer() function, return Input.mousePosition", new StoryFunctionFactoryHelper<GetPointerFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getptruis", "getptruis() function, return List<UnityEngine.EventSystems.RaycastResult>", new StoryFunctionFactoryHelper<PointerRaycastUisFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getptrcomps", "getptrcomps() function, return List<Component>", new StoryFunctionFactoryHelper<GetPointerComponentsFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "raycastuis", "raycastuis(x, y) function, return List<UnityEngine.EventSystems.RaycastResult>", new StoryFunctionFactoryHelper<RaycastUisFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "raycastcomps", "raycastcomps() function, return List<Component>", new StoryFunctionFactoryHelper<RaycastComponentsFunction>());
 
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findcomp", "findcomp(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<FindComponentFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "searchcomps", "searchcomps(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<SearchComponentsFunction>());

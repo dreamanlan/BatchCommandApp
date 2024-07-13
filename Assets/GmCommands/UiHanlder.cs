@@ -51,39 +51,44 @@ public class UiHanlder : MonoBehaviour
         m_UiInited = false;
 
         var ta = Resources.Load<TextAsset>(res);
-        string txt = ta.text;
-        Dsl.DslFile file = new Dsl.DslFile();
-        if (file.LoadFromString(txt, LogSystem.Log)) {
-            foreach (var info in file.DslInfos) {
-                string type = info.GetId();
-                if (type == "label") {
-                    BuildLabel(info);
-                }
-                else if (type == "input") {
-                    BuildInput(info);
-                }
-                else if (type == "button") {
-                    BuildButton(info);
-                }
-                else if (type == "dropdown") {
-                    BuildDropdown(info);
-                }
-                else if (type == "toggle") {
-                    BuildToggle(info);
-                }
-                else if (type == "toggle_group") {
-                    BuildToggleGroup(info);
-                }
-                else if (type == "slider") {
-                    BuildSlider(info);
+        if (null != ta) {
+            string txt = ta.text;
+            Dsl.DslFile file = new Dsl.DslFile();
+            if (file.LoadFromString(txt, LogSystem.Log)) {
+                foreach (var info in file.DslInfos) {
+                    string type = info.GetId();
+                    if (type == "label") {
+                        BuildLabel(info);
+                    }
+                    else if (type == "input") {
+                        BuildInput(info);
+                    }
+                    else if (type == "button") {
+                        BuildButton(info);
+                    }
+                    else if (type == "dropdown") {
+                        BuildDropdown(info);
+                    }
+                    else if (type == "toggle") {
+                        BuildToggle(info);
+                    }
+                    else if (type == "toggle_group") {
+                        BuildToggleGroup(info);
+                    }
+                    else if (type == "slider") {
+                        BuildSlider(info);
+                    }
                 }
             }
-        }
 
-        m_CurUiRes = res;
-        m_UiLoaded = true;
-        OnUiInit(res);
-        m_UiInited = true;
+            m_CurUiRes = res;
+            m_UiLoaded = true;
+            OnUiInit(res);
+            m_UiInited = true;
+        }
+        else {
+            LogSystem.Error("Can't load test ui resource:{0}", res);
+        }
     }
 
     private void InitUiCells()
