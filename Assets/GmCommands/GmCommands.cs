@@ -884,6 +884,58 @@ namespace GmCommands
             return false;
         }
     }
+    internal class ClickUiCommand : SimpleStoryCommandBase<ClickUiCommand, StoryValueParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
+        {
+            var vals = _params.Values;
+            var uiRoot = GameObject.Find("UIRoot");
+            if (null != uiRoot)
+            {
+                var names = new List<string>();
+                foreach(var v in vals)
+                {
+                    names.Add(v.ToString());
+                }
+                var btns0 = uiRoot.GetComponentsInChildren<Button>();
+                foreach (var btn in btns0)
+                {
+                    if (StoryScriptUtility.IsPathMatch(btn.transform, names))
+                    {
+                        btn.onClick.Invoke();
+                        break;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+    internal class ToggleOnCommand : SimpleStoryCommandBase<ToggleOnCommand, StoryValueParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
+        {
+            var vals = _params.Values;
+            var uiRoot = GameObject.Find("UIRoot");
+            if (null != uiRoot)
+            {
+                var names = new List<string>();
+                foreach (var v in vals)
+                {
+                    names.Add(v.ToString());
+                }
+                var btns0 = uiRoot.GetComponentsInChildren<Toggle>();
+                foreach (var btn in btns0)
+                {
+                    if (StoryScriptUtility.IsPathMatch(btn.transform, names))
+                    {
+                        btn.isOn = true;
+                        break;
+                    }
+                }
+            }
+            return false;
+        }
+    }
     internal class ClickCommand : SimpleStoryCommandBase<ClickCommand, StoryValueParam<object>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<object> _params, long delta)
