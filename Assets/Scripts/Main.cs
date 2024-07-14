@@ -147,7 +147,23 @@ public class Main : MonoBehaviour
     }
     private void HandleLog(string logString, string stackTrace, LogType type)
     {
-        DebugConsole.Log("[" + type.ToString() + "]" + logString);
+        switch (type) {
+            case LogType.Log:
+                DebugConsole.Log(logString);
+                break;
+            case LogType.Warning:
+                DebugConsole.LogWarning(logString);
+                break;
+            case LogType.Error:
+                DebugConsole.LogError(string.Format("{0}{1}", logString, stackTrace));
+                break;
+            case LogType.Assert:
+                DebugConsole.Log(string.Format("[Assert]:{0}{1}", logString, stackTrace), Color.blue);
+                break;
+            case LogType.Exception:
+                DebugConsole.Log(string.Format("[Exception]:{0}{1}", logString, stackTrace), Color.magenta);
+                break;
+        }
     }
     private BoxedValue OnExecCommand(string cmd)
     {

@@ -7,35 +7,6 @@ using UnityEngine;
 
 public static partial class StoryScriptUtility
 {
-    [System.Diagnostics.Conditional("DEBUG")]
-    public static void GfxLog(string format, params object[] args)
-    {
-        string msg = string.Format(format, args);
-        SendMessageImpl("GmScript", "LogToConsole", msg, false);
-#if DEBUG
-        UnityEngine.Debug.LogWarning(msg);
-#endif
-    }
-    [System.Diagnostics.Conditional("DEBUG")]
-    public static void GfxErrorLog(string format, params object[] args)
-    {
-        string msg = string.Format(format, args);
-        SendMessageImpl("GmScript", "LogToConsole", msg, false);
-#if DEBUG
-        UnityEngine.Debug.LogError(msg);
-#endif
-    }
-    public static GameObject FindChildObject(GameObject fromGameObject, string withName)
-    {
-        Transform[] ts = fromGameObject.transform.GetComponentsInChildren<Transform>(true);
-        for (int i = 0; i < ts.Length; ++i) {
-            Transform t = ts[i];
-            if (t.gameObject.name == withName) {
-                return t.gameObject;
-            }
-        }
-        return null;
-    }
     public static Transform FindChildRecursive(Transform parent, string bonePath)
     {
         Transform t = parent.Find(bonePath);
@@ -51,45 +22,6 @@ public static partial class StoryScriptUtility
             }
         }
         return null;
-    }
-    public static GameObject FindChildObjectByPath(GameObject gameObject, string name)
-    {
-        if (name.IndexOf('/') == -1) {
-            Transform child = gameObject.transform.Find(name);
-            if (null == child) {
-                return null;
-            }
-            return child.gameObject;
-        } else {
-            string[] path = name.Split('/');
-            Transform child = gameObject.transform;
-            for (int i = 0; i < path.Length; i++) {
-                child = child.Find(path[i]);
-                if (null == child) {
-                    return null;
-                }
-            }
-            return child.gameObject;
-        }
-    }
-    public static T FindComponentInChildren<T>(GameObject _gameObject, string _name)
-    {
-        if (_name.IndexOf('/') == -1) {
-            Transform child = _gameObject.transform.Find(_name);
-            if (child == null)
-                return default(T);
-            return child.GetComponent<T>();
-        } else {
-            string[] path = _name.Split('/');
-            Transform child = _gameObject.transform;
-            for (int i = 0; i < path.Length; i++) {
-                child = child.Find(path[i]);
-                if (child == null) {
-                    return default(T);
-                }
-            }
-            return child.GetComponent<T>();
-        }
     }
     public static bool IsPathMatch(UnityEngine.Transform tr, IList<string> names)
     {
@@ -122,39 +54,6 @@ public static partial class StoryScriptUtility
             sb.Append(stack.Pop());
         }
         return sb.ToString();
-    }
-    public static GameObject AttachUiAsset(GameObject targetObject, GameObject asset, string name)
-    {
-        GameObject result = null;
-        RectTransform assetRect = (RectTransform)asset.transform;
-        result = (GameObject)GameObject.Instantiate(asset);
-        result.name = name;
-        RectTransform rect = (RectTransform)result.transform;
-        rect.SetParent(targetObject.transform, false);
-        return result;
-    }
-    public static GameObject AttachUiObject(GameObject targetObject, GameObject uiObj, string name)
-    {
-        uiObj.name = name;
-        RectTransform rect = (RectTransform)uiObj.transform;
-        rect.SetParent(targetObject.transform, false);
-        return uiObj;
-    }
-    public static bool VectorEquals(Vector3 p1, Vector3 p2)
-    {
-        return Mathf.Approximately(p1.x, p2.x) && Mathf.Approximately(p1.y, p2.y) && Mathf.Approximately(p1.z, p2.z);
-    }
-    public static Vector3 GetBezierPoint(Vector3 p0, Vector3 p1, Vector3 p2, float t)
-    {
-        t = Mathf.Clamp01(t);
-        float num = 1f - t;
-        return (Vector3)((((num * num) * p0) + (((2f * num) * t) * p1)) + ((t * t) * p2));
-    }
-    public static Vector3 GetBezierPoint(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
-    {
-        t = Mathf.Clamp01(t);
-        float num = 1f - t;
-        return (Vector3)(num * num * num * p0 + 3 * num * num * t * p1 + 3 * num * t * t * p2 + ((t * t * t) * p3));
     }
     public static void DrawGizmosCircle(Vector3 center, float radius, int step = 16)
     {
@@ -198,49 +97,7 @@ public static partial class StoryScriptUtility
             }
         }
     }
-    
-    public static byte[] LoadFileFromStreamingAssets(string file)
-    {
-        if (Application.platform == RuntimePlatform.Android) {
-            AndroidJavaClass androidJavaClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            AndroidJavaObject androidJavaActivity = null;
-            AndroidJavaObject assetManager = null;
-            AndroidJavaObject inputStream = null;
-            if (androidJavaClass != null)
-                androidJavaActivity = androidJavaClass.GetStatic<AndroidJavaObject>("currentActivity");
-            if (androidJavaActivity != null)
-                assetManager = androidJavaActivity.Call<AndroidJavaObject>("getAssets");
-            if (assetManager != null)
-                inputStream = assetManager.Call<AndroidJavaObject>("open", file);
-            if (inputStream != null) {
-                int available = inputStream.Call<int>("available");
-                System.IntPtr buffer = AndroidJNI.NewSByteArray(available);
-                System.IntPtr javaClass = AndroidJNI.FindClass("java/io/InputStream");
-                System.IntPtr javaMethodID = AndroidJNIHelper.GetMethodID(javaClass, "read", "([B)I");
-                int read = AndroidJNI.CallIntMethod(inputStream.GetRawObject(), javaMethodID,
-                    new[] { new jvalue() { l = buffer } });
-                sbyte[] sbytes = AndroidJNI.FromSByteArray(buffer);
-                AndroidJNI.DeleteLocalRef(buffer);
-                inputStream.Call("close");
-                inputStream.Dispose();
-                byte[] bytes = new byte[sbytes.Length];
-                Array.Copy(bytes, sbytes, bytes.Length);
-                return bytes;
-            }
-        } else {
-            string assembly = Path.Combine(Application.streamingAssetsPath, file);
-            if (File.Exists(assembly)) {
-                var bytes = File.ReadAllBytes(assembly);
-                return bytes;
-            }
-        }
-        return null;
-    }
 
-    public static void SendScriptMessage(string msg, object arg)
-    {
-        SendMessage("GmScript", msg, arg, false);
-    }
     public static void SendMessage(string objname, string msg, object arg)
     {
         SendMessage(objname, msg, arg, false);

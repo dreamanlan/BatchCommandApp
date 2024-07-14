@@ -45,6 +45,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "wetesttouch", "wetesttouch(action,x,y) command, simulate touch event with WeTest", new StoryCommandFactoryHelper<WeTestTouchCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logcomps", "logcomps(root_name,[name1,name2,...],type,up_level,include_inactive) command", new StoryCommandFactoryHelper<LogComponentsCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logscenepath", "logscenepath([prefixs],obj,up_level) command", new StoryCommandFactoryHelper<LogScenePathCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "clickui", "clickui(name1,name2,...) command", new StoryCommandFactoryHelper<ClickUiCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "toggleon", "toggleon(name1,name2,...) command", new StoryCommandFactoryHelper<ToggleOnCommand>());
 
@@ -101,6 +102,7 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getptrcomps", "getptrcomps() function, return List<Component>", new StoryFunctionFactoryHelper<GetPointerComponentsFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "raycastuis", "raycastuis(x, y) function, return List<UnityEngine.EventSystems.RaycastResult>", new StoryFunctionFactoryHelper<RaycastUisFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "raycastcomps", "raycastcomps() function, return List<Component>", new StoryFunctionFactoryHelper<RaycastComponentsFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getscenepath", "getscenepath([prefixs],obj,up_level) function, return partial scene path", new StoryFunctionFactoryHelper<GetScenePathFunction>());
 
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findcomp", "findcomp(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<FindComponentFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "searchcomps", "searchcomps(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<SearchComponentsFunction>());

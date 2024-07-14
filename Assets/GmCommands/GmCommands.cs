@@ -826,6 +826,47 @@ namespace GmCommands
             return null;
         }
     }
+    internal class GetScenePathFunction : SimpleStoryFunctionBase<GetScenePathFunction, StoryValueParam<System.Collections.IList, object, int>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<System.Collections.IList, object, int> _params, StoryValueResult result)
+        {
+            var prefixs = _params.Param1Value;
+            var obj = _params.Param2Value;
+            int up_level = _params.Param3Value;
+            result.Value = GetScenePath(prefixs, obj, up_level);
+        }
+        internal static string GetScenePath(System.Collections.IList prefixs, object obj, int up_level)
+        {
+            var tr = obj as Transform;
+            if (null == tr) {
+                var gobj = obj as GameObject;
+                var comp = obj as Component;
+                if (null != gobj) {
+                    tr = gobj.transform;
+                }
+                else if (null != comp) {
+                    tr = comp.transform;
+                }
+                else {
+                    var str = obj as string;
+                    if (!string.IsNullOrEmpty(str)) {
+                        gobj = GameObject.Find(str);
+                        if (null != gobj) {
+                            tr = gobj.transform;
+                        }
+                    }
+                }
+            }
+            var sb = new StringBuilder();
+            if (tr != null) {
+                foreach (var prefix in prefixs) {
+                    sb.Append(prefix);
+                }
+                sb.Append(StoryScriptUtility.GetScenePath(tr, up_level));
+            }
+            return sb.ToString();
+        }
+    }
     //---------------------------------------------------------------------------------------------------------------
     internal class LogComponentsCommand : SimpleStoryCommandBase<LogComponentsCommand, StoryValueParam<string, System.Collections.IList, object, int, bool>>
     {
@@ -881,6 +922,17 @@ namespace GmCommands
                     }
                 }
             }
+            return false;
+        }
+    }
+    internal class LogScenePathCommand : SimpleStoryCommandBase<LogScenePathCommand, StoryValueParam<System.Collections.IList, object, int>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<System.Collections.IList, object, int> _params, long delta)
+        {
+            var prefixs = _params.Param1Value;
+            var obj = _params.Param2Value;
+            int up_level = _params.Param3Value;
+            LogSystem.Warn(GetScenePathFunction.GetScenePath(prefixs, obj, up_level));
             return false;
         }
     }
