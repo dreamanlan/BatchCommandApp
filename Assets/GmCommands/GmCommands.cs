@@ -896,7 +896,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ToggleCommand : SimpleStoryCommandBase<ClickCommand, StoryValueParam<object>>
+    internal class ToggleCommand : SimpleStoryCommandBase<ToggleCommand, StoryValueParam<object>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<object> _params, long delta)
         {
