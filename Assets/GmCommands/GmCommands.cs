@@ -158,7 +158,7 @@ namespace GmCommands
                     LogSystem.Warn("[check graphics format {0} <=> rt:{1} tex:{2}]", gf, rtf, tf);
                     foreach (var u in us) {
                         var fu = (FormatUsage)u;
-                        if(!SystemInfo.IsFormatSupported(gf, fu)) {
+                        if (!SystemInfo.IsFormatSupported(gf, fu)) {
                             LogSystem.Error("can't support graphics format {0} usage {1} <=> rt:{2} tex:{3}", gf, fu, rtf, tf);
                         }
                     }
@@ -216,7 +216,7 @@ namespace GmCommands
                     if (!SystemInfo.SupportsRenderTextureFormat(rtf)) {
                         LogSystem.Error("can't support RT {0}, srgb:{1} linear:{2}", rtf, gfSrgb, gfLinear);
                     }
-                    if(!SystemInfo.SupportsBlendingOnRenderTextureFormat(rtf)) {
+                    if (!SystemInfo.SupportsBlendingOnRenderTextureFormat(rtf)) {
                         LogSystem.Error("can't support blending on RT {0}, srgb:{1} linear:{2}", rtf, gfSrgb, gfLinear);
                     }
                     if (!SystemInfo.SupportsRandomWriteOnRenderTextureFormat(rtf)) {
@@ -300,7 +300,7 @@ namespace GmCommands
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
-            foreach(var reso in Screen.resolutions) {
+            foreach (var reso in Screen.resolutions) {
                 LogSystem.Warn("resolution:{0}x{1} refresh rate ratio:{2}", reso.width, reso.height, reso.refreshRateRatio);
             }
             return false;
@@ -789,7 +789,7 @@ namespace GmCommands
             float y = _params.Param2Value;
             var typeObj = _params.Param3Value;
             var list = GetUiComponentsUnderMouse(new Vector2(x, y), typeObj);
-            if(null != list) {
+            if (null != list) {
                 result.Value = BoxedValue.FromObject(list);
             }
         }
@@ -879,43 +879,32 @@ namespace GmCommands
             int up_level = _params.Param4Value;
             bool include_inactive = _params.Param5Value;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var type = typeObj as Type;
             var typeStr = typeObj as string;
-            if (null != typeStr)
-            {
+            if (null != typeStr) {
                 type = StoryScriptUtility.GetType(typeStr);
             }
-            if (null != type)
-            {
-                if (string.IsNullOrEmpty(root))
-                {
+            if (null != type) {
+                if (string.IsNullOrEmpty(root)) {
                     var objs = GameObject.FindObjectsOfType(type, include_inactive);
-                    foreach (var obj in objs)
-                    {
+                    foreach (var obj in objs) {
                         var comp = obj as Component;
-                        if (null != comp)
-                        {
-                            if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                            {
+                        if (null != comp) {
+                            if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                                 LogSystem.Warn("{0}", StoryScriptUtility.GetScenePath(comp.transform, up_level));
                             }
                         }
                     }
                 }
-                else
-                {
+                else {
                     var rootObj = GameObject.Find(root);
-                    if (null != rootObj)
-                    {
+                    if (null != rootObj) {
                         var comps = rootObj.GetComponentsInChildren(type, include_inactive);
-                        foreach (var comp in comps)
-                        {
-                            if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                            {
+                        foreach (var comp in comps) {
+                            if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                                 LogSystem.Warn("{0}", StoryScriptUtility.GetScenePath(comp.transform, up_level));
                             }
                         }
@@ -942,15 +931,12 @@ namespace GmCommands
         {
             var vals = _params.Values;
             var names = new List<string>();
-            foreach(var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var btns0 = GameObject.FindObjectsOfType<Button>(false);
-            foreach (var btn in btns0)
-            {
-                if (StoryScriptUtility.IsPathMatch(btn.transform, names))
-                {
+            foreach (var btn in btns0) {
+                if (StoryScriptUtility.IsPathMatch(btn.transform, names)) {
                     btn.onClick.Invoke();
                     break;
                 }
@@ -964,16 +950,13 @@ namespace GmCommands
         {
             var vals = _params.Values;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
-            var btns0 = GameObject.FindObjectsOfType<Toggle>(false);
-            foreach (var btn in btns0)
-            {
-                if (StoryScriptUtility.IsPathMatch(btn.transform, names))
-                {
-                    btn.isOn = !btn.isOn;
+            var toggles0 = GameObject.FindObjectsOfType<Toggle>(false);
+            foreach (var toggle in toggles0) {
+                if (StoryScriptUtility.IsPathMatch(toggle.transform, names)) {
+                    toggle.isOn = !toggle.isOn;
                     break;
                 }
             }
@@ -984,32 +967,7 @@ namespace GmCommands
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
-            var objs = RaycastUisFunction.GetUiObjectsUnderMouse(Input.mousePosition);
-            Button firstButton = null;
-            foreach (var obj in objs) {
-                var btn = obj.gameObject.GetComponent<Button>();
-                if (null != btn) {
-                    firstButton = btn;
-                    break;
-                }
-                else {
-                    btn = obj.gameObject.GetComponentInParent<Button>();
-                    if (null != btn) {
-                        firstButton = btn;
-                        break;
-                    }
-                    else {
-                        btn = obj.gameObject.GetComponentInChildren<Button>();
-                        if (null != btn) {
-                            firstButton = btn;
-                            break;
-                        }
-                    }
-                }
-            }
-            if(null != firstButton) {
-                firstButton.onClick.Invoke();
-            }
+            ClickOnPosCommand.ClickFirstOnPos(Input.mousePosition);
             return false;
         }
     }
@@ -1017,32 +975,7 @@ namespace GmCommands
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
-            var objs = RaycastUisFunction.GetUiObjectsUnderMouse(Input.mousePosition);
-            Toggle firstToggle = null;
-            foreach (var obj in objs) {
-                var toggle = obj.gameObject.GetComponent<Toggle>();
-                if (null != toggle) {
-                    firstToggle = toggle;
-                    break;
-                }
-                else {
-                    toggle = obj.gameObject.GetComponentInParent<Toggle>();
-                    if (null != toggle) {
-                        firstToggle = toggle;
-                        break;
-                    }
-                    else {
-                        toggle = obj.gameObject.GetComponentInChildren<Toggle>();
-                        if (null != toggle) {
-                            firstToggle = toggle;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (null != firstToggle) {
-                firstToggle.isOn = !firstToggle.isOn;
-            }
+            ToggleOnPosCommand.ClickFirstOnPos(Input.mousePosition);
             return false;
         }
     }
@@ -1052,24 +985,29 @@ namespace GmCommands
         {
             float x = _params.Param1Value;
             float y = _params.Param2Value;
-            var objs = RaycastUisFunction.GetUiObjectsUnderMouse(new Vector2(x, y));
+            ClickFirstOnPos(new Vector2(x, y));
+            return false;
+        }
+        internal static void ClickFirstOnPos(Vector2 pos)
+        {
+            var objs = RaycastUisFunction.GetUiObjectsUnderMouse(pos);
             Button firstButton = null;
             foreach (var obj in objs) {
-                var btn = obj.gameObject.GetComponent<Button>();
-                if (null != btn) {
-                    firstButton = btn;
+                var btn0 = obj.gameObject.GetComponent<Button>();
+                if (null != btn0) {
+                    firstButton = btn0;
                     break;
                 }
                 else {
-                    btn = obj.gameObject.GetComponentInParent<Button>();
-                    if (null != btn) {
-                        firstButton = btn;
+                    btn0 = obj.gameObject.GetComponentInParent<Button>();
+                    if (null != btn0) {
+                        firstButton = btn0;
                         break;
                     }
                     else {
-                        btn = obj.gameObject.GetComponentInChildren<Button>();
-                        if (null != btn) {
-                            firstButton = btn;
+                        btn0 = obj.gameObject.GetComponentInChildren<Button>();
+                        if (null != btn0) {
+                            firstButton = btn0;
                             break;
                         }
                     }
@@ -1078,7 +1016,6 @@ namespace GmCommands
             if (null != firstButton) {
                 firstButton.onClick.Invoke();
             }
-            return false;
         }
     }
     internal class ToggleOnPosCommand : SimpleStoryCommandBase<ToggleOnPosCommand, StoryValueParam<float, float>>
@@ -1087,24 +1024,29 @@ namespace GmCommands
         {
             float x = _params.Param1Value;
             float y = _params.Param2Value;
-            var objs = RaycastUisFunction.GetUiObjectsUnderMouse(new Vector2(x, y));
+            ClickFirstOnPos(new Vector2(x, y));
+            return false;
+        }
+        internal static void ClickFirstOnPos(Vector2 pos)
+        {
+            var objs = RaycastUisFunction.GetUiObjectsUnderMouse(pos);
             Toggle firstToggle = null;
             foreach (var obj in objs) {
-                var toggle = obj.gameObject.GetComponent<Toggle>();
-                if (null != toggle) {
-                    firstToggle = toggle;
+                var toggle0 = obj.gameObject.GetComponent<Toggle>();
+                if (null != toggle0) {
+                    firstToggle = toggle0;
                     break;
                 }
                 else {
-                    toggle = obj.gameObject.GetComponentInParent<Toggle>();
-                    if (null != toggle) {
-                        firstToggle = toggle;
+                    toggle0 = obj.gameObject.GetComponentInParent<Toggle>();
+                    if (null != toggle0) {
+                        firstToggle = toggle0;
                         break;
                     }
                     else {
-                        toggle = obj.gameObject.GetComponentInChildren<Toggle>();
-                        if (null != toggle) {
-                            firstToggle = toggle;
+                        toggle0 = obj.gameObject.GetComponentInChildren<Toggle>();
+                        if (null != toggle0) {
+                            firstToggle = toggle0;
                             break;
                         }
                     }
@@ -1113,7 +1055,6 @@ namespace GmCommands
             if (null != firstToggle) {
                 firstToggle.isOn = !firstToggle.isOn;
             }
-            return false;
         }
     }
     internal class ClickCommand : SimpleStoryCommandBase<ClickCommand, StoryValueParam<object>>
@@ -1161,7 +1102,7 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
             var perfFile = _params.Param1Value;
-            if(!Path.IsPathRooted(perfFile)) {
+            if (!Path.IsPathRooted(perfFile)) {
                 perfFile = PerfGradeGm.ScriptPath + perfFile;
             }
             PerfGradeGm.ClearPerfGradeScripts();
@@ -1245,44 +1186,33 @@ namespace GmCommands
             var vals = _params.Param2Value;
             var typeObj = _params.Param3Value;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var type = typeObj as Type;
             var typeStr = typeObj as string;
-            if (null != typeStr)
-            {
+            if (null != typeStr) {
                 type = StoryScriptUtility.GetType(typeStr);
             }
-            if (null != type)
-            {
-                if (string.IsNullOrEmpty(root))
-                {
+            if (null != type) {
+                if (string.IsNullOrEmpty(root)) {
                     var objs = GameObject.FindObjectsOfType(type, false);
-                    foreach (var obj in objs)
-                    {
+                    foreach (var obj in objs) {
                         var comp = obj as Component;
-                        if (null != comp)
-                        {
-                            if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                            {
+                        if (null != comp) {
+                            if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                                 result.Value = comp;
                                 return;
                             }
                         }
                     }
                 }
-                else
-                {
+                else {
                     var rootObj = GameObject.Find(root);
-                    if (null != rootObj)
-                    {
+                    if (null != rootObj) {
                         var comps = rootObj.GetComponentsInChildren(type, false);
-                        foreach (var comp in comps)
-                        {
-                            if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                            {
+                        foreach (var comp in comps) {
+                            if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                                 result.Value = comp;
                                 return;
                             }
@@ -1301,43 +1231,32 @@ namespace GmCommands
             var vals = _params.Param2Value;
             var typeObj = _params.Param3Value;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var type = typeObj as Type;
             var typeStr = typeObj as string;
-            if (null != typeStr)
-            {
+            if (null != typeStr) {
                 type = StoryScriptUtility.GetType(typeStr);
             }
-            if (null != type)
-            {
-                if (string.IsNullOrEmpty(root))
-                {
+            if (null != type) {
+                if (string.IsNullOrEmpty(root)) {
                     var objs = GameObject.FindObjectsOfType(type, true);
-                    foreach (var obj in objs)
-                    {
+                    foreach (var obj in objs) {
                         var comp = obj as Component;
-                        if (null != comp)
-                        {
-                            if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                            {
+                        if (null != comp) {
+                            if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                                 list.Add(comp);
                             }
                         }
                     }
                 }
-                else
-                {
+                else {
                     var rootObj = GameObject.Find(root);
-                    if (null != rootObj)
-                    {
+                    if (null != rootObj) {
                         var comps = rootObj.GetComponentsInChildren(type, true);
-                        foreach (var comp in comps)
-                        {
-                            if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                            {
+                        foreach (var comp in comps) {
+                            if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                                 list.Add(comp);
                             }
                         }
