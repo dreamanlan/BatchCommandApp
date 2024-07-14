@@ -46,6 +46,9 @@ namespace GmCommands
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logcomps", "logcomps(root_name,[name1,name2,...],type,up_level,include_inactive) command", new StoryCommandFactoryHelper<LogComponentsCommand>());
 
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "click", "click(uiobj) command", new StoryCommandFactoryHelper<ClickCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "toggle", "toggle(uiobj) command", new StoryCommandFactoryHelper<ToggleCommand>());
+
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logcperfs", "logcperfs() command", new StoryCommandFactoryHelper<LogCompiledPerfsCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "reloadperfs", "reloadperfs() command", new StoryCommandFactoryHelper<ReloadPerfsCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "runperf", "runperf(perf_dsl_file) command", new StoryCommandFactoryHelper<RunPerfCommand>());

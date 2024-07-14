@@ -807,6 +807,18 @@ namespace GmCommands
                     if (null != comp) {
                         list.Add(comp);
                     }
+                    else {
+                        comp = obj.gameObject.GetComponentInParent(type, false);
+                        if (null != comp) {
+                            list.Add(comp);
+                        }
+                        else {
+                            comp = obj.gameObject.GetComponentInChildren(type, false);
+                            if (null != comp) {
+                                list.Add(comp);
+                            }
+                        }
+                    }
                 }
                 return list;
             }
@@ -867,6 +879,30 @@ namespace GmCommands
                         }
                     }
                 }
+            }
+            return false;
+        }
+    }
+    internal class ClickCommand : SimpleStoryCommandBase<ClickCommand, StoryValueParam<object>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<object> _params, long delta)
+        {
+            var obj = _params.Param1Value;
+            var btn = obj as Button;
+            if (null != btn) {
+                btn.onClick.Invoke();
+            }
+            return false;
+        }
+    }
+    internal class ToggleCommand : SimpleStoryCommandBase<ClickCommand, StoryValueParam<object>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<object> _params, long delta)
+        {
+            var obj = _params.Param1Value;
+            var toggle = obj as Toggle;
+            if (null != toggle) {
+                toggle.isOn = !toggle.isOn;
             }
             return false;
         }
