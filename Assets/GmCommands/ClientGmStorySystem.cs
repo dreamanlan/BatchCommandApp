@@ -49,6 +49,10 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "clickui", "clickui(name1,name2,...) command", new StoryCommandFactoryHelper<ClickUiCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "toggleon", "toggleon(name1,name2,...) command", new StoryCommandFactoryHelper<ToggleOnCommand>());
 
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "clickonptr", "clickonptr() command", new StoryCommandFactoryHelper<ClickOnPointerCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "toggleonptr", "toggleonptr() command", new StoryCommandFactoryHelper<ToggleOnPointerCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "clickonpos", "clickonpos(x,y) command", new StoryCommandFactoryHelper<ClickOnPosCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "toggleonpos", "toggleonpos(x,y) command", new StoryCommandFactoryHelper<ToggleOnPosCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "click", "click(uiobj) command", new StoryCommandFactoryHelper<ClickCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "toggle", "toggle(uiobj) command", new StoryCommandFactoryHelper<ToggleCommand>());
 

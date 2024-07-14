@@ -941,22 +941,18 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
         {
             var vals = _params.Values;
-            var uiRoot = GameObject.Find("UIRoot");
-            if (null != uiRoot)
+            var names = new List<string>();
+            foreach(var v in vals)
             {
-                var names = new List<string>();
-                foreach(var v in vals)
+                names.Add(v.ToString());
+            }
+            var btns0 = GameObject.FindObjectsOfType<Button>(false);
+            foreach (var btn in btns0)
+            {
+                if (StoryScriptUtility.IsPathMatch(btn.transform, names))
                 {
-                    names.Add(v.ToString());
-                }
-                var btns0 = uiRoot.GetComponentsInChildren<Button>();
-                foreach (var btn in btns0)
-                {
-                    if (StoryScriptUtility.IsPathMatch(btn.transform, names))
-                    {
-                        btn.onClick.Invoke();
-                        break;
-                    }
+                    btn.onClick.Invoke();
+                    break;
                 }
             }
             return false;
@@ -967,23 +963,155 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
         {
             var vals = _params.Values;
-            var uiRoot = GameObject.Find("UIRoot");
-            if (null != uiRoot)
+            var names = new List<string>();
+            foreach (var v in vals)
             {
-                var names = new List<string>();
-                foreach (var v in vals)
+                names.Add(v.ToString());
+            }
+            var btns0 = GameObject.FindObjectsOfType<Toggle>(false);
+            foreach (var btn in btns0)
+            {
+                if (StoryScriptUtility.IsPathMatch(btn.transform, names))
                 {
-                    names.Add(v.ToString());
+                    btn.isOn = !btn.isOn;
+                    break;
                 }
-                var btns0 = uiRoot.GetComponentsInChildren<Toggle>();
-                foreach (var btn in btns0)
-                {
-                    if (StoryScriptUtility.IsPathMatch(btn.transform, names))
-                    {
-                        btn.isOn = true;
+            }
+            return false;
+        }
+    }
+    internal class ClickOnPointerCommand : SimpleStoryCommandBase<ClickOnPointerCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            var objs = RaycastUisFunction.GetUiObjectsUnderMouse(Input.mousePosition);
+            Button firstButton = null;
+            foreach (var obj in objs) {
+                var btn = obj.gameObject.GetComponent<Button>();
+                if (null != btn) {
+                    firstButton = btn;
+                    break;
+                }
+                else {
+                    btn = obj.gameObject.GetComponentInParent<Button>();
+                    if (null != btn) {
+                        firstButton = btn;
                         break;
                     }
+                    else {
+                        btn = obj.gameObject.GetComponentInChildren<Button>();
+                        if (null != btn) {
+                            firstButton = btn;
+                            break;
+                        }
+                    }
                 }
+            }
+            if(null != firstButton) {
+                firstButton.onClick.Invoke();
+            }
+            return false;
+        }
+    }
+    internal class ToggleOnPointerCommand : SimpleStoryCommandBase<ToggleOnPointerCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            var objs = RaycastUisFunction.GetUiObjectsUnderMouse(Input.mousePosition);
+            Toggle firstToggle = null;
+            foreach (var obj in objs) {
+                var toggle = obj.gameObject.GetComponent<Toggle>();
+                if (null != toggle) {
+                    firstToggle = toggle;
+                    break;
+                }
+                else {
+                    toggle = obj.gameObject.GetComponentInParent<Toggle>();
+                    if (null != toggle) {
+                        firstToggle = toggle;
+                        break;
+                    }
+                    else {
+                        toggle = obj.gameObject.GetComponentInChildren<Toggle>();
+                        if (null != toggle) {
+                            firstToggle = toggle;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (null != firstToggle) {
+                firstToggle.isOn = !firstToggle.isOn;
+            }
+            return false;
+        }
+    }
+    internal class ClickOnPosCommand : SimpleStoryCommandBase<ClickOnPosCommand, StoryValueParam<float, float>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<float, float> _params, long delta)
+        {
+            float x = _params.Param1Value;
+            float y = _params.Param2Value;
+            var objs = RaycastUisFunction.GetUiObjectsUnderMouse(new Vector2(x, y));
+            Button firstButton = null;
+            foreach (var obj in objs) {
+                var btn = obj.gameObject.GetComponent<Button>();
+                if (null != btn) {
+                    firstButton = btn;
+                    break;
+                }
+                else {
+                    btn = obj.gameObject.GetComponentInParent<Button>();
+                    if (null != btn) {
+                        firstButton = btn;
+                        break;
+                    }
+                    else {
+                        btn = obj.gameObject.GetComponentInChildren<Button>();
+                        if (null != btn) {
+                            firstButton = btn;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (null != firstButton) {
+                firstButton.onClick.Invoke();
+            }
+            return false;
+        }
+    }
+    internal class ToggleOnPosCommand : SimpleStoryCommandBase<ToggleOnPosCommand, StoryValueParam<float, float>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<float, float> _params, long delta)
+        {
+            float x = _params.Param1Value;
+            float y = _params.Param2Value;
+            var objs = RaycastUisFunction.GetUiObjectsUnderMouse(new Vector2(x, y));
+            Toggle firstToggle = null;
+            foreach (var obj in objs) {
+                var toggle = obj.gameObject.GetComponent<Toggle>();
+                if (null != toggle) {
+                    firstToggle = toggle;
+                    break;
+                }
+                else {
+                    toggle = obj.gameObject.GetComponentInParent<Toggle>();
+                    if (null != toggle) {
+                        firstToggle = toggle;
+                        break;
+                    }
+                    else {
+                        toggle = obj.gameObject.GetComponentInChildren<Toggle>();
+                        if (null != toggle) {
+                            firstToggle = toggle;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (null != firstToggle) {
+                firstToggle.isOn = !firstToggle.isOn;
             }
             return false;
         }
