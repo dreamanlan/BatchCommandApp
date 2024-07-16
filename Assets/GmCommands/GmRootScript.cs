@@ -123,7 +123,7 @@ public sealed class GmRootScript : MonoBehaviour
     {
         try {
             ResetGmCode();
-
+            ClientGmStorySystem.Instance.ClearGlobalVariables();
             ClientGmStorySystem.Instance.Reset();
             StoryScript.StoryConfigManager.Instance.Clear();
             LogSystem.Warn("ResetStory finish.");
@@ -172,7 +172,6 @@ public sealed class GmRootScript : MonoBehaviour
 
     private void ResetGmCode()
     {
-        ClientGmStorySystem.Instance.Reset();
         m_LocalGmFile = "";
     }
     private void RunLocalGmFile()

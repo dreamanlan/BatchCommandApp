@@ -143,6 +143,14 @@ namespace GmCommands
             return false;
         }
     }
+    internal class ClearGlobalsCommand : SimpleStoryCommandBase<ClearGlobalsCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            ClientGmStorySystem.Instance.ClearGlobalVariables();
+            return false;
+        }
+    }
     internal class SupportsGfxFormatCommand : SimpleStoryCommandBase<SupportsGfxFormatCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
