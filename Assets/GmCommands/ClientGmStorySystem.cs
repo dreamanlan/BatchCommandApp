@@ -104,13 +104,13 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "wetestheight", "wetestheight() function, WeTest GetHeight", new StoryFunctionFactoryHelper<WeTestGetHeightFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getpointer", "getpointer() function, return Input.mousePosition", new StoryFunctionFactoryHelper<GetPointerFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getptruis", "getptruis() function, return List<UnityEngine.EventSystems.RaycastResult>", new StoryFunctionFactoryHelper<PointerRaycastUisFunction>());
-                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getptrcomps", "getptrcomps() function, return List<Component>", new StoryFunctionFactoryHelper<GetPointerComponentsFunction>());
-                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "raycastuis", "raycastuis(x, y) function, return List<UnityEngine.EventSystems.RaycastResult>", new StoryFunctionFactoryHelper<RaycastUisFunction>());
-                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "raycastcomps", "raycastcomps() function, return List<Component>", new StoryFunctionFactoryHelper<RaycastComponentsFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getptrcomps", "getptrcomps(type,include_inactive) function, return List<Component>", new StoryFunctionFactoryHelper<GetPointerComponentsFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "raycastuis", "raycastuis(x,y) function, return List<UnityEngine.EventSystems.RaycastResult>", new StoryFunctionFactoryHelper<RaycastUisFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "raycastcomps", "raycastcomps(x,y,type,include_inactive) function, return List<Component>", new StoryFunctionFactoryHelper<RaycastComponentsFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getscenepath", "getscenepath([prefixs],obj,up_level) function, return partial scene path", new StoryFunctionFactoryHelper<GetScenePathFunction>());
 
-                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findcomp", "findcomp(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<FindComponentFunction>());
-                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "searchcomps", "searchcomps(root_name,[name1,name2,...],type) function", new StoryFunctionFactoryHelper<SearchComponentsFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findcomp", "findcomp(root_name,[name1,name2,...],type,include_inactive) function", new StoryFunctionFactoryHelper<FindComponentFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "searchcomps", "searchcomps(root_name,[name1,name2,...],type,include_inactive) function", new StoryFunctionFactoryHelper<SearchComponentsFunction>());
 
                 //failback to call perf grade api
                 StoryCommandManager.Instance.OnCreateFailback = this.OnCreateCommandFailback;

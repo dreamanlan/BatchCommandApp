@@ -749,13 +749,14 @@ namespace GmCommands
             result.Value = BoxedValue.FromObject(RaycastUisFunction.GetUiObjectsUnderMouse(Input.mousePosition));
         }
     }
-    internal class GetPointerComponentsFunction : SimpleStoryFunctionBase<GetPointerComponentsFunction, StoryValueParam<object>>
+    internal class GetPointerComponentsFunction : SimpleStoryFunctionBase<GetPointerComponentsFunction, StoryValueParam<object, bool>>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam<object> _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<object, bool> _params, StoryValueResult result)
         {
             result.Value = BoxedValue.NullObject;
             var typeObj = _params.Param1Value;
-            var list = RaycastComponentsFunction.GetUiComponentsUnderMouse(Input.mousePosition, typeObj);
+            bool include_inactive = _params.Param2Value;
+            var list = RaycastComponentsFunction.GetUiComponentsUnderMouse(Input.mousePosition, typeObj, include_inactive);
             if (null != list) {
                 result.Value = BoxedValue.FromObject(list);
             }
@@ -788,20 +789,21 @@ namespace GmCommands
             return results;
         }
     }
-    internal class RaycastComponentsFunction : SimpleStoryFunctionBase<RaycastComponentsFunction, StoryValueParam<float, float, object>>
+    internal class RaycastComponentsFunction : SimpleStoryFunctionBase<RaycastComponentsFunction, StoryValueParam<float, float, object, bool>>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam<float, float, object> _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<float, float, object, bool> _params, StoryValueResult result)
         {
             result.Value = BoxedValue.NullObject;
             float x = _params.Param1Value;
             float y = _params.Param2Value;
             var typeObj = _params.Param3Value;
-            var list = GetUiComponentsUnderMouse(new Vector2(x, y), typeObj);
+            bool include_inactive = _params.Param4Value;
+            var list = GetUiComponentsUnderMouse(new Vector2(x, y), typeObj, include_inactive);
             if (null != list) {
                 result.Value = BoxedValue.FromObject(list);
             }
         }
-        internal static List<Component> GetUiComponentsUnderMouse(Vector2 pos, object typeObj)
+        internal static List<Component> GetUiComponentsUnderMouse(Vector2 pos, object typeObj, bool include_inactive)
         {
             var type = typeObj as Type;
             var typeStr = typeObj as string;
@@ -817,12 +819,12 @@ namespace GmCommands
                         list.Add(comp);
                     }
                     else {
-                        comp = obj.gameObject.GetComponentInParent(type, false);
+                        comp = obj.gameObject.GetComponentInParent(type, include_inactive);
                         if (null != comp) {
                             list.Add(comp);
                         }
                         else {
-                            comp = obj.gameObject.GetComponentInChildren(type, false);
+                            comp = obj.gameObject.GetComponentInChildren(type, include_inactive);
                             if (null != comp) {
                                 list.Add(comp);
                             }
@@ -1185,14 +1187,15 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal class FindComponentFunction : SimpleStoryFunctionBase<FindComponentFunction, StoryValueParam<string, System.Collections.IList, object>>
+    internal class FindComponentFunction : SimpleStoryFunctionBase<FindComponentFunction, StoryValueParam<string, System.Collections.IList, object, bool>>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object> _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object, bool> _params, StoryValueResult result)
         {
             result.Value = BoxedValue.NullObject;
             var root = _params.Param1Value;
             var vals = _params.Param2Value;
             var typeObj = _params.Param3Value;
+            bool include_inactive = _params.Param4Value;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -1204,7 +1207,7 @@ namespace GmCommands
             }
             if (null != type) {
                 if (string.IsNullOrEmpty(root)) {
-                    var objs = GameObject.FindObjectsOfType(type, false);
+                    var objs = GameObject.FindObjectsOfType(type, include_inactive);
                     foreach (var obj in objs) {
                         var comp = obj as Component;
                         if (null != comp) {
@@ -1218,7 +1221,7 @@ namespace GmCommands
                 else {
                     var rootObj = GameObject.Find(root);
                     if (null != rootObj) {
-                        var comps = rootObj.GetComponentsInChildren(type, false);
+                        var comps = rootObj.GetComponentsInChildren(type, include_inactive);
                         foreach (var comp in comps) {
                             if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                                 result.Value = comp;
@@ -1230,14 +1233,15 @@ namespace GmCommands
             }
         }
     }
-    internal class SearchComponentsFunction : SimpleStoryFunctionBase<SearchComponentsFunction, StoryValueParam<string, System.Collections.IList, object>>
+    internal class SearchComponentsFunction : SimpleStoryFunctionBase<SearchComponentsFunction, StoryValueParam<string, System.Collections.IList, object, bool>>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object> _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object, bool> _params, StoryValueResult result)
         {
             var list = new List<Component>();
             var root = _params.Param1Value;
             var vals = _params.Param2Value;
             var typeObj = _params.Param3Value;
+            bool include_inactive = _params.Param4Value;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -1249,7 +1253,7 @@ namespace GmCommands
             }
             if (null != type) {
                 if (string.IsNullOrEmpty(root)) {
-                    var objs = GameObject.FindObjectsOfType(type, true);
+                    var objs = GameObject.FindObjectsOfType(type, include_inactive);
                     foreach (var obj in objs) {
                         var comp = obj as Component;
                         if (null != comp) {
@@ -1262,7 +1266,7 @@ namespace GmCommands
                 else {
                     var rootObj = GameObject.Find(root);
                     if (null != rootObj) {
-                        var comps = rootObj.GetComponentsInChildren(type, true);
+                        var comps = rootObj.GetComponentsInChildren(type, include_inactive);
                         foreach (var comp in comps) {
                             if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                                 list.Add(comp);
