@@ -250,9 +250,12 @@ namespace GmCommands
         {
             get { return m_GlobalVariables; }
         }
-        public void Reset()
+        public void ClearGlobalVariables()
         {
             m_GlobalVariables.Clear();
+        }
+        public void Reset()
+        {
             int count = m_StoryLogicInfos.Count;
             for (int index = count - 1; index >= 0; --index) {
                 StoryInstance info = m_StoryLogicInfos[index];
