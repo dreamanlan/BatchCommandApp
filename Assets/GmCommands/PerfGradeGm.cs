@@ -166,6 +166,7 @@ public static class PerfGradeGm
 
         PerfGrade.Instance.Init();
         foreach (var init in s_Inits) {
+            PerfGrade.Instance.SetCallFromGrade(false);
             s_Calculator.Calc(init);
         }
 
@@ -173,7 +174,7 @@ public static class PerfGradeGm
         foreach (var pair in s_Grades) {
             int g = pair.Key;
             foreach (var tuple in pair.Value) {
-                PerfGrade.Instance.GradeSetState = true;
+                PerfGrade.Instance.SetCallFromGrade(true);
                 s_Calculator.Calc(tuple.Item1);
                 if (PerfGrade.Instance.GradeSetState) {
                     grade = (PerfGrade.GradeEnum)g;
@@ -191,7 +192,7 @@ public static class PerfGradeGm
             foreach (var pair in s_DefGrades) {
                 int g = pair.Key;
                 foreach (var tuple in pair.Value) {
-                    PerfGrade.Instance.GradeSetState = true;
+                    PerfGrade.Instance.SetCallFromGrade(true);
                     s_Calculator.Calc(tuple.Item1);
                     if (PerfGrade.Instance.GradeSetState) {
                         grade = (PerfGrade.GradeEnum)g;
@@ -210,6 +211,7 @@ public static class PerfGradeGm
         PerfGrade.Instance.DoSetting(grade);
         if (s_Settings.TryGetValue((int)grade, out var codes)) {
             foreach (var code in codes) {
+                PerfGrade.Instance.SetCallFromGrade(false);
                 s_Calculator.Calc(code);
             }
         }
@@ -313,7 +315,7 @@ public static class PerfGradeGm
                         foreach (var pair in grades) {
                             int g = pair.Key;
                             foreach(var func in pair.Value) {
-                                sb.AppendLine("{0}GradeSetState = true;", Literal.GetIndentString(indent));
+                                sb.AppendLine("{0}SetCallFromGrade(true);", Literal.GetIndentString(indent));
                                 sb.AppendLine("{0}{1}();", Literal.GetIndentString(indent), func);
                                 sb.AppendLine("{0}if (GradeSetState) {{", Literal.GetIndentString(indent));
                                 ++indent;
@@ -332,7 +334,7 @@ public static class PerfGradeGm
                         foreach (var pair in defGrades) {
                             int g = pair.Key;
                             foreach (var func in pair.Value) {
-                                sb.AppendLine("{0}GradeSetState = true;", Literal.GetIndentString(indent));
+                                sb.AppendLine("{0}SetCallFromGrade(true);", Literal.GetIndentString(indent));
                                 sb.AppendLine("{0}{1}();", Literal.GetIndentString(indent), func);
                                 sb.AppendLine("{0}if (GradeSetState) {{", Literal.GetIndentString(indent));
                                 ++indent;
@@ -355,6 +357,7 @@ public static class PerfGradeGm
                             sb.AppendLine("{0}case {1}:", Literal.GetIndentString(indent), g);
                             ++indent;
                             foreach (var func in pair.Value) {
+                                sb.AppendLine("{0}SetCallFromGrade(false);", Literal.GetIndentString(indent));
                                 sb.AppendLine("{0}{1}();", Literal.GetIndentString(indent), func);
                             }
                             sb.AppendLine("{0}break;", Literal.GetIndentString(indent));
@@ -371,6 +374,7 @@ public static class PerfGradeGm
                         sb.AppendLine("{0}if (!ExistsScriptablePerfGrade({1})) {{", Literal.GetIndentString(indent), perfId);
                         ++indent;
                         foreach (var init in inits) {
+                            sb.AppendLine("{0}SetCallFromGrade(false);", Literal.GetIndentString(indent));
                             sb.AppendLine("{0}{1}();", Literal.GetIndentString(indent), init);
                         }
                         sb.AppendLine("{0}m_GradeCodes.Add(combined_grade_{1});", Literal.GetIndentString(indent), perfId);

@@ -24,7 +24,19 @@ public sealed partial class PerfGrade
         Num
     }
 
-    public bool GradeSetState { get; set; } = false;
+    public bool GradeSetState { get; private set; } = false;
+
+    public void SetCallFromGrade(bool fromGrade)
+    {
+        GradeSetState = true;
+        m_CallFromGrade = fromGrade;
+    }
+    private bool CheckContinue()
+    {
+        if (!m_CallFromGrade)
+            GradeSetState = true;
+        return GradeSetState;
+    }
 
     public void ClearAll()
     {
@@ -383,16 +395,6 @@ public sealed partial class PerfGrade
         return string_contains_any_helper(str, regexes);
     }
 
-    private BoxedValue mark_grade_set(BoxedValueList list)
-    {
-        return BoxedValue.FromBool(mark_grade_set_impl());
-    }
-    private bool mark_grade_set_impl()
-    {
-        GradeSetState = true;
-        return true;
-    }
-
     private BoxedValue is_mobile(BoxedValueList list)
     {
         bool r = is_mobile_impl();
@@ -400,7 +402,7 @@ public sealed partial class PerfGrade
     }
     private bool is_mobile_impl()
     {
-        GradeSetState = GradeSetState && Application.isMobilePlatform;
+        GradeSetState = GradeSetState && is_mobile_helper();
         return GradeSetState;
     }
 
@@ -411,7 +413,7 @@ public sealed partial class PerfGrade
     }
     private bool is_console_impl()
     {
-        GradeSetState = GradeSetState && Application.isConsolePlatform;
+        GradeSetState = GradeSetState && is_console_helper();
         return GradeSetState;
     }
 
@@ -422,7 +424,7 @@ public sealed partial class PerfGrade
     }
     private bool is_editor_impl()
     {
-        GradeSetState = GradeSetState && Application.isEditor;
+        GradeSetState = GradeSetState && is_editor_helper();
         return GradeSetState;
     }
 
@@ -433,7 +435,7 @@ public sealed partial class PerfGrade
     }
     private bool is_android_impl()
     {
-        GradeSetState = GradeSetState && (Application.platform == RuntimePlatform.Android);
+        GradeSetState = GradeSetState && is_android_helper();
         return GradeSetState;
     }
 
@@ -444,7 +446,7 @@ public sealed partial class PerfGrade
     }
     private bool is_iphone_impl()
     {
-        GradeSetState = GradeSetState && (Application.platform == RuntimePlatform.IPhonePlayer);
+        GradeSetState = GradeSetState && is_iphone_helper();
         return GradeSetState;
     }
 
@@ -455,7 +457,7 @@ public sealed partial class PerfGrade
     }
     private bool is_pc_impl()
     {
-        GradeSetState = GradeSetState && !Application.isMobilePlatform && !Application.isConsolePlatform;
+        GradeSetState = GradeSetState && is_pc_helper();
         return GradeSetState;
     }
 
@@ -473,7 +475,7 @@ public sealed partial class PerfGrade
     }
     private bool name_like_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.deviceName;
             bool res = string_like_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -495,7 +497,7 @@ public sealed partial class PerfGrade
     }
     private bool name_in_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.deviceName;
             bool res = string_in_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -517,7 +519,7 @@ public sealed partial class PerfGrade
     }
     private bool name_contains_all_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.deviceName;
             bool res = string_contains_all_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -539,7 +541,7 @@ public sealed partial class PerfGrade
     }
     private bool name_contains_any_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.deviceName;
             bool res = string_contains_any_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -561,7 +563,7 @@ public sealed partial class PerfGrade
     }
     private bool device_like_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.deviceModel;
             bool res = string_like_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -583,7 +585,7 @@ public sealed partial class PerfGrade
     }
     private bool device_in_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.deviceModel;
             bool res = string_in_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -605,7 +607,7 @@ public sealed partial class PerfGrade
     }
     private bool device_contains_all_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.deviceModel;
             bool res = string_contains_all_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -627,7 +629,7 @@ public sealed partial class PerfGrade
     }
     private bool device_contains_any_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.deviceModel;
             bool res = string_contains_any_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -649,7 +651,7 @@ public sealed partial class PerfGrade
     }
     private bool gpu_like_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.graphicsDeviceName;
             bool res = string_like_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -671,7 +673,7 @@ public sealed partial class PerfGrade
     }
     private bool gpu_in_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.graphicsDeviceName;
             bool res = string_in_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -693,7 +695,7 @@ public sealed partial class PerfGrade
     }
     private bool gpu_contains_all_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.graphicsDeviceName;
             bool res = string_contains_all_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -715,7 +717,7 @@ public sealed partial class PerfGrade
     }
     private bool gpu_contains_any_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.graphicsDeviceName;
             bool res = string_contains_any_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -737,7 +739,7 @@ public sealed partial class PerfGrade
     }
     private bool cpu_like_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.processorType;
             bool res = string_like_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -759,7 +761,7 @@ public sealed partial class PerfGrade
     }
     private bool cpu_in_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.processorType;
             bool res = string_in_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -781,7 +783,7 @@ public sealed partial class PerfGrade
     }
     private bool cpu_contains_all_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.processorType;
             bool res = string_contains_all_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -803,7 +805,7 @@ public sealed partial class PerfGrade
     }
     private bool cpu_contains_any_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.processorType;
             bool res = string_contains_any_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -825,7 +827,7 @@ public sealed partial class PerfGrade
     }
     private bool gpu_ver_like_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.graphicsDeviceVersion;
             bool res = string_like_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -847,7 +849,7 @@ public sealed partial class PerfGrade
     }
     private bool gpu_ver_in_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.graphicsDeviceVersion;
             bool res = string_in_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -869,7 +871,7 @@ public sealed partial class PerfGrade
     }
     private bool gpu_ver_contains_all_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.graphicsDeviceVersion;
             bool res = string_contains_all_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -891,7 +893,7 @@ public sealed partial class PerfGrade
     }
     private bool gpu_ver_contains_any_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.graphicsDeviceVersion;
             bool res = string_contains_any_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -913,7 +915,7 @@ public sealed partial class PerfGrade
     }
     private bool os_ver_like_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.operatingSystem;
             bool res = string_like_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -935,7 +937,7 @@ public sealed partial class PerfGrade
     }
     private bool os_ver_in_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.operatingSystem;
             bool res = string_in_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -957,7 +959,7 @@ public sealed partial class PerfGrade
     }
     private bool os_ver_contains_all_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.operatingSystem;
             bool res = string_contains_all_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -979,7 +981,7 @@ public sealed partial class PerfGrade
     }
     private bool os_ver_contains_any_impl(IList<string> regexes)
     {
-        if (GradeSetState) {
+        if (CheckContinue()) {
             var model = SystemInfo.operatingSystem;
             bool res = string_contains_any_helper(model, regexes);
             GradeSetState = GradeSetState && res;
@@ -1168,6 +1170,30 @@ public sealed partial class PerfGrade
     }
 
     //private methods
+    private bool is_android_helper()
+    {
+        return Application.platform == RuntimePlatform.Android;
+    }
+    private bool is_iphone_helper()
+    {
+        return Application.platform == RuntimePlatform.IPhonePlayer;
+    }
+    private bool is_editor_helper()
+    {
+        return Application.isEditor;
+    }
+    private bool is_mobile_helper()
+    {
+        return Application.isMobilePlatform;
+    }
+    private bool is_console_helper()
+    {
+        return Application.isConsolePlatform;
+    }
+    private bool is_pc_helper()
+    {
+        return !Application.isMobilePlatform && !Application.isConsolePlatform;
+    }
     private bool string_like_helper(string str, IList<string> regexes)
     {
         foreach (var regex in regexes) {
@@ -1211,6 +1237,7 @@ public sealed partial class PerfGrade
         return cr;
     }
 
+    private bool m_CallFromGrade = false;
     private Dictionary<string, GradeEnum> m_Device2Grades = new Dictionary<string, GradeEnum> {
         {string.Empty, GradeEnum.Unknown},
     };
