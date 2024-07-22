@@ -109,6 +109,16 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "raycastcomps", "raycastcomps(x,y,type,include_inactive) function, return List<Component>", new StoryFunctionFactoryHelper<RaycastComponentsFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getscenepath", "getscenepath([prefixs],obj,up_level) function, return partial scene path", new StoryFunctionFactoryHelper<GetScenePathFunction>());
 
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findrawimg", "findrawimg(name1,name2,...) function", new StoryFunctionFactoryHelper<FindRawImageFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "finduiimg", "finduiimg(name1,name2,...) function", new StoryFunctionFactoryHelper<FindUiImageFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findbutton", "findbutton(name1,name2,...) function", new StoryFunctionFactoryHelper<FindUiButtonFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findtoggle", "findtoggle(name1,name2,...) function", new StoryFunctionFactoryHelper<FindUiToggleFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findslider", "findslider(name1,name2,...) function", new StoryFunctionFactoryHelper<FindUiSliderFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findinput", "findinput(name1,name2,...) function", new StoryFunctionFactoryHelper<FindUiInputFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findtmpinput", "findtmpinput(name1,name2,...) function", new StoryFunctionFactoryHelper<FindTmpInputFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "finddropdown", "finddropdown(name1,name2,...) function", new StoryFunctionFactoryHelper<FindUiDropdownFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findtmpdropdown", "findtmpdropdown(name1,name2,...) function", new StoryFunctionFactoryHelper<FindTmpDropdownFunction>());
+
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findcomp", "findcomp(root_name,[name1,name2,...],type,include_inactive) function", new StoryFunctionFactoryHelper<FindComponentFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "searchcomps", "searchcomps(root_name,[name1,name2,...],type,include_inactive) function", new StoryFunctionFactoryHelper<SearchComponentsFunction>());
 

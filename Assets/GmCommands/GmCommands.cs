@@ -1187,6 +1187,211 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
+    internal class FindRawImageFunction : SimpleStoryFunctionBase<FindRawImageFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+            var vals = _params.Values;
+            var names = new List<string>();
+            foreach (var v in vals)
+            {
+                names.Add(v.ToString());
+            }
+            var comp0 = GameObject.FindObjectsOfType<RawImage>(false);
+            foreach (var comp in comp0)
+            {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                {
+                    result.Value = comp;
+                    break;
+                }
+            }
+        }
+    }
+    internal class FindUiImageFunction : SimpleStoryFunctionBase<FindUiImageFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+            var vals = _params.Values;
+            var names = new List<string>();
+            foreach (var v in vals)
+            {
+                names.Add(v.ToString());
+            }
+            var comp0 = GameObject.FindObjectsOfType<Image>(false);
+            foreach (var comp in comp0)
+            {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                {
+                    result.Value = comp;
+                    break;
+                }
+            }
+        }
+    }
+    internal class FindUiButtonFunction : SimpleStoryFunctionBase<FindUiButtonFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+
+            var vals = _params.Values;
+            var names = new List<string>();
+            foreach (var v in vals)
+            {
+                names.Add(v.ToString());
+            }
+            var comp0 = GameObject.FindObjectsOfType<Button>(false);
+            foreach (var comp in comp0)
+            {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                {
+                    result.Value = comp;
+                    break;
+                }
+            }
+        }
+    }
+    internal class FindUiToggleFunction : SimpleStoryFunctionBase<FindUiToggleFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+
+            var vals = _params.Values;
+            var names = new List<string>();
+            foreach (var v in vals)
+            {
+                names.Add(v.ToString());
+            }
+            var comp0 = GameObject.FindObjectsOfType<Toggle>(false);
+            foreach (var comp in comp0)
+            {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                {
+                    result.Value = comp;
+                    break;
+                }
+            }
+        }
+    }
+    internal class FindUiSliderFunction : SimpleStoryFunctionBase<FindUiSliderFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+
+            var vals = _params.Values;
+            var names = new List<string>();
+            foreach (var v in vals)
+            {
+                names.Add(v.ToString());
+            }
+            var comp0 = GameObject.FindObjectsOfType<Slider>(false);
+            foreach (var comp in comp0)
+            {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                {
+                    result.Value = comp;
+                    break;
+                }
+            }
+        }
+    }
+    internal class FindUiInputFunction : SimpleStoryFunctionBase<FindUiInputFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+
+            var vals = _params.Values;
+            var names = new List<string>();
+            foreach (var v in vals)
+            {
+                names.Add(v.ToString());
+            }
+            var comp0 = GameObject.FindObjectsOfType<InputField>(false);
+            foreach (var comp in comp0)
+            {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                {
+                    result.Value = comp;
+                    break;
+                }
+            }
+        }
+    }
+    internal class FindTmpInputFunction : SimpleStoryFunctionBase<FindTmpInputFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+
+            var vals = _params.Values;
+            var names = new List<string>();
+            foreach (var v in vals)
+            {
+                names.Add(v.ToString());
+            }
+            var comp0 = GameObject.FindObjectsOfType<TMPro.TMP_InputField>(false);
+            foreach (var comp in comp0)
+            {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                {
+                    result.Value = comp;
+                    break;
+                }
+            }
+        }
+    }
+    internal class FindUiDropdownFunction : SimpleStoryFunctionBase<FindUiDropdownFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+
+            var vals = _params.Values;
+            var names = new List<string>();
+            foreach (var v in vals)
+            {
+                names.Add(v.ToString());
+            }
+            var comp0 = GameObject.FindObjectsOfType<Dropdown>(false);
+            foreach (var comp in comp0)
+            {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                {
+                    result.Value = comp;
+                    break;
+                }
+            }
+        }
+    }
+    internal class FindTmpDropdownFunction : SimpleStoryFunctionBase<FindTmpDropdownFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+
+            var vals = _params.Values;
+            var names = new List<string>();
+            foreach (var v in vals)
+            {
+                names.Add(v.ToString());
+            }
+            var comp0 = GameObject.FindObjectsOfType<TMPro.TMP_Dropdown>(false);
+            foreach (var comp in comp0)
+            {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
+                {
+                    result.Value = comp;
+                    break;
+                }
+            }
+        }
+    }
     internal class FindComponentFunction : SimpleStoryFunctionBase<FindComponentFunction, StoryValueParam<string, System.Collections.IList, object, bool>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object, bool> _params, StoryValueResult result)
