@@ -567,7 +567,7 @@ public sealed class GmRootScript : MonoBehaviour
                     bytes = Encoding.Convert(srcEncoding, Encoding.UTF8, bytes);
                     str = Encoding.UTF8.GetString(bytes);
                 }
-                output.Append(str);
+                output.AppendLine(str);
             }
         }
     }
@@ -583,7 +583,7 @@ public sealed class GmRootScript : MonoBehaviour
                     bytes = Encoding.Convert(srcEncoding, Encoding.UTF8, bytes);
                     str = Encoding.UTF8.GetString(bytes);
                 }
-                error.Append(str);
+                error.AppendLine(str);
             }
         }
     }
