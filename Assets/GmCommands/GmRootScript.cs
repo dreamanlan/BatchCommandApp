@@ -314,30 +314,32 @@ public sealed class GmRootScript : MonoBehaviour
     private static byte[] LoadFileFromStreamingAssets(string file)
     {
         if (Application.platform == RuntimePlatform.Android) {
-            AndroidJavaClass androidJavaClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            AndroidJavaObject androidJavaActivity = null;
-            AndroidJavaObject assetManager = null;
-            AndroidJavaObject inputStream = null;
-            if (androidJavaClass != null)
-                androidJavaActivity = androidJavaClass.GetStatic<AndroidJavaObject>("currentActivity");
-            if (androidJavaActivity != null)
-                assetManager = androidJavaActivity.Call<AndroidJavaObject>("getAssets");
-            if (assetManager != null)
-                inputStream = assetManager.Call<AndroidJavaObject>("open", file);
-            if (inputStream != null) {
-                int available = inputStream.Call<int>("available");
-                System.IntPtr buffer = AndroidJNI.NewSByteArray(available);
-                System.IntPtr javaClass = AndroidJNI.FindClass("java/io/InputStream");
-                System.IntPtr javaMethodID = AndroidJNIHelper.GetMethodID(javaClass, "read", "([B)I");
-                int read = AndroidJNI.CallIntMethod(inputStream.GetRawObject(), javaMethodID,
-                    new[] { new jvalue() { l = buffer } });
-                sbyte[] sbytes = AndroidJNI.FromSByteArray(buffer);
-                AndroidJNI.DeleteLocalRef(buffer);
-                inputStream.Call("close");
-                inputStream.Dispose();
-                byte[] bytes = new byte[sbytes.Length];
-                Array.Copy(bytes, sbytes, bytes.Length);
-                return bytes;
+            using (var androidJavaClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+                using (var androidJavaActivity = androidJavaClass.GetStatic<AndroidJavaObject>("currentActivity")) {
+                    if (null != androidJavaActivity) {
+                        using (var assetManager = androidJavaActivity.Call<AndroidJavaObject>("getAssets")) {
+                            if (null != assetManager) {
+                                using (var inputStream = assetManager.Call<AndroidJavaObject>("open", file)) {
+                                    if (null != inputStream) {
+                                        int available = inputStream.Call<int>("available");
+                                        System.IntPtr buffer = AndroidJNI.NewSByteArray(available);
+                                        System.IntPtr javaClass = AndroidJNI.FindClass("java/io/InputStream");
+                                        System.IntPtr javaMethodID = AndroidJNIHelper.GetMethodID(javaClass, "read", "([B)I");
+                                        int read = AndroidJNI.CallIntMethod(inputStream.GetRawObject(), javaMethodID,
+                                            new[] { new jvalue() { l = buffer } });
+                                        sbyte[] sbytes = AndroidJNI.FromSByteArray(buffer);
+                                        AndroidJNI.DeleteLocalRef(buffer);
+                                        inputStream.Call("close");
+                                        inputStream.Dispose();
+                                        byte[] bytes = new byte[sbytes.Length];
+                                        Array.Copy(bytes, sbytes, bytes.Length);
+                                        return bytes;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         else {
@@ -352,76 +354,238 @@ public sealed class GmRootScript : MonoBehaviour
 
     internal static void StartService(string srvClass, string extraName, BoxedValue extraValue)
     {
-        AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-        AndroidJavaObject unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
-        AndroidJavaObject context = unityActivity.Call<AndroidJavaObject>("getApplicationContext");
-
-        AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent");
-        AndroidJavaClass serviceClass = new AndroidJavaClass(srvClass);
-        intent.Call<AndroidJavaObject>("setClass", context, serviceClass);
-        switch (extraValue.Type) {
-            case BoxedValue.c_StringType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetString());
-                break;
-            case BoxedValue.c_ObjectType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetObject());
-                break;
-            case BoxedValue.c_BoolType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetBool());
-                break;
-            case BoxedValue.c_CharType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetChar());
-                break;
-            case BoxedValue.c_SByteType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetSByte());
-                break;
-            case BoxedValue.c_ByteType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetByte());
-                break;
-            case BoxedValue.c_ShortType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetShort());
-                break;
-            case BoxedValue.c_UShortType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetUShort());
-                break;
-            case BoxedValue.c_IntType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetInt());
-                break;
-            case BoxedValue.c_UIntType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetUInt());
-                break;
-            case BoxedValue.c_LongType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetLong());
-                break;
-            case BoxedValue.c_ULongType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetULong());
-                break;
-            case BoxedValue.c_FloatType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetFloat());
-                break;
-            case BoxedValue.c_DoubleType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetDouble());
-                break;
-            case BoxedValue.c_DecimalType:
-                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetDecimal());
-                break;
-            default:
-                // unsupported type, do nothing
-                break;
+        using (var unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+            using (var unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity")) {
+                if (null != unityActivity) {
+                    using (var context = unityActivity.Call<AndroidJavaObject>("getApplicationContext")) {
+                        if (null != context) {
+                            using (var intent = new AndroidJavaObject("android.content.Intent")) {
+                                using (var serviceClass = new AndroidJavaClass(srvClass)) {
+                                    intent.Call<AndroidJavaObject>("setClass", context, serviceClass);
+                                    switch (extraValue.Type) {
+                                        case BoxedValue.c_StringType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetString());
+                                            break;
+                                        case BoxedValue.c_ObjectType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetObject());
+                                            break;
+                                        case BoxedValue.c_BoolType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetBool());
+                                            break;
+                                        case BoxedValue.c_CharType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetChar());
+                                            break;
+                                        case BoxedValue.c_SByteType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetSByte());
+                                            break;
+                                        case BoxedValue.c_ByteType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetByte());
+                                            break;
+                                        case BoxedValue.c_ShortType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetShort());
+                                            break;
+                                        case BoxedValue.c_UShortType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetUShort());
+                                            break;
+                                        case BoxedValue.c_IntType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetInt());
+                                            break;
+                                        case BoxedValue.c_UIntType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetUInt());
+                                            break;
+                                        case BoxedValue.c_LongType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetLong());
+                                            break;
+                                        case BoxedValue.c_ULongType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetULong());
+                                            break;
+                                        case BoxedValue.c_FloatType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetFloat());
+                                            break;
+                                        case BoxedValue.c_DoubleType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetDouble());
+                                            break;
+                                        case BoxedValue.c_DecimalType:
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetDecimal());
+                                            break;
+                                        default:
+                                            // unsupported type, do nothing
+                                            break;
+                                    }
+                                    context.Call<AndroidJavaObject>("startService", intent);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-        context.Call<AndroidJavaObject>("startService", intent);
     }
     internal static void StopService(string srvClass)
     {
-        AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-        AndroidJavaObject unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
-        AndroidJavaObject context = unityActivity.Call<AndroidJavaObject>("getApplicationContext");
+        using (var unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+            using (var unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity")) {
+                if (null != unityActivity) {
+                    using (var context = unityActivity.Call<AndroidJavaObject>("getApplicationContext")) {
+                        if (null != context) {
+                            using (var intent = new AndroidJavaObject("android.content.Intent")) {
+                                using (var serviceClass = new AndroidJavaClass(srvClass)) {
+                                    intent.Call<AndroidJavaObject>("setClass", context, serviceClass);
+                                    context.Call<bool>("stopService", intent);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-        AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent");
-        AndroidJavaClass serviceClass = new AndroidJavaClass(srvClass);
-        intent.Call<AndroidJavaObject>("setClass", context, serviceClass);
+    internal static string Exec(string cmd)
+    {
+        var sb = new StringBuilder();
+        int exitCode = -1;
+        if (Application.platform == RuntimePlatform.Android) {
+            using (var javaRuntime = new AndroidJavaClass("java.lang.Runtime")) {
+                using (var runtime = javaRuntime.CallStatic<AndroidJavaObject>("getRuntime")) {
+                    if (null != runtime) {
+                        using (var process = runtime.Call<AndroidJavaObject>("exec", cmd)) {
+                            if (null != process) {
+                                using (var inputStream = process.Call<AndroidJavaObject>("getInputStream")) {
+                                    using (var inputStreamReader = new AndroidJavaObject("java.io.InputStreamReader", inputStream)) {
+                                        using (var bufferedReader = new AndroidJavaObject("java.io.BufferedReader", inputStreamReader)) {
+                                            string line;
+                                            while ((line = bufferedReader.Call<string>("readLine")) != null) {
+                                                sb.AppendLine(line);
+                                            }
+                                        }
+                                    }
+                                }
+                                exitCode = process.Call<int>("waitFor");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            string fileName, args;
+            if (cmd.StartsWith('"')) {
+                int endExe = cmd.IndexOf('"', 1);
+                fileName = cmd.Substring(0, endExe + 1);
+                args = cmd.Substring(endExe + 1).Trim();
+            }
+            else {
+                int splitPos = cmd.IndexOf(' ');
+                while (splitPos > 0) {
+                    if (cmd[splitPos - 1] == '\\') {
+                        splitPos = cmd.IndexOf(' ', splitPos + 1);
+                    }
+                    else {
+                        break;
+                    }
+                }
+                if (splitPos > 0) {
+                    fileName = cmd.Substring(0, splitPos).Trim();
+                    args = cmd.Substring(splitPos + 1).Trim();
+                }
+                else {
+                    fileName = cmd.Trim();
+                    args = string.Empty;
+                }
+            }
+            var outEncoding = Encoding.GetEncoding(GetACP());
+            exitCode = RunCommand(fileName, args, sb, sb, outEncoding);
+        }
+        LogSystem.Warn("Command:{0} exit code:{1}", cmd, exitCode);
+        return sb.ToString();
+    }
 
-        context.Call<bool>("stopService", intent);
+    private static int RunCommand(string fileName, string args, StringBuilder output, StringBuilder error, Encoding outEncoding)
+    {
+        //Considering cross-platform compatibility, do not use specific process environment variables.
+        try {
+            System.Diagnostics.Process p = new System.Diagnostics.Process();
+            var psi = p.StartInfo;
+            psi.FileName = fileName;
+            psi.Arguments = args;
+            psi.UseShellExecute = false;
+            psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            psi.CreateNoWindow = true;
+            psi.ErrorDialog = false;
+            psi.WorkingDirectory = Environment.CurrentDirectory;
+            psi.RedirectStandardInput = false;
+            if (null != output) {
+                psi.RedirectStandardOutput = true;
+                psi.StandardOutputEncoding = outEncoding;
+                p.OutputDataReceived += (sender, e) => OnOutputDataReceived(sender, e, output, outEncoding);
+            }
+            if (null != error) {
+                psi.RedirectStandardError = true;
+                psi.StandardErrorEncoding = outEncoding;
+                p.ErrorDataReceived += (sender, e) => OnErrorDataReceived(sender, e, error, outEncoding);
+            }
+            if (p.Start()) {
+                if (psi.RedirectStandardOutput)
+                    p.BeginOutputReadLine();
+                if (psi.RedirectStandardError)
+                    p.BeginErrorReadLine();
+                p.WaitForExit();
+                if (psi.RedirectStandardOutput) {
+                    p.CancelOutputRead();
+                }
+                if (psi.RedirectStandardError) {
+                    p.CancelErrorRead();
+                }
+                int r = p.ExitCode;
+                p.Close();
+                return r;
+            }
+            else {
+                LogSystem.Error("process({0} {1}) failed.", fileName, args);
+                return -1;
+            }
+        }
+        catch (Exception ex) {
+            LogSystem.Error("process({0} {1}) exception:{2} stack:{3}", fileName, args, ex.Message, ex.StackTrace);
+            while (null != ex.InnerException) {
+                ex = ex.InnerException;
+                LogSystem.Error("\t=> exception:{0} stack:{1}", ex.Message, ex.StackTrace);
+            }
+            return -1;
+        }
+    }
+
+    private static void OnOutputDataReceived(object sender, System.Diagnostics.DataReceivedEventArgs e, StringBuilder output, Encoding srcEncoding)
+    {
+        var p = sender as System.Diagnostics.Process;
+        if (p.StartInfo.RedirectStandardOutput && null != e.Data) {
+            if (null != output) {
+                string str = e.Data;
+                if (srcEncoding != Encoding.UTF8) {
+                    var bytes = srcEncoding.GetBytes(str);
+                    bytes = Encoding.Convert(srcEncoding, Encoding.UTF8, bytes);
+                    str = Encoding.UTF8.GetString(bytes);
+                }
+                output.Append(str);
+            }
+        }
+    }
+
+    private static void OnErrorDataReceived(object sender, System.Diagnostics.DataReceivedEventArgs e, StringBuilder error, Encoding srcEncoding)
+    {
+        var p = sender as System.Diagnostics.Process;
+        if (p.StartInfo.RedirectStandardError && null != e.Data) {
+            if (null != error) {
+                string str = e.Data;
+                if (srcEncoding != Encoding.UTF8) {
+                    var bytes = srcEncoding.GetBytes(str);
+                    bytes = Encoding.Convert(srcEncoding, Encoding.UTF8, bytes);
+                    str = Encoding.UTF8.GetString(bytes);
+                }
+                error.Append(str);
+            }
+        }
     }
 
     private static GameObject s_GameObj = null;
@@ -429,6 +593,16 @@ public sealed class GmRootScript : MonoBehaviour
     private static object s_Lock = new object();
     private const int c_max_command_in_queue = 1024;
     private const string c_clipboard_cmd_tag = "[cmd]:";
+
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    static extern int GetACP();
+#else
+    static int GetACP()
+    {
+        return Encoding.Default.CodePage;
+    }
+#endif
 }
 
 [UnityEngine.Scripting.Preserve]
@@ -439,30 +613,39 @@ internal sealed class BroadcastReceiverHandler
         if (m_ReceiverInited) {
             return;
         }
-        AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-        AndroidJavaObject unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
-        AndroidJavaObject context = unityActivity.Call<AndroidJavaObject>("getApplicationContext");
+        using (var unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+            using (var unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity")) {
+                if (null != unityActivity) {
+                    using (var context = unityActivity.Call<AndroidJavaObject>("getApplicationContext")) {
+                        if (null != context) {
+                            var callback = new BroadcastReceiverCallback();
+                            m_BroadcastReceiver = new AndroidJavaObject("com.unity3d.broadcastlib.BroadcastHelper", callback);
 
-        //AndroidJavaClass javaProxyClass = new AndroidJavaClass("com.unity3d.player.UnityPlayerNativeActivity");
-        //AndroidJavaObject javaProxy = javaProxyClass.GetStatic<AndroidJavaObject>("currentActivity");
-
-        var callback = new BroadcastReceiverCallback();
-        m_BroadcastReceiver = new AndroidJavaObject("com.unity3d.broadcastlib.BroadcastHelper", callback);
-
-        AndroidJavaObject intentFilter = new AndroidJavaObject("android.content.IntentFilter");
-        intentFilter.Call("addAction", actionName);
-        context.Call<AndroidJavaObject>("registerReceiver", m_BroadcastReceiver, intentFilter);
-
+                            using (var intentFilter = new AndroidJavaObject("android.content.IntentFilter")) {
+                                intentFilter.Call("addAction", actionName);
+                                context.Call<AndroidJavaObject>("registerReceiver", m_BroadcastReceiver, intentFilter);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         m_ReceiverInited = true;
     }
     internal void UnregisterBroadcastReceiver()
     {
         if (m_ReceiverInited && null != m_BroadcastReceiver) {
-            AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            AndroidJavaObject unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
-            AndroidJavaObject context = unityActivity.Call<AndroidJavaObject>("getApplicationContext");
-
-            context.Call("unregisterReceiver", m_BroadcastReceiver);
+            using (var unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+                using (var unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity")) {
+                    if (null != unityActivity) {
+                        using (var context = unityActivity.Call<AndroidJavaObject>("getApplicationContext")) {
+                            if (null != context) {
+                                context.Call("unregisterReceiver", m_BroadcastReceiver);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -118,6 +118,16 @@ namespace GmCommands
             return false;
         }
     }
+    internal class ShellCommand : SimpleStoryCommandBase<ShellCommand, StoryValueParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
+        {
+            string cmd = _params.Param1Value;
+            string txt = GmRootScript.Exec(cmd);
+            LogSystem.Warn(txt);
+            return false;
+        }
+    }
     internal class SetClipboardCommand : SimpleStoryCommandBase<SetClipboardCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
@@ -705,6 +715,14 @@ namespace GmCommands
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = !Application.isMobilePlatform && !Application.isConsolePlatform;
+        }
+    }
+    internal class ShellFunction : SimpleStoryFunctionBase<ShellFunction, StoryValueParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        {
+            string cmd = _params.Param1Value;
+            result.Value = GmRootScript.Exec(cmd);
         }
     }
     internal class WeTestGetXFunction : SimpleStoryFunctionBase<WeTestGetXFunction, StoryValueParam>
