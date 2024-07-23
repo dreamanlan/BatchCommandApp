@@ -21,6 +21,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "startservice", "startservice(srv_class, extra_name, extra_val) command", new StoryCommandFactoryHelper<StartServiceCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "stopservice", "stopservice(srv_class) command", new StoryCommandFactoryHelper<StopServiceCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "shell", "shell(cmd) command", new StoryCommandFactoryHelper<ShellCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "shelltimeout", "shelltimeout(cmd,ms) command", new StoryCommandFactoryHelper<ShellTimeoutCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setclipboard", "setclipboard(text) command", new StoryCommandFactoryHelper<SetClipboardCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "editorbreak", "editorbreak() command", new StoryCommandFactoryHelper<EditorBreakCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "debugbreak", "debugbreak() command", new StoryCommandFactoryHelper<DebugBreakCommand>());
@@ -100,6 +101,7 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isiphone", "isiphone() function, return Application.platform==IPhone", new StoryFunctionFactoryHelper<IsIPhoneFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "ispc", "ispc() function, return not mobile and not console", new StoryFunctionFactoryHelper<IsPCFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "shell", "shell(cmd) function, return string", new StoryFunctionFactoryHelper<ShellFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "shelltimeout", "shelltimeout(cmd,ms) function, return string", new StoryFunctionFactoryHelper<ShellTimeoutFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "wetestx", "wetestx() function, WeTest GetX", new StoryFunctionFactoryHelper<WeTestGetXFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "wetesty", "wetesty() function, WeTest GetY", new StoryFunctionFactoryHelper<WeTestGetYFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "wetestwidth", "wetestwidth() function, WeTest GetWidth", new StoryFunctionFactoryHelper<WeTestGetWidthFunction>());

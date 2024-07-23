@@ -123,7 +123,18 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
             string cmd = _params.Param1Value;
-            string txt = GmRootScript.Exec(cmd);
+            string txt = GmRootScript.Exec(cmd, 0);
+            LogSystem.Warn(txt);
+            return false;
+        }
+    }
+    internal class ShellTimeoutCommand : SimpleStoryCommandBase<ShellTimeoutCommand, StoryValueParam<string, int>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, int> _params, long delta)
+        {
+            string cmd = _params.Param1Value;
+            int timeout = _params.Param2Value;
+            string txt = GmRootScript.Exec(cmd, timeout);
             LogSystem.Warn(txt);
             return false;
         }
@@ -722,7 +733,16 @@ namespace GmCommands
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
         {
             string cmd = _params.Param1Value;
-            result.Value = GmRootScript.Exec(cmd);
+            result.Value = GmRootScript.Exec(cmd, 0);
+        }
+    }
+    internal class ShellTimeoutFunction : SimpleStoryFunctionBase<ShellTimeoutFunction, StoryValueParam<string, int>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, int> _params, StoryValueResult result)
+        {
+            string cmd = _params.Param1Value;
+            int timeout = _params.Param2Value;
+            result.Value = GmRootScript.Exec(cmd, timeout);
         }
     }
     internal class WeTestGetXFunction : SimpleStoryFunctionBase<WeTestGetXFunction, StoryValueParam>

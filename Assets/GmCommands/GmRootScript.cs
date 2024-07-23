@@ -441,7 +441,7 @@ public sealed class GmRootScript : MonoBehaviour
         }
     }
 
-    internal static string Exec(string cmd)
+    internal static string Exec(string cmd, int timeout)
     {
         var sb = new StringBuilder();
         int exitCode = -1;
@@ -451,17 +451,45 @@ public sealed class GmRootScript : MonoBehaviour
                     if (null != runtime) {
                         using (var process = runtime.Call<AndroidJavaObject>("exec", cmd)) {
                             if (null != process) {
+                                float elapsedTime = 0;
+                                float startTime = TimeUtility.GetElapsedTimeUs() / 1000.0f;
                                 using (var inputStream = process.Call<AndroidJavaObject>("getInputStream")) {
                                     using (var inputStreamReader = new AndroidJavaObject("java.io.InputStreamReader", inputStream)) {
                                         using (var bufferedReader = new AndroidJavaObject("java.io.BufferedReader", inputStreamReader)) {
                                             string line;
+                                            int ct = 0;
                                             while ((line = bufferedReader.Call<string>("readLine")) != null) {
                                                 sb.AppendLine(line);
+                                                ++ct;
+                                                if (ct % 100 == 0) {
+                                                    LogSystem.Warn("command elapsed time:{0}ms", elapsedTime);
+                                                }
+                                                float curTime = TimeUtility.GetElapsedTimeUs() / 1000.0f;
+                                                elapsedTime = curTime - startTime;
+                                                if (timeout > 0 && elapsedTime > timeout)
+                                                    break;
                                             }
                                         }
                                     }
                                 }
-                                exitCode = process.Call<int>("waitFor");
+                                LogSystem.Warn("command elapsed time:{0}ms", elapsedTime);
+								
+                                if (timeout <= 0) {
+                                    exitCode = process.Call<int>("waitFor");
+                                }
+                                else {
+                                    LogSystem.Warn("command timeout:{0}ms elapsed:{1}ms", timeout, elapsedTime);
+
+                                    timeout -= (int)elapsedTime;
+                                    using (var javaTimeUnit = new AndroidJavaClass("java.util.concurrent.TimeUnit")) {
+                                        using (var timeUnitSeconds = javaTimeUnit.GetStatic<AndroidJavaObject>("MILLISECONDS")) {
+                                            bool result = process.Call<bool>("waitFor", (long)timeout, timeUnitSeconds);
+                                            if (result) {
+                                                exitCode = process.Call<int>("exitValue");
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -495,13 +523,13 @@ public sealed class GmRootScript : MonoBehaviour
                 }
             }
             var outEncoding = Encoding.GetEncoding(GetACP());
-            exitCode = RunCommand(fileName, args, sb, sb, outEncoding);
+            exitCode = RunCommand(fileName, args, sb, sb, outEncoding, timeout);
         }
         LogSystem.Warn("Command:{0} exit code:{1}", cmd, exitCode);
         return sb.ToString();
     }
 
-    private static int RunCommand(string fileName, string args, StringBuilder output, StringBuilder error, Encoding outEncoding)
+    private static int RunCommand(string fileName, string args, StringBuilder output, StringBuilder error, Encoding outEncoding, int timeout)
     {
         //Considering cross-platform compatibility, do not use specific process environment variables.
         try {
@@ -530,7 +558,12 @@ public sealed class GmRootScript : MonoBehaviour
                     p.BeginOutputReadLine();
                 if (psi.RedirectStandardError)
                     p.BeginErrorReadLine();
-                p.WaitForExit();
+                if (timeout <= 0) {
+                    p.WaitForExit();
+                }
+                else {
+                    p.WaitForExit(timeout);
+                }
                 if (psi.RedirectStandardOutput) {
                     p.CancelOutputRead();
                 }
