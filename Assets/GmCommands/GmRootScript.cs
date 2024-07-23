@@ -487,6 +487,9 @@ public sealed class GmRootScript : MonoBehaviour
                                             if (result) {
                                                 exitCode = process.Call<int>("exitValue");
                                             }
+                                            else {
+                                                process.Call<AndroidJavaObject>("destroyForcibly");
+                                            }
                                         }
                                     }
                                 }
