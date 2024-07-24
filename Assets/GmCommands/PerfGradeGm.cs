@@ -219,6 +219,7 @@ public static class PerfGradeGm
     public static void CompilePerfGradeScript(string script_file)
     {
 #if UNITY_EDITOR
+        string path = Path.GetDirectoryName(script_file);
         string txt = File.ReadAllText(script_file);
         Dsl.DslFile dslFile = new DslFile();
         if (dslFile.LoadFromString(txt, msg => { LogSystem.Warn("{0}", msg); })) {
@@ -391,7 +392,7 @@ public static class PerfGradeGm
                         }
                         --indent;
                         sb.AppendLine("}");
-                        File.WriteAllText(string.Format("{0}perf_grade_{1}.cs", ScriptPath, perfId), sb.ToString());
+                        File.WriteAllText(Path.Combine(path, string.Format("perf_grade_{0}.cs", perfId)), sb.ToString());
                     }
                     else {
                         LogSystem.Error("perf_grade must have a integer id. syntax:{0} line:{1}", perfSyntaxName, dslInfo.GetLine());
