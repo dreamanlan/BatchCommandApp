@@ -47,6 +47,7 @@ public sealed class GmRootScript : MonoBehaviour
                 HandleCommand();
             }
             ClientGmStorySystem.Instance.Tick();
+            HandleLog();
             if(m_LastTaskCleanupTime + c_TaskCleanupInterval < curTime) {
                 CleanupCompletedTasks();
             }
@@ -297,6 +298,12 @@ public sealed class GmRootScript : MonoBehaviour
         }
 #endif
     }
+    public static void SendLog(string log)
+    {
+        lock (s_Lock) {
+            s_LogQueue.Enqueue(log);
+        }
+    }
 
     private static void HandleCommand()
     {
@@ -308,6 +315,15 @@ public sealed class GmRootScript : MonoBehaviour
             }
         }
 #endif
+    }
+    private static void HandleLog()
+    {
+        lock (s_Lock) {
+            if (s_LogQueue.Count > 0) {
+                string log = s_LogQueue.Dequeue();
+                LogSystem.Warn("{0}", log);
+            }
+        }
     }
     private static GmRootScript GetGmRootScript()
     {
@@ -446,30 +462,59 @@ public sealed class GmRootScript : MonoBehaviour
         }
     }
 
+    internal static bool UseJavaTask
+    {
+        get { return s_UseJavaTask; }
+        set { s_UseJavaTask = value; }
+    }
     internal static List<Task> Tasks
     {
         get { return s_Tasks; }
     }
+    internal static List<JavaTask> JavaTasks
+    {
+        get { return s_JavaTasks; }
+    }
     internal static void CleanupCompletedTasks()
     {
-        for(int ix = s_Tasks.Count - 1; ix >= 0; --ix) {
-            var task = s_Tasks[ix];
-            if(task.IsCompleted) {
-                s_Tasks.RemoveAt(ix);
-                task.Dispose();
+        if (s_UseJavaTask) {
+            for (int ix = s_JavaTasks.Count - 1; ix >= 0; --ix) {
+                var task = s_JavaTasks[ix];
+                if (task.IsCompleted) {
+                    s_JavaTasks.RemoveAt(ix);
+                    task.Dispose();
+                }
+            }
+        }
+        else {
+            for (int ix = s_Tasks.Count - 1; ix >= 0; --ix) {
+                var task = s_Tasks[ix];
+                if (task.IsCompleted) {
+                    s_Tasks.RemoveAt(ix);
+                    task.Dispose();
+                }
             }
         }
     }
     internal static void ExecNoWait(string cmd, int timeout)
     {
-        var task = Task.Run(() => {
-            string txt = Exec(cmd, timeout);
-            LogSystem.Warn(txt);
-        });
-        s_Tasks.Add(task);
-        while (task.Status == TaskStatus.Created || task.Status == TaskStatus.WaitingForActivation || task.Status == TaskStatus.WaitingToRun) {
-            Debug.LogFormat("wait ({0})[{1}] start", cmd, task.Status);
-            task.Wait(c_CheckStartInterval);
+        if (s_UseJavaTask) {
+            var task = JavaTask.Run(() => {
+                string txt = Exec(cmd, timeout);
+                SendLog(txt);
+            });
+            s_JavaTasks.Add(task);
+        }
+        else {
+            var task = Task.Run(() => {
+                string txt = Exec(cmd, timeout);
+                SendLog(txt);
+            });
+            s_Tasks.Add(task);
+            while (task.Status == TaskStatus.Created || task.Status == TaskStatus.WaitingForActivation || task.Status == TaskStatus.WaitingToRun) {
+                Debug.LogFormat("wait ({0})[{1}] start", cmd, task.Status);
+                task.Wait(c_CheckStartInterval);
+            }
         }
     }
     internal static string Exec(string cmd, int timeout)
@@ -477,39 +522,61 @@ public sealed class GmRootScript : MonoBehaviour
         var sb = new StringBuilder();
         int exitCode = -1;
         if (Application.platform == RuntimePlatform.Android) {
+            AndroidJNI.AttachCurrentThread();
             using (var javaRuntime = new AndroidJavaClass("java.lang.Runtime")) {
                 using (var runtime = javaRuntime.CallStatic<AndroidJavaObject>("getRuntime")) {
                     if (null != runtime) {
                         using (var process = runtime.Call<AndroidJavaObject>("exec", cmd)) {
                             if (null != process) {
+                                int rowCount = 0;
                                 float elapsedTime = 0;
                                 float startTime = TimeUtility.GetElapsedTimeUs() / 1000.0f;
                                 using (var inputStream = process.Call<AndroidJavaObject>("getInputStream")) {
                                     using (var inputStreamReader = new AndroidJavaObject("java.io.InputStreamReader", inputStream)) {
-                                        using (var bufferedReader = new AndroidJavaObject("java.io.BufferedReader", inputStreamReader)) {
-                                            string line;
-                                            int ct = 0;
-                                            while ((line = bufferedReader.Call<string>("readLine")) != null) {
-                                                sb.AppendLine(line);
-                                                ++ct;
-                                                if (ct % c_ElapsedTimeCount == 0) {
-                                                    LogSystem.Warn("command elapsed time:{0}ms", elapsedTime);
+                                        if (timeout > 0) {
+                                            while (elapsedTime <= timeout) {
+                                                if (inputStreamReader.Call<bool>("ready")) {
+                                                    int c = inputStreamReader.Call<int>("read");
+                                                    if (c >= 0) {
+                                                        sb.Append((char)c);
+                                                        if (c == '\n') {
+                                                            ++rowCount;
+                                                            if (rowCount % c_ElapsedTimeLineCount == 0) {
+                                                                SendLog(string.Format("command elapsed time:{0}ms", elapsedTime));
+                                                            }
+                                                        }
+                                                    }
+                                                    else {
+                                                        break;
+                                                    }
                                                 }
                                                 float curTime = TimeUtility.GetElapsedTimeUs() / 1000.0f;
                                                 elapsedTime = curTime - startTime;
-                                                if (timeout > 0 && elapsedTime > timeout)
-                                                    break;
+                                            }
+                                        }
+                                        else {
+                                            using (var bufferedReader = new AndroidJavaObject("java.io.BufferedReader", inputStreamReader)) {
+                                                string line;
+                                                while ((line = bufferedReader.Call<string>("readLine")) != null) {
+                                                    sb.AppendLine(line);
+                                                    ++rowCount;
+                                                    if (rowCount % c_ElapsedTimeLineCount == 0) {
+                                                        SendLog(string.Format("command elapsed time:{0}ms", elapsedTime));
+                                                    }
+                                                    float curTime = TimeUtility.GetElapsedTimeUs() / 1000.0f;
+                                                    elapsedTime = curTime - startTime;
+                                                }
                                             }
                                         }
                                     }
                                 }
-                                LogSystem.Warn("command elapsed time:{0}ms", elapsedTime);
+                                SendLog(string.Format("command elapsed time:{0}ms", elapsedTime));
 
                                 if (timeout <= 0) {
                                     exitCode = process.Call<int>("waitFor");
                                 }
                                 else {
-                                    LogSystem.Warn("command timeout:{0}ms elapsed:{1}ms", timeout, elapsedTime);
+                                    SendLog(string.Format("command timeout:{0}ms elapsed:{1}ms", timeout, elapsedTime));
 
                                     timeout -= (int)elapsedTime;
                                     using (var javaTimeUnit = new AndroidJavaClass("java.util.concurrent.TimeUnit")) {
@@ -529,6 +596,14 @@ public sealed class GmRootScript : MonoBehaviour
                     }
                 }
             }
+
+            /*
+            using (var processBuilder = new AndroidJavaObject("java.lang.ProcessBuilder", new[] { fileName, args })) {
+                using (var process = processBuilder.Call<AndroidJavaObject>("start")) {
+                    
+                }
+            }
+            */
         }
         else {
             string fileName, args;
@@ -559,7 +634,7 @@ public sealed class GmRootScript : MonoBehaviour
             var outEncoding = Encoding.GetEncoding(GetACP());
             exitCode = RunCommand(fileName, args, sb, sb, outEncoding, timeout);
         }
-        LogSystem.Warn("Command:{0} exit code:{1}", cmd, exitCode);
+        SendLog(string.Format("Command:{0} exit code:{1}", cmd, exitCode));
         return sb.ToString();
     }
 
@@ -609,15 +684,15 @@ public sealed class GmRootScript : MonoBehaviour
                 return r;
             }
             else {
-                LogSystem.Error("process({0} {1}) failed.", fileName, args);
+                Debug.LogErrorFormat("process({0} {1}) failed.", fileName, args);
                 return -1;
             }
         }
         catch (Exception ex) {
-            LogSystem.Error("process({0} {1}) exception:{2} stack:{3}", fileName, args, ex.Message, ex.StackTrace);
+            Debug.LogErrorFormat("process({0} {1}) exception:{2} stack:{3}", fileName, args, ex.Message, ex.StackTrace);
             while (null != ex.InnerException) {
                 ex = ex.InnerException;
-                LogSystem.Error("\t=> exception:{0} stack:{1}", ex.Message, ex.StackTrace);
+                Debug.LogErrorFormat("\t=> exception:{0} stack:{1}", ex.Message, ex.StackTrace);
             }
             return -1;
         }
@@ -657,13 +732,16 @@ public sealed class GmRootScript : MonoBehaviour
 
     private static GameObject s_GameObj = null;
     private static Queue<string> s_CommandQueue = new Queue<string>();
+    private static Queue<string> s_LogQueue = new Queue<string>();
     private static object s_Lock = new object();
     private const int c_max_command_in_queue = 1024;
     private const string c_clipboard_cmd_tag = "[cmd]:";
 
+    private static bool s_UseJavaTask = false;
     private static List<Task> s_Tasks = new List<Task>();
+    private static List<JavaTask> s_JavaTasks = new List<JavaTask>();
     private const int c_CheckStartInterval = 500;
-    private const int c_ElapsedTimeCount = 100;
+    private const int c_ElapsedTimeLineCount = 100;
     private const int c_TaskCleanupInterval = 1000;
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
@@ -675,6 +753,49 @@ public sealed class GmRootScript : MonoBehaviour
         return Encoding.Default.CodePage;
     }
 #endif
+}
+
+public sealed class JavaTask : IDisposable
+{
+    public bool IsCompleted { get; private set; } = false;
+
+    public static JavaTask Run(Action action)
+    {
+        JavaTask task = new JavaTask(action);
+        task.Start();
+        return task;
+    }
+    public void Dispose()
+    {
+        if (null != m_Thread) {
+            m_Thread.Dispose();
+        }
+    }
+
+    private JavaTask(Action action)
+    {
+        m_Action = action;
+    }
+    private void Start()
+    {
+        AndroidJavaRunnable runnable = new AndroidJavaRunnable(Working);
+        m_Thread = new AndroidJavaObject("java.lang.Thread", runnable);
+        m_Thread.Call("start");
+    }
+    private void Working()
+    {
+        try {
+            m_Action();
+        }
+        catch {
+        }
+        finally {
+            IsCompleted = true;
+        }
+    }
+
+    private Action m_Action;
+    private AndroidJavaObject m_Thread;
 }
 
 [UnityEngine.Scripting.Preserve]

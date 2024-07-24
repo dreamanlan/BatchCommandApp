@@ -145,6 +145,14 @@ namespace GmCommands
             return false;
         }
     }
+    internal class UseJavaTaskCommand : SimpleStoryCommandBase<UseJavaTaskCommand, StoryValueParam<bool>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<bool> _params, long delta)
+        {
+            GmRootScript.UseJavaTask = _params.Param1Value;
+            return false;
+        }
+    }
     internal class SetClipboardCommand : SimpleStoryCommandBase<SetClipboardCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
@@ -751,11 +759,18 @@ namespace GmCommands
             result.Value = GmRootScript.Exec(cmd, timeout);
         }
     }
+    internal class IsJavaTaskFunction : SimpleStoryFunctionBase<IsJavaTaskFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = GmRootScript.UseJavaTask;
+        }
+    }
     internal class GetTaskCountFunction : SimpleStoryFunctionBase<GetTaskCountFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
-            result.Value = GmRootScript.Tasks.Count;
+            result.Value = GmRootScript.UseJavaTask ? GmRootScript.JavaTasks.Count : GmRootScript.Tasks.Count;
         }
     }
     internal class WeTestGetXFunction : SimpleStoryFunctionBase<WeTestGetXFunction, StoryValueParam>
