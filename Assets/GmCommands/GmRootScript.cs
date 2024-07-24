@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Text;
 using UnityEngine;
 using StoryScript;
@@ -28,8 +29,8 @@ public sealed class GmRootScript : MonoBehaviour
     {
         try {
             TimeUtility.UpdateGfxTime(Time.time, Time.realtimeSinceStartup, Time.timeScale);
+            long curTime = TimeUtility.GetLocalRealMilliseconds();
             if (m_ClipboardInterval > 0) {
-                long curTime = TimeUtility.GetLocalRealMilliseconds();
                 if (m_LastClipboardTime + m_ClipboardInterval < curTime) {
                     string cmd = GUIUtility.systemCopyBuffer.Trim();
                     if (cmd.StartsWith(c_clipboard_cmd_tag)) {
@@ -46,6 +47,9 @@ public sealed class GmRootScript : MonoBehaviour
                 HandleCommand();
             }
             ClientGmStorySystem.Instance.Tick();
+            if(m_LastTaskCleanupTime + c_TaskCleanupInterval < curTime) {
+                CleanupCompletedTasks();
+            }
         }
         catch (Exception ex) {
             LogSystem.Error("Exception:{0}\n{1}", ex.Message, ex.StackTrace);
@@ -209,6 +213,7 @@ public sealed class GmRootScript : MonoBehaviour
         }
     }
 
+    private long m_LastTaskCleanupTime;
     private int m_ClipboardInterval;
     private long m_LastClipboardTime;
     private BroadcastReceiverHandler m_AndroidReceiver;
@@ -441,6 +446,32 @@ public sealed class GmRootScript : MonoBehaviour
         }
     }
 
+    internal static List<Task> Tasks
+    {
+        get { return s_Tasks; }
+    }
+    internal static void CleanupCompletedTasks()
+    {
+        for(int ix = s_Tasks.Count - 1; ix >= 0; --ix) {
+            var task = s_Tasks[ix];
+            if(task.IsCompleted) {
+                s_Tasks.RemoveAt(ix);
+                task.Dispose();
+            }
+        }
+    }
+    internal static void ExecNoWait(string cmd, int timeout)
+    {
+        var task = Task.Run(() => {
+            string txt = Exec(cmd, timeout);
+            LogSystem.Warn(txt);
+        });
+        s_Tasks.Add(task);
+        while (task.Status == TaskStatus.Created || task.Status == TaskStatus.WaitingForActivation || task.Status == TaskStatus.WaitingToRun) {
+            Debug.LogFormat("wait ({0})[{1}] start", cmd, task.Status);
+            task.Wait(c_CheckStartInterval);
+        }
+    }
     internal static string Exec(string cmd, int timeout)
     {
         var sb = new StringBuilder();
@@ -461,7 +492,7 @@ public sealed class GmRootScript : MonoBehaviour
                                             while ((line = bufferedReader.Call<string>("readLine")) != null) {
                                                 sb.AppendLine(line);
                                                 ++ct;
-                                                if (ct % 100 == 0) {
+                                                if (ct % c_ElapsedTimeCount == 0) {
                                                     LogSystem.Warn("command elapsed time:{0}ms", elapsedTime);
                                                 }
                                                 float curTime = TimeUtility.GetElapsedTimeUs() / 1000.0f;
@@ -473,7 +504,7 @@ public sealed class GmRootScript : MonoBehaviour
                                     }
                                 }
                                 LogSystem.Warn("command elapsed time:{0}ms", elapsedTime);
-								
+
                                 if (timeout <= 0) {
                                     exitCode = process.Call<int>("waitFor");
                                 }
@@ -629,6 +660,11 @@ public sealed class GmRootScript : MonoBehaviour
     private static object s_Lock = new object();
     private const int c_max_command_in_queue = 1024;
     private const string c_clipboard_cmd_tag = "[cmd]:";
+
+    private static List<Task> s_Tasks = new List<Task>();
+    private const int c_CheckStartInterval = 500;
+    private const int c_ElapsedTimeCount = 100;
+    private const int c_TaskCleanupInterval = 1000;
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
     [System.Runtime.InteropServices.DllImport("kernel32.dll")]

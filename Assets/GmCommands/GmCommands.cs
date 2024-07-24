@@ -123,8 +123,7 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
             string cmd = _params.Param1Value;
-            string txt = GmRootScript.Exec(cmd, 0);
-            LogSystem.Warn(txt);
+            GmRootScript.ExecNoWait(cmd, 0);
             return false;
         }
     }
@@ -134,8 +133,15 @@ namespace GmCommands
         {
             string cmd = _params.Param1Value;
             int timeout = _params.Param2Value;
-            string txt = GmRootScript.Exec(cmd, timeout);
-            LogSystem.Warn(txt);
+            GmRootScript.ExecNoWait(cmd, timeout);
+            return false;
+        }
+    }
+    internal class CleanupCompletedTasksCommand : SimpleStoryCommandBase<CleanupCompletedTasksCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            GmRootScript.CleanupCompletedTasks();
             return false;
         }
     }
@@ -743,6 +749,13 @@ namespace GmCommands
             string cmd = _params.Param1Value;
             int timeout = _params.Param2Value;
             result.Value = GmRootScript.Exec(cmd, timeout);
+        }
+    }
+    internal class GetTaskCountFunction : SimpleStoryFunctionBase<GetTaskCountFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = GmRootScript.Tasks.Count;
         }
     }
     internal class WeTestGetXFunction : SimpleStoryFunctionBase<WeTestGetXFunction, StoryValueParam>
