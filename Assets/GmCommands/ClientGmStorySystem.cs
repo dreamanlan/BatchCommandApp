@@ -43,6 +43,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logprofiler", "logprofiler() command", new StoryCommandFactoryHelper<LogProfilerCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "cmd", "cmd(str) command", new StoryCommandFactoryHelper<CmdCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "gm", "gm(str) command", new StoryCommandFactoryHelper<GmCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefint", "prefint(key,val) command", new StoryCommandFactoryHelper<PlayerPrefIntCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "preffloat", "preffloat(key,val) command", new StoryCommandFactoryHelper<PlayerPrefFloatCommand>());
@@ -69,6 +70,9 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "loadui", "loadui(ui_name_dsl) command", new StoryCommandFactoryHelper<LoadUiCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showui", "showui() command", new StoryCommandFactoryHelper<ShowUiCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "hideui", "hideui() command", new StoryCommandFactoryHelper<HideUiCommand>());
+
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "copypdf", "copypdf(file,page_start,page_count) command, copy pdf to clipboard", new StoryCommandFactoryHelper<StoryApi.CopyPdfCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showmemory", "showmemory() command", new StoryCommandFactoryHelper<StoryApi.ShowMemoryCommand>());
 
                 //register value or function
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "mono", "mono() function, get total mono memory", new StoryFunctionFactoryHelper<GetMonoMemoryFunction>());
@@ -129,6 +133,29 @@ namespace GmCommands
 
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findcomp", "findcomp(root_name,[name1,name2,...],type,include_inactive) function", new StoryFunctionFactoryHelper<FindComponentFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "searchcomps", "searchcomps(root_name,[name1,name2,...],type,include_inactive) function", new StoryFunctionFactoryHelper<SearchComponentsFunction>());
+
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "jc", "jc(jclass) or jc(str) function", new StoryFunctionFactoryHelper<StoryApi.JavaClassFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "jo", "jo(jobj) or jo(str,arg1,arg2,...) function", new StoryFunctionFactoryHelper<StoryApi.JavaObjectFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "jp", "jp(class_str,scp_method) function", new StoryFunctionFactoryHelper<StoryApi.JavaProxyFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "oc", "oc(str) function", new StoryFunctionFactoryHelper<StoryApi.ObjectcClassFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "oo", "oo(objId) function", new StoryFunctionFactoryHelper<StoryApi.ObjectcObjectFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getpss", "getpss() function", new StoryFunctionFactoryHelper<StoryApi.GetPssFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getvss", "getvss() function", new StoryFunctionFactoryHelper<StoryApi.GetVssFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getnative", "getnative() function", new StoryFunctionFactoryHelper<StoryApi.GetNativeFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getgraphics", "getgraphics() function", new StoryFunctionFactoryHelper<StoryApi.GetGraphicsFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getunknown", "getunknown() function", new StoryFunctionFactoryHelper<StoryApi.GetUnknownFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getjava", "getjava() function", new StoryFunctionFactoryHelper<StoryApi.GetJavaFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getcode", "getcode() function", new StoryFunctionFactoryHelper<StoryApi.GetCodeFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getstack", "getstack() function", new StoryFunctionFactoryHelper<StoryApi.GetStackFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getsystem", "getsystem() function", new StoryFunctionFactoryHelper<StoryApi.GetSystemFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getactivity", "getactivity() function", new StoryFunctionFactoryHelper<StoryApi.GetActivityFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getintent", "getintent() function", new StoryFunctionFactoryHelper<StoryApi.GetIntentFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getstring", "getstring(str) function", new StoryFunctionFactoryHelper<StoryApi.GetStringFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getstringarray", "getstringarray(str) function", new StoryFunctionFactoryHelper<StoryApi.GetStringArrayFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getint", "getint(str) function", new StoryFunctionFactoryHelper<StoryApi.GetIntFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getintarray", "getintarray(str) function", new StoryFunctionFactoryHelper<StoryApi.GetIntArrayFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getlong", "getlong(str) function", new StoryFunctionFactoryHelper<StoryApi.GetLongFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getlongarray", "getlongarray(str) function", new StoryFunctionFactoryHelper<StoryApi.GetLongArrayFunction>());
 
                 //failback to call perf grade api
                 StoryCommandManager.Instance.OnCreateFailback = this.OnCreateCommandFailback;

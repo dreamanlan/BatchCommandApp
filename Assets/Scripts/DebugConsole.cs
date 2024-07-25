@@ -332,8 +332,7 @@ public class DebugConsole : MonoBehaviour
         this.RegisterCommandCallback("scp", CMDScript);
         this.RegisterCommandCallback("command", CMDCommand);
         this.RegisterCommandCallback("cmd", CMDCommand);
-        this.RegisterCommandCallback("story", CMDStory);
-        this.RegisterCommandCallback("s", CMDStory);
+        this.RegisterCommandCallback("gm", CMDGm);
         this.RegisterCommandCallback("filter", CMDFilter);
         this.RegisterCommandCallback("/?", CMDHelp);
     }
@@ -482,7 +481,7 @@ public class DebugConsole : MonoBehaviour
       if (evt.type == EventType.Repaint && (touch.phase == TouchPhase.Canceled || touch.phase == TouchPhase.Ended) && touch.tapCount == 3/* && !_isLastHitUi*/) {
           Vector2 pos = touch.position;
           if (pos.x >= Screen.width * 1 / 3 && pos.x <= Screen.width * 2 / 3 && pos.y >= Screen.height * 2 / 3 && touch.deltaPosition.sqrMagnitude <= 25) {
-          m_IsOpen = !m_IsOpen;
+              m_IsOpen = !m_IsOpen;
           }
       }
       if (m_IsOpen) {
@@ -871,19 +870,27 @@ public class DebugConsole : MonoBehaviour
 
     private object CMDResetDsl(params string[] args)
     {
-        Main.Reset();
-        Main.ResetStory();
+        GameObject obj = GmRootScript.GameObj;
+        if (null != obj) {
+            obj.SendMessage("OnResetDsl", null);
+        }
         return "resetdsl finish.";
     }
 
     private object CMDScript(params string[] args)
     {
         if (args.Length == 2) {
-            Main.LoadScript(args[1]);
+            GameObject obj = GmRootScript.GameObj;
+            if (null != obj) {
+                obj.SendMessage("OnExecScript", args[1]);
+            }
             return "script " + args[1];
         }
         else {
-            Main.LoadScript(string.Empty);
+            GameObject obj = GmRootScript.GameObj;
+            if (null != obj) {
+                obj.SendMessage("OnExecScript", "");
+            }
             return "script";
         }
     }
@@ -891,7 +898,10 @@ public class DebugConsole : MonoBehaviour
     private object CMDCommand(params string[] args)
     {
         if (args.Length == 2) {
-            Main.ExecCommand(args[1]);
+            GameObject obj = GmRootScript.GameObj;
+            if (null != obj) {
+                obj.SendMessage("OnExecCommand", args[1]);
+            }
             return "command " + args[1];
         }
         else {
@@ -899,14 +909,17 @@ public class DebugConsole : MonoBehaviour
         }
     }
 
-    private object CMDStory(params string[] args)
+    private object CMDGm(params string[] args)
     {
         if (args.Length == 2) {
-            Main.ExecStoryCommand(args[1]);
-            return "story " + args[1];
+            GameObject obj = GmRootScript.GameObj;
+            if (null != obj) {
+                obj.SendMessage("OnExecCommand", "gm(\"" + args[1] + "\");");
+            }
+            return "gm " + args[1];
         }
         else {
-            return "story need argument command.";
+            return "gm need argument command.";
         }
     }
 
@@ -982,7 +995,7 @@ public class DebugConsole : MonoBehaviour
             cmd = inputString.Substring(0, startIx).Trim().ToLower();
             string leftCmd = inputString.Substring(startIx + 1).Trim();
             input.Add(cmd);
-            if (0 == cmd.CompareTo("command") || 0 == cmd.CompareTo("cmd") || 0 == cmd.CompareTo("script") || 0 == cmd.CompareTo("scp") || 0 == cmd.CompareTo("story") || 0 == cmd.CompareTo("s")) {
+            if (0 == cmd.CompareTo("command") || 0 == cmd.CompareTo("cmd") || 0 == cmd.CompareTo("script") || 0 == cmd.CompareTo("scp") || 0 == cmd.CompareTo("gm")) {
                 input.Add(leftCmd);
             }
             else {

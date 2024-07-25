@@ -2942,11 +2942,11 @@ namespace GmCommands
                 if (m_IsString) {
                     var code = m_Code.Value;
                     var r = Main.EvalAndRun(code);
-                    m_Value = VariantValue.ToBoxedValue(r);
+                    m_Value = r;
                 }
                 else {
                     var r = Main.EvalAndRun(m_Exps);
-                    m_Value = VariantValue.ToBoxedValue(r);
+                    m_Value = r;
                 }
             }
         }

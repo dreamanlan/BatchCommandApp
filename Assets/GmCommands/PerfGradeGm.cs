@@ -405,6 +405,10 @@ public static class PerfGradeGm
         }
 #endif
     }
+    internal static DslCalculator Calculator
+    {
+        get { return s_Calculator; }
+    }
     internal static bool GetApi(string method, out PerfGrade.PerfApiDelegation api)
     {
         bool r = false;

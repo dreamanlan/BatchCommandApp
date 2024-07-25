@@ -124,32 +124,32 @@ public sealed class GmRootScript : MonoBehaviour
 #endif
     }
 
-    private void OnResetStory()
+    private void OnResetDsl()
     {
         try {
             ResetGmCode();
             ClientGmStorySystem.Instance.ClearGlobalVariables();
             ClientGmStorySystem.Instance.Reset();
             StoryScript.StoryConfigManager.Instance.Clear();
-            LogSystem.Warn("ResetStory finish.");
+            LogSystem.Warn("ResetDsl finish.");
         }
         catch (Exception ex) {
             LogSystem.Error("Exception:{0}\n{1}", ex.Message, ex.StackTrace);
         }
     }
-    private void OnExecStoryCommand(string cmd)
+    private void OnExecCommand(string cmd)
     {
         try {
             ClientGmStorySystem.Instance.Reset();
             ClientGmStorySystem.Instance.LoadStoryText(Encoding.UTF8.GetBytes("script(main){onmessage(\"start\"){" + cmd + "}}"));
             ClientGmStorySystem.Instance.StartStory("main");
-            LogSystem.Warn("ExecStoryCommand {0} finish.", cmd);
+            LogSystem.Warn("ExecCommand {0} finish.", cmd);
         }
         catch (Exception ex) {
-            LogSystem.Error("ExecStoryCommand exception:{0}\n{1}", ex.Message, ex.StackTrace);
+            LogSystem.Error("ExecCommand exception:{0}\n{1}", ex.Message, ex.StackTrace);
         }
     }
-    private void OnExecStoryFile(string scriptFile)
+    private void OnExecScript(string scriptFile)
     {
         try {
             if (string.IsNullOrEmpty(scriptFile)) {
@@ -168,10 +168,10 @@ public sealed class GmRootScript : MonoBehaviour
             }
             RunLocalGmFile();
 
-            LogSystem.Warn("ExecStoryFile {0} finish.", scriptFile);
+            LogSystem.Warn("ExecScript {0} finish.", m_LocalGmFile);
         }
         catch (Exception ex) {
-            LogSystem.Error("ExecStoryFile exception:{0}\n{1}", ex.Message, ex.StackTrace);
+            LogSystem.Error("ExecScript exception:{0}\n{1}", ex.Message, ex.StackTrace);
         }
     }
 

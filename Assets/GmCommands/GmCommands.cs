@@ -426,6 +426,15 @@ namespace GmCommands
             return false;
         }
     }
+    internal class GmCommand : SimpleStoryCommandBase<GmCommand, StoryValueParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
+        {
+            string gmToServer = _params.Param1Value;
+            LogSystem.Warn("todo: gm {0}", gmToServer);
+            return false;
+        }
+    }
     internal class PlayerPrefIntCommand : SimpleStoryCommandBase<PlayerPrefIntCommand, StoryValueParam<string, int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, int> _params, long delta)
