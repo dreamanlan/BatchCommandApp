@@ -55,6 +55,104 @@ public static partial class StoryScriptUtility
         }
         return sb.ToString();
     }
+    public static GameObject GetGameObjectArg(ref BoxedValue arg)
+    {
+        GameObject gobj = null;
+        if (arg.IsObject) {
+            var gcomp = arg.ObjectVal as Component;
+            if (null != gcomp) {
+                gobj = gcomp.gameObject;
+            }
+            else {
+                gobj = arg.ObjectVal as GameObject;
+            }
+        }
+        else if (arg.IsString) {
+            gobj = GameObject.Find(arg.AsString);
+        }
+        return gobj;
+    }
+    public static Renderer GetRendererArg(ref BoxedValue arg)
+    {
+        if (arg.IsObject) {
+            var r = arg.ObjectVal as Renderer;
+            if (null != r)
+                return r;
+        }
+        GameObject gobj = GetGameObjectArg(ref arg);
+        if (null != gobj) {
+            var r = gobj.GetComponent<Renderer>();
+            if (null == r) {
+                r = gobj.GetComponent<MeshRenderer>();
+            }
+            if (null == r) {
+                r = gobj.GetComponent<SkinnedMeshRenderer>();
+            }
+            return r;
+        }
+        return null;
+    }
+    public static Material GetMaterialArg(ref BoxedValue arg)
+    {
+        if (arg.IsObject) {
+            var m = arg.ObjectVal as Material;
+            if (null != m)
+                return m;
+        }
+        var r = GetRendererArg(ref arg);
+        if (null != r) {
+            return r.material;
+        }
+        return null;
+    }
+    public static Material[] GetMaterialsArg(ref BoxedValue arg)
+    {
+        if (arg.IsObject) {
+            var ms = arg.ObjectVal as Material[];
+            if (null != ms)
+                return ms;
+        }
+        var r = GetRendererArg(ref arg);
+        if (null != r) {
+            return r.materials;
+        }
+        return null;
+    }
+    public static Material GetSharedMaterialArg(ref BoxedValue arg)
+    {
+        if (arg.IsObject) {
+            var m = arg.ObjectVal as Material;
+            if (null != m)
+                return m;
+        }
+        var r = GetRendererArg(ref arg);
+        if (null != r) {
+            return r.sharedMaterial;
+        }
+        return null;
+    }
+    public static Material[] GetSharedMaterialsArg(ref BoxedValue arg)
+    {
+        if (arg.IsObject) {
+            var ms = arg.ObjectVal as Material[];
+            if (null != ms)
+                return ms;
+        }
+        var r = GetRendererArg(ref arg);
+        if (null != r) {
+            return r.sharedMaterials;
+        }
+        return null;
+    }
+    public static Color GetColor(string name)
+    {
+        var fi = typeof(Color).GetField(name);
+        if (null != fi) {
+            return (Color)fi.GetValue(null);
+        }
+        return Color.black;
+    }
+
     public static void DrawGizmosCircle(Vector3 center, float radius, int step = 16)
     {
         for (int i = 1; i < step + 1; i++) {

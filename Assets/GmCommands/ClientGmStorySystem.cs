@@ -50,6 +50,11 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefstr", "prefstr(key,val) command", new StoryCommandFactoryHelper<PlayerPrefStringCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "wetesttouch", "wetesttouch(action,x,y) command, simulate touch event with WeTest", new StoryCommandFactoryHelper<WeTestTouchCommand>());
 
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "matsetfloat", "matsetfloat(mat_or_path,key,val) command, Material.SetFloat", new StoryCommandFactoryHelper<MaterialSetFloatCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "matsetinteger", "matsetinteger(mat_or_path,key,val) command, Material.SetInteger", new StoryCommandFactoryHelper<MaterialSetIntegerCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "matsetvector", "matsetvector(mat_or_path,key,val) command, Material.SetVector", new StoryCommandFactoryHelper<MaterialSetVectorCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "matsetcolor", "matsetcolor(mat_or_path,key,val) command, Material.SetColor", new StoryCommandFactoryHelper<MaterialSetColorCommand>());
+
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logcomps", "logcomps(root_name,[name1,name2,...],type,up_level,include_inactive) command", new StoryCommandFactoryHelper<LogComponentsCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logscenepath", "logscenepath([prefixs],obj,up_level) command", new StoryCommandFactoryHelper<LogScenePathCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "clickui", "clickui(name1,name2,...) command", new StoryCommandFactoryHelper<ClickUiCommand>());
@@ -120,6 +125,14 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "raycastuis", "raycastuis(x,y) function, return List<UnityEngine.EventSystems.RaycastResult>", new StoryFunctionFactoryHelper<RaycastUisFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "raycastcomps", "raycastcomps(x,y,type,include_inactive) function, return List<Component>", new StoryFunctionFactoryHelper<RaycastComponentsFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getscenepath", "getscenepath([prefixs],obj,up_level) function, return partial scene path", new StoryFunctionFactoryHelper<GetScenePathFunction>());
+
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "shader", "shader() function, return typeof(Shader)", new StoryFunctionFactoryHelper<ShaderFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getmat", "getmat(mat_or_path[,index]) function, renderer.material[s[ix]]", new StoryFunctionFactoryHelper<GetMaterialFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getsmat", "getsmat(mat_or_path[,index]) function, renderer.sharedMaterial[s[ix]]", new StoryFunctionFactoryHelper<GetSharedMaterialFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "matgetfloat", "matgetfloat(mat_or_path,key) function, Material.GetFloat", new StoryFunctionFactoryHelper<MaterialGetFloatFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "matgetinteger", "matgetinteger(mat_or_path,key) function, Material.GetInteger", new StoryFunctionFactoryHelper<MaterialGetIntegerFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "matgetvector", "matgetvector(mat_or_path,key) function, Material.GetVector", new StoryFunctionFactoryHelper<MaterialGetVectorFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "matgetcolor", "matgetcolor(mat_or_path,key) function, Material.GetColor", new StoryFunctionFactoryHelper<MaterialGetColorFunction>());
 
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findrawimg", "findrawimg(name1,name2,...) function", new StoryFunctionFactoryHelper<FindRawImageFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "finduiimg", "finduiimg(name1,name2,...) function", new StoryFunctionFactoryHelper<FindUiImageFunction>());

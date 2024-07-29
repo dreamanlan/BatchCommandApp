@@ -479,6 +479,90 @@ namespace GmCommands
             return false;
         }
     }
+    internal class MaterialSetFloatCommand : SimpleStoryCommandBase<MaterialSetFloatCommand, StoryValueParam<BoxedValue, BoxedValue, float>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, float> _params, long delta)
+        {
+            var matObj = _params.Param1Value;
+            var key = _params.Param2Value;
+            var val = _params.Param3Value;
+            Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
+            if (null != mat) {
+                if (key.IsString) {
+                    mat.SetFloat(key.AsString, val);
+                }
+                else if (key.IsInteger) {
+                    mat.SetFloat(key.GetInt(), val);
+                }
+            }
+            return false;
+        }
+    }
+    internal class MaterialSetIntegerCommand : SimpleStoryCommandBase<MaterialSetIntegerCommand, StoryValueParam<BoxedValue, BoxedValue, int>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, int> _params, long delta)
+        {
+            var matObj = _params.Param1Value;
+            var key = _params.Param2Value;
+            var val = _params.Param3Value;
+            Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
+            if (null != mat) {
+                if (key.IsString) {
+                    mat.SetInteger(key.AsString, val);
+                }
+                else if (key.IsInteger) {
+                    mat.SetInteger(key.GetInt(), val);
+                }
+            }
+            return false;
+        }
+    }
+    internal class MaterialSetVectorCommand : SimpleStoryCommandBase<MaterialSetVectorCommand, StoryValueParam<BoxedValue, BoxedValue, BoxedValue>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, BoxedValue> _params, long delta)
+        {
+            var matObj = _params.Param1Value;
+            var key = _params.Param2Value;
+            var val = _params.Param3Value;
+            Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
+            if (null != mat) {
+                var v = val.GetVector4();
+                if (key.IsString) {
+                    mat.SetVector(key.AsString, v);
+                }
+                else if (key.IsInteger) {
+                    mat.SetVector(key.GetInt(), v);
+                }
+            }
+            return false;
+        }
+    }
+    internal class MaterialSetColorCommand : SimpleStoryCommandBase<MaterialSetColorCommand, StoryValueParam<BoxedValue, BoxedValue, BoxedValue>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, BoxedValue> _params, long delta)
+        {
+            var matObj = _params.Param1Value;
+            var key = _params.Param2Value;
+            var val = _params.Param3Value;
+            Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
+            if (null != mat) {
+                Color v;
+                if (val.IsString) {
+                    v = StoryScriptUtility.GetColor(val.AsString);
+                }
+                else {
+                    v = val.GetColor();
+                }
+                if (key.IsString) {
+                    mat.SetColor(key.AsString, v);
+                }
+                else if (key.IsInteger) {
+                    mat.SetColor(key.GetInt(), v);
+                }
+            }
+            return false;
+        }
+    }
     //---------------------------------------------------------------------------------------------------------------------------------
     internal class GetMonoMemoryFunction : SimpleStoryFunctionBase<GetMonoMemoryFunction, StoryValueParam>
     {
@@ -950,6 +1034,119 @@ namespace GmCommands
                 sb.Append(StoryScriptUtility.GetScenePath(tr, up_level));
             }
             return sb.ToString();
+        }
+    }
+    internal class ShaderFunction : SimpleStoryFunctionBase<ShaderFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = typeof(Shader);
+        }
+    }
+    internal class GetMaterialFunction : SimpleStoryFunctionBase<GetMaterialFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            if (_params.Values.Count == 1) {
+                var matObj = _params.Values[0];
+                var mat = StoryScriptUtility.GetMaterialArg(ref matObj);
+                result.Value = mat;
+            }
+            else if (_params.Values.Count == 2) {
+                var matObj = _params.Values[0];
+                var matIx = _params.Values[1].GetInt();
+                var mats = StoryScriptUtility.GetMaterialsArg(ref matObj);
+                if (null != mats && matIx >= 0 && matIx < mats.Length) {
+                    result.Value = mats[matIx];
+                }
+            }
+        }
+    }
+    internal class GetSharedMaterialFunction : SimpleStoryFunctionBase<GetSharedMaterialFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            if (_params.Values.Count == 1) {
+                var matObj = _params.Values[0];
+                var mat = StoryScriptUtility.GetSharedMaterialArg(ref matObj);
+                result.Value = mat;
+            }
+            else if (_params.Values.Count == 2) {
+                var matObj = _params.Values[0];
+                var matIx = _params.Values[1].GetInt();
+                var mats = StoryScriptUtility.GetSharedMaterialsArg(ref matObj);
+                if (null != mats && matIx >= 0 && matIx < mats.Length) {
+                    result.Value = mats[matIx];
+                }
+            }
+        }
+    }
+    internal class MaterialGetFloatFunction : SimpleStoryFunctionBase<MaterialGetFloatFunction, StoryValueParam<BoxedValue, BoxedValue>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue> _params, StoryValueResult result)
+        {
+            var matObj = _params.Param1Value;
+            var key = _params.Param2Value;
+            Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
+            if (null != mat) {
+                if (key.IsString) {
+                    result.Value = mat.GetFloat(key.AsString);
+                }
+                else if(key.IsInteger) {
+                    result.Value = mat.GetFloat(key.GetInt());
+                }
+            }
+        }
+    }
+    internal class MaterialGetIntegerFunction : SimpleStoryFunctionBase<MaterialGetIntegerFunction, StoryValueParam<BoxedValue, BoxedValue>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue> _params, StoryValueResult result)
+        {
+            var matObj = _params.Param1Value;
+            var key = _params.Param2Value;
+            Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
+            if (null != mat) {
+                if (key.IsString) {
+                    result.Value = mat.GetInteger(key.AsString);
+                }
+                else if (key.IsInteger) {
+                    result.Value = mat.GetInteger(key.GetInt());
+                }
+            }
+        }
+    }
+    internal class MaterialGetVectorFunction : SimpleStoryFunctionBase<MaterialGetVectorFunction, StoryValueParam<BoxedValue, BoxedValue>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue> _params, StoryValueResult result)
+        {
+            var matObj = _params.Param1Value;
+            var key = _params.Param2Value;
+            Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
+            if (null != mat) {
+                if (key.IsString) {
+                    result.Value = mat.GetVector(key.AsString);
+                }
+                else if (key.IsInteger) {
+                    result.Value = mat.GetVector(key.GetInt());
+                }
+            }
+        }
+    }
+    internal class MaterialGetColorFunction : SimpleStoryFunctionBase<MaterialGetColorFunction, StoryValueParam<BoxedValue, BoxedValue>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue> _params, StoryValueResult result)
+        {
+            var matObj = _params.Param1Value;
+            var key = _params.Param2Value;
+            Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
+            if (null != mat) {
+                if (key.IsString) {
+                    result.Value = mat.GetColor(key.AsString);
+                }
+                else if (key.IsInteger) {
+                    result.Value = mat.GetColor(key.GetInt());
+                }
+            }
         }
     }
     //---------------------------------------------------------------------------------------------------------------
