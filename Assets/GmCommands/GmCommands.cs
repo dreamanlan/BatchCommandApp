@@ -498,6 +498,25 @@ namespace GmCommands
             return false;
         }
     }
+    internal class MaterialSetIntCommand : SimpleStoryCommandBase<MaterialSetIntCommand, StoryValueParam<BoxedValue, BoxedValue, int>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, int> _params, long delta)
+        {
+            var matObj = _params.Param1Value;
+            var key = _params.Param2Value;
+            var val = _params.Param3Value;
+            Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
+            if (null != mat) {
+                if (key.IsString) {
+                    mat.SetInt(key.AsString, val);
+                }
+                else if (key.IsInteger) {
+                    mat.SetInt(key.GetInt(), val);
+                }
+            }
+            return false;
+        }
+    }
     internal class MaterialSetIntegerCommand : SimpleStoryCommandBase<MaterialSetIntegerCommand, StoryValueParam<BoxedValue, BoxedValue, int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, int> _params, long delta)
@@ -1094,6 +1113,23 @@ namespace GmCommands
                 }
                 else if(key.IsInteger) {
                     result.Value = mat.GetFloat(key.GetInt());
+                }
+            }
+        }
+    }
+    internal class MaterialGetIntFunction : SimpleStoryFunctionBase<MaterialGetIntFunction, StoryValueParam<BoxedValue, BoxedValue>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue> _params, StoryValueResult result)
+        {
+            var matObj = _params.Param1Value;
+            var key = _params.Param2Value;
+            Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
+            if (null != mat) {
+                if (key.IsString) {
+                    result.Value = mat.GetInt(key.AsString);
+                }
+                else if (key.IsInteger) {
+                    result.Value = mat.GetInt(key.GetInt());
                 }
             }
         }
