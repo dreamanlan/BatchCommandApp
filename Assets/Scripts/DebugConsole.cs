@@ -271,14 +271,7 @@ public class DebugConsole : MonoBehaviour
         m_Filter = string.Empty;
         m_History.FromString(PlayerPrefs.GetString("debug_console_history"));
 #if !EMBED_ONGUI
-        if (m_InitialScreenWidth == 0) {
-            m_InitialScreenWidth = Screen.width;
-        }
-        var scale = Screen.width / m_InitialScreenWidth;
-        if (scale != 0.0f) {
-            m_Scaled = true;
-            m_GuiScale.Set(scale, scale, scale);
-        }
+        m_InitialScreenWidth = Screen.width;
 
         m_WindowMethods = new GUI.WindowFunction[] { LogWindow, CopyLogWindow };
 
@@ -465,10 +458,15 @@ public class DebugConsole : MonoBehaviour
         // Apply a custom skin
         GUI.skin = customSkin;
 
-        if (m_Scaled) {
+        var scale = Screen.width / m_InitialScreenWidth;
+        bool scaled = false;
+        if (scale != 1.0f) {
+            scaled = true;
+        }
+        if (scaled) {
             m_RestoreMatrix = GUI.matrix;
 
-            GUI.matrix = GUI.matrix * Matrix4x4.Scale(m_GuiScale);
+            GUI.matrix = GUI.matrix * Matrix4x4.Scale(new Vector3(scale, scale, scale));
         }
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR || MOBILE
@@ -616,7 +614,7 @@ public class DebugConsole : MonoBehaviour
             }
         }
 
-        if (m_Scaled) {
+        if (scaled) {
             GUI.matrix = m_RestoreMatrix;
         }
 
@@ -1049,10 +1047,8 @@ public class DebugConsole : MonoBehaviour
 #endif
 #endif
 
-    private Vector3 m_GuiScale = Vector3.one;
+    private float m_InitialScreenWidth = 1.0f;
     private Matrix4x4 m_RestoreMatrix = Matrix4x4.identity;
-    private int m_InitialScreenWidth = 0;
-    private bool m_Scaled = false;
     private StringBuilder m_DisplayString = new StringBuilder();
     private bool m_Dirty;
 
