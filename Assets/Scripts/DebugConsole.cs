@@ -460,13 +460,15 @@ public class DebugConsole : MonoBehaviour
 
         var scale = Screen.width / m_InitialScreenWidth;
         bool scaled = false;
+        var guiScale = Vector3.one;
         if (scale != 1.0f) {
             scaled = true;
+            guiScale = new Vector3(scale, scale, scale);
         }
         if (scaled) {
             m_RestoreMatrix = GUI.matrix;
 
-            GUI.matrix = GUI.matrix * Matrix4x4.Scale(new Vector3(scale, scale, scale));
+            GUI.matrix = GUI.matrix * Matrix4x4.Scale(guiScale);
         }
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR || MOBILE
@@ -495,10 +497,10 @@ public class DebugConsole : MonoBehaviour
         else if (!m_Dragging && (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Stationary)) {
           var dragRect = m_FakeDragRect;
 
-          dragRect.x = m_WindowRect.x * m_GuiScale.x;
-          dragRect.y = m_WindowRect.y * m_GuiScale.y;
-          dragRect.width *= m_GuiScale.x;
-          dragRect.height *= m_GuiScale.y;
+          dragRect.x = m_WindowRect.x * guiScale.x;
+          dragRect.y = m_WindowRect.y * guiScale.y;
+          dragRect.width *= guiScale.x;
+          dragRect.height *= guiScale.y;
 
           // check to see if the touch is inside the dragRect.
           if (dragRect.Contains(pos)) {
@@ -511,8 +513,8 @@ public class DebugConsole : MonoBehaviour
           var delta = touch.deltaPosition * 2.0f;
 #elif UNITY_IOS
           var delta = touch.deltaPosition;
-          delta.x /= m_GuiScale.x;
-          delta.y /= m_GuiScale.y;
+          delta.x /= guiScale.x;
+          delta.y /= guiScale.y;
 #endif
           delta.y = -delta.y;
 
@@ -520,14 +522,14 @@ public class DebugConsole : MonoBehaviour
         }
         else {
           var tapRect = m_ScrollRect;
-          tapRect.x += m_WindowRect.x * m_GuiScale.x;
-          tapRect.y += m_WindowRect.y * m_GuiScale.y;
+          tapRect.x += m_WindowRect.x * guiScale.x;
+          tapRect.y += m_WindowRect.y * guiScale.y;
           tapRect.width -= 32;
-          tapRect.width *= m_GuiScale.x;
-          tapRect.height *= m_GuiScale.y;
+          tapRect.width *= guiScale.x;
+          tapRect.height *= guiScale.y;
 
           if (tapRect.Contains(pos)) {
-            var scrollY = (tapRect.center.y - pos.y) / m_GuiScale.y;
+            var scrollY = (tapRect.center.y - pos.y) / guiScale.y;
 
             switch (m_ToolbarIndex) {
             case 0:
