@@ -271,8 +271,11 @@ public class DebugConsole : MonoBehaviour
         m_Filter = string.Empty;
         m_History.FromString(PlayerPrefs.GetString("debug_console_history"));
 #if !EMBED_ONGUI
-        var scale = 1.0f;
-        if (scale != 0.0f && scale >= 1.1f) {
+        if (m_InitialScreenWidth == 0) {
+            m_InitialScreenWidth = Screen.width;
+        }
+        var scale = Screen.width / m_InitialScreenWidth;
+        if (scale != 0.0f) {
             m_Scaled = true;
             m_GuiScale.Set(scale, scale, scale);
         }
@@ -1048,6 +1051,7 @@ public class DebugConsole : MonoBehaviour
 
     private Vector3 m_GuiScale = Vector3.one;
     private Matrix4x4 m_RestoreMatrix = Matrix4x4.identity;
+    private int m_InitialScreenWidth = 0;
     private bool m_Scaled = false;
     private StringBuilder m_DisplayString = new StringBuilder();
     private bool m_Dirty;
