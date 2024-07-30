@@ -583,6 +583,20 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------------------------
+    internal class IsDebugFunction : SimpleStoryFunctionBase<IsDebugFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = StoryScript.StoryConfigManager.Instance.IsDebug;
+        }
+    }
+    internal class IsDevelopmentFunction : SimpleStoryFunctionBase<IsDevelopmentFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+            result.Value = StoryScript.StoryConfigManager.Instance.IsDevelopment;
+        }
+    }
     internal class GetMonoMemoryFunction : SimpleStoryFunctionBase<GetMonoMemoryFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
