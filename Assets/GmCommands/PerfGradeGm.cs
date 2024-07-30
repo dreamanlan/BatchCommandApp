@@ -44,10 +44,7 @@ public static class PerfGradeGm
     public static string ScriptPath
     {
         get {
-            if(Application.isEditor) {
-                return "Assets/../tools/perf_scripts/";
-            }
-            else if (Application.platform == RuntimePlatform.Android) {
+            if (Application.platform == RuntimePlatform.Android) {
                 return "/data/local/tmp/";
             }
             else {
