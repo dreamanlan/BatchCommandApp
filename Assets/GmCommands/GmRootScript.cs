@@ -96,6 +96,12 @@ public sealed class GmRootScript : MonoBehaviour
             }
             m_Logger.Log("{0}", msg);
         };
+
+#if UNITY_ANDROID
+#if DEVELOPMENT_BUILD
+        InitAndroidReceiver();
+#endif
+#endif
     }
     private void LogToConsole(string msg)
     {
