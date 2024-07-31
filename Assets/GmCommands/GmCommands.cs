@@ -597,6 +597,24 @@ namespace GmCommands
             result.Value = StoryConfigManager.Instance.IsDevelopment;
         }
     }
+    internal class TypeOfFunction : SimpleStoryFunctionBase<TypeOfFunction, StoryValueParams>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            var args = _params.Values;
+            string type = string.Empty;
+            if (args.Count == 1) {
+                type = args[0].AsString;
+            }
+            else if (args.Count == 2) {
+                type = args[0].AsString + ", " + args[1].AsString;
+            }
+            if (string.IsNullOrEmpty(type))
+                result.Value = BoxedValue.NullObject;
+            else
+                result.Value = StoryScriptUtility.GetType(type);
+        }
+    }
     internal class GetMonoMemoryFunction : SimpleStoryFunctionBase<GetMonoMemoryFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)

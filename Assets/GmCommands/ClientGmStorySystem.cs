@@ -83,6 +83,7 @@ namespace GmCommands
                 //register value or function
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isdebug", "isdebug() function", new StoryFunctionFactoryHelper<IsDebugFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isdev", "isdev() function", new StoryFunctionFactoryHelper<IsDevelopmentFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "typeof", "typeof(type) or typeof(type,assembly) function", new StoryFunctionFactoryHelper<TypeOfFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "mono", "mono() function, get total mono memory", new StoryFunctionFactoryHelper<GetMonoMemoryFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "native", "native() function, get used native memory", new StoryFunctionFactoryHelper<GetNativeMemoryFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "gfx", "gfx() function, get used gfx memory", new StoryFunctionFactoryHelper<GetGfxMemoryFunction>());
