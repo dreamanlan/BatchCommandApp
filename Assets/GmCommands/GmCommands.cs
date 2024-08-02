@@ -315,27 +315,23 @@ namespace GmCommands
             var pis = t.GetProperties(BindingFlags.Static | BindingFlags.Public);
             foreach (var pi in pis) {
                 var v = pi.GetValue(null);
+                log1.AppendFormat("{0} = {1}", pi.Name, v);
+                log1.AppendLine();
+                ++ct;
+                if (ct % 10 == 0)
+                {
+                    LogSystem.Warn(log1.ToString());
+                    log1.Length = 0;
+                }
+
                 if (v is bool) {
                     if (!(bool)v) {
-                        log1.AppendFormat("{0} = false", pi.Name);
-                        log1.AppendLine();
-
                         log2.AppendFormat("{0} = false", pi.Name);
                         log2.AppendLine();
-                        ++ct;
                     }
                 }
-                else {
-                    log2.AppendFormat("{0} = {1}", pi.Name, v);
-                    log2.AppendLine();
-                    ++ct;
-                }
-                if (ct % 10 == 0) {
-                    LogSystem.Warn(log2.ToString());
-                    log2.Length = 0;
-                }
             }
-            LogSystem.Warn(log1.ToString());
+            LogSystem.Warn(log2.ToString());
             return false;
         }
     }
