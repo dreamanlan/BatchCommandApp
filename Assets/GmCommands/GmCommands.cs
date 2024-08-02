@@ -331,11 +331,11 @@ namespace GmCommands
                     ++ct;
                 }
                 if (ct % 10 == 0) {
-                    Debug.Log(log2.ToString());
+                    LogSystem.Warn(log2.ToString());
                     log2.Length = 0;
                 }
             }
-            DebugConsole.Log(log1.ToString());
+            LogSystem.Warn(log1.ToString());
             return false;
         }
     }
