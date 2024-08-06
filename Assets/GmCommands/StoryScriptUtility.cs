@@ -93,6 +93,34 @@ public static partial class StoryScriptUtility
         }
         return null;
     }
+    public static Mesh GetMeshArg(ref BoxedValue arg)
+    {
+        if (arg.IsObject) {
+            var m = arg.ObjectVal as Mesh;
+            if (null != m)
+                return m;
+        }
+        GameObject gobj = GetGameObjectArg(ref arg);
+        if (null != gobj) {
+            var mf = gobj.GetComponent<MeshFilter>();
+            if (null != mf) {
+                var m = mf.sharedMesh;
+                if (null != m) {
+                    return m;
+                }
+                else {
+                    return mf.mesh;
+                }
+            }
+            else {
+                var r = gobj.GetComponent<SkinnedMeshRenderer>();
+                if (null != r) {
+                    return r.sharedMesh;
+                }
+            }
+        }
+        return null;
+    }
     public static Material GetMaterialArg(ref BoxedValue arg)
     {
         if (arg.IsObject) {

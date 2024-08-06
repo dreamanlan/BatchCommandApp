@@ -475,6 +475,176 @@ namespace GmCommands
             return false;
         }
     }
+    internal class LogMeshCommand : SimpleStoryCommandBase<LogMeshCommand, StoryValueParam<BoxedValue>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue> _params, long delta)
+        {
+            var meshObj = _params.Param1Value;
+            Mesh mesh = StoryScriptUtility.GetMeshArg(ref meshObj);
+            if (null != mesh) {
+                var sb = new StringBuilder();
+                sb.AppendFormat("mesh:{0} vertex count:{1} submesh count:{2} vertex attribute count:{3} vertex buffer count:{4}", mesh, mesh.vertexCount, mesh.subMeshCount, mesh.vertexAttributeCount, mesh.vertexBufferCount);
+                sb.AppendLine();
+                for(int ix = 0; ix < mesh.vertexAttributeCount; ++ix) {
+                    var vattr = mesh.GetVertexAttribute(ix);
+                    sb.AppendFormat("\tvattr:{0} attribute:{1} format:{2} dim:{3} stream:{4}", ix, vattr.attribute, vattr.format, vattr.dimension, vattr.stream);
+                    sb.AppendLine();
+                }
+                for (int ix = 0; ix < mesh.vertexBufferCount; ++ix) {
+                    var gf = mesh.GetVertexBuffer(ix);
+                    sb.AppendFormat("\tvbuffer:{0} handle:0x{1:X} target:{2} stride:{3} count:{4}", ix, gf.bufferHandle.value, gf.target, gf.stride, gf.count);
+                    sb.AppendLine();
+                }
+                for (int ix = 0; ix < mesh.subMeshCount; ++ix) {
+                    var submesh = mesh.GetSubMesh(ix);
+                    switch (submesh.topology) {
+                        case MeshTopology.Triangles:
+                            sb.AppendFormat("\tsubmesh:{0} vertex count:{1} index count:{2} topology:{3} triangle count:{4}", ix, submesh.vertexCount, submesh.indexCount, submesh.topology, submesh.indexCount / 3);
+                            sb.AppendLine();
+                            break;
+                        default:
+                            sb.AppendFormat("\tsubmesh:{0} vertex count:{1} index count:{2} topology:{3}", ix, submesh.vertexCount, submesh.indexCount, submesh.topology);
+                            sb.AppendLine();
+                            break;
+                    }
+                }
+                LogSystem.Warn("{0}", sb.ToString());
+            }
+            return false;
+        }
+    }
+    internal class SetMaterialCommand : SimpleStoryCommandBase<SetMaterialCommand, StoryValueParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
+        {
+            var args = _params.Values;
+            if (args.Count == 2) {
+                var dest = args[0];
+                var src = args[1];
+                var rd = StoryScriptUtility.GetRendererArg(ref dest);
+                var m = StoryScriptUtility.GetMaterialArg(ref src);
+                if (null != rd && null != m) {
+                    var oldMat = rd.material;
+                    rd.material = m;
+                    StoryScriptUtility.DestroyObject(oldMat);
+                }
+            }
+            else if (args.Count == 3) {
+                var dest = args[0];
+                int ix = args[1].GetInt();
+                var src = args[2];
+                var rd = StoryScriptUtility.GetRendererArg(ref dest);
+                var m = StoryScriptUtility.GetMaterialArg(ref src);
+                if (null != rd && ix >= 0 && ix < rd.materials.Length && null != m) {
+                    var mats = rd.materials;
+                    var newMats = new Material[mats.Length];
+                    Array.Copy(mats, newMats, mats.Length);
+                    var oldMat = mats[ix];
+                    newMats[ix] = m;
+                    rd.materials = newMats;
+                    StoryScriptUtility.DestroyObject(oldMat);
+                }
+            }
+            else if (args.Count == 4) {
+                var dest = args[0];
+                int ix = args[1].GetInt();
+                var src = args[2];
+                int six = args[3].GetInt();
+                var rd = StoryScriptUtility.GetRendererArg(ref dest);
+                var ms = StoryScriptUtility.GetMaterialsArg(ref src);
+                if (null != rd && ix >= 0 && ix < rd.materials.Length && null != ms && six >= 0 && six < ms.Length) {
+                    var mats = rd.materials;
+                    var newMats = new Material[mats.Length];
+                    Array.Copy(mats, newMats, mats.Length);
+                    var oldMat = mats[ix];
+                    newMats[ix] = ms[six];
+                    rd.materials = newMats;
+                    StoryScriptUtility.DestroyObject(oldMat);
+                }
+            }
+            return false;
+        }
+    }
+    internal class SetSharedMaterialCommand : SimpleStoryCommandBase<SetSharedMaterialCommand, StoryValueParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
+        {
+            var args = _params.Values;
+            if (args.Count == 2) {
+                var dest = args[0];
+                var src = args[1];
+                var rd = StoryScriptUtility.GetRendererArg(ref dest);
+                var m = StoryScriptUtility.GetMaterialArg(ref src);
+                if (null != rd && null != m) {
+                    rd.sharedMaterial = m;
+                }
+            }
+            else if (args.Count == 3) {
+                var dest = args[0];
+                int ix = args[1].GetInt();
+                var src = args[2];
+                var rd = StoryScriptUtility.GetRendererArg(ref dest);
+                var m = StoryScriptUtility.GetMaterialArg(ref src);
+                if (null != rd && ix >= 0 && ix < rd.sharedMaterials.Length && null != m) {
+                    var mats = rd.materials;
+                    var newMats = new Material[mats.Length];
+                    Array.Copy(mats, newMats, mats.Length);
+                    newMats[ix] = m;
+                    rd.sharedMaterials = newMats;
+                }
+            }
+            else if (args.Count == 4) {
+                var dest = args[0];
+                int ix = args[1].GetInt();
+                var src = args[2];
+                int six = args[3].GetInt();
+                var rd = StoryScriptUtility.GetRendererArg(ref dest);
+                var ms = StoryScriptUtility.GetMaterialsArg(ref src);
+                if (null != rd && ix >= 0 && ix < rd.sharedMaterials.Length && null != ms && six >= 0 && six < ms.Length) {
+                    var mats = rd.materials;
+                    var newMats = new Material[mats.Length];
+                    Array.Copy(mats, newMats, mats.Length);
+                    newMats[ix] = ms[six];
+                    rd.sharedMaterials = newMats;
+                }
+            }
+            return false;
+        }
+    }
+    internal class SetMaterialsCommand : SimpleStoryCommandBase<SetMaterialsCommand, StoryValueParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
+        {
+            var args = _params.Values;
+            if (args.Count == 2) {
+                var dest = args[0];
+                var src = args[1];
+                var rd = StoryScriptUtility.GetRendererArg(ref dest);
+                var ms = StoryScriptUtility.GetMaterialsArg(ref src);
+                if (null != rd && null != ms) {
+                    rd.materials = ms;
+                }
+            }
+            return false;
+        }
+    }
+    internal class SetSharedMaterialsCommand : SimpleStoryCommandBase<SetSharedMaterialsCommand, StoryValueParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
+        {
+            var args = _params.Values;
+            if (args.Count == 2) {
+                var dest = args[0];
+                var src = args[1];
+                var rd = StoryScriptUtility.GetRendererArg(ref dest);
+                var ms = StoryScriptUtility.GetMaterialsArg(ref src);
+                if (null != rd && null != ms) {
+                    rd.sharedMaterials = ms;
+                }
+            }
+            return false;
+        }
+    }
     internal class MaterialSetFloatCommand : SimpleStoryCommandBase<MaterialSetFloatCommand, StoryValueParam<BoxedValue, BoxedValue, float>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, float> _params, long delta)
