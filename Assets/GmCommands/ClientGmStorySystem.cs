@@ -16,6 +16,7 @@ namespace GmCommands
 
                 //register Gm command
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setdebug", "setdebug(1_or_0) command", new StoryCommandFactoryHelper<SetDebugCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "startactivity", "startactivity(package_name,flags) or startactivity(package_name,class_name) or startactivity(package_name,class_name,flags) command", new StoryCommandFactoryHelper<StartActivityCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "listenclipboard", "listenclipboard(interval) command", new StoryCommandFactoryHelper<ListenClipboardCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "listenandroid", "listenandroid() command", new StoryCommandFactoryHelper<ListenAndroidCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "startservice", "startservice(srv_class, extra_name, extra_val) command", new StoryCommandFactoryHelper<StartServiceCommand>());

@@ -81,6 +81,66 @@ namespace GmCommands
             return false;
         }
     }
+    internal class StartActivityCommand : SimpleStoryCommandBase<StartActivityCommand, StoryValueParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
+        {
+            var args = _params.Values;
+            if (Application.platform == RuntimePlatform.Android) {
+                if (args.Count == 2) {
+                    if (args[1].IsInteger) {
+                        StartActivity(args[0].GetString(), string.Empty, args[1].GetInt());
+                    }
+                    else {
+                        StartActivity(args[0].GetString(), args[1].GetString(), 0);
+                    }
+                }
+                else if (args.Count == 3) {
+                    StartActivity(args[0].GetString(), args[1].GetString(), args[2].GetInt());
+                }
+            }
+            return false;
+        }
+        private static void StartActivity(string packageName, string className, int flags)
+        {
+            if (string.IsNullOrEmpty(packageName)) {
+                packageName = Application.identifier;
+            }
+            if (string.IsNullOrEmpty(className)) {
+                className = packageName + ".MainActivity";
+            }
+
+            using (var up = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+                using (var ca = up.GetStatic<AndroidJavaObject>("currentActivity")) {
+                    using (var packageManager = ca.Call<AndroidJavaObject>("getPackageManager")) {
+                        using (var launchIntent = packageManager.Call<AndroidJavaObject>("getLaunchIntentForPackage", packageName)) {
+                            if (null != launchIntent) {
+                                //launchIntent.Call<AndroidJavaObject>("addFlags", 0x00008000); // Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                //launchIntent.Call<AndroidJavaObject>("addFlags", 0x04000000); // Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                //launchIntent.Call<AndroidJavaObject>("addFlags", 0x08000000); // Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                                //launchIntent.Call<AndroidJavaObject>("addFlags", 0x10000000); // Intent.FLAG_ACTIVITY_NEW_TASK
+                                //launchIntent.Call<AndroidJavaObject>("addFlags", 0x20000000); // Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                if (flags != 0) {
+                                    launchIntent.Call<AndroidJavaObject>("addFlags", flags);
+                                }
+                                ca.Call("startActivity", launchIntent);
+                                //ca.Call("finish");
+                            }
+                            else {
+                                using (var intent = new AndroidJavaObject("android.content.Intent")) {
+                                    intent.Call<AndroidJavaObject>("setClassName", packageName, className);
+                                    if (flags != 0) {
+                                        intent.Call<AndroidJavaObject>("addFlags", flags);
+                                    }
+                                    ca.Call("startActivity", intent);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     internal class ListenClipboardCommand : SimpleStoryCommandBase<ListenClipboardCommand, StoryValueParam<int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<int> _params, long delta)
