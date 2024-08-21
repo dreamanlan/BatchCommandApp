@@ -37,6 +37,10 @@ public sealed class GmRootScript : MonoBehaviour
                         DebugConsole.Execute(cmd.Substring(c_clipboard_cmd_tag.Length));
                         GUIUtility.systemCopyBuffer = string.Empty;
                     }
+                    else if (cmd.StartsWith(s_clipboard_cmd_tag)) {
+                        DebugConsole.Execute(cmd.Substring(s_clipboard_cmd_tag.Length));
+                        GUIUtility.systemCopyBuffer = string.Empty;
+                    }
                     m_LastClipboardTime = curTime;
                 }
                 else if(m_LastClipboardTime > curTime) {
@@ -60,6 +64,9 @@ public sealed class GmRootScript : MonoBehaviour
     {
         if(m_Inited) return;
         m_Inited = true;
+
+        s_application_identifier = Application.identifier;
+        s_clipboard_cmd_tag = string.Format("[{0}]:", s_application_identifier);
 
 #if DEVELOPMENT_BUILD
         StoryScript.StoryConfigManager.Instance.IsDevelopment = true;
@@ -389,56 +396,7 @@ public sealed class GmRootScript : MonoBehaviour
                             using (var intent = new AndroidJavaObject("android.content.Intent")) {
                                 using (var serviceClass = new AndroidJavaClass(srvClass)) {
                                     intent.Call<AndroidJavaObject>("setClass", context, serviceClass);
-                                    switch (extraValue.Type) {
-                                        case BoxedValue.c_StringType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetString());
-                                            break;
-                                        case BoxedValue.c_ObjectType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetObject());
-                                            break;
-                                        case BoxedValue.c_BoolType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetBool());
-                                            break;
-                                        case BoxedValue.c_CharType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetChar());
-                                            break;
-                                        case BoxedValue.c_SByteType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetSByte());
-                                            break;
-                                        case BoxedValue.c_ByteType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetByte());
-                                            break;
-                                        case BoxedValue.c_ShortType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetShort());
-                                            break;
-                                        case BoxedValue.c_UShortType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetUShort());
-                                            break;
-                                        case BoxedValue.c_IntType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetInt());
-                                            break;
-                                        case BoxedValue.c_UIntType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetUInt());
-                                            break;
-                                        case BoxedValue.c_LongType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetLong());
-                                            break;
-                                        case BoxedValue.c_ULongType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetULong());
-                                            break;
-                                        case BoxedValue.c_FloatType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetFloat());
-                                            break;
-                                        case BoxedValue.c_DoubleType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetDouble());
-                                            break;
-                                        case BoxedValue.c_DecimalType:
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetDecimal());
-                                            break;
-                                        default:
-                                            // unsupported type, do nothing
-                                            break;
-                                    }
+                                    PutIntentExtra(intent, extraName, extraValue);
                                     context.Call<AndroidJavaObject>("startService", intent);
                                 }
                             }
@@ -465,6 +423,139 @@ public sealed class GmRootScript : MonoBehaviour
                     }
                 }
             }
+        }
+    }
+
+    internal static void PutIntentExtra(AndroidJavaObject intent, string extraName, BoxedValue extraValue)
+    {
+        switch (extraValue.Type) {
+            case BoxedValue.c_StringType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetString());
+                break;
+            case BoxedValue.c_BoolType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetBool());
+                break;
+            case BoxedValue.c_CharType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetChar());
+                break;
+            case BoxedValue.c_SByteType:
+            case BoxedValue.c_ByteType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetSByte());
+                break;
+            case BoxedValue.c_ShortType:
+            case BoxedValue.c_UShortType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetShort());
+                break;
+            case BoxedValue.c_IntType:
+            case BoxedValue.c_UIntType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetInt());
+                break;
+            case BoxedValue.c_LongType:
+            case BoxedValue.c_ULongType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetLong());
+                break;
+            case BoxedValue.c_FloatType:
+            case BoxedValue.c_DecimalType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetFloat());
+                break;
+            case BoxedValue.c_DoubleType:
+                intent.Call<AndroidJavaObject>("putExtra", extraName, extraValue.GetDouble());
+                break;
+            case BoxedValue.c_ObjectType: {
+                    var androidObj = extraValue.As<AndroidJavaObject>();
+                    if (null != androidObj) {
+                        intent.Call<AndroidJavaObject>("putExtra", extraName, androidObj);
+                    }
+                    else {
+                        var list = extraValue.As<IList>();
+                        if (list.Count > 0) {
+                            var bv = BoxedValue.FromObject(list[0]);
+                            switch (bv.Type) {
+                                    case BoxedValue.c_StringType: {
+                                            var arr = new string[list.Count];
+                                            for (int ix = 0; ix < arr.Length; ++ix) {
+                                                arr[ix] = list[ix] as string;
+                                            }
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        }
+                                        break;
+                                    case BoxedValue.c_BoolType: {
+                                            var arr = new bool[list.Count];
+                                            for (int ix = 0; ix < arr.Length; ++ix) {
+                                                arr[ix] = (bool)list[ix];
+                                            }
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        }
+                                        break;
+                                    case BoxedValue.c_CharType: {
+                                            var arr = new char[list.Count];
+                                            for (int ix = 0; ix < arr.Length; ++ix) {
+                                                arr[ix] = (char)list[ix];
+                                            }
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        }
+                                        break;
+                                    case BoxedValue.c_SByteType:
+                                    case BoxedValue.c_ByteType: {
+                                            var arr = new sbyte[list.Count];
+                                            for (int ix = 0; ix < arr.Length; ++ix) {
+                                                arr[ix] = (sbyte)list[ix];
+                                            }
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        }
+                                        break;
+                                    case BoxedValue.c_ShortType:
+                                    case BoxedValue.c_UShortType: {
+                                            var arr = new short[list.Count];
+                                            for (int ix = 0; ix < arr.Length; ++ix) {
+                                                arr[ix] = (short)list[ix];
+                                            }
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        }
+                                        break;
+                                    case BoxedValue.c_IntType:
+                                    case BoxedValue.c_UIntType: {
+                                            var arr = new int[list.Count];
+                                            for (int ix = 0; ix < arr.Length; ++ix) {
+                                                arr[ix] = (int)list[ix];
+                                            }
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        }
+                                        break;
+                                    case BoxedValue.c_LongType:
+                                    case BoxedValue.c_ULongType: {
+                                            var arr = new long[list.Count];
+                                            for (int ix = 0; ix < arr.Length; ++ix) {
+                                                arr[ix] = (long)list[ix];
+                                            }
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        }
+                                        break;
+                                    case BoxedValue.c_FloatType:
+                                    case BoxedValue.c_DecimalType: {
+                                            var arr = new float[list.Count];
+                                            for (int ix = 0; ix < arr.Length; ++ix) {
+                                                arr[ix] = (float)list[ix];
+                                            }
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        }
+                                        break;
+                                    case BoxedValue.c_DoubleType: {
+                                            var arr = new double[list.Count];
+                                            for (int ix = 0; ix < arr.Length; ++ix) {
+                                                arr[ix] = (double)list[ix];
+                                            }
+                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        }
+                                        break;
+                                }
+                        }
+                    }
+                }
+                break;
+            default:
+                // unsupported type, do nothing
+                break;
         }
     }
 
@@ -742,6 +833,8 @@ public sealed class GmRootScript : MonoBehaviour
     private static object s_Lock = new object();
     private const int c_max_command_in_queue = 1024;
     private const string c_clipboard_cmd_tag = "[cmd]:";
+    private static string s_clipboard_cmd_tag = string.Empty;
+    internal static string s_application_identifier = string.Empty;
 
     private static bool s_UseJavaTask = false;
     private static List<Task> s_Tasks = new List<Task>();
@@ -864,6 +957,14 @@ internal sealed class BroadcastReceiverCallback : AndroidJavaProxy
             GmRootScript.SendCommand(cmd);
 
             LogSystem.Info("receive a command: {0}", cmd);
+        }
+        else {
+            cmd = intent.Call<string>("getStringExtra", GmRootScript.s_application_identifier);
+            if (!string.IsNullOrEmpty(cmd)) {
+                GmRootScript.SendCommand(cmd);
+
+                LogSystem.Info("receive a special command: {0}", cmd);
+            }
         }
     }
 }

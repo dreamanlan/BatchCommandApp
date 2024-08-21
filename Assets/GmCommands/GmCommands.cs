@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq.Expressions;
@@ -72,7 +73,7 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal class SetDebugCommand : SimpleStoryCommandBase<SetDebugCommand, StoryValueParam<int>>
+    internal sealed class SetDebugCommand : SimpleStoryCommandBase<SetDebugCommand, StoryValueParam<int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<int> _params, long delta)
         {
@@ -81,67 +82,117 @@ namespace GmCommands
             return false;
         }
     }
-    internal class StartActivityCommand : SimpleStoryCommandBase<StartActivityCommand, StoryValueParams>
+    internal sealed class StartActivityCommand : SimpleStoryCommandBase<StartActivityCommand, StoryValueParams>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
         {
             var args = _params.Values;
             if (Application.platform == RuntimePlatform.Android) {
-                if (args.Count == 2) {
-                    if (args[1].IsInteger) {
-                        StartActivity(args[0].GetString(), string.Empty, args[1].GetInt());
+                if (args.Count >= 1 && args[0].IsString) {
+                    string packageName = args[0].GetString();
+                    string className = string.Empty;
+                    int flags = 0;
+                    IList list = null;
+                    IDictionary dict = null;
+                    bool noError = true;
+                    for(int i = 1; i < args.Count; ++i) {
+                        var arg = args[i];
+                        if(arg.IsString && i == 1) {
+                            className = arg.GetString();
+                        }
+                        else if(arg.IsInteger && i <= 2) {
+                            flags = arg.GetInt();
+                        }
+                        else if (arg.IsObject && i == args.Count - 1) {
+                            list = arg.As<IList>();
+                            dict = arg.As<IDictionary>();
+                        }
+                        else {
+                            //error arg
+                            LogSystem.Error("startactivity, illegal argument {0}:{1}", i, arg);
+                            noError = false;
+                        }
                     }
-                    else {
-                        StartActivity(args[0].GetString(), args[1].GetString(), 0);
+                    if (noError) {
+                        StartActivity(packageName, className, flags, list, dict);
                     }
                 }
-                else if (args.Count == 3) {
-                    StartActivity(args[0].GetString(), args[1].GetString(), args[2].GetInt());
+                else {
+                    LogSystem.Error("expect startactivity(package_name, ...)");
                 }
             }
             return false;
         }
-        private static void StartActivity(string packageName, string className, int flags)
+        private static void StartActivity(string packageName, string className, int flags, IList list, IDictionary dict)
         {
             if (string.IsNullOrEmpty(packageName)) {
                 packageName = Application.identifier;
             }
             if (string.IsNullOrEmpty(className)) {
+                //className = "com.unity3d.player.UnityPlayerActivity";
                 className = packageName + ".MainActivity";
             }
 
             using (var up = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
                 using (var ca = up.GetStatic<AndroidJavaObject>("currentActivity")) {
                     using (var packageManager = ca.Call<AndroidJavaObject>("getPackageManager")) {
-                        using (var launchIntent = packageManager.Call<AndroidJavaObject>("getLaunchIntentForPackage", packageName)) {
-                            if (null != launchIntent) {
-                                //launchIntent.Call<AndroidJavaObject>("addFlags", 0x00008000); // Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                //launchIntent.Call<AndroidJavaObject>("addFlags", 0x04000000); // Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                //launchIntent.Call<AndroidJavaObject>("addFlags", 0x08000000); // Intent.FLAG_ACTIVITY_MULTIPLE_TASK
-                                //launchIntent.Call<AndroidJavaObject>("addFlags", 0x10000000); // Intent.FLAG_ACTIVITY_NEW_TASK
-                                //launchIntent.Call<AndroidJavaObject>("addFlags", 0x20000000); // Intent.FLAG_ACTIVITY_SINGLE_TOP
-                                if (flags != 0) {
-                                    launchIntent.Call<AndroidJavaObject>("addFlags", flags);
-                                }
-                                ca.Call("startActivity", launchIntent);
-                                //ca.Call("finish");
+                        using (var intent = new AndroidJavaObject("android.content.Intent")) {
+                            intent.Call<AndroidJavaObject>("setClassName", packageName, className);
+                            if (flags != 0) {
+                                intent.Call<AndroidJavaObject>("addFlags", flags);
                             }
-                            else {
-                                using (var intent = new AndroidJavaObject("android.content.Intent")) {
-                                    intent.Call<AndroidJavaObject>("setClassName", packageName, className);
-                                    if (flags != 0) {
-                                        intent.Call<AndroidJavaObject>("addFlags", flags);
+                            if (null != list) {
+                                for (int ix = 0; ix < list.Count - 1; ix += 2) {
+                                    var key = list[ix] as string;
+                                    var val = null == list[ix + 1] ? BoxedValue.NullObject : BoxedValue.FromObject(list[ix + 1]);
+                                    if (!string.IsNullOrEmpty(key)) {
+                                         GmRootScript.PutIntentExtra(intent, key, val);
                                     }
-                                    ca.Call("startActivity", intent);
                                 }
                             }
+                            else if (null != dict) {
+                                foreach(var elem in dict) {
+                                    var pair = (DictionaryEntry)elem;
+                                    var key = pair.Key as string;
+                                    var val = null == pair.Value ? BoxedValue.NullObject : BoxedValue.FromObject(pair.Value);
+                                    if (!string.IsNullOrEmpty(key)) {
+                                        GmRootScript.PutIntentExtra(intent, key, val);
+                                    }
+                                }
+                            }
+                            ca.Call("startActivity", intent);
+
+                            //intent.Call<AndroidJavaObject>("addFlags", 0x00008000); // Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            //intent.Call<AndroidJavaObject>("addFlags", 0x04000000); // Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            //intent.Call<AndroidJavaObject>("addFlags", 0x08000000); // Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                            //intent.Call<AndroidJavaObject>("addFlags", 0x10000000); // Intent.FLAG_ACTIVITY_NEW_TASK
+                            //intent.Call<AndroidJavaObject>("addFlags", 0x20000000); // Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            //ca.Call("finish");
                         }
                     }
                 }
             }
         }
     }
-    internal class ListenClipboardCommand : SimpleStoryCommandBase<ListenClipboardCommand, StoryValueParam<int>>
+    internal sealed class FinishActivityCommand : SimpleStoryCommandBase<FinishActivityCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            if (Application.platform == RuntimePlatform.Android) {
+                FinishActivity();
+            }
+            return false;
+        }
+        private static void FinishActivity()
+        {
+            using (var up = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+                using (var ca = up.GetStatic<AndroidJavaObject>("currentActivity")) {
+                    ca.Call("finish");
+                }
+            }
+        }
+    }
+    internal sealed class ListenClipboardCommand : SimpleStoryCommandBase<ListenClipboardCommand, StoryValueParam<int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<int> _params, long delta)
         {
@@ -150,7 +201,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ListenAndroidCommand : SimpleStoryCommandBase<ListenAndroidCommand, StoryValueParam>
+    internal sealed class ListenAndroidCommand : SimpleStoryCommandBase<ListenAndroidCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -158,7 +209,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class StartServiceCommand : SimpleStoryCommandBase<StartServiceCommand, StoryValueParam<string, string, BoxedValue>>
+    internal sealed class StartServiceCommand : SimpleStoryCommandBase<StartServiceCommand, StoryValueParam<string, string, BoxedValue>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, string, BoxedValue> _params, long delta)
         {
@@ -169,7 +220,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class StopServiceCommand : SimpleStoryCommandBase<StopServiceCommand, StoryValueParam<string>>
+    internal sealed class StopServiceCommand : SimpleStoryCommandBase<StopServiceCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
@@ -178,7 +229,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ShellCommand : SimpleStoryCommandBase<ShellCommand, StoryValueParam<string>>
+    internal sealed class ShellCommand : SimpleStoryCommandBase<ShellCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
@@ -187,7 +238,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ShellTimeoutCommand : SimpleStoryCommandBase<ShellTimeoutCommand, StoryValueParam<string, int>>
+    internal sealed class ShellTimeoutCommand : SimpleStoryCommandBase<ShellTimeoutCommand, StoryValueParam<string, int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, int> _params, long delta)
         {
@@ -197,7 +248,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class CleanupCompletedTasksCommand : SimpleStoryCommandBase<CleanupCompletedTasksCommand, StoryValueParam>
+    internal sealed class CleanupCompletedTasksCommand : SimpleStoryCommandBase<CleanupCompletedTasksCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -205,7 +256,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class UseJavaTaskCommand : SimpleStoryCommandBase<UseJavaTaskCommand, StoryValueParam<bool>>
+    internal sealed class UseJavaTaskCommand : SimpleStoryCommandBase<UseJavaTaskCommand, StoryValueParam<bool>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<bool> _params, long delta)
         {
@@ -213,7 +264,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class SetClipboardCommand : SimpleStoryCommandBase<SetClipboardCommand, StoryValueParam<string>>
+    internal sealed class SetClipboardCommand : SimpleStoryCommandBase<SetClipboardCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
@@ -222,7 +273,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class EditorBreakCommand : SimpleStoryCommandBase<EditorBreakCommand, StoryValueParam>
+    internal sealed class EditorBreakCommand : SimpleStoryCommandBase<EditorBreakCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -230,7 +281,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class DebugBreakCommand : SimpleStoryCommandBase<DebugBreakCommand, StoryValueParam>
+    internal sealed class DebugBreakCommand : SimpleStoryCommandBase<DebugBreakCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -238,7 +289,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ClearGlobalsCommand : SimpleStoryCommandBase<ClearGlobalsCommand, StoryValueParam>
+    internal sealed class ClearGlobalsCommand : SimpleStoryCommandBase<ClearGlobalsCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -246,7 +297,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class SupportsGfxFormatCommand : SimpleStoryCommandBase<SupportsGfxFormatCommand, StoryValueParam>
+    internal sealed class SupportsGfxFormatCommand : SimpleStoryCommandBase<SupportsGfxFormatCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -277,7 +328,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class SupportsTexCommand : SimpleStoryCommandBase<SupportsTexCommand, StoryValueParam>
+    internal sealed class SupportsTexCommand : SimpleStoryCommandBase<SupportsTexCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -304,7 +355,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class SupportsRTCommand : SimpleStoryCommandBase<SupportsRTCommand, StoryValueParam>
+    internal sealed class SupportsRTCommand : SimpleStoryCommandBase<SupportsRTCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -337,7 +388,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class SupportsVertexAttributeFormatCommand : SimpleStoryCommandBase<SupportsVertexAttributeFormatCommand, StoryValueParam>
+    internal sealed class SupportsVertexAttributeFormatCommand : SimpleStoryCommandBase<SupportsVertexAttributeFormatCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -364,7 +415,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class DeviceSupportsCommand : SimpleStoryCommandBase<DeviceSupportsCommand, StoryValueParam>
+    internal sealed class DeviceSupportsCommand : SimpleStoryCommandBase<DeviceSupportsCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -395,7 +446,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class LogResolutionsCommand : SimpleStoryCommandBase<LogResolutionsCommand, StoryValueParam>
+    internal sealed class LogResolutionsCommand : SimpleStoryCommandBase<LogResolutionsCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -406,7 +457,7 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal class AllocMemoryCommand : SimpleStoryCommandBase<AllocMemoryCommand, StoryValueParam<string, int>>
+    internal sealed class AllocMemoryCommand : SimpleStoryCommandBase<AllocMemoryCommand, StoryValueParam<string, int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, int> _params, long delta)
         {
@@ -422,7 +473,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class FreeMemoryCommand : SimpleStoryCommandBase<FreeMemoryCommand, StoryValueParam<string>>
+    internal sealed class FreeMemoryCommand : SimpleStoryCommandBase<FreeMemoryCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
@@ -437,7 +488,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ConsumeCpuCommand : SimpleStoryCommandBase<ConsumeCpuCommand, StoryValueParam<int>>
+    internal sealed class ConsumeCpuCommand : SimpleStoryCommandBase<ConsumeCpuCommand, StoryValueParam<int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<int> _params, long delta)
         {
@@ -448,7 +499,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class GcCommand : SimpleStoryCommandBase<GcCommand, StoryValueParam>
+    internal sealed class GcCommand : SimpleStoryCommandBase<GcCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -456,7 +507,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class LogProfilerCommand : SimpleStoryCommandBase<LogProfilerCommand, StoryValueParam>
+    internal sealed class LogProfilerCommand : SimpleStoryCommandBase<LogProfilerCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -473,7 +524,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class CmdCommand : SimpleStoryCommandBase<CmdCommand, StoryValueParam<string>>
+    internal sealed class CmdCommand : SimpleStoryCommandBase<CmdCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
@@ -482,7 +533,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class GmCommand : SimpleStoryCommandBase<GmCommand, StoryValueParam<string>>
+    internal sealed class GmCommand : SimpleStoryCommandBase<GmCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
@@ -491,7 +542,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class PlayerPrefIntCommand : SimpleStoryCommandBase<PlayerPrefIntCommand, StoryValueParam<string, int>>
+    internal sealed class PlayerPrefIntCommand : SimpleStoryCommandBase<PlayerPrefIntCommand, StoryValueParam<string, int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, int> _params, long delta)
         {
@@ -502,7 +553,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class PlayerPrefFloatCommand : SimpleStoryCommandBase<PlayerPrefFloatCommand, StoryValueParam<string, float>>
+    internal sealed class PlayerPrefFloatCommand : SimpleStoryCommandBase<PlayerPrefFloatCommand, StoryValueParam<string, float>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, float> _params, long delta)
         {
@@ -513,7 +564,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class PlayerPrefStringCommand : SimpleStoryCommandBase<PlayerPrefStringCommand, StoryValueParam<string, string>>
+    internal sealed class PlayerPrefStringCommand : SimpleStoryCommandBase<PlayerPrefStringCommand, StoryValueParam<string, string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, string> _params, long delta)
         {
@@ -524,7 +575,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class WeTestTouchCommand : SimpleStoryCommandBase<WeTestTouchCommand, StoryValueParam<int, float, float>>
+    internal sealed class WeTestTouchCommand : SimpleStoryCommandBase<WeTestTouchCommand, StoryValueParam<int, float, float>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<int, float, float> _params, long delta)
         {
@@ -535,7 +586,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class LogMeshCommand : SimpleStoryCommandBase<LogMeshCommand, StoryValueParam<BoxedValue>>
+    internal sealed class LogMeshCommand : SimpleStoryCommandBase<LogMeshCommand, StoryValueParam<BoxedValue>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue> _params, long delta)
         {
@@ -573,7 +624,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class SetMaterialCommand : SimpleStoryCommandBase<SetMaterialCommand, StoryValueParams>
+    internal sealed class SetMaterialCommand : SimpleStoryCommandBase<SetMaterialCommand, StoryValueParams>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
         {
@@ -625,7 +676,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class SetSharedMaterialCommand : SimpleStoryCommandBase<SetSharedMaterialCommand, StoryValueParams>
+    internal sealed class SetSharedMaterialCommand : SimpleStoryCommandBase<SetSharedMaterialCommand, StoryValueParams>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
         {
@@ -671,7 +722,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class SetMaterialsCommand : SimpleStoryCommandBase<SetMaterialsCommand, StoryValueParams>
+    internal sealed class SetMaterialsCommand : SimpleStoryCommandBase<SetMaterialsCommand, StoryValueParams>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
         {
@@ -688,7 +739,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class SetSharedMaterialsCommand : SimpleStoryCommandBase<SetSharedMaterialsCommand, StoryValueParams>
+    internal sealed class SetSharedMaterialsCommand : SimpleStoryCommandBase<SetSharedMaterialsCommand, StoryValueParams>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
         {
@@ -705,7 +756,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class MaterialSetFloatCommand : SimpleStoryCommandBase<MaterialSetFloatCommand, StoryValueParam<BoxedValue, BoxedValue, float>>
+    internal sealed class MaterialSetFloatCommand : SimpleStoryCommandBase<MaterialSetFloatCommand, StoryValueParam<BoxedValue, BoxedValue, float>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, float> _params, long delta)
         {
@@ -724,7 +775,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class MaterialSetIntCommand : SimpleStoryCommandBase<MaterialSetIntCommand, StoryValueParam<BoxedValue, BoxedValue, int>>
+    internal sealed class MaterialSetIntCommand : SimpleStoryCommandBase<MaterialSetIntCommand, StoryValueParam<BoxedValue, BoxedValue, int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, int> _params, long delta)
         {
@@ -743,7 +794,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class MaterialSetIntegerCommand : SimpleStoryCommandBase<MaterialSetIntegerCommand, StoryValueParam<BoxedValue, BoxedValue, int>>
+    internal sealed class MaterialSetIntegerCommand : SimpleStoryCommandBase<MaterialSetIntegerCommand, StoryValueParam<BoxedValue, BoxedValue, int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, int> _params, long delta)
         {
@@ -762,7 +813,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class MaterialSetVectorCommand : SimpleStoryCommandBase<MaterialSetVectorCommand, StoryValueParam<BoxedValue, BoxedValue, BoxedValue>>
+    internal sealed class MaterialSetVectorCommand : SimpleStoryCommandBase<MaterialSetVectorCommand, StoryValueParam<BoxedValue, BoxedValue, BoxedValue>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, BoxedValue> _params, long delta)
         {
@@ -782,7 +833,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class MaterialSetColorCommand : SimpleStoryCommandBase<MaterialSetColorCommand, StoryValueParam<BoxedValue, BoxedValue, BoxedValue>>
+    internal sealed class MaterialSetColorCommand : SimpleStoryCommandBase<MaterialSetColorCommand, StoryValueParam<BoxedValue, BoxedValue, BoxedValue>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue, BoxedValue> _params, long delta)
         {
@@ -809,21 +860,21 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------------------------
-    internal class IsDebugFunction : SimpleStoryFunctionBase<IsDebugFunction, StoryValueParam>
+    internal sealed class IsDebugFunction : SimpleStoryFunctionBase<IsDebugFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = StoryConfigManager.Instance.IsDebug;
         }
     }
-    internal class IsDevelopmentFunction : SimpleStoryFunctionBase<IsDevelopmentFunction, StoryValueParam>
+    internal sealed class IsDevelopmentFunction : SimpleStoryFunctionBase<IsDevelopmentFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = StoryConfigManager.Instance.IsDevelopment;
         }
     }
-    internal class TypeOfFunction : SimpleStoryFunctionBase<TypeOfFunction, StoryValueParams>
+    internal sealed class TypeOfFunction : SimpleStoryFunctionBase<TypeOfFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -841,42 +892,42 @@ namespace GmCommands
                 result.Value = StoryScriptUtility.GetType(type);
         }
     }
-    internal class GetMonoMemoryFunction : SimpleStoryFunctionBase<GetMonoMemoryFunction, StoryValueParam>
+    internal sealed class GetMonoMemoryFunction : SimpleStoryFunctionBase<GetMonoMemoryFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = GC.GetTotalMemory(false) / 1024.0f / 1024.0f;
         }
     }
-    internal class GetNativeMemoryFunction : SimpleStoryFunctionBase<GetNativeMemoryFunction, StoryValueParam>
+    internal sealed class GetNativeMemoryFunction : SimpleStoryFunctionBase<GetNativeMemoryFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Profiler.GetTotalAllocatedMemoryLong() / 1024.0f / 1024.0f;
         }
     }
-    internal class GetGfxMemoryFunction : SimpleStoryFunctionBase<GetGfxMemoryFunction, StoryValueParam>
+    internal sealed class GetGfxMemoryFunction : SimpleStoryFunctionBase<GetGfxMemoryFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024.0f / 1024.0f;
         }
     }
-    internal class GetUnusedMemoryFunction : SimpleStoryFunctionBase<GetUnusedMemoryFunction, StoryValueParam>
+    internal sealed class GetUnusedMemoryFunction : SimpleStoryFunctionBase<GetUnusedMemoryFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Profiler.GetTotalUnusedReservedMemoryLong() / 1024.0f / 1024.0f;
         }
     }
-    internal class GetTotalMemoryFunction : SimpleStoryFunctionBase<GetTotalMemoryFunction, StoryValueParam>
+    internal sealed class GetTotalMemoryFunction : SimpleStoryFunctionBase<GetTotalMemoryFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Profiler.GetTotalReservedMemoryLong() / 1024.0f / 1024.0f;
         }
     }
-    internal class DeviceInfoFunction : SimpleStoryFunctionBase<DeviceInfoFunction, StoryValueParam>
+    internal sealed class DeviceInfoFunction : SimpleStoryFunctionBase<DeviceInfoFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
@@ -885,14 +936,285 @@ namespace GmCommands
                 + SystemInfo.operatingSystem + " | " + SystemInfo.processorType;
         }
     }
-    internal class GetClipboardFunction : SimpleStoryFunctionBase<GetClipboardFunction, StoryValueParam>
+    internal sealed class GetClipboardFunction : SimpleStoryFunctionBase<GetClipboardFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = GUIUtility.systemCopyBuffer;
         }
     }
-    internal class PlayerPrefIntFunction : SimpleStoryFunctionBase<PlayerPrefIntFunction, StoryValueParam<string, int>>
+    internal sealed class GetBoolFunction : SimpleStoryFunctionBase<GetBoolFunction, StoryValueParam<string, bool>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, bool> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            var def = _params.Param2Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = intent.Call<bool>("getBooleanExtra", str, def);
+            }
+#endif
+        }
+    }
+    internal sealed class GetBoolArrayFunction : SimpleStoryFunctionBase<GetBoolArrayFunction, StoryValueParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = BoxedValue.FromObject(intent.Call<bool[]>("getBooleanArrayExtra", str));
+            }
+#endif
+        }
+    }
+    internal sealed class GetStringFunction : SimpleStoryFunctionBase<GetStringFunction, StoryValueParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = intent.Call<string>("getStringExtra", str);
+            }
+#endif
+        }
+    }
+    internal sealed class GetStringArrayFunction : SimpleStoryFunctionBase<GetStringArrayFunction, StoryValueParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = BoxedValue.FromObject(intent.Call<string[]>("getStringArrayExtra", str));
+            }
+#endif
+        }
+    }
+    internal sealed class GetCharFunction : SimpleStoryFunctionBase<GetCharFunction, StoryValueParam<string, char>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, char> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            var def = _params.Param2Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = intent.Call<char>("getCharExtra", str, def);
+            }
+#endif
+        }
+    }
+    internal sealed class GetCharArrayFunction : SimpleStoryFunctionBase<GetCharArrayFunction, StoryValueParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = BoxedValue.FromObject(intent.Call<char[]>("getCharArrayExtra", str));
+            }
+#endif
+        }
+    }
+    internal sealed class GetByteFunction : SimpleStoryFunctionBase<GetByteFunction, StoryValueParam<string, sbyte>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, sbyte> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            var def = _params.Param2Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = intent.Call<sbyte>("getByteExtra", str, def);
+            }
+#endif
+        }
+    }
+    internal sealed class GetByteArrayFunction : SimpleStoryFunctionBase<GetByteArrayFunction, StoryValueParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = BoxedValue.FromObject(intent.Call<sbyte[]>("getByteArrayExtra", str));
+            }
+#endif
+        }
+    }
+    internal sealed class GetShortFunction : SimpleStoryFunctionBase<GetShortFunction, StoryValueParam<string, short>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, short> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            var def = _params.Param2Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = intent.Call<short>("getShortExtra", str, def);
+            }
+#endif
+        }
+    }
+    internal sealed class GetShortArrayFunction : SimpleStoryFunctionBase<GetShortArrayFunction, StoryValueParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = BoxedValue.FromObject(intent.Call<short[]>("getShortArrayExtra", str));
+            }
+#endif
+        }
+    }
+    internal sealed class GetIntFunction : SimpleStoryFunctionBase<GetIntFunction, StoryValueParam<string, int>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, int> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            var def = _params.Param2Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = intent.Call<int>("getIntExtra", str, def);
+            }
+#endif
+        }
+    }
+    internal sealed class GetIntArrayFunction : SimpleStoryFunctionBase<GetIntArrayFunction, StoryValueParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = BoxedValue.FromObject(intent.Call<int[]>("getIntArrayExtra", str));
+            }
+#endif
+        }
+    }
+    internal sealed class GetLongFunction : SimpleStoryFunctionBase<GetLongFunction, StoryValueParam<string, long>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, long> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            var def = _params.Param2Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = intent.Call<long>("getLongExtra", str, def);
+            }
+#endif
+        }
+    }
+    internal sealed class GetLongArrayFunction : SimpleStoryFunctionBase<GetLongArrayFunction, StoryValueParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = BoxedValue.FromObject(intent.Call<long[]>("getLongArrayExtra", str));
+            }
+#endif
+        }
+    }
+    internal sealed class GetFloatFunction : SimpleStoryFunctionBase<GetFloatFunction, StoryValueParam<string, float>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, float> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            var def = _params.Param2Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = intent.Call<float>("getFloatExtra", str, def);
+            }
+#endif
+        }
+    }
+    internal sealed class GetFloatArrayFunction : SimpleStoryFunctionBase<GetFloatArrayFunction, StoryValueParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = BoxedValue.FromObject(intent.Call<float[]>("getFloatArrayExtra", str));
+            }
+#endif
+        }
+    }
+    internal sealed class GetDoubleFunction : SimpleStoryFunctionBase<GetDoubleFunction, StoryValueParam<string, double>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, double> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            var def = _params.Param2Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = intent.Call<double>("getDoubleExtra", str, def);
+            }
+#endif
+        }
+    }
+    internal sealed class GetDoubleArrayFunction : SimpleStoryFunctionBase<GetDoubleArrayFunction, StoryValueParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var str = _params.Param1Value;
+            if (!string.IsNullOrEmpty(str)) {
+                var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                var intent = act.Call<AndroidJavaObject>("getIntent");
+                result.Value = BoxedValue.FromObject(intent.Call<double[]>("getDoubleArrayExtra", str));
+            }
+#endif
+        }
+    }
+    internal sealed class GetActivityClassNameFunction : SimpleStoryFunctionBase<GetActivityClassNameFunction, StoryValueParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        {
+#if UNITY_ANDROID
+            var javaObject = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+            string fullClassName = javaObject.Call<AndroidJavaObject>("getClass").Call<string>("getName");
+            result.Value = fullClassName;
+#endif
+        }
+    }
+    internal sealed class PlayerPrefIntFunction : SimpleStoryFunctionBase<PlayerPrefIntFunction, StoryValueParam<string, int>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, int> _params, StoryValueResult result)
         {
@@ -903,7 +1225,7 @@ namespace GmCommands
             result.Value = val;
         }
     }
-    internal class PlayerPrefFloatFunction : SimpleStoryFunctionBase<PlayerPrefFloatFunction, StoryValueParam<string, float>>
+    internal sealed class PlayerPrefFloatFunction : SimpleStoryFunctionBase<PlayerPrefFloatFunction, StoryValueParam<string, float>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, float> _params, StoryValueResult result)
         {
@@ -914,7 +1236,7 @@ namespace GmCommands
             result.Value = val;
         }
     }
-    internal class PlayerPrefStringFunction : SimpleStoryFunctionBase<PlayerPrefStringFunction, StoryValueParam<string, string>>
+    internal sealed class PlayerPrefStringFunction : SimpleStoryFunctionBase<PlayerPrefStringFunction, StoryValueParam<string, string>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, string> _params, StoryValueResult result)
         {
@@ -925,7 +1247,7 @@ namespace GmCommands
             result.Value = val;
         }
     }
-    internal class IsFormatSupportedFunction : SimpleStoryFunctionBase<IsFormatSupportedFunction, StoryValueParam<string, string>>
+    internal sealed class IsFormatSupportedFunction : SimpleStoryFunctionBase<IsFormatSupportedFunction, StoryValueParam<string, string>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, string> _params, StoryValueResult result)
         {
@@ -945,7 +1267,7 @@ namespace GmCommands
             result.Value = r;
         }
     }
-    internal class GetCompatibleFormatFunction : SimpleStoryFunctionBase<GetCompatibleFormatFunction, StoryValueParam<string, string>>
+    internal sealed class GetCompatibleFormatFunction : SimpleStoryFunctionBase<GetCompatibleFormatFunction, StoryValueParam<string, string>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, string> _params, StoryValueResult result)
         {
@@ -966,7 +1288,7 @@ namespace GmCommands
             result.Value = r;
         }
     }
-    internal class GetGraphicsFormatFunction : SimpleStoryFunctionBase<GetGraphicsFormatFunction, StoryValueParam<string>>
+    internal sealed class GetGraphicsFormatFunction : SimpleStoryFunctionBase<GetGraphicsFormatFunction, StoryValueParam<string>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
         {
@@ -985,7 +1307,7 @@ namespace GmCommands
             result.Value = r;
         }
     }
-    internal class GetMSAASampleCountFunction : SimpleStoryFunctionBase<GetMSAASampleCountFunction, StoryValueParam<int, int, string, int, int>>
+    internal sealed class GetMSAASampleCountFunction : SimpleStoryFunctionBase<GetMSAASampleCountFunction, StoryValueParam<int, int, string, int, int>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<int, int, string, int, int> _params, StoryValueResult result)
         {
@@ -1007,112 +1329,112 @@ namespace GmCommands
             result.Value = r;
         }
     }
-    internal class SystemInfoFunction : SimpleStoryFunctionBase<SystemInfoFunction, StoryValueParam>
+    internal sealed class SystemInfoFunction : SimpleStoryFunctionBase<SystemInfoFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = typeof(SystemInfo);
         }
     }
-    internal class ScreenFunction : SimpleStoryFunctionBase<ScreenFunction, StoryValueParam>
+    internal sealed class ScreenFunction : SimpleStoryFunctionBase<ScreenFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = typeof(Screen);
         }
     }
-    internal class ScreenWidthFunction : SimpleStoryFunctionBase<ScreenWidthFunction, StoryValueParam>
+    internal sealed class ScreenWidthFunction : SimpleStoryFunctionBase<ScreenWidthFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Screen.width;
         }
     }
-    internal class ScreenHeightFunction : SimpleStoryFunctionBase<ScreenHeightFunction, StoryValueParam>
+    internal sealed class ScreenHeightFunction : SimpleStoryFunctionBase<ScreenHeightFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Screen.height;
         }
     }
-    internal class ScreenDPIFunction : SimpleStoryFunctionBase<ScreenDPIFunction, StoryValueParam>
+    internal sealed class ScreenDPIFunction : SimpleStoryFunctionBase<ScreenDPIFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Screen.dpi;
         }
     }
-    internal class ApplicationFunction : SimpleStoryFunctionBase<ApplicationFunction, StoryValueParam>
+    internal sealed class ApplicationFunction : SimpleStoryFunctionBase<ApplicationFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = typeof(Application);
         }
     }
-    internal class AppIdFunction : SimpleStoryFunctionBase<AppIdFunction, StoryValueParam>
+    internal sealed class AppIdFunction : SimpleStoryFunctionBase<AppIdFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Application.identifier;
         }
     }
-    internal class AppNameFunction : SimpleStoryFunctionBase<AppNameFunction, StoryValueParam>
+    internal sealed class AppNameFunction : SimpleStoryFunctionBase<AppNameFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Application.productName;
         }
     }
-    internal class PlatformFunction : SimpleStoryFunctionBase<PlatformFunction, StoryValueParam>
+    internal sealed class PlatformFunction : SimpleStoryFunctionBase<PlatformFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Application.platform.ToString();
         }
     }
-    internal class IsEditorFunction : SimpleStoryFunctionBase<IsEditorFunction, StoryValueParam>
+    internal sealed class IsEditorFunction : SimpleStoryFunctionBase<IsEditorFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Application.isEditor;
         }
     }
-    internal class IsConsoleFunction : SimpleStoryFunctionBase<IsConsoleFunction, StoryValueParam>
+    internal sealed class IsConsoleFunction : SimpleStoryFunctionBase<IsConsoleFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Application.isConsolePlatform;
         }
     }
-    internal class IsMobileFunction : SimpleStoryFunctionBase<IsMobileFunction, StoryValueParam>
+    internal sealed class IsMobileFunction : SimpleStoryFunctionBase<IsMobileFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Application.isMobilePlatform;
         }
     }
-    internal class IsAndroidFunction : SimpleStoryFunctionBase<IsAndroidFunction, StoryValueParam>
+    internal sealed class IsAndroidFunction : SimpleStoryFunctionBase<IsAndroidFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Application.platform == RuntimePlatform.Android;
         }
     }
-    internal class IsIPhoneFunction : SimpleStoryFunctionBase<IsIPhoneFunction, StoryValueParam>
+    internal sealed class IsIPhoneFunction : SimpleStoryFunctionBase<IsIPhoneFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Application.platform == RuntimePlatform.IPhonePlayer;
         }
     }
-    internal class IsPCFunction : SimpleStoryFunctionBase<IsPCFunction, StoryValueParam>
+    internal sealed class IsPCFunction : SimpleStoryFunctionBase<IsPCFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = !Application.isMobilePlatform && !Application.isConsolePlatform;
         }
     }
-    internal class ShellFunction : SimpleStoryFunctionBase<ShellFunction, StoryValueParam<string>>
+    internal sealed class ShellFunction : SimpleStoryFunctionBase<ShellFunction, StoryValueParam<string>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
         {
@@ -1120,7 +1442,7 @@ namespace GmCommands
             result.Value = GmRootScript.Exec(cmd, 0);
         }
     }
-    internal class ShellTimeoutFunction : SimpleStoryFunctionBase<ShellTimeoutFunction, StoryValueParam<string, int>>
+    internal sealed class ShellTimeoutFunction : SimpleStoryFunctionBase<ShellTimeoutFunction, StoryValueParam<string, int>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, int> _params, StoryValueResult result)
         {
@@ -1129,63 +1451,63 @@ namespace GmCommands
             result.Value = GmRootScript.Exec(cmd, timeout);
         }
     }
-    internal class IsJavaTaskFunction : SimpleStoryFunctionBase<IsJavaTaskFunction, StoryValueParam>
+    internal sealed class IsJavaTaskFunction : SimpleStoryFunctionBase<IsJavaTaskFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = GmRootScript.UseJavaTask;
         }
     }
-    internal class GetTaskCountFunction : SimpleStoryFunctionBase<GetTaskCountFunction, StoryValueParam>
+    internal sealed class GetTaskCountFunction : SimpleStoryFunctionBase<GetTaskCountFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = GmRootScript.UseJavaTask ? GmRootScript.JavaTasks.Count : GmRootScript.Tasks.Count;
         }
     }
-    internal class WeTestGetXFunction : SimpleStoryFunctionBase<WeTestGetXFunction, StoryValueParam>
+    internal sealed class WeTestGetXFunction : SimpleStoryFunctionBase<WeTestGetXFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = WeTestAutomation.GetX();
         }
     }
-    internal class WeTestGetYFunction : SimpleStoryFunctionBase<WeTestGetYFunction, StoryValueParam>
+    internal sealed class WeTestGetYFunction : SimpleStoryFunctionBase<WeTestGetYFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = WeTestAutomation.GetY();
         }
     }
-    internal class WeTestGetWidthFunction : SimpleStoryFunctionBase<WeTestGetWidthFunction, StoryValueParam>
+    internal sealed class WeTestGetWidthFunction : SimpleStoryFunctionBase<WeTestGetWidthFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = WeTestAutomation.GetWidth();
         }
     }
-    internal class WeTestGetHeightFunction : SimpleStoryFunctionBase<WeTestGetHeightFunction, StoryValueParam>
+    internal sealed class WeTestGetHeightFunction : SimpleStoryFunctionBase<WeTestGetHeightFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = WeTestAutomation.GetHeight();
         }
     }
-    internal class GetPointerFunction : SimpleStoryFunctionBase<GetPointerFunction, StoryValueParam>
+    internal sealed class GetPointerFunction : SimpleStoryFunctionBase<GetPointerFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = Input.mousePosition;
         }
     }
-    internal class PointerRaycastUisFunction : SimpleStoryFunctionBase<PointerRaycastUisFunction, StoryValueParam>
+    internal sealed class PointerRaycastUisFunction : SimpleStoryFunctionBase<PointerRaycastUisFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = BoxedValue.FromObject(RaycastUisFunction.GetUiObjectsUnderMouse(Input.mousePosition));
         }
     }
-    internal class GetPointerComponentsFunction : SimpleStoryFunctionBase<GetPointerComponentsFunction, StoryValueParam<object, bool>>
+    internal sealed class GetPointerComponentsFunction : SimpleStoryFunctionBase<GetPointerComponentsFunction, StoryValueParam<object, bool>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<object, bool> _params, StoryValueResult result)
         {
@@ -1198,7 +1520,7 @@ namespace GmCommands
             }
         }
     }
-    internal class RaycastUisFunction : SimpleStoryFunctionBase<RaycastUisFunction, StoryValueParam<float, float>>
+    internal sealed class RaycastUisFunction : SimpleStoryFunctionBase<RaycastUisFunction, StoryValueParam<float, float>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<float, float> _params, StoryValueResult result)
         {
@@ -1225,7 +1547,7 @@ namespace GmCommands
             return results;
         }
     }
-    internal class RaycastComponentsFunction : SimpleStoryFunctionBase<RaycastComponentsFunction, StoryValueParam<float, float, object, bool>>
+    internal sealed class RaycastComponentsFunction : SimpleStoryFunctionBase<RaycastComponentsFunction, StoryValueParam<float, float, object, bool>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<float, float, object, bool> _params, StoryValueResult result)
         {
@@ -1272,7 +1594,7 @@ namespace GmCommands
             return null;
         }
     }
-    internal class GetScenePathFunction : SimpleStoryFunctionBase<GetScenePathFunction, StoryValueParam<System.Collections.IList, object, int>>
+    internal sealed class GetScenePathFunction : SimpleStoryFunctionBase<GetScenePathFunction, StoryValueParam<System.Collections.IList, object, int>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<System.Collections.IList, object, int> _params, StoryValueResult result)
         {
@@ -1313,14 +1635,14 @@ namespace GmCommands
             return sb.ToString();
         }
     }
-    internal class ShaderFunction : SimpleStoryFunctionBase<ShaderFunction, StoryValueParam>
+    internal sealed class ShaderFunction : SimpleStoryFunctionBase<ShaderFunction, StoryValueParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
         {
             result.Value = typeof(Shader);
         }
     }
-    internal class GetMaterialFunction : SimpleStoryFunctionBase<GetMaterialFunction, StoryValueParams>
+    internal sealed class GetMaterialFunction : SimpleStoryFunctionBase<GetMaterialFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -1339,7 +1661,7 @@ namespace GmCommands
             }
         }
     }
-    internal class GetSharedMaterialFunction : SimpleStoryFunctionBase<GetSharedMaterialFunction, StoryValueParams>
+    internal sealed class GetSharedMaterialFunction : SimpleStoryFunctionBase<GetSharedMaterialFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -1358,7 +1680,7 @@ namespace GmCommands
             }
         }
     }
-    internal class MaterialGetFloatFunction : SimpleStoryFunctionBase<MaterialGetFloatFunction, StoryValueParam<BoxedValue, BoxedValue>>
+    internal sealed class MaterialGetFloatFunction : SimpleStoryFunctionBase<MaterialGetFloatFunction, StoryValueParam<BoxedValue, BoxedValue>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue> _params, StoryValueResult result)
         {
@@ -1375,7 +1697,7 @@ namespace GmCommands
             }
         }
     }
-    internal class MaterialGetIntFunction : SimpleStoryFunctionBase<MaterialGetIntFunction, StoryValueParam<BoxedValue, BoxedValue>>
+    internal sealed class MaterialGetIntFunction : SimpleStoryFunctionBase<MaterialGetIntFunction, StoryValueParam<BoxedValue, BoxedValue>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue> _params, StoryValueResult result)
         {
@@ -1392,7 +1714,7 @@ namespace GmCommands
             }
         }
     }
-    internal class MaterialGetIntegerFunction : SimpleStoryFunctionBase<MaterialGetIntegerFunction, StoryValueParam<BoxedValue, BoxedValue>>
+    internal sealed class MaterialGetIntegerFunction : SimpleStoryFunctionBase<MaterialGetIntegerFunction, StoryValueParam<BoxedValue, BoxedValue>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue> _params, StoryValueResult result)
         {
@@ -1409,7 +1731,7 @@ namespace GmCommands
             }
         }
     }
-    internal class MaterialGetVectorFunction : SimpleStoryFunctionBase<MaterialGetVectorFunction, StoryValueParam<BoxedValue, BoxedValue>>
+    internal sealed class MaterialGetVectorFunction : SimpleStoryFunctionBase<MaterialGetVectorFunction, StoryValueParam<BoxedValue, BoxedValue>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue> _params, StoryValueResult result)
         {
@@ -1426,7 +1748,7 @@ namespace GmCommands
             }
         }
     }
-    internal class MaterialGetColorFunction : SimpleStoryFunctionBase<MaterialGetColorFunction, StoryValueParam<BoxedValue, BoxedValue>>
+    internal sealed class MaterialGetColorFunction : SimpleStoryFunctionBase<MaterialGetColorFunction, StoryValueParam<BoxedValue, BoxedValue>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<BoxedValue, BoxedValue> _params, StoryValueResult result)
         {
@@ -1444,7 +1766,7 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal class LogComponentsCommand : SimpleStoryCommandBase<LogComponentsCommand, StoryValueParam<string, System.Collections.IList, object, int, bool>>
+    internal sealed class LogComponentsCommand : SimpleStoryCommandBase<LogComponentsCommand, StoryValueParam<string, System.Collections.IList, object, int, bool>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object, int, bool> _params, long delta)
         {
@@ -1490,7 +1812,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class LogScenePathCommand : SimpleStoryCommandBase<LogScenePathCommand, StoryValueParam<System.Collections.IList, object, int>>
+    internal sealed class LogScenePathCommand : SimpleStoryCommandBase<LogScenePathCommand, StoryValueParam<System.Collections.IList, object, int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<System.Collections.IList, object, int> _params, long delta)
         {
@@ -1501,7 +1823,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ClickUiCommand : SimpleStoryCommandBase<ClickUiCommand, StoryValueParams>
+    internal sealed class ClickUiCommand : SimpleStoryCommandBase<ClickUiCommand, StoryValueParams>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
         {
@@ -1520,7 +1842,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ToggleOnCommand : SimpleStoryCommandBase<ToggleOnCommand, StoryValueParams>
+    internal sealed class ToggleOnCommand : SimpleStoryCommandBase<ToggleOnCommand, StoryValueParams>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
         {
@@ -1539,7 +1861,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ClickOnPointerCommand : SimpleStoryCommandBase<ClickOnPointerCommand, StoryValueParam>
+    internal sealed class ClickOnPointerCommand : SimpleStoryCommandBase<ClickOnPointerCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -1547,7 +1869,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ToggleOnPointerCommand : SimpleStoryCommandBase<ToggleOnPointerCommand, StoryValueParam>
+    internal sealed class ToggleOnPointerCommand : SimpleStoryCommandBase<ToggleOnPointerCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -1555,7 +1877,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ClickOnPosCommand : SimpleStoryCommandBase<ClickOnPosCommand, StoryValueParam<float, float>>
+    internal sealed class ClickOnPosCommand : SimpleStoryCommandBase<ClickOnPosCommand, StoryValueParam<float, float>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<float, float> _params, long delta)
         {
@@ -1594,7 +1916,7 @@ namespace GmCommands
             }
         }
     }
-    internal class ToggleOnPosCommand : SimpleStoryCommandBase<ToggleOnPosCommand, StoryValueParam<float, float>>
+    internal sealed class ToggleOnPosCommand : SimpleStoryCommandBase<ToggleOnPosCommand, StoryValueParam<float, float>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<float, float> _params, long delta)
         {
@@ -1633,7 +1955,7 @@ namespace GmCommands
             }
         }
     }
-    internal class ClickCommand : SimpleStoryCommandBase<ClickCommand, StoryValueParam<object>>
+    internal sealed class ClickCommand : SimpleStoryCommandBase<ClickCommand, StoryValueParam<object>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<object> _params, long delta)
         {
@@ -1645,7 +1967,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ToggleCommand : SimpleStoryCommandBase<ToggleCommand, StoryValueParam<object>>
+    internal sealed class ToggleCommand : SimpleStoryCommandBase<ToggleCommand, StoryValueParam<object>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<object> _params, long delta)
         {
@@ -1657,7 +1979,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class LogCompiledPerfsCommand : SimpleStoryCommandBase<LogCompiledPerfsCommand, StoryValueParam>
+    internal sealed class LogCompiledPerfsCommand : SimpleStoryCommandBase<LogCompiledPerfsCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -1665,7 +1987,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ReloadPerfsCommand : SimpleStoryCommandBase<ReloadPerfsCommand, StoryValueParam>
+    internal sealed class ReloadPerfsCommand : SimpleStoryCommandBase<ReloadPerfsCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -1673,7 +1995,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class RunPerfCommand : SimpleStoryCommandBase<RunPerfCommand, StoryValueParam<string>>
+    internal sealed class RunPerfCommand : SimpleStoryCommandBase<RunPerfCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
@@ -1687,7 +2009,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class CompilePerfCommand : SimpleStoryCommandBase<CompilePerfCommand, StoryValueParam<string>>
+    internal sealed class CompilePerfCommand : SimpleStoryCommandBase<CompilePerfCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
@@ -1699,7 +2021,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class LoadUiCommand : SimpleStoryCommandBase<LoadUiCommand, StoryValueParam<Dsl.ValueData>>
+    internal sealed class LoadUiCommand : SimpleStoryCommandBase<LoadUiCommand, StoryValueParam<Dsl.ValueData>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<Dsl.ValueData> _params, long delta)
         {
@@ -1718,7 +2040,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class ShowUiCommand : SimpleStoryCommandBase<ShowUiCommand, StoryValueParam>
+    internal sealed class ShowUiCommand : SimpleStoryCommandBase<ShowUiCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -1735,7 +2057,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal class HideUiCommand : SimpleStoryCommandBase<HideUiCommand, StoryValueParam>
+    internal sealed class HideUiCommand : SimpleStoryCommandBase<HideUiCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
@@ -1753,7 +2075,7 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal class FindRawImageFunction : SimpleStoryFunctionBase<FindRawImageFunction, StoryValueParams>
+    internal sealed class FindRawImageFunction : SimpleStoryFunctionBase<FindRawImageFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -1775,7 +2097,7 @@ namespace GmCommands
             }
         }
     }
-    internal class FindUiImageFunction : SimpleStoryFunctionBase<FindUiImageFunction, StoryValueParams>
+    internal sealed class FindUiImageFunction : SimpleStoryFunctionBase<FindUiImageFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -1797,7 +2119,7 @@ namespace GmCommands
             }
         }
     }
-    internal class FindUiButtonFunction : SimpleStoryFunctionBase<FindUiButtonFunction, StoryValueParams>
+    internal sealed class FindUiButtonFunction : SimpleStoryFunctionBase<FindUiButtonFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -1820,7 +2142,7 @@ namespace GmCommands
             }
         }
     }
-    internal class FindUiToggleFunction : SimpleStoryFunctionBase<FindUiToggleFunction, StoryValueParams>
+    internal sealed class FindUiToggleFunction : SimpleStoryFunctionBase<FindUiToggleFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -1843,7 +2165,7 @@ namespace GmCommands
             }
         }
     }
-    internal class FindUiSliderFunction : SimpleStoryFunctionBase<FindUiSliderFunction, StoryValueParams>
+    internal sealed class FindUiSliderFunction : SimpleStoryFunctionBase<FindUiSliderFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -1866,7 +2188,7 @@ namespace GmCommands
             }
         }
     }
-    internal class FindUiInputFunction : SimpleStoryFunctionBase<FindUiInputFunction, StoryValueParams>
+    internal sealed class FindUiInputFunction : SimpleStoryFunctionBase<FindUiInputFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -1889,7 +2211,7 @@ namespace GmCommands
             }
         }
     }
-    internal class FindTmpInputFunction : SimpleStoryFunctionBase<FindTmpInputFunction, StoryValueParams>
+    internal sealed class FindTmpInputFunction : SimpleStoryFunctionBase<FindTmpInputFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -1912,7 +2234,7 @@ namespace GmCommands
             }
         }
     }
-    internal class FindUiDropdownFunction : SimpleStoryFunctionBase<FindUiDropdownFunction, StoryValueParams>
+    internal sealed class FindUiDropdownFunction : SimpleStoryFunctionBase<FindUiDropdownFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -1935,7 +2257,7 @@ namespace GmCommands
             }
         }
     }
-    internal class FindTmpDropdownFunction : SimpleStoryFunctionBase<FindTmpDropdownFunction, StoryValueParams>
+    internal sealed class FindTmpDropdownFunction : SimpleStoryFunctionBase<FindTmpDropdownFunction, StoryValueParams>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
@@ -1958,7 +2280,7 @@ namespace GmCommands
             }
         }
     }
-    internal class FindComponentFunction : SimpleStoryFunctionBase<FindComponentFunction, StoryValueParam<string, System.Collections.IList, object, bool>>
+    internal sealed class FindComponentFunction : SimpleStoryFunctionBase<FindComponentFunction, StoryValueParam<string, System.Collections.IList, object, bool>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object, bool> _params, StoryValueResult result)
         {
@@ -2004,7 +2326,7 @@ namespace GmCommands
             }
         }
     }
-    internal class SearchComponentsFunction : SimpleStoryFunctionBase<SearchComponentsFunction, StoryValueParam<string, System.Collections.IList, object, bool>>
+    internal sealed class SearchComponentsFunction : SimpleStoryFunctionBase<SearchComponentsFunction, StoryValueParam<string, System.Collections.IList, object, bool>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object, bool> _params, StoryValueResult result)
         {
