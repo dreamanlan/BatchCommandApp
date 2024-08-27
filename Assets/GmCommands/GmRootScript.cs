@@ -334,7 +334,27 @@ public sealed class GmRootScript : MonoBehaviour
         lock (s_Lock) {
             if (s_LogQueue.Count > 0) {
                 string log = s_LogQueue.Dequeue();
-                LogSystem.Warn("{0}", log);
+                if (log.Length > 1024) {
+                    var lines = log.Split('\n');
+                    int ct = 0;
+                    var sb = new StringBuilder();
+                    sb.AppendLine();
+                    foreach(var line in lines) {
+                        var logLine = line.TrimEnd();
+                        LogSystem.Warn("{0}", logLine);
+                        sb.AppendLine(logLine);
+                        ++ct;
+                        if (ct % 10 == 0) {
+                            LogSystem.Warn("{0}", sb.ToString());
+                            sb.Length = 0;
+                            sb.AppendLine();
+                            System.Threading.Thread.Sleep(0);
+                        }
+                    }
+                }
+                else {
+                    LogSystem.Warn("{0}", log);
+                }
             }
         }
     }
@@ -424,6 +444,71 @@ public sealed class GmRootScript : MonoBehaviour
                 }
             }
         }
+    }
+
+    internal static void SetPlayerPrefByJava(string key, BoxedValue val)
+    {
+        string prefsName = Application.identifier + ".v2.playerprefs";
+
+        using (var unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+            using (var unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity")) {
+                if (null != unityActivity) {
+                    using (var context = unityActivity.Call<AndroidJavaObject>("getApplicationContext")) {
+                        if (null != context) {
+                            using (var prefs = context.Call<AndroidJavaObject>("getSharedPreferences", prefsName, 0)) {
+                                if (null != prefs) {
+                                    using (var wprefs = prefs.Call<AndroidJavaObject>("edit")) {
+                                        if (null != wprefs) {
+                                            if (val.IsInteger) {
+                                                wprefs.Call<AndroidJavaObject>("putInt", key, val.GetInt());
+                                            }
+                                            else if (val.IsNumber) {
+                                                wprefs.Call<AndroidJavaObject>("putFloat", key, val.GetFloat());
+                                            }
+                                            else if (val.IsString) {
+                                                wprefs.Call<AndroidJavaObject>("putString", key, val.GetString());
+                                            }
+                                            wprefs.Call("apply");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    internal static BoxedValue GetPlayerPrefByJava(string key, BoxedValue defval)
+    {
+        BoxedValue ret = BoxedValue.EmptyString;
+        string prefsName = Application.identifier+ ".v2.playerprefs";
+
+        using (var unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+            using (var unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity")) {
+                if (null != unityActivity) {
+                    using (var context = unityActivity.Call<AndroidJavaObject>("getApplicationContext")) {
+                        if (null != context) {
+                            using (var prefs = context.Call<AndroidJavaObject>("getSharedPreferences", prefsName, 0)) {
+                                if (null != prefs) {
+                                    if(defval.IsInteger) {
+                                        ret = prefs.Call<int>("getInt", key, defval.GetInt());
+                                    }
+                                    else if(defval.IsNumber) {
+                                        ret = prefs.Call<float>("getFloat", key, defval.GetFloat());
+                                    }
+                                    else if(defval.IsString) {
+                                        ret = prefs.Call<string>("getString", key, defval.GetString());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return ret;
     }
 
     internal static void PutIntentExtra(AndroidJavaObject intent, string extraName, BoxedValue extraValue)
@@ -956,14 +1041,14 @@ internal sealed class BroadcastReceiverCallback : AndroidJavaProxy
         if(!string.IsNullOrEmpty(cmd)) {
             GmRootScript.SendCommand(cmd);
 
-            LogSystem.Info("receive a command: {0}", cmd);
+            LogSystem.Warn("receive a command: {0}", cmd);
         }
         else {
             cmd = intent.Call<string>("getStringExtra", GmRootScript.s_application_identifier);
             if (!string.IsNullOrEmpty(cmd)) {
                 GmRootScript.SendCommand(cmd);
 
-                LogSystem.Info("receive a special command: {0}", cmd);
+                LogSystem.Warn("receive a special command: {0}", cmd);
             }
         }
     }

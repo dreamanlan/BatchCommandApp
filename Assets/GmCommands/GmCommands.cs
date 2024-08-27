@@ -575,6 +575,16 @@ namespace GmCommands
             return false;
         }
     }
+    internal sealed class PrefByJavaCommand : SimpleStoryCommandBase<PrefByJavaCommand, StoryValueParam<string, BoxedValue>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, BoxedValue> _params, long delta)
+        {
+            string key = _params.Param1Value;
+            BoxedValue val = _params.Param2Value;
+            GmRootScript.SetPlayerPrefByJava(key, val);
+            return false;
+        }
+    }
     internal sealed class WeTestTouchCommand : SimpleStoryCommandBase<WeTestTouchCommand, StoryValueParam<int, float, float>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<int, float, float> _params, long delta)
@@ -1245,6 +1255,15 @@ namespace GmCommands
             string val = PlayerPrefs.GetString(key, def);
 
             result.Value = val;
+        }
+    }
+    internal sealed class PrefByJavaFunction : SimpleStoryFunctionBase<PrefByJavaFunction, StoryValueParam<string, BoxedValue>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, BoxedValue> _params, StoryValueResult result)
+        {
+            string key = _params.Param1Value;
+            BoxedValue def = _params.Param2Value;
+            result.Value = GmRootScript.GetPlayerPrefByJava(key, def);
         }
     }
     internal sealed class IsFormatSupportedFunction : SimpleStoryFunctionBase<IsFormatSupportedFunction, StoryValueParam<string, string>>
