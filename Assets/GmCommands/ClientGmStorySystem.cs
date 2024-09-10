@@ -15,6 +15,7 @@ namespace GmCommands
                 RegisterCommon();
 
                 //register Gm command
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logbuildnum", "logbuildnum() command", new StoryCommandFactoryHelper<LogBuildNumCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setdebug", "setdebug(1_or_0) command", new StoryCommandFactoryHelper<SetDebugCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "startactivity", "startactivity(package_name[[,class_name[,flags]],extra_list_or_dict]) command", new StoryCommandFactoryHelper<StartActivityCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "finishactivity", "finishactivity() command", new StoryCommandFactoryHelper<FinishActivityCommand>());

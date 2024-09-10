@@ -213,6 +213,19 @@ public static class PerfGradeGm
             }
         }
     }
+    public static void RunPerfGradeOnlyCsharp()
+    {
+        PerfGrade.Instance.ClearAll();
+        PerfGrade.Instance.Init();
+        var grade = PerfGrade.Instance.GetGrade();
+        if (grade == PerfGrade.GradeEnum.Unknown) {
+            grade = PerfGrade.Instance.GetDefaultGrade();
+        }
+
+        LogSystem.Warn("final device grade:{0}", grade);
+
+        PerfGrade.Instance.DoSetting(grade);
+    }
     public static void CompilePerfGradeScript(string script_file)
     {
 #if UNITY_EDITOR
