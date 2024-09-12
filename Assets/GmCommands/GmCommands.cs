@@ -73,11 +73,11 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal sealed class LogBuildNumCommand : SimpleStoryCommandBase<LogBuildNumCommand, StoryValueParam>
+    internal sealed class LogCodeNumCommand : SimpleStoryCommandBase<LogCodeNumCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
-            LogSystem.Warn("app build num:{0}", 113);
+            LogSystem.Warn("app code num:{0}", 113);
             return false;
         }
     }
