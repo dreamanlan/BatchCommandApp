@@ -81,6 +81,14 @@ namespace GmCommands
             return false;
         }
     }
+    internal sealed class HelpCommand : SimpleStoryCommandBase<HelpCommand, StoryValueParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        {
+            Application.OpenURL("https://www.google.com/to_do");
+            return false;
+        }
+    }
     internal sealed class SetDebugCommand : SimpleStoryCommandBase<SetDebugCommand, StoryValueParam<int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<int> _params, long delta)

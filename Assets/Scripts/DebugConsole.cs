@@ -313,8 +313,11 @@ public class DebugConsole : MonoBehaviour
         LogMessage(Message.System(string.Format(" DebugConsole version {0}", VERSION)));
         LogMessage(Message.System(" Copyright 2008-2010 Jeremy Hollingsworth "));
         LogMessage(Message.System(" Ennanzus-Interactive.com "));
-        LogMessage(Message.System(" type '/?' for available commands."));
-        LogMessage(Message.System(" type '/? filter' for available story commands and script apis."));
+        LogMessage(Message.System(" type '/?' for available DebugConsole commands."));
+        LogMessage(Message.System(" type '/? command' for available GM story commands."));
+        LogMessage(Message.System(" type '/? function' for available GM story functions."));
+        LogMessage(Message.System(" type '/? keyword_string' for matched GM story commands and functions."));
+        LogMessage(Message.System(" type 'help()' to open help document."));
         LogMessage(Message.Log(""));
 
         this.RegisterCommandCallback("open", CMDOpen);
@@ -757,13 +760,19 @@ public class DebugConsole : MonoBehaviour
         var output = new StringBuilder();
 
         if (string.IsNullOrEmpty(filter)) {
+            output.AppendLine("type '/?' for available DebugConsole commands.");
+            output.AppendLine("type '/? command' for available GM story commands");
+            output.AppendLine("type '/? function' for available GM story functions");
+            output.AppendLine("type '/? keyword_string' for matched GM story commands and functions");
+            output.AppendLine("type 'help()' to open help document.");
+            output.AppendLine();
             output.AppendLine(":: Command List ::");
 
             foreach (string key in m_CmdTable.Keys) {
                 output.AppendLine(key);
             }
 
-            output.AppendLine(" ");
+            output.AppendLine();
         }
         else {
             output.AppendLine(":: Story Command List ::");
@@ -777,7 +786,7 @@ public class DebugConsole : MonoBehaviour
                 }
             }
 
-            output.AppendLine(" ");
+            output.AppendLine();
             output.AppendLine(":: Story Function List ::");
 
             foreach (var pair in GmRootScript.FunctionDocs) {
@@ -789,7 +798,7 @@ public class DebugConsole : MonoBehaviour
                 }
             }
 
-            output.AppendLine(" ");
+            output.AppendLine();
             output.AppendLine(":: Script API List ::");
 
             foreach(var pair in Main.GetApiDocs()) {
@@ -801,7 +810,7 @@ public class DebugConsole : MonoBehaviour
                 }
             }
 
-            output.AppendLine(" ");
+            output.AppendLine();
         }
 
         return output.ToString();
