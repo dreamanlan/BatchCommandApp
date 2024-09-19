@@ -332,6 +332,12 @@ namespace GmCommands
                             LogSystem.Error("can't support graphics format {0} usage {1} <=> rt:{2} tex:{3}", gf, fu, rtf, tf);
                         }
                     }
+                    if (!SystemInfo.IsFormatSupported(gf, FormatUsage.MSAA8x + 1)) {
+                        LogSystem.Error("can't support graphics format {0} usage MSAA16x <=> rt:{1} tex:{2}", gf, rtf, tf);
+                    }
+                    if (!SystemInfo.IsFormatSupported(gf, FormatUsage.MSAA8x + 2)) {
+                        LogSystem.Error("can't support graphics format {0} usage MSAA32x <=> rt:{1} tex:{2}", gf, rtf, tf);
+                    }
                     ++ct;
                     if (ct % 20 == 0) {
                         Thread.Sleep(0);
