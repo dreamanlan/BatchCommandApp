@@ -427,8 +427,29 @@ public class UiHanlder : MonoBehaviour
     //Values on the UI can be reset or synchronized while the UI is displayed
     private void OnUiShow(string res)
     {
+        CheckTmpFont();
         if (res == c_TestUI) {
             InitTestUi();
+        }
+    }
+    private void CheckTmpFont()
+    {
+        if (!m_Font) {
+            var comps = GameObject.FindObjectsOfType<TMPro.TextMeshProUGUI>(true);
+            foreach (var comp in comps) {
+                if (comp.font) {
+                    m_Font = comp.font;
+                    break;
+                }
+            }
+        }
+        if (m_Font) {
+            var comps = m_RootUi.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true);
+            foreach (var comp in comps) {
+                if (!comp.font) {
+                    comp.font = m_Font;
+                }
+            }
         }
     }
 
@@ -517,6 +538,7 @@ public class UiHanlder : MonoBehaviour
     private string m_CurUiRes = string.Empty;
     private bool m_UiLoaded = false;
     private bool m_UiInited = false;
+    private TMPro.TMP_FontAsset m_Font;
 
     private const string c_AutoIdKeyword = "@auto";
     private const int c_CellRowNum = 20;
