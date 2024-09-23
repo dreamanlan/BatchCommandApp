@@ -168,19 +168,21 @@ public static class PerfGradeGm
         }
 
         var grade = PerfGrade.Instance.GetGrade();
-        foreach (var pair in s_Grades) {
-            int g = pair.Key;
-            foreach (var tuple in pair.Value) {
-                PerfGrade.Instance.SetCallFromGrade(true);
-                s_Calculator.Calc(tuple.Item1);
-                if (PerfGrade.Instance.GradeSetState) {
-                    grade = (PerfGrade.GradeEnum)g;
-                    LogSystem.Warn("set grade:{0} from {1}", grade, tuple.Item2);
+        if (grade == PerfGrade.GradeEnum.Unknown) {
+            foreach (var pair in s_Grades) {
+                int g = pair.Key;
+                foreach (var tuple in pair.Value) {
+                    PerfGrade.Instance.SetCallFromGrade(true);
+                    s_Calculator.Calc(tuple.Item1);
+                    if (PerfGrade.Instance.GradeSetState) {
+                        grade = (PerfGrade.GradeEnum)g;
+                        LogSystem.Warn("set grade:{0} from {1}", grade, tuple.Item2);
+                        break;
+                    }
+                }
+                if (grade != PerfGrade.GradeEnum.Unknown) {
                     break;
                 }
-            }
-            if (grade != PerfGrade.GradeEnum.Unknown) {
-                break;
             }
         }
 
