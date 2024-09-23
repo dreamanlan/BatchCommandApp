@@ -104,7 +104,13 @@ public sealed class GmRootScript : MonoBehaviour
             m_Logger.Log("{0}", msg);
         };
 
-#if UNITY_ANDROID
+#if UNITY_EDITOR
+        SetClipboardInterval(100);
+#elif UNITY_STANDALONE
+#if DEVELOPMENT_BUILD
+        SetClipboardInterval(100);
+#endif
+#elif UNITY_ANDROID
 #if DEVELOPMENT_BUILD
         InitAndroidReceiver();
 #endif

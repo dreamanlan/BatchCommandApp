@@ -27,8 +27,9 @@ public class Main : MonoBehaviour
         UnityEditorApi.Register(PerfGradeGm.Calculator);
         PerfGradeGm.Calculator.Register("setclipboard", "setclipboard(str) api", new ExpressionFactoryHelper<SetClipboardExp>());
         PerfGradeGm.Calculator.Register("getclipboard", "getclipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
-        TestPerfGrade();
-        TestGM();
+
+        CheckGM();
+        RunPerfGrade();
     }
     private IEnumerator Loop()
     {
@@ -64,7 +65,7 @@ public class Main : MonoBehaviour
 
     private StringBuilder m_LogBuilder = new StringBuilder();
 
-    public static void TestGM()
+    public static void CheckGM()
     {
         string path = Application.persistentDataPath;
         if (Application.platform == RuntimePlatform.Android) {
@@ -96,18 +97,41 @@ public class Main : MonoBehaviour
                 DebugConsole.Execute(sb.ToString());
             }
         }
+        else {
+#if UNITY_EDITOR
+            GmRootScript.TryInit();
+#elif UNITY_STANDALONE
+#if DEVELOPMENT_BUILD
+            GmRootScript.TryInit();
+#endif
+#elif UNITY_ANDROID
+#if DEVELOPMENT_BUILD
+            GmRootScript.TryInit();
+#endif
+#endif
+        }
     }
-    public static void TestPerfGrade()
+    public static void RunPerfGrade()
     {
 #if UNITY_ANDROID || UNITY_EDITOR || UNITY_STANDALONE
-        PerfGradeGm.ClearPerfGradeScripts();
+        bool needRun = false;
         for (int i = 0; i < PerfGrade.c_max_perf_grade_cfgs; ++i) {
             string file = System.IO.Path.Combine(PerfGradeGm.ScriptPath, string.Format("perf{0}.dsl", i));
             if (File.Exists(file)) {
+                if (!needRun) {
+                    PerfGradeGm.ClearPerfGradeScripts();
+                    needRun = true;
+                }
                 PerfGradeGm.LoadPerfGradeScript(file);
             }
         }
-        PerfGradeGm.RunPerfGrade();
+        if (needRun) {
+            PerfGradeGm.RunPerfGrade();
+        }
+        else {
+            //Open later on demand
+            //PerfGradeGm.RunPerfGradeOnlyCsharp();
+        }
 #endif
     }
 

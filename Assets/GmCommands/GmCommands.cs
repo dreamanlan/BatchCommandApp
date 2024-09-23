@@ -2032,7 +2032,7 @@ namespace GmCommands
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
-            Main.TestPerfGrade();
+            Main.RunPerfGrade();
             return false;
         }
     }
