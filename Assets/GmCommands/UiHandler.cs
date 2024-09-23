@@ -16,7 +16,7 @@ using UnityEngine.EventSystems;
 /// because the functional codes of the experiment are hard-coded in the project, and using
 /// scripts is of little significance and may complicate things.
 /// </summary>
-public class UiHanlder : MonoBehaviour
+public class UiHandler : MonoBehaviour
 {
     public GameObject LabelTemplate;
     public GameObject InputTemplate;
@@ -437,7 +437,7 @@ public class UiHanlder : MonoBehaviour
         if (!m_Font) {
             var comps = GameObject.FindObjectsOfType<TMPro.TextMeshProUGUI>(true);
             foreach (var comp in comps) {
-                if (comp.font) {
+                if (comp.font && comp.font.name.Contains(c_FontKey)) {
                     m_Font = comp.font;
                     break;
                 }
@@ -539,6 +539,7 @@ public class UiHanlder : MonoBehaviour
     private bool m_UiLoaded = false;
     private bool m_UiInited = false;
     private TMPro.TMP_FontAsset m_Font;
+    private const string c_FontKey = "";
 
     private const string c_AutoIdKeyword = "@auto";
     private const int c_CellRowNum = 20;

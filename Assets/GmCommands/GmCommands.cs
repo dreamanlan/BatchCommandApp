@@ -2070,7 +2070,7 @@ namespace GmCommands
 
             var fv = GmRootScript.GameObj;
             if (null != fv) {
-                var uihandler = fv.GetComponent<UiHanlder>();
+                var uihandler = fv.GetComponent<UiHandler>();
                 if (null != uihandler) {
                     uihandler.LoadUi(uiRes.GetId());
                 }
@@ -2087,7 +2087,7 @@ namespace GmCommands
         {
             var fv = GmRootScript.GameObj;
             if (null != fv) {
-                var uihandler = fv.GetComponent<UiHanlder>();
+                var uihandler = fv.GetComponent<UiHandler>();
                 if (null != uihandler) {
                     uihandler.ShowUi();
                 }
@@ -2104,7 +2104,7 @@ namespace GmCommands
         {
             var fv = GmRootScript.GameObj;
             if (null != fv) {
-                var uihandler = fv.GetComponent<UiHanlder>();
+                var uihandler = fv.GetComponent<UiHandler>();
                 if (null != uihandler) {
                     uihandler.HideUi();
                 }
