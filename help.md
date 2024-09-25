@@ -1,3 +1,5 @@
+[[toc]]
+
 ## 一、语法
 
 **【一句话语法】**
@@ -1193,3 +1195,5 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 = [total]:total() function, get total native memory
 = [unused]:unused() function, get unused reserved native memory
 ```
+
+[[toc]]
