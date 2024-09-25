@@ -85,7 +85,7 @@ namespace GmCommands
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
-            Application.OpenURL("https://www.google.com/to_do");
+            Application.OpenURL("https://github.com/dreamanlan/BatchCommandApp/blob/master/help.md");
             return false;
         }
     }
