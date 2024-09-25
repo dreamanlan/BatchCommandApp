@@ -536,7 +536,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 ```
 = [propget]:propget(name[,defval] function
 ```
-- 应该不会用到的命令
+- ~~应该不会用到的命令~~
 ```
 = [clearglobals]:clearglobals() command
 = [clearmessage]:clearmessage(msgid1,msgid2,...) command
@@ -567,7 +567,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 = [substcmd]:substcmd(id,substId) command
 = [substfunc]:substfunc(id,substId) command
 ```
-- 应该不会用到的函数
+- ~~应该不会用到的函数~~
 ```
 = [countcommand]:countcommand(level) function
 = [counthandlercommand]:counthandlercommand() function
