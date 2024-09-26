@@ -50,11 +50,13 @@
 ## 二、基本用法
 
 1. 入口在DebugConsole窗口（使用`按键或屏幕中上点3下打开），同时提供了从剪贴板与adb命令输入的方式
+
 2. 安卓profiler版本默认启动会监听adb命令，release版本需要先输入
 ```
 setdebug(1);listenandroid();
 ```
 后才开始监听
+
 3. adb命令的发送方法
 ```
 adb shell am broadcast -a com.unity3d.command -e cmd '命令串'
@@ -65,14 +67,17 @@ adb shell am broadcast -a com.unity3d.command -e cmd '命令串'
 ```
 am broadcast -a com.unity3d.command -e cmd '命令串'
 ```
+
 5. 也支持发给指定apk，这在同时有多个接收命令的应用时用于区分发给哪一个
 ```
 adb shell am broadcast -a com.unity3d.command -e com.DefaultCompany.Test '命令串'
 ```
+
 6. 可以使用adb命令来打开DebugConsole，或者关闭（命令改为close）
 ```
 adb shell am broadcast -a com.unity3d.command -e cmd 'open'
 ```
+
 7. 剪贴板监听默认未开启，需要输入
 ```
 setdebug(1);listenclipboard(100);
@@ -84,10 +89,12 @@ setdebug(1);listenclipboard(100);
 ```
 [cmd]:命令串
 ```
+
 9. 还有一种是指定特定应用的，此时使用包名作为关键字，只有这个包名对应的应用才会处理此命令
 ```
 [com.DefaultCompany.Test]:命令串
 ```
+
 10. 在安卓上通过adb命令也可以远程设置手机剪贴板内容（用于命令时游戏端需要先使用listenclipboard(100)来监听）
 - 设置普通的剪贴板内容
 ```
@@ -101,6 +108,7 @@ adb shell am startservice -a com.unity3d.clipboard -e cmd '命令串'
 ```
 adb shell am startservice -a com.unity3d.clipboard -e pkgcmd '包名:命令串'
 ```
+
 11.  GM脚本是在DebugConsole命令的基础上扩展的，输入/?会显示DebugConsole的命令列表（比较少，除了开关DebugConsole外主要就是用来执行gm命令或脚本的命令）
 	- open/close用来打开/关闭DebugConsole，没有参数
 	- clear用来清空DebugConsole里的显示内容，没有参数
@@ -115,19 +123,24 @@ adb shell am startservice -a com.unity3d.clipboard -e pkgcmd '包名:命令串'
 	- gm gm_str，目前等同于执行cmd gm("gm命令")，实际没有效果（未接入后端gm系统）
 	- filter 过滤字符串，用来过滤DebugConsole窗口的显示内容，无参数时清空过滤字符串，通常只用于有大量输出信息的时候
 	- /? 无参数时显示DebugConsole的命令列表，可以带一个字符串参数，此时显示包含这个字符串的gm命令/函数的使用说明
+
 12.  GM脚本有一个命令cmd("命令串")，这个命令串是提交给DebugConsole来执行的，所以也能使用这里列出的各条命令
 
 ## 三、GM脚本命令与函数
 
 1. GM脚本采用命令队列来执行，所以可以直接执行的都是命令
+
 2. 命令没有返回值，可以有参数，参数可以是常量值或函数调用
+
 3. GM函数有返回值，函数调用不能直接执行，必须作为命令或函数的参数
+
 4. 命令的参数都是简单数值或变量时，命令也可以写成命令行的形式，即用空格来分隔命令名与各个参数（默认命令与函数都是写成函数调用的样式），当没有参数时，只写命令名称即可（省略括号）
 	```
 	log("{0} {1}",1,2)
 	<=>
 	log "{0} {1}" 1 2
 	```
+
 5. 较4进一步，如果命令的参数是函数调用，不能是复合语句样式的函数与运算表达式，命令也可以写成命令行的形式
 	```
 	log(deviceinfo())
@@ -145,13 +158,18 @@ adb shell am startservice -a com.unity3d.clipboard -e pkgcmd '包名:命令串'
 	log a(1,2,3)b(4,5,6)
 	语法解析会解释成log(a(1,2,3),b(4,5,6))
 	```
+
 6. 一般命令行样式只用于书写单个命令，虽然也可以使用分号来分隔多个命令行样式的命令，但看起来可能不太好理解
+
 7. 命令可以跨tick执行，内置的wait命令（别名sleep）接受一个数值参数，用来等待指定的时间（单位是毫秒），在多个命令间插入wait命令就可以实现跨tick来执行命令序列
+
 8. 函数不能跨tick执行，总是立即计算出返回值
+
 9. 同c系语言一样，多个命令放在一行形成命令序列（每个命令以分号结尾，最后一个命令可以不用分号结尾）
 	```
 	命令1(参数表);命令2(参数表);命令3(参数表);
 	```
+
 10. 有几个复合语句性质的命令：if命令、while命令、loop命令、looplist命令、foreach命令
     - if命令，按照GM脚本语法，结尾需要加分号（如果后面没有别的命令可不加），其中elseif可以有多个，else最多有一个也可以没有。
 	```
@@ -189,7 +207,9 @@ adb shell am startservice -a com.unity3d.clipboard -e pkgcmd '包名:命令串'
 	```
 	foreach(1,3,5,7,9){log("foreach {0}",$$);};
 	```
+
 11.  gm脚本支持dotnet反射调用，语法与c#的对象访问写法基本相同，不过在处理方法重载时可能会有问题，所以带重载的方法有可能出现调用不了的情况
+
 12.  为了适应反射调用的类型，gm脚本添加了常用基础类型的转换函数
 ```
 bool(val);
@@ -206,6 +226,7 @@ float(val);
 double(val);
 decimal(val);
 ```
+
 13.  另外提供了几个按内存在整数与浮点重新解释的函数（类似shader里的那几个）
 ```
 32位内存重解释：
@@ -219,9 +240,11 @@ ltod(val);
 dtou(val);
 utod(val);
 ```
+
 ## 四、GM脚本文件
 
 1. 在DebugConsole里可以使用scp gm_file的命令来执行一个GM脚本文件。如果gm_file是相对路径，在安卓系统上，gm_file的默认目录是/data/local/tmp（不是安卓系统的默认目录是Application.persistentDataPath）
+
 2. GM脚本文件的写法如下，这部分来着我们以前的剧情脚本，大概是基于消息处理的框架，每一个消息处理就是一个命令队列。实际上在DebugConsole里输入的命令也是包装成一个脚本来执行的
 ```
 	script(main)
@@ -232,6 +255,7 @@ utod(val);
 		};
 	};
 ```
+
 3. GM脚本文件支持多个onmessage消息处理块，可以由start块通过localmessage命令来触发其它的消息处理，不过对GM脚本来说一般应该用不着
 ```
 	script(main)
@@ -270,6 +294,7 @@ utod(val);
 		};
 	};
 ```
+
 4. localmessage命令在触发消息处理时可以带参数，消息处理此时需要使用args子句来指明参数列表，也可以不指明局部变量，在消息处理里使用$0,$1,$2,…来访问，$$是参数数量
 ```
 	script(main)
@@ -288,7 +313,9 @@ utod(val);
 		};
 	};
 ```
+
 5. 虽然GM脚本文件里可以有多个名称不同的script块，但我们肯定不需要写这么复杂，这部分就不说明了（我们也没有在GM脚本里提供启动其它脚本的命令，相当于禁用了这个功能）
+
 6. 下面是一个有可能常用的gm脚本文件，在3600秒的时间里，每秒输出一次性能数据
 ```
 	script(main)
@@ -302,175 +329,193 @@ utod(val);
 		};
 	};
 ```
+
 7. GM脚本执行过程中，如果又执行了GM命令或加载GM脚本的命令，则正在执行的GM脚本会终止执行（也就是GM脚本解释器只能有一段脚本代码在运行），所以GM脚本的执行命令一般应该是最后一条GM命令，如果中间需要执行其他命令，则执行完后需要重新输入执行GM脚本的命令
 
 ## 五、变量
 
 1. GM脚本没有提供词法范围的变量机制，代之以名称<=>值的映射来提供简单的变量机制
+
 2. 在脚本里有3种级别的变量，即跨脚本的全局变量，脚本级别的局部变量，还有消息处理级别的局部变量，以名称前缀@@、@、$来区分
+
 3. @@vname 是跨脚本的全局变量，只要不执行resetdsl命令，这些全局变量一直有效，值会保持，这可以在多次命令输入间传递数据，比如前面输入的命令查询到一个对象，可以存到全局变量里，后面输入的命令使用全局变量来访问对象
+
 4. @vname 是脚本级别的局部变量，在脚本的local块里可以指定一个初始值（常量值），这些变量只在当前输入的命令列表间有效，在脚本文件里时是在同一个脚本内跨多个消息处理有效，对于直接输入命令来说与$开头的变量作用相同
+
 5. $vname 是消息处理级别的局部变量，这些变量只在消息处理里有效，不能跨消息处理与脚本
+
 6. 有一个命令propset与一个函数propget，提供了跨脚本的名称<=>值的映射，这个其实与全局变量共用一个map，不过这里直接使用字符串作为key，也能用在多次命令输入间传递数据
 ```
 	propset(name, val);
 	propget(name);
 	propget(name, defval);
 ```
+
 ## 六、启动脚本
 
 1. 启动时GM脚本配置
-2. 安卓系统启动时会检查/data/local/tmp目录下是否有initgm.txt的文本文件（不是安卓系统检查Application.persistentDataPath目录下是否有initgm.txt），如果有则把initgm.txt的每一行当作一行GM脚本或DebugConsole命令进行处理，这些命令作为一个命令列表执行，所以中间执行的命令应该不能是执行命令或GM脚本的命令（因为会重置GM脚本解释器），我们可以在这个文件里配置要加载执行的GM脚本文件，然后后续就交给GM脚本文件处理了，比如下面的内容就是启动时打开调试开关（会影响GM脚本的日志输出），然后根据apk来决定加载执行不同的GM脚本文件
-```
-	setdebug(1);
-	if(appid()=='DefaultCompany.Test'){cmd('scp init.dsl');};
-	if(appid()!='DefaultCompany.Test'){cmd('scp init0.dsl');};
-```
-3. 对于不需要使用GM脚本文件的情形，initgm.txt里一般配置监听adb命令或剪贴板方便后续输入命令
-```
-	setdebug(1);
-	if(isandroid()){listenandroid();};
-	if(!isandroid()){listenclipboard(100);};
-```
-4. 启动时性能分级设置脚本配置（目前仅用于性能实验）
-5. 性能分级脚本的主要考虑是对游戏分档的实验与补充，一方面是对新增机型的分档实验，另一方面是对部分特殊机型可能需要在不同档位做一些特殊的设置。考虑到性能分级通常由性能测试发现，是一个不断迭代的过程，所以考虑提供一个脚本来方便在不打包的情况下修改设置，并避免每次启动都要重复进行设置操作
-6. 性能分级脚本不像GM脚本那样自由，主要考虑到这些脚本在实验确定后应该翻译为c#固化为启动逻辑的一部分，为了方便翻译到c#，需要尽量符合c#的风格。
-7. 与GM脚本配置类似，在安卓启动时会检查/data/local/tmp目录下是否perf0.dsl - perf31.dsl，这32个文件中的任何文件，如果存在则加载执行。（不是安卓系统检查Application.persistentDataPath目录下是否有这些脚本文件）
-8. 性能分级脚本分为init、grade、default_grade、setting四个部分
-	- 首先会整理所有性能分级脚本里的这些部分，归类为4个集合，然后先执行init集合里的脚本，这里一般设置根据机器model或gpu能直接确定的分档（优先级最高，匹配到分档后就不再检查后面的grade与default_grade）
-	- 如果init部分没有确定分档，则开始执行grade集合里的脚本，这里是按grade值的升序执行检查（0是最高级，4是目前的最低级），一旦确定分档就不再继续执行
-	- 如果所有grade仍然没能确定分档，则开始执行default_grade集合里的脚本，这里的脚本与grade类似也是按grade值升序执行检查（0是最高级，4是目前的最低级），default_grade一般是根据一些通用的指标来确定分档，也就是没那么精确，但基本上所有手机都能确定一个分档
-	- 经过上面3步确定了grade后，接下来执行grade值对应的setting部分的代码
-	- grade与default_grade里面的代码每一行是一个条件判断，行与行之间的条件的关系是and
-9. 我们用于实验的一个perf0.dsl内容如下：（还很初级，主要针对几个实验机型，逻辑不完全）
-```
-	perf_grade(0)
-	{
-		init
+
+	- 安卓系统启动时会检查/data/local/tmp目录下是否有initgm.txt的文本文件（不是安卓系统检查Application.persistentDataPath目录下是否有initgm.txt），如果有则把initgm.txt的每一行当作一行GM脚本或DebugConsole命令进行处理，这些命令作为一个命令列表执行，所以中间执行的命令应该不能是执行命令或GM脚本的命令（因为会重置GM脚本解释器），我们可以在这个文件里配置要加载执行的GM脚本文件，然后后续就交给GM脚本文件处理了，比如下面的内容就是启动时打开调试开关（会影响GM脚本的日志输出），然后根据apk来决定加载执行不同的GM脚本文件
+	```
+		setdebug(1);
+		if(appid()=='DefaultCompany.Test'){cmd('scp init.dsl');};
+		if(appid()!='DefaultCompany.Test'){cmd('scp init0.dsl');};
+	```
+
+	- 对于不需要使用GM脚本文件的情形，initgm.txt里一般配置监听adb命令或剪贴板方便后续输入命令
+	```
+		setdebug(1);
+		if(isandroid()){listenandroid();};
+		if(!isandroid()){listenclipboard(100);};
+	```
+
+2. 启动时性能分级设置脚本配置（目前仅用于性能实验）
+
+	- 性能分级脚本的主要考虑是对游戏分档的实验与补充，一方面是对新增机型的分档实验，另一方面是对部分特殊机型可能需要在不同档位做一些特殊的设置。考虑到性能分级通常由性能测试发现，是一个不断迭代的过程，所以考虑提供一个脚本来方便在不打包的情况下修改设置，并避免每次启动都要重复进行设置操作
+
+	- 性能分级脚本不像GM脚本那样自由，主要考虑到这些脚本在实验确定后应该翻译为c#固化为启动逻辑的一部分，为了方便翻译到c#，需要尽量符合c#的风格。
+
+	- 与GM脚本配置类似，在安卓启动时会检查/data/local/tmp目录下是否perf0.dsl - perf31.dsl，这32个文件中的任何文件，如果存在则加载执行。（不是安卓系统检查Application.persistentDataPath目录下是否有这些脚本文件）
+
+	- 性能分级脚本分为init、grade、default_grade、setting四个部分
+		- 首先会整理所有性能分级脚本里的这些部分，归类为4个集合，然后先执行init集合里的脚本，这里一般设置根据机器model或gpu能直接确定的分档（优先级最高，匹配到分档后就不再检查后面的grade与default_grade）
+		- 如果init部分没有确定分档，则开始执行grade集合里的脚本，这里是按grade值的升序执行检查（0是最高级，4是目前的最低级），一旦确定分档就不再继续执行
+		- 如果所有grade仍然没能确定分档，则开始执行default_grade集合里的脚本，这里的脚本与grade类似也是按grade值升序执行检查（0是最高级，4是目前的最低级），default_grade一般是根据一些通用的指标来确定分档，也就是没那么精确，但基本上所有手机都能确定一个分档
+		- 经过上面3步确定了grade后，接下来执行grade值对应的setting部分的代码
+		- grade与default_grade里面的代码每一行是一个条件判断，行与行之间的条件的关系是and
+
+	- 我们用于实验的一个perf0.dsl内容如下：（还很初级，主要针对几个实验机型，逻辑不完全）
+	```
+		perf_grade(0)
 		{
-			log_sysinfo();
-			//full model or gpu match
-			add_grade("Redmi K60 Ultra", 0);
+			init
+			{
+				log_sysinfo();
+				//full model or gpu match
+				add_grade("Redmi K60 Ultra", 0);
+			};
+			grade(0)//mali ultra
+			{
+				is_android();
+				gpu_like("G715", "G815", "G915");
+				memory_above(6000);
+				gpu_memory_above(4000);
+			};
+			grade(0)//redmi ultra
+			{
+				is_android();
+				device_like("K60", "K70", "K80", "K90");
+				memory_above(5000);
+				gpu_memory_above(4000);
+			};
+			grade(0)//pc
+			{
+				is_pc();
+				device_like("HP Z2 Tower G5");
+				gpu_like("RTX 3080");
+				memory_above(32000);
+				gpu_memory_above(6000);
+			};
+			grade(1)
+			{
+				gpu_like("G710");
+			};
+			grade(2)
+			{
+				memory_above(6000);
+				gpu_like("G76",@"Adreno \(TM\) 640");
+			};
+			grade(3)
+			{
+				gpu_like(@"Adreno \(TM\) 615");
+			};
+			grade(4)
+			{
+				gpu_like("GE8320");
+			};
+			default_grade(0)
+			{
+				memory_above(12000);
+				gpu_memory_above(8000);
+			};
+			default_grade(1)
+			{
+				memory_above(8000);
+				gpu_memory_above(6000);
+			};
+			default_grade(2)
+			{
+				memory_above(6000);
+				gpu_memory_above(5000);
+			};
+			default_grade(3)
+			{
+				memory_above(6000);
+				gpu_memory_above(3000);
+			};
+			default_grade(4)
+			{
+				memory_below(6000);
+				gpu_memory_below(3000);
+			};
+			setting(0)
+			{
+				set_hardware_level(4);
+				set_rendering_mode(1);
+				//set_resolution(1920,1080,true,1,1);
+			};
+			setting(1)
+			{
+				set_hardware_level(3);
+				set_rendering_mode(1);
+				//set_resolution(1920,1080,true,1,1);
+			};
+			setting(2)
+			{
+				set_hardware_level(2);
+				set_rendering_mode(0);
+				set_resolution(1280,720,true,1,1);
+			};
+			setting(3)
+			{
+				set_hardware_level(1);
+				set_rendering_mode(0);
+				set_resolution(960,540,true,1,1);
+				set_mipmap(1);
+			};
+			setting(4)
+			{
+				set_hardware_level(0);
+				set_rendering_mode(0);
+				set_resolution(640,360,true,1,1);
+				set_shader_lod(300);
+				set_lod_level(1.5, 1);
+				set_mipmap(2);
+			};
 		};
-		grade(0)//mali ultra
+	```
+
+	- 性能分级脚本的api都在Assets/PerfGrade/PerfGrade.cs里实现，这些api不用注册，脚本解释器采用reflection来自动查找相应的api
+
+	- 每个性能分级脚本的api都需要二个原型，一个是脚本api方法，供脚本解释器调用，一个是api实现，供脚本翻译到的c#代码直接调用。脚本api方法一般会调用api实现来实现api功能，或者二者都调用共用的内部实现方法。api实现的名称必须是api名称加上"_impl"，参数需要与脚本里的写法匹配（下面代码里set_custom_fps是脚本api方法，set_custom_fps_impl是api实现方法）
+	```
+		private BoxedValue set_custom_fps(BoxedValueList list)
 		{
-			is_android();
-			gpu_like("G715", "G815", "G915");
-			memory_above(6000);
-			gpu_memory_above(4000);
-		};
-		grade(0)//redmi ultra
+			bool r = false;
+			if (list.Count > 0)
+			{
+				r = set_custom_fps_impl(list[0].GetInt());
+			}
+			return BoxedValue.From(r);
+		}
+		private bool set_custom_fps_impl(int val)
 		{
-			is_android();
-			device_like("K60", "K70", "K80", "K90");
-			memory_above(5000);
-			gpu_memory_above(4000);
-		};
-		grade(0)//pc
-		{
-			is_pc();
-			device_like("HP Z2 Tower G5");
-			gpu_like("RTX 3080");
-			memory_above(32000);
-			gpu_memory_above(6000);
-		};
-		grade(1)
-		{
-			gpu_like("G710");
-		};
-		grade(2)
-		{
-			memory_above(6000);
-			gpu_like("G76",@"Adreno \(TM\) 640");
-		};
-		grade(3)
-		{
-			gpu_like(@"Adreno \(TM\) 615");
-		};
-		grade(4)
-		{
-			gpu_like("GE8320");
-		};
-		default_grade(0)
-		{
-			memory_above(12000);
-			gpu_memory_above(8000);
-		};
-		default_grade(1)
-		{
-			memory_above(8000);
-			gpu_memory_above(6000);
-		};
-		default_grade(2)
-		{
-			memory_above(6000);
-			gpu_memory_above(5000);
-		};
-		default_grade(3)
-		{
-			memory_above(6000);
-			gpu_memory_above(3000);
-		};
-		default_grade(4)
-		{
-			memory_below(6000);
-			gpu_memory_below(3000);
-		};
-		setting(0)
-		{
-			set_hardware_level(4);
-			set_rendering_mode(1);
-			//set_resolution(1920,1080,true,1,1);
-		};
-		setting(1)
-		{
-			set_hardware_level(3);
-			set_rendering_mode(1);
-			//set_resolution(1920,1080,true,1,1);
-		};
-		setting(2)
-		{
-			set_hardware_level(2);
-			set_rendering_mode(0);
-			set_resolution(1280,720,true,1,1);
-		};
-		setting(3)
-		{
-			set_hardware_level(1);
-			set_rendering_mode(0);
-			set_resolution(960,540,true,1,1);
-			set_mipmap(1);
-		};
-		setting(4)
-		{
-			set_hardware_level(0);
-			set_rendering_mode(0);
-			set_resolution(640,360,true,1,1);
-			set_shader_lod(300);
-			set_lod_level(1.5, 1);
-			set_mipmap(2);
-		};
-	};
-```
-10. 性能分级脚本的api都在Assets/PerfGrade/PerfGrade.cs里实现，这些api不用注册，脚本解释器采用reflection来自动查找相应的api
-11. 每个性能分级脚本的api都需要二个原型，一个是脚本api方法，供脚本解释器调用，一个是api实现，供脚本翻译到的c#代码直接调用。脚本api方法一般会调用api实现来实现api功能，或者二者都调用共用的内部实现方法。api实现的名称必须是api名称加上"_impl"，参数需要与脚本里的写法匹配（下面代码里set_custom_fps是脚本api方法，set_custom_fps_impl是api实现方法）
-```
-    private BoxedValue set_custom_fps(BoxedValueList list)
-    {
-        bool r = false;
-        if (list.Count > 0)
-        {
-            r = set_custom_fps_impl(list[0].GetInt());
-        }
-        return BoxedValue.From(r);
-    }
-    private bool set_custom_fps_impl(int val)
-    {
-        QualityManager.SetCustomFPS(val);
-        return true;
-    }
-```
-12. 性能分级脚本的api也可以在GM脚本里调用，但是没法提供文档查询
+			QualityManager.SetCustomFPS(val);
+			return true;
+		}
+	```
+
+	- 性能分级脚本的api也可以在GM脚本里调用，但是没法提供文档查询
 
 ## 七、调试UI
 
@@ -525,7 +570,7 @@ Assets\Plugins\StoryScript.dll //基础story脚本解释器部分(基于命令�
 Assets\Plugins\Dsl.dll //DSL语法解析部分
 此目录下的其它dll是GM脚本解释器的一些内置api依赖的dll
 ```
-1. 工程里的DebugConsole与GmScript解释器部分
+2. 工程里的DebugConsole与GmScript解释器部分
 ```
 Assets\GmCommands\ClientGmStorySystem.cs //GM脚本系统框架部分
 Assets\Scripts\DebugConsole.cs //DebugConsole的功能，交互面板与简单命令处理
