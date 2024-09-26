@@ -2,41 +2,41 @@
 
 <!-- code_chunk_output -->
 
-- [一、语法](#一语法)
-- [二、基本用法](#二基本用法)
-- [三、GM脚本命令与函数](#三gm脚本命令与函数)
-- [四、GM脚本文件](#四gm脚本文件)
-- [五、变量](#五变量)
-- [六、启动脚本](#六启动脚本)
-- [七、调试UI](#七调试ui)
-- [八、源码位置](#八源码位置)
-- [九、api参考](#九api参考)
-	- [A、基础api---语句与异步机制](#a基础api---语句与异步机制)
-	- [B、基础api---消息与执行机制](#b基础api---消息与执行机制)
-	- [C、基础api---运算](#c基础api---运算)
-	- [D、基础api---类型转换](#d基础api---类型转换)
-	- [E、基础api---反射调用](#e基础api---反射调用)
-	- [F、基础api---字符串](#f基础api---字符串)
-	- [G、基础api---列表与哈希表](#g基础api---列表与哈希表)
-	- [H、基础api---数学](#h基础api---数学)
-	- [I、基础api---文件操作](#i基础api---文件操作)
-	- [J、基础api---其它](#j基础api---其它)
-	- [K、unity通用api---对象与组件](#kunity通用api---对象与组件)
-	- [L、unity通用api---对象空间位置](#lunity通用api---对象空间位置)
-	- [M、unity通用api---几个特殊值对象构造](#munity通用api---几个特殊值对象构造)
-	- [N、unity通用api---随机](#nunity通用api---随机)
-	- [O、unity通用api---时间](#ounity通用api---时间)
-	- [P、unity通用api---调试等](#punity通用api---调试等)
-	- [Q、调试UI](#q调试ui)
-	- [R、性能分级脚本](#r性能分级脚本)
-	- [S、游戏功能api---外部系统交互](#s游戏功能api---外部系统交互)
-	- [T、游戏功能api---wetest调用](#t游戏功能api---wetest调用)
-	- [U、游戏功能api---设备查询](#u游戏功能api---设备查询)
-	- [V、游戏功能api---场景查询](#v游戏功能api---场景查询)
-	- [W、游戏功能api---UI操作](#w游戏功能api---ui操作)
-	- [X、游戏功能api---材质参数](#x游戏功能api---材质参数)
-	- [Y、游戏功能api---PlayerPrefs](#y游戏功能api---playerprefs)
-	- [Z、游戏功能api---内存查询](#z游戏功能api---内存查询)
+- [一、语法](#一-语法)
+- [二、基本用法](#二-基本用法)
+- [三、GM脚本命令与函数](#三-gm脚本命令与函数)
+- [四、GM脚本文件](#四-gm脚本文件)
+- [五、变量](#五-变量)
+- [六、启动脚本](#六-启动脚本)
+- [七、调试UI](#七-调试ui)
+- [八、源码位置](#八-源码位置)
+- [九、api参考](#九-api参考)
+  - [A、基础api---语句与异步机制](#a-基础api-语句与异步机制)
+  - [B、基础api---消息与执行机制](#b-基础api-消息与执行机制)
+  - [C、基础api---运算](#c-基础api-运算)
+  - [D、基础api---类型转换](#d-基础api-类型转换)
+  - [E、基础api---反射调用](#e-基础api-反射调用)
+  - [F、基础api---字符串](#f-基础api-字符串)
+  - [G、基础api---列表与哈希表](#g-基础api-列表与哈希表)
+  - [H、基础api---数学](#h-基础api-数学)
+  - [I、基础api---文件操作](#i-基础api-文件操作)
+  - [J、基础api---其它](#j-基础api-其它)
+  - [K、unity通用api---对象与组件](#k-unity通用api-对象与组件)
+  - [L、unity通用api---对象空间位置](#l-unity通用api-对象空间位置)
+  - [M、unity通用api---几个特殊值对象构造](#m-unity通用api-几个特殊值对象构造)
+  - [N、unity通用api---随机](#n-unity通用api-随机)
+  - [O、unity通用api---时间](#o-unity通用api-时间)
+  - [P、unity通用api---调试等](#p-unity通用api-调试等)
+  - [Q、调试UI](#q-调试ui)
+  - [R、性能分级脚本](#r-性能分级脚本)
+  - [S、游戏功能api---外部系统交互](#s-游戏功能api-外部系统交互)
+  - [T、游戏功能api---wetest调用](#t-游戏功能api-wetest调用)
+  - [U、游戏功能api---设备查询](#u-游戏功能api-设备查询)
+  - [V、游戏功能api---场景查询](#v-游戏功能api-场景查询)
+  - [W、游戏功能api---UI操作](#w-游戏功能api-ui操作)
+  - [X、游戏功能api---材质参数](#x-游戏功能api-材质参数)
+  - [Y、游戏功能api---PlayerPrefs](#y-游戏功能api-playerprefs)
+  - [Z、游戏功能api---内存查询](#z-游戏功能api-内存查询)
 
 <!-- /code_chunk_output -->
 
@@ -551,9 +551,9 @@ utod(val);
 	showui();
 	hideui();
 ```
-1. 调试UI的资源就是一个DSL文本文件，目前放在Assets/Resources目录下
-2. GM脚本的启动脚本以及调试UI的Canvas的prefab也在这个目录下：GmScript.prefab
-3.  在安卓手机上，我们可以直接输GM命令来加载显示隐藏调试UI，也可以通过adb命令来操作
+8. 调试UI的资源就是一个DSL文本文件，目前放在Assets/Resources目录下
+9. GM脚本的启动脚本以及调试UI的Canvas的prefab也在这个目录下：GmScript.prefab
+10.  在安卓手机上，我们可以直接输GM命令来加载显示隐藏调试UI，也可以通过adb命令来操作
 ```
 显示当前加载的调试ui：
 	adb shell am broadcast -a com.unity3d.command -e cmd 'showui()'
