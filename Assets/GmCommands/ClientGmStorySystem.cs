@@ -404,12 +404,39 @@ namespace GmCommands
                 }
             }
         }
-        public void SendMessage(string msgId, BoxedValueList args)
+        public void SendMessage(string msgId)
         {
             int ct = m_StoryLogicInfos.Count;
             for (int ix = ct - 1; ix >= 0; --ix) {
                 StoryInstance info = m_StoryLogicInfos[ix];
-                info.SendMessage(msgId, args);
+                info.SendMessage(msgId);
+            }
+        }
+        public void SendMessage(string msgId, BoxedValue arg1)
+        {
+            int ct = m_StoryLogicInfos.Count;
+            for (int ix = ct - 1; ix >= 0; --ix)
+            {
+                StoryInstance info = m_StoryLogicInfos[ix];
+                info.SendMessage(msgId, arg1);
+            }
+        }
+        public void SendMessage(string msgId, BoxedValue arg1, BoxedValue arg2)
+        {
+            int ct = m_StoryLogicInfos.Count;
+            for (int ix = ct - 1; ix >= 0; --ix)
+            {
+                StoryInstance info = m_StoryLogicInfos[ix];
+                info.SendMessage(msgId, arg1, arg2);
+            }
+        }
+        public void SendMessage(string msgId, BoxedValue arg1, BoxedValue arg2, BoxedValue arg3)
+        {
+            int ct = m_StoryLogicInfos.Count;
+            for (int ix = ct - 1; ix >= 0; --ix)
+            {
+                StoryInstance info = m_StoryLogicInfos[ix];
+                info.SendMessage(msgId, arg1, arg2, arg3);
             }
         }
 
