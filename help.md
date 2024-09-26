@@ -358,6 +358,8 @@ utod(val);
 	- 安卓系统启动时会检查/data/local/tmp目录下是否有initgm.txt的文本文件（不是安卓系统检查Application.persistentDataPath目录下是否有initgm.txt），如果有则把initgm.txt的每一行当作一行GM脚本或DebugConsole命令进行处理，这些命令作为一个命令列表执行，所以中间执行的命令应该不能是执行命令或GM脚本的命令（因为会重置GM脚本解释器），我们可以在这个文件里配置要加载执行的GM脚本文件，然后后续就交给GM脚本文件处理了，比如下面的内容就是启动时打开调试开关（会影响GM脚本的日志输出），然后根据apk来决定加载执行不同的GM脚本文件
 	```
 		setdebug(1);
+		if(isandroid()){listenandroid();};
+		if(!isandroid()){listenclipboard(100);};
 		if(appid()=='DefaultCompany.Test'){cmd('scp init.dsl');};
 		if(appid()!='DefaultCompany.Test'){cmd('scp init0.dsl');};
 	```
