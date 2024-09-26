@@ -1,3 +1,46 @@
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [一、语法](#一语法)
+- [二、基本用法](#二基本用法)
+- [三、GM脚本命令与函数](#三gm脚本命令与函数)
+- [四、GM脚本文件](#四gm脚本文件)
+- [五、变量](#五变量)
+- [六、启动脚本](#六启动脚本)
+- [七、调试UI](#七调试ui)
+- [八、源码位置](#八源码位置)
+- [九、api参考](#九api参考)
+	- [A、基础api---语句与异步机制](#a基础api---语句与异步机制)
+	- [B、基础api---消息与执行机制](#b基础api---消息与执行机制)
+	- [C、基础api---运算](#c基础api---运算)
+	- [D、基础api---类型转换](#d基础api---类型转换)
+	- [E、基础api---反射调用](#e基础api---反射调用)
+	- [F、基础api---字符串](#f基础api---字符串)
+	- [G、基础api---列表与哈希表](#g基础api---列表与哈希表)
+	- [H、基础api---数学](#h基础api---数学)
+	- [I、基础api---文件操作](#i基础api---文件操作)
+	- [J、基础api---其它](#j基础api---其它)
+	- [K、unity通用api---对象与组件](#kunity通用api---对象与组件)
+	- [L、unity通用api---对象空间位置](#lunity通用api---对象空间位置)
+	- [M、unity通用api---对象构造](#munity通用api---对象构造)
+	- [N、unity通用api---随机](#nunity通用api---随机)
+	- [O、unity通用api---时间](#ounity通用api---时间)
+	- [P、unity通用api---调试等](#punity通用api---调试等)
+	- [Q、调试UI](#q调试ui)
+	- [R、性能分级脚本](#r性能分级脚本)
+	- [S、游戏功能api---外部系统交互](#s游戏功能api---外部系统交互)
+	- [T、游戏功能api---wetest调用](#t游戏功能api---wetest调用)
+	- [U、游戏功能api---设备查询](#u游戏功能api---设备查询)
+	- [V、游戏功能api---场景查询](#v游戏功能api---场景查询)
+	- [W、游戏功能api---UI操作](#w游戏功能api---ui操作)
+	- [X、游戏功能api---材质参数](#x游戏功能api---材质参数)
+	- [Y、游戏功能api---PlayerPrefs](#y游戏功能api---playerprefs)
+	- [Z、游戏功能api---内存查询](#z游戏功能api---内存查询)
+
+<!-- /code_chunk_output -->
+
+
 ## 一、语法
 
 **【一句话语法】**
@@ -48,7 +91,7 @@ setdebug(1);listenclipboard(100);
 ```
 1. 在安卓上通过adb命令也可以远程设置手机剪贴板内容（用于命令时游戏端需要先使用listenclipboard(100)来监听）
 	- 设置普通的剪贴板内容
-``` 
+```
 adb shell am startservice -a com.unity3d.clipboard -e text '剪贴板内容'
 ```
 	- 设置剪贴板gm命令
@@ -113,15 +156,15 @@ log a(1,2,3)b(4,5,6)
 1. 有几个复合语句性质的命令：if命令、while命令、loop命令、looplist命令、foreach命令
 
 	- if命令，按照GM脚本语法，结尾需要加分号（如果后面没有别的命令可不加），其中elseif可以有多个，else最多有一个也可以没有。
-``` 
+```
 if(条件){命令列表}elseif(条件){命令列表}else{命令列表};
 ```
 	- while命令，结尾需要加分号（如果后面没有别的命令可不加）
-``` 
+```
 while(条件){命令列表};
 ```
 	- loop命令，结尾需要加分号（如果后面没有别的命令可不加），按指定循环次数循环，循环体内可以使用\$\$来访问当前循环序号（从0开始）
-``` 
+```
 loop(循环次数){命令列表};
 ```
 比如我们要每秒执行一次某个命令，一共执行3600次，如下：
@@ -129,23 +172,23 @@ loop(循环次数){命令列表};
 loop(3600){log("loop {0}",$$);logprofiler();wait(1000);};
 ```
 	- looplist命令，用来遍历一个IList，循环体内可以使用\$\$来访问当前遍历的元素
-``` 
+```
 looplist(list变量){命令列表};
 ```
 比如下面循环遍历数组并显示各数组元素(gm脚本支持数组的直接写法，实际是c#的List)：
-``` 
+```
 looplist([1,2,3,4]){log("looplist {0}",$$);};
 ```
 再比如下面循环遍历hash表并显示各对元素(gm脚本里的哈希表的key可以是常量或变量，所以字符串常量作为key时必须加引号)：
-``` 
+```
 looplist({1=>13,3=>25,9=>345}){log("pair {0}:{1}",$$.Key,$$.Value);};
 ```
 	- foreach命令，直接指定每次循环的变量值，循环体内可以使用\$\$来访问当前值
-``` 
+```
 foreach(值1,值2,...){命令列表};
 ```
 比如我们对几个奇数分别进行处理：
-``` 
+```
 foreach(1,3,5,7,9){log("foreach {0}",$$);};
 ```
 1. gm脚本支持dotnet反射调用，语法与c#的对象访问写法基本相同，不过在处理方法重载时可能会有问题，所以带重载的方法有可能出现调用不了的情况
@@ -509,11 +552,11 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 
 - 语句列表，语句用法见前面介绍部分
 ```
-= [foreach]
-= [if]
-= [loop]
-= [looplist]
-= [while]
+= [foreach]:foreach(a,b,...){command_list;}; statement, iterator is $$
+= [if]:if(condition){command_list;}elseif(condition){command_list;}else{command_list;}; statement, elseif can be zero or more, else can be zero or one
+= [loop]:loop(count){command_list;}; statement, iterator is $$
+= [looplist]:looplist(list){command_list;}; statement, iterator is $$
+= [while]:while(condition){command_list;}; statement
 ```
 - 虽然我们也有break/continue/return命令，但这与传统c语言对应语句的涵义不一样，所以不要使用这些命令
 - 用于实现异步效果的命令wait与sleep（二者等价），虽然不算语句，但对GM脚本的跨tick执行机制特别重要
@@ -645,17 +688,17 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 
 - 命令类
 ```
-= [collectioncall]:collectioncall command
-= [collectionset]:collectionset command
-= [dotnetcall]:dotnetcall command
-= [dotnetset]:dotnetset command
+= [collectioncall]:collectioncall command, internal implementation, using csharp object syntax
+= [collectionset]:collectionset command, internal implementation, using csharp object syntax
+= [dotnetcall]:dotnetcall command, internal implementation, using csharp object syntax
+= [dotnetset]:dotnetset command, internal implementation, using csharp object syntax
 ```
 - 函数类
 ```
-= [collectioncall]:collectioncall function
-= [collectionget]:collectionget function
-= [dotnetcall]:dotnetcall function
-= [dotnetget]:dotnetget function
+= [collectioncall]:collectioncall function, internal implementation, using csharp object syntax
+= [collectionget]:collectionget function, internal implementation, using csharp object syntax
+= [dotnetcall]:dotnetcall function, internal implementation, using csharp object syntax
+= [dotnetget]:dotnetget function, internal implementation, using csharp object syntax
 
 反射工具函数，主要用于类型变换或根据字符串获取Type对象
 
@@ -669,7 +712,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 = [gettypefullname]:gettypefullname(obj) function
 = [gettypename]:gettypename(obj) function
 = [parseenum]:parseenum(type_obj_or_str,enum_val) function
-= [linq]:linq(obj,method,arg1,arg2,...) function
+= [linq]:linq(obj,method,arg1,arg2,...) function, internal implementation, using obj.method(arg1,arg2,...) syntax, method can be orderby/orderbydesc/where/top, iterator is $$
 ```
 ### F、基础api---字符串
 
@@ -1193,3 +1236,47 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 = [total]:total() function, get total native memory
 = [unused]:unused() function, get unused reserved native memory
 ```
+
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [一、语法](#一-语法)
+- [二、基本用法](#二-基本用法)
+- [三、GM脚本命令与函数](#三-gm脚本命令与函数)
+- [四、GM脚本文件](#四-gm脚本文件)
+- [五、变量](#五-变量)
+- [六、启动脚本](#六-启动脚本)
+- [七、调试UI](#七-调试ui)
+- [八、源码位置](#八-源码位置)
+- [九、api参考](#九-api参考)
+  - [A、基础api---语句与异步机制](#a-基础api-语句与异步机制)
+  - [B、基础api---消息与执行机制](#b-基础api-消息与执行机制)
+  - [C、基础api---运算](#c-基础api-运算)
+  - [D、基础api---类型转换](#d-基础api-类型转换)
+  - [E、基础api---反射调用](#e-基础api-反射调用)
+  - [F、基础api---字符串](#f-基础api-字符串)
+  - [G、基础api---列表与哈希表](#g-基础api-列表与哈希表)
+  - [H、基础api---数学](#h-基础api-数学)
+  - [I、基础api---文件操作](#i-基础api-文件操作)
+  - [J、基础api---其它](#j-基础api-其它)
+  - [K、unity通用api---对象与组件](#k-unity通用api-对象与组件)
+  - [L、unity通用api---对象空间位置](#l-unity通用api-对象空间位置)
+  - [M、unity通用api---对象构造](#m-unity通用api-对象构造)
+  - [N、unity通用api---随机](#n-unity通用api-随机)
+  - [O、unity通用api---时间](#o-unity通用api-时间)
+  - [P、unity通用api---调试等](#p-unity通用api-调试等)
+  - [Q、调试UI](#q-调试ui)
+  - [R、性能分级脚本](#r-性能分级脚本)
+  - [S、游戏功能api---外部系统交互](#s-游戏功能api-外部系统交互)
+  - [T、游戏功能api---wetest调用](#t-游戏功能api-wetest调用)
+  - [U、游戏功能api---设备查询](#u-游戏功能api-设备查询)
+  - [V、游戏功能api---场景查询](#v-游戏功能api-场景查询)
+  - [W、游戏功能api---UI操作](#w-游戏功能api-ui操作)
+  - [X、游戏功能api---材质参数](#x-游戏功能api-材质参数)
+  - [Y、游戏功能api---PlayerPrefs](#y-游戏功能api-playerprefs)
+  - [Z、游戏功能api---内存查询](#z-游戏功能api-内存查询)
+
+<!-- /code_chunk_output -->
+
