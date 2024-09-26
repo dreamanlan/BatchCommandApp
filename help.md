@@ -49,7 +49,7 @@
 
 ## 二、基本用法
 
-1. 入口在DebugTool的开发自用页签，同时提供了从剪贴板与adb命令输入的方式
+1. 入口在DebugConsole窗口（使用`按键或屏幕中上点3下打开），同时提供了从剪贴板与adb命令输入的方式
 2. 安卓profiler版本默认启动会监听adb命令，release版本需要先输入
 ```
 setdebug(1);listenandroid();
@@ -474,7 +474,7 @@ utod(val);
 
 ## 七、调试UI
 
-1. 输GM命令或执行GM脚本文件的方式适用于无法预见的功能，对于一些明确的功能，固定的UI还是更方便一些，与DebugTool类似，我们也实现了一套调试UI的机制
+1. 输GM命令或执行GM脚本文件的方式适用于无法预见的功能，对于一些明确的功能，固定的UI还是更方便一些，因此我们实现了一套调试UI的机制
 2. 整个GM脚本系统有一个目标是方便用于单独的测试工程，所以会尽量减少对项目代码的依赖（很难不依赖，但我们尽量减少依赖），调试UI也是类似的思路，所用的控件都是原生UGUI的控件
 3. 调试UI是比较简单的UI布局，我们把屏幕分成一个20行6列的表格，通过DSL来描述调试UI的布局，支持在这个表格里嵌入常见的UGUI控件：label、input、button、dropdown、toggle、toggle_group、slider
 4. 下面是一个测试调试UI的布局文件内容（所有调试UI的代码都在Assets/GmCommands/UiHandler.cs中）
@@ -506,9 +506,9 @@ utod(val);
 	showui();
 	hideui();
 ```
-8. 调试UI的资源就是一个DSL文本文件，目前放在Assets/Resources目录下
-9. GM脚本的启动脚本以及调试UI的Canvas的prefab也在这个目录下：GmScript.prefab
-10. 在安卓手机上，我们可以直接输GM命令来加载显示隐藏调试UI，也可以通过adb命令来操作
+1. 调试UI的资源就是一个DSL文本文件，目前放在Assets/Resources目录下
+2. GM脚本的启动脚本以及调试UI的Canvas的prefab也在这个目录下：GmScript.prefab
+3.  在安卓手机上，我们可以直接输GM命令来加载显示隐藏调试UI，也可以通过adb命令来操作
 ```
 显示当前加载的调试ui：
 	adb shell am broadcast -a com.unity3d.command -e cmd 'showui()'
@@ -525,7 +525,7 @@ Assets\Plugins\StoryScript.dll //基础story脚本解释器部分(基于命令�
 Assets\Plugins\Dsl.dll //DSL语法解析部分
 此目录下的其它dll是GM脚本解释器的一些内置api依赖的dll
 ```
-2. 工程里的DebugConsole与GmScript解释器部分
+1. 工程里的DebugConsole与GmScript解释器部分
 ```
 Assets\GmCommands\ClientGmStorySystem.cs //GM脚本系统框架部分
 Assets\Scripts\DebugConsole.cs //DebugConsole的功能，交互面板与简单命令处理
