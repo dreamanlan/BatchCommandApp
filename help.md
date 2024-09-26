@@ -1033,7 +1033,7 @@ c#类型转换语义下的类型转换
 
 = [startactivity]:startactivity(package_name[[,class_name[,flags]],extra_list_or_dict]) command，启动一个activity
 
-目前GM脚本系统带了一个安卓插件，里面有一个用来重启应用的activity，可如下使用
+目前GM脚本系统带了一个安卓插件（接收adb命令也是通过这个插件），里面有一个用来重启应用的activity，可如下使用
 startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivity",0,["package","com.DefaultCompany.Test","class","com.unity3d.player.UnityPlayerActivity","flags",0]);
 或
 startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivity",0,{"package":"com.DefaultCompany.Test","class":"com.unity3d.player.UnityPlayerActivity","flags":0});
