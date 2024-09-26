@@ -101,7 +101,7 @@ adb shell am startservice -a com.unity3d.clipboard -e cmd '命令串'
 ```
 adb shell am startservice -a com.unity3d.clipboard -e pkgcmd '包名:命令串'
 ```
-1.  GM脚本是在DebugConsole命令的基础上扩展的，输入/?会显示DebugConsole的命令列表（比较少，除了开关DebugConsole外主要就是用来执行gm命令或脚本的命令）
+11.  GM脚本是在DebugConsole命令的基础上扩展的，输入/?会显示DebugConsole的命令列表（比较少，除了开关DebugConsole外主要就是用来执行gm命令或脚本的命令）
 	- open/close用来打开/关闭DebugConsole，没有参数
 	- clear用来清空DebugConsole里的显示内容，没有参数
 	- sys显示unity的一些系统信息，没有参数
@@ -115,7 +115,7 @@ adb shell am startservice -a com.unity3d.clipboard -e pkgcmd '包名:命令串'
 	- gm gm_str，目前等同于执行cmd gm("gm命令")，实际没有效果（未接入后端gm系统）
 	- filter 过滤字符串，用来过滤DebugConsole窗口的显示内容，无参数时清空过滤字符串，通常只用于有大量输出信息的时候
 	- /? 无参数时显示DebugConsole的命令列表，可以带一个字符串参数，此时显示包含这个字符串的gm命令/函数的使用说明
-2.  GM脚本有一个命令cmd("命令串")，这个命令串是提交给DebugConsole来执行的，所以也能使用这里列出的各条命令
+12.  GM脚本有一个命令cmd("命令串")，这个命令串是提交给DebugConsole来执行的，所以也能使用这里列出的各条命令
 
 ## 三、GM脚本命令与函数
 
@@ -577,7 +577,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 ```
 - 全局key/value读函数
 ```
-= [propget]:propget(name[,defval] function
+= [propget]:propget(name[,defval]) function
 ```
 - ~~应该不会用到的命令，请勿使用~~
 ```
