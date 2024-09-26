@@ -1034,9 +1034,16 @@ c#类型转换语义下的类型转换
 = [startactivity]:startactivity(package_name[[,class_name[,flags]],extra_list_or_dict]) command，启动一个activity
 
 目前GM脚本系统带了一个安卓插件，里面有一个用来重启应用的activity，可如下使用
-startactivity("com.unity3d.broadcastlib","RestartActivity",0,["package","com.DefaultCompany.Test","class","MainActivity","flags",0]);
+startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivity",0,["package","com.DefaultCompany.Test","class","com.unity3d.player.UnityPlayerActivity","flags",0]);
 或
-startactivity("com.unity3d.broadcastlib","RestartActivity",0,{"package":"com.DefaultCompany.Test","class":"MainActivity","flags":0});
+startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivity",0,{"package":"com.DefaultCompany.Test","class":"com.unity3d.player.UnityPlayerActivity","flags":0});
+
+常用的flags:
+	0x00008000 Intent.FLAG_ACTIVITY_CLEAR_TASK
+	0x04000000 Intent.FLAG_ACTIVITY_CLEAR_TOP
+	0x08000000 Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+	0x10000000 Intent.FLAG_ACTIVITY_NEW_TASK
+	0x20000000 Intent.FLAG_ACTIVITY_SINGLE_TOP
 
 = [finishactivity]:finishactivity() command，停止当前activity，相当于退出应用
 
