@@ -1026,26 +1026,33 @@ c#类型转换语义下的类型转换
 
 - 命令类
 ```
-= [shell]:shell(cmd) command
-= [shelltimeout]:shelltimeout(cmd,ms) command
-= [cleanupcompletedtasks]:cleanupcompletedtasks() command
-= [usejavatask]:usejavatask(is_java) command
+= [shell]:shell(cmd) command，异步执行系统命令
+= [shelltimeout]:shelltimeout(cmd,ms) command，异步执行系统命令，带超时时间
+= [cleanupcompletedtasks]:cleanupcompletedtasks() command，清理底层用于异步执行命令的Task
+= [usejavatask]:usejavatask(is_java) command，设置是否使用java任务机制，默认使用c#的Task
 
-= [startactivity]:startactivity(package_name[[,class_name[,flags]],extra_list_or_dict]) command
-= [finishactivity]:finishactivity() command
-= [startservice]:startservice(srv_class, extra_name, extra_val) command
-= [stopservice]:stopservice(srv_class) command
+= [startactivity]:startactivity(package_name[[,class_name[,flags]],extra_list_or_dict]) command，启动一个activity
 
-= [setclipboard]:setclipboard(text) command
+目前GM脚本系统带了一个安卓插件，里面有一个用来重启应用的activity，可如下使用
+startactivity("com.unity3d.broadcastlib","RestartActivity",0,["package","com.DefaultCompany.Test","class","MainActivity","flags",0]);
+或
+startactivity("com.unity3d.broadcastlib","RestartActivity",0,{"package":"com.DefaultCompany.Test","class":"MainActivity","flags":0});
+
+= [finishactivity]:finishactivity() command，停止当前activity，相当于退出应用
+
+= [startservice]:startservice(srv_class, extra_name, extra_val) command，启动一个service
+= [stopservice]:stopservice(srv_class) command，停止一个service
+
+= [setclipboard]:setclipboard(text) command，写系统剪贴板
 ```
 - 函数类
 ```
-= [shell]:shell(cmd) function, return string
-= [shelltimeout]:shelltimeout(cmd,ms) function, return string
-= [isjavatask]:isjavatask() function, return int
-= [gettaskcount]:gettaskcount() function, return int
+= [shell]:shell(cmd) function, return string，同步执行系统命令
+= [shelltimeout]:shelltimeout(cmd,ms) function, return string，同步执行系统命令，带超时时间
+= [isjavatask]:isjavatask() function, return int，是否使用的java任务机制
+= [gettaskcount]:gettaskcount() function, return int，当前Task数量
 
-= [getclipboard]:getclipboard() function, get system clipboard content
+= [getclipboard]:getclipboard() function, get system clipboard content，读系统剪贴板
 
 获取unity apk启动参数的函数（使用adb命令来传递参数）
 = [getbool]:getbool(str) function
@@ -1086,7 +1093,7 @@ c#类型转换语义下的类型转换
 
 - 命令类
 ```
-= [logprofiler]:logprofiler() command
+= [logprofiler]:logprofiler() command，输出性能数据日志（主要是内存信息）
 = [logresolutions]:logresolutions() command, print supported resolutions
 
 = [devicesupports]:devicesupports() command, print unsupported feature
