@@ -224,83 +224,83 @@ utod(val);
 1. 在DebugConsole里可以使用scp gm_file的命令来执行一个GM脚本文件。如果gm_file是相对路径，在安卓系统上，gm_file的默认目录是/data/local/tmp（不是安卓系统的默认目录是Application.persistentDataPath）
 2. GM脚本文件的写法如下，这部分来着我们以前的剧情脚本，大概是基于消息处理的框架，每一个消息处理就是一个命令队列。实际上在DebugConsole里输入的命令也是包装成一个脚本来执行的
 ```
-script(main)
-{
-	onmessage("start")
-    {
-    	//命令列表
-    };
-};
+	script(main)
+	{
+		onmessage("start")
+		{
+			//命令列表
+		};
+	};
 ```
 3. GM脚本文件支持多个onmessage消息处理块，可以由start块通过localmessage命令来触发其它的消息处理，不过对GM脚本来说一般应该用不着
 ```
-script(main)
-{
-	local
-    {
-    	@vname1(0);
-    	@vname2(0);
+	script(main)
+	{
+		local
+		{
+			@vname1(0);
+			@vname2(0);
+		};
+		onmessage("start")
+		{
+			localmessage("proc1");
+			localmessage("proc2");
+		};
+		onmessage("proc1")
+		{
+			$lv=0;
+			inc($lv);
+			@vname1 = $lv;
+			wait(3000);
+			inc($lv);
+			@vname1 = $lv;
+			wait(3000);
+			log("proc1 v:{0} {1}",@vname1,@vname2);
+		};
+		onmessage("proc2")
+		{
+			$lv=0;
+			inc($lv);
+			@vname2 = $lv;
+			wait(2000);
+			inc($lv);
+			@vname2 = $lv;
+			wait(2000);
+			log("proc2 v:{0} {1}",@vname1,@vname2);
+		};
 	};
-	onmessage("start")
-    {
-    	localmessage("proc1");
-    	localmessage("proc2");
-    };
-    onmessage("proc1")
-    {
-    	$lv=0;
-        inc($lv);
-        @vname1 = $lv;
-        wait(3000);
-        inc($lv);
-        @vname1 = $lv;
-        wait(3000);
-        log("proc1 v:{0} {1}",@vname1,@vname2);
-    };
-    onmessage("proc2")
-    {
-    	$lv=0;
-        inc($lv);
-        @vname2 = $lv;
-        wait(2000);
-        inc($lv);
-        @vname2 = $lv;
-        wait(2000);
-        log("proc2 v:{0} {1}",@vname1,@vname2);
-    };
-};
 ```
 4. localmessage命令在触发消息处理时可以带参数，消息处理此时需要使用args子句来指明参数列表，也可以不指明局部变量，在消息处理里使用$0,$1,$2,…来访问，$$是参数数量
 ```
-script(main)
-{
-	onmessage("start")
-    {
-    	localmessage("proc",123);
-    };
-    onmessage("proc")args($lv)
-    {
-        inc($lv);
-        wait(2000);
-        inc($lv);
-        wait(2000);
-        log("proc v:{0}",$lv);
-    };
-};
+	script(main)
+	{
+		onmessage("start")
+		{
+			localmessage("proc",123);
+		};
+		onmessage("proc")args($lv)
+		{
+			inc($lv);
+			wait(2000);
+			inc($lv);
+			wait(2000);
+			log("proc v:{0}",$lv);
+		};
+	};
 ```
 5. 虽然GM脚本文件里可以有多个名称不同的script块，但我们肯定不需要写这么复杂，这部分就不说明了（我们也没有在GM脚本里提供启动其它脚本的命令，相当于禁用了这个功能）
 6. 下面是一个有可能常用的gm脚本文件，在3600秒的时间里，每秒输出一次性能数据
 ```
-script(main)
-{
-	onmessage("start")
+	script(main)
 	{
-		loop(3600){
-			logprofiler();
-			wait(1000);
+		onmessage("start")
+		{
+			loop(3600){
+				logprofiler();
+				wait(1000);
+			};
 		};
 	};
-};
 ```
 7. GM脚本执行过程中，如果又执行了GM命令或加载GM脚本的命令，则正在执行的GM脚本会终止执行（也就是GM脚本解释器只能有一段脚本代码在运行），所以GM脚本的执行命令一般应该是最后一条GM命令，如果中间需要执行其他命令，则执行完后需要重新输入执行GM脚本的命令
 
@@ -313,24 +313,24 @@ script(main)
 5. $vname 是消息处理级别的局部变量，这些变量只在消息处理里有效，不能跨消息处理与脚本
 6. 有一个命令propset与一个函数propget，提供了跨脚本的名称<=>值的映射，这个其实与全局变量共用一个map，不过这里直接使用字符串作为key，也能用在多次命令输入间传递数据
 ```
-propset(name, val);
-propget(name);
-propget(name, defval);
+	propset(name, val);
+	propget(name);
+	propget(name, defval);
 ```
 ## 六、启动脚本
 
 1. 启动时GM脚本配置
 2. 安卓系统启动时会检查/data/local/tmp目录下是否有initgm.txt的文本文件（不是安卓系统检查Application.persistentDataPath目录下是否有initgm.txt），如果有则把initgm.txt的每一行当作一行GM脚本或DebugConsole命令进行处理，这些命令作为一个命令列表执行，所以中间执行的命令应该不能是执行命令或GM脚本的命令（因为会重置GM脚本解释器），我们可以在这个文件里配置要加载执行的GM脚本文件，然后后续就交给GM脚本文件处理了，比如下面的内容就是启动时打开调试开关（会影响GM脚本的日志输出），然后根据apk来决定加载执行不同的GM脚本文件
 ```
-setdebug(1);
-if(appid()=='DefaultCompany.Test'){cmd('scp init.dsl');};
-if(appid()!='DefaultCompany.Test'){cmd('scp init0.dsl');};
+	setdebug(1);
+	if(appid()=='DefaultCompany.Test'){cmd('scp init.dsl');};
+	if(appid()!='DefaultCompany.Test'){cmd('scp init0.dsl');};
 ```
 3. 对于不需要使用GM脚本文件的情形，initgm.txt里一般配置监听adb命令或剪贴板方便后续输入命令
 ```
-setdebug(1);
-if(isandroid()){listenandroid();};
-if(!isandroid()){listenclipboard(100);};
+	setdebug(1);
+	if(isandroid()){listenandroid();};
+	if(!isandroid()){listenclipboard(100);};
 ```
 4. 启动时性能分级设置脚本配置（目前仅用于性能实验）
 5. 性能分级脚本的主要考虑是对游戏分档的实验与补充，一方面是对新增机型的分档实验，另一方面是对部分特殊机型可能需要在不同档位做一些特殊的设置。考虑到性能分级通常由性能测试发现，是一个不断迭代的过程，所以考虑提供一个脚本来方便在不打包的情况下修改设置，并避免每次启动都要重复进行设置操作
@@ -344,113 +344,113 @@ if(!isandroid()){listenclipboard(100);};
 	- grade与default_grade里面的代码每一行是一个条件判断，行与行之间的条件的关系是and
 9. 我们用于实验的一个perf0.dsl内容如下：（还很初级，主要针对几个实验机型，逻辑不完全）
 ```
-perf_grade(0)
-{
-	init
+	perf_grade(0)
 	{
-		log_sysinfo();
-		//full model or gpu match
-		add_grade("Redmi K60 Ultra", 0);
+		init
+		{
+			log_sysinfo();
+			//full model or gpu match
+			add_grade("Redmi K60 Ultra", 0);
+		};
+		grade(0)//mali ultra
+		{
+			is_android();
+			gpu_like("G715", "G815", "G915");
+			memory_above(6000);
+			gpu_memory_above(4000);
+		};
+		grade(0)//redmi ultra
+		{
+			is_android();
+			device_like("K60", "K70", "K80", "K90");
+			memory_above(5000);
+			gpu_memory_above(4000);
+		};
+		grade(0)//pc
+		{
+			is_pc();
+			device_like("HP Z2 Tower G5");
+			gpu_like("RTX 3080");
+			memory_above(32000);
+			gpu_memory_above(6000);
+		};
+		grade(1)
+		{
+			gpu_like("G710");
+		};
+		grade(2)
+		{
+			memory_above(6000);
+			gpu_like("G76",@"Adreno \(TM\) 640");
+		};
+		grade(3)
+		{
+			gpu_like(@"Adreno \(TM\) 615");
+		};
+		grade(4)
+		{
+			gpu_like("GE8320");
+		};
+		default_grade(0)
+		{
+			memory_above(12000);
+			gpu_memory_above(8000);
+		};
+		default_grade(1)
+		{
+			memory_above(8000);
+			gpu_memory_above(6000);
+		};
+		default_grade(2)
+		{
+			memory_above(6000);
+			gpu_memory_above(5000);
+		};
+		default_grade(3)
+		{
+			memory_above(6000);
+			gpu_memory_above(3000);
+		};
+		default_grade(4)
+		{
+			memory_below(6000);
+			gpu_memory_below(3000);
+		};
+		setting(0)
+		{
+			set_hardware_level(4);
+			set_rendering_mode(1);
+			//set_resolution(1920,1080,true,1,1);
+		};
+		setting(1)
+		{
+			set_hardware_level(3);
+			set_rendering_mode(1);
+			//set_resolution(1920,1080,true,1,1);
+		};
+		setting(2)
+		{
+			set_hardware_level(2);
+			set_rendering_mode(0);
+			set_resolution(1280,720,true,1,1);
+		};
+		setting(3)
+		{
+			set_hardware_level(1);
+			set_rendering_mode(0);
+			set_resolution(960,540,true,1,1);
+			set_mipmap(1);
+		};
+		setting(4)
+		{
+			set_hardware_level(0);
+			set_rendering_mode(0);
+			set_resolution(640,360,true,1,1);
+			set_shader_lod(300);
+			set_lod_level(1.5, 1);
+			set_mipmap(2);
+		};
 	};
-	grade(0)//mali ultra
-	{
-		is_android();
-		gpu_like("G715", "G815", "G915");
-		memory_above(6000);
-		gpu_memory_above(4000);
-	};
-	grade(0)//redmi ultra
-	{
-		is_android();
-		device_like("K60", "K70", "K80", "K90");
-		memory_above(5000);
-		gpu_memory_above(4000);
-	};
-	grade(0)//pc
-	{
-		is_pc();
-		device_like("HP Z2 Tower G5");
-		gpu_like("RTX 3080");
-		memory_above(32000);
-		gpu_memory_above(6000);
-	};
-	grade(1)
-	{
-		gpu_like("G710");
-	};
-	grade(2)
-	{
-		memory_above(6000);
-		gpu_like("G76",@"Adreno \(TM\) 640");
-	};
-	grade(3)
-	{
-		gpu_like(@"Adreno \(TM\) 615");
-	};
-	grade(4)
-	{
-		gpu_like("GE8320");
-	};
-	default_grade(0)
-	{
-		memory_above(12000);
-		gpu_memory_above(8000);
-	};
-	default_grade(1)
-	{
-		memory_above(8000);
-		gpu_memory_above(6000);
-	};
-	default_grade(2)
-	{
-		memory_above(6000);
-		gpu_memory_above(5000);
-	};
-	default_grade(3)
-	{
-		memory_above(6000);
-		gpu_memory_above(3000);
-	};
-	default_grade(4)
-	{
-		memory_below(6000);
-		gpu_memory_below(3000);
-	};
-	setting(0)
-	{
-		set_hardware_level(4);
-		set_rendering_mode(1);
-		//set_resolution(1920,1080,true,1,1);
-	};
-	setting(1)
-	{
-		set_hardware_level(3);
-		set_rendering_mode(1);
-		//set_resolution(1920,1080,true,1,1);
-	};
-	setting(2)
-	{
-		set_hardware_level(2);
-		set_rendering_mode(0);
-		set_resolution(1280,720,true,1,1);
-	};
-	setting(3)
-	{
-		set_hardware_level(1);
-		set_rendering_mode(0);
-		set_resolution(960,540,true,1,1);
-		set_mipmap(1);
-	};
-	setting(4)
-	{
-		set_hardware_level(0);
-		set_rendering_mode(0);
-		set_resolution(640,360,true,1,1);
-		set_shader_lod(300);
-		set_lod_level(1.5, 1);
-		set_mipmap(2);
-	};
-};
 ```
 10. 性能分级脚本的api都在Assets/PerfGrade/PerfGrade.cs里实现，这些api不用注册，脚本解释器采用reflection来自动查找相应的api
 11. 每个性能分级脚本的api都需要二个原型，一个是脚本api方法，供脚本解释器调用，一个是api实现，供脚本翻译到的c#代码直接调用。脚本api方法一般会调用api实现来实现api功能，或者二者都调用共用的内部实现方法。api实现的名称必须是api名称加上"_impl"，参数需要与脚本里的写法匹配（下面代码里set_custom_fps是脚本api方法，set_custom_fps_impl是api实现方法）
@@ -502,20 +502,20 @@ perf_grade(0)
 6. 调试UI主要来自测试工程，不一定都能与游戏功能相适应，这取决于具体调试UI的开发，一般不适应的是游戏场景里缺少相关的结点（所以调试UI在开发时也要尽量考虑通用性）
 7. 目前有3个GM命令用于调试UI的加载与显隐
 ```
-loadui("UI资源");
-showui();
-hideui();
+	loadui("UI资源");
+	showui();
+	hideui();
 ```
 8. 调试UI的资源就是一个DSL文本文件，目前放在Assets/Resources目录下
 9. GM脚本的启动脚本以及调试UI的Canvas的prefab也在这个目录下：GmScript.prefab
 10. 在安卓手机上，我们可以直接输GM命令来加载显示隐藏调试UI，也可以通过adb命令来操作
 ```
 显示当前加载的调试ui：
-adb shell am broadcast -a com.unity3d.command -e cmd 'showui()'
+	adb shell am broadcast -a com.unity3d.command -e cmd 'showui()'
 隐藏调试ui:
-adb shell am broadcast -a com.unity3d.command -e cmd 'hideui()'
+	adb shell am broadcast -a com.unity3d.command -e cmd 'hideui()'
 加载调试ui（调试UI的资源文件名不包含空格时，可以不加引号，这个是在loadui API实现时专门支持的写法）:
-adb shell am broadcast -a com.unity3d.command -e cmd 'loadui(TestUI)'
+	adb shell am broadcast -a com.unity3d.command -e cmd 'loadui(TestUI)'
 ```
 ## 八、源码位置
 
