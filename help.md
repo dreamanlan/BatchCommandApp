@@ -23,7 +23,7 @@
 	- [J、基础api---其它](#j基础api---其它)
 	- [K、unity通用api---对象与组件](#kunity通用api---对象与组件)
 	- [L、unity通用api---对象空间位置](#lunity通用api---对象空间位置)
-	- [M、unity通用api---对象构造](#munity通用api---对象构造)
+	- [M、unity通用api---几个特殊值对象构造](#munity通用api---几个特殊值对象构造)
 	- [N、unity通用api---随机](#nunity通用api---随机)
 	- [O、unity通用api---时间](#ounity通用api---时间)
 	- [P、unity通用api---调试等](#punity通用api---调试等)
@@ -546,6 +546,8 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 
 ## 九、api参考
 
+***更好的查阅api的办法是使用ilspy或类似工具，加载Assembly-CSharp.dll与StoryScript.dll，然后搜索查看实现***
+
 ### A、基础api---语句与异步机制
 
 - 语句列表，语句用法见前面介绍部分
@@ -557,7 +559,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 = [while]:while(condition){command_list;}; statement
 ```
 - 虽然我们也有break/continue/return命令，但这与传统c语言对应语句的涵义不一样，所以不要使用这些命令
-- 用于实现异步效果的命令wait与sleep（二者等价），虽然不算语句，但对GM脚本的跨tick执行机制特别重要
+- 用于实现异步效果的命令wait与sleep（二者等价），虽然不算语句，但对GM脚本的跨tick执行机制特别重要（单位是ms）
 ```
 = [wait]:wait(ms) command
 = [sleep]:sleep(ms) command
@@ -566,10 +568,10 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 
 - 执行命令的命令（如通过cmd来执行DebudConsole的命令，从而可以让DebugConsole命令与其它GM命令一起写成命令列表来执行）
 ```
-= [cmd]:cmd(str) command
-= [gm]:gm(str) command
+= [cmd]:cmd(str) command，调用DebugConsole.Execute来执行命令，支持DebugConsole里可输入的所有命令，也用于将DebugConsole的命令包装成GM命令从而在GM脚本里使用
+= [gm]:gm(str) command，计划用于执行后端GM指令，未实现
 ```
-- 全局key/value写命令
+- 全局key/value写命令，这些数据只要不执行clearglobals命令或DebugConsole的resetdsl命令就一直存在
 ```
 = [propset]:propset(name, val) command
 ```
@@ -577,7 +579,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 ```
 = [propget]:propget(name[,defval] function
 ```
-- ~~应该不会用到的命令~~
+- ~~应该不会用到的命令，请勿使用~~
 ```
 = [clearglobals]:clearglobals() command
 = [clearmessage]:clearmessage(msgid1,msgid2,...) command
@@ -608,7 +610,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 = [substcmd]:substcmd(id,substId) command
 = [substfunc]:substfunc(id,substId) command
 ```
-- ~~应该不会用到的函数~~
+- ~~应该不会用到的函数，请勿使用~~
 ```
 = [countcommand]:countcommand(level) function
 = [counthandlercommand]:counthandlercommand() function
@@ -623,15 +625,16 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 
 - 命令类
 ```
-= [assign]:assign(var, val) command
-= [inc]:inc(var, val) command
-= [dec]:dec(var, val) command
+= [assign]:assign(var, val) command，赋值操作符的函数样式写法
+= [inc]:inc(var, val) command，增加一个变量的值，我们没有实现++运算符，用这个命令代替
+= [dec]:dec(var, val) command，减少一个变量的值，我们没有实现--运算符，用这个命令代替
 
 赋值操作符是一个命令，所以赋值是可以直接执行的（除赋值操作符外其它操作符都是函数，所以只能作为命令或函数的参数）
 = [=]:assignment operator
 ```
 - 函数类
 ```
+这些操作符与c/c#的相应操作符功能相同
 = [-]:sub operator
 = [!]:not operator
 = [!=]:not equal operator
@@ -657,6 +660,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 
 - 类型转换api全部是函数类
 ```
+c#类型转换语义下的类型转换
 = [bool]:bool(v) function
 = [byte]:byte(v) function
 = [char]:char(v) function
@@ -670,7 +674,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 = [uint]:uint(v) function
 = [ulong]:ulong(v) function
 = [ushort]:ushort(v) function
-
+内存重新新解释（f表示32位float，d表示64位double，i表示32位整数，l表示64位整数，u表示无符号整数，位数与对应的转换源或目的操作数相同）
 = [dtol]:dtol(v) function
 = [dtou]:dtou(v) function
 = [ftoi]:ftoi(v) function
@@ -700,16 +704,17 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 
 反射工具函数，主要用于类型变换或根据字符串获取Type对象
 
-= [changetype]:changetype(obj,type_obj_or_str) function
-= [gettype]:gettype(type_name_str) function
-= [getunitytype]:getunitytype(type_str) function
-= [getunityuitype]:getunityuitype(type_str) function
-= [getusertype]:getusertype(type_str) function
-= [typeof]:typeof(type) or typeof(type,assembly) function
-= [gettypeassemblyname]:gettypeassemblyname(obj) function
-= [gettypefullname]:gettypefullname(obj) function
-= [gettypename]:gettypename(obj) function
-= [parseenum]:parseenum(type_obj_or_str,enum_val) function
+= [changetype]:changetype(obj,type_obj_or_str) function，类似Convert.ChangeType，另外考虑了BoxedValue与object继承情形的转型
+= [gettype]:gettype(type_name_str) function，Type.GetType(typeName)
+= [getunitytype]:getunitytype(type_str) function，Type.GetType($"UnityEngine.{typeName},UnityEngine")
+= [getunityuitype]:getunityuitype(type_str) function，Type.GetType($"UnityEngine.UI.{typeName},UnityEngine.UI")
+= [getusertype]:getusertype(type_str) function，Type.GetType($"{typeName},Assembly-CSharp")
+= [typeof]:typeof(type) or typeof(type,assembly) function，Type.GetType，Automatically try gettype/getunitytype/getunityuitype/getusertype
+= [gettypeassemblyname]:gettypeassemblyname(obj) function，get Type.AssemblyQualifiedName
+= [gettypefullname]:gettypefullname(obj) function，get Type.FullName
+= [gettypename]:gettypename(obj) function，get Type.Name
+= [parseenum]:parseenum(type_obj_or_str,enum_val) function，Enum.Parse
+
 = [linq]:linq(obj,method,arg1,arg2,...) function, internal implementation, using obj.method(arg1,arg2,...) syntax, method can be orderby/orderbydesc/where/top, iterator is $$
 ```
 ### F、基础api---字符串
@@ -947,7 +952,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 = [getscaley]:getscaley(obj_or_path) function
 = [getscalez]:getscalez(obj_or_path) function
 ```
-### M、unity通用api---对象构造
+### M、unity通用api---几个特殊值对象构造
 
 - 函数类
 ```
@@ -987,10 +992,10 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 
 - 调试
 ```
-= [logcodenum]:logcodenum() command
+= [logcodenum]:logcodenum() command，输出代码里的一个整数，用来确认版本是否符合，打包时先更新此值，运行时对比
 
-= [debugbreak]:debugbreak() command
-= [editorbreak]:editorbreak() command
+= [debugbreak]:debugbreak() command，Debug.DebugBreak
+= [editorbreak]:editorbreak() command，Debug.Break
 ```
 - 打开UI
 ```
@@ -1004,18 +1009,18 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 
 - 命令类
 ```
-= [loadui]:loadui(ui_name_dsl) command
-= [showui]:showui() command
-= [hideui]:hideui() command
+= [loadui]:loadui(ui_name_dsl) command，加载指定的调试ui
+= [showui]:showui() command，显示当前加载的调试ui
+= [hideui]:hideui() command，隐藏当前调试ui
 ```
 ### R、性能分级脚本
 
 - 命令类
 ```
-= [compileperf]:compileperf(perf_dsl_file) command
-= [reloadperfs]:reloadperfs() command
-= [runperf]:runperf(perf_dsl_file) command
-= [logcperfs]:logcperfs() command
+= [compileperf]:compileperf(perf_dsl_file) command，将性能分级脚本翻译到C#代码
+= [reloadperfs]:reloadperfs() command，重新执行全部性能分级脚本（/data/local/tmp/perf*.dsl）
+= [runperf]:runperf(perf_dsl_file) command，运行指定的性能分级脚本
+= [logcperfs]:logcperfs() command，打印编译好的性能分级脚本id
 ```
 ### S、游戏功能api---外部系统交互
 
@@ -1261,7 +1266,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
   - [J、基础api---其它](#j-基础api-其它)
   - [K、unity通用api---对象与组件](#k-unity通用api-对象与组件)
   - [L、unity通用api---对象空间位置](#l-unity通用api-对象空间位置)
-  - [M、unity通用api---对象构造](#m-unity通用api-对象构造)
+  - [M、unity通用api---几个特殊值对象构造](#m-unity通用api-几个特殊值对象构造)
   - [N、unity通用api---随机](#n-unity通用api-随机)
   - [O、unity通用api---时间](#o-unity通用api-时间)
   - [P、unity通用api---调试等](#p-unity通用api-调试等)
