@@ -546,7 +546,7 @@ Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
 
 ## 九、api参考
 
-***更好的查阅api的办法是使用ilspy或类似工具，加载Assembly-CSharp.dll与StoryScript.dll，然后搜索查看实现***
+***更好的查阅api的办法是使用ilspy或类似工具，加载项目工程的Assembly-CSharp.dll（在Library/ScriptAssemblies目录下）与StoryScript.dll，然后搜索查看实现***
 
 ### A、基础api---语句与异步机制
 
@@ -701,9 +701,9 @@ c#类型转换语义下的类型转换
 = [collectionget]:collectionget function, internal implementation, using csharp object syntax
 = [dotnetcall]:dotnetcall function, internal implementation, using csharp object syntax
 = [dotnetget]:dotnetget function, internal implementation, using csharp object syntax
-
-反射工具函数，主要用于类型变换或根据字符串获取Type对象
-
+```
+- 反射工具函数，主要用于类型变换或根据字符串获取Type对象
+```
 = [changetype]:changetype(obj,type_obj_or_str) function，类似Convert.ChangeType，另外考虑了BoxedValue与object继承情形的转型
 = [gettype]:gettype(type_name_str) function，Type.GetType(typeName)
 = [getunitytype]:getunitytype(type_str) function，Type.GetType($"UnityEngine.{typeName},UnityEngine")
