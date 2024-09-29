@@ -28,7 +28,7 @@
   - [O、unity通用api---时间](#o-unity通用api-时间)
   - [P、unity通用api---调试等](#p-unity通用api-调试等)
   - [Q、调试UI](#q-调试ui)
-  - [R、性能分级脚本](#r-性能分级脚本)
+  - [R、启动时设置脚本](#r-启动时设置脚本)
   - [S、游戏功能api---外部系统交互](#s-游戏功能api-外部系统交互)
   - [T、游戏功能api---wetest调用](#t-游戏功能api-wetest调用)
   - [U、游戏功能api---设备查询](#u-游戏功能api-设备查询)
@@ -371,25 +371,31 @@ utod(val);
 		if(!isandroid()){listenclipboard(100);};
 	```
 
-2. 启动时性能分级设置脚本配置（目前仅用于性能实验）
+2. 启动时设置脚本配置（目前仅用于性能实验）
 
-	- 性能分级脚本的主要考虑是对游戏分档的实验与补充，一方面是对新增机型的分档实验，另一方面是对部分特殊机型可能需要在不同档位做一些特殊的设置。考虑到性能分级通常由性能测试发现，是一个不断迭代的过程，所以考虑提供一个脚本来方便在不打包的情况下修改设置，并避免每次启动都要重复进行设置操作
+	- 启动时设置脚本的主要考虑是对游戏分档的实验与补充，一方面是对新增机型的分档实验，另一方面是对部分特殊机型可能需要在不同档位做一些特殊的设置。考虑到分级设置通常由性能测试发现，是一个不断迭代的过程，所以考虑提供一个脚本来方便在不打包的情况下修改设置，并避免每次启动都要重复进行设置操作
 
-	- 性能分级脚本不像GM脚本那样自由，主要考虑到这些脚本在实验确定后应该翻译为c#固化为启动逻辑的一部分，为了方便翻译到c#，需要尽量符合c#的风格。
+	- 启动时设置脚本不像GM脚本那样自由，主要考虑到这些脚本在实验确定后应该翻译为c#固化为启动逻辑的一部分，为了方便翻译到c#，需要尽量符合c#的风格。
 
-	- 与GM脚本配置类似，在安卓启动时会检查/data/local/tmp目录下是否perf0.dsl - perf31.dsl，这32个文件中的任何文件，如果存在则加载执行。（不是安卓系统检查Application.persistentDataPath目录下是否有这些脚本文件）
+	- 与GM脚本配置类似，在安卓启动时会检查/data/local/tmp目录下是否startup0.dsl - startup7.dsl，这8个文件中的任何文件，如果存在则加载执行。（不是安卓系统检查Application.persistentDataPath目录下是否有这些脚本文件）
 
-	- 性能分级脚本分为init、grade、default_grade、setting四个部分
-		- 首先会整理所有性能分级脚本里的这些部分，归类为4个集合，然后先执行init集合里的脚本，这里一般设置根据机器model或gpu能直接确定的分档（优先级最高，匹配到分档后就不再检查后面的grade与default_grade）
+	- 启动时设置脚本用于设置的部分分为init、grade、default_grade、setting四个部分
+		- 首先会整理所有启动时设置脚本里的这些部分，归类为4个集合，然后先执行init集合里的脚本，这里一般设置根据机器model或gpu能直接确定的分档（优先级最高，匹配到分档后就不再检查后面的grade与default_grade）
 		- 如果init部分没有确定分档，则开始执行grade集合里的脚本，这里是按grade值的升序执行检查（0是最高级，4是目前的最低级），一旦确定分档就不再继续执行
 		- 如果所有grade仍然没能确定分档，则开始执行default_grade集合里的脚本，这里的脚本与grade类似也是按grade值升序执行检查（0是最高级，4是目前的最低级），default_grade一般是根据一些通用的指标来确定分档，也就是没那么精确，但基本上所有手机都能确定一个分档
 		- 经过上面3步确定了grade后，接下来执行grade值对应的setting部分的代码
 		- grade与default_grade里面的代码每一行是一个条件判断，行与行之间的条件的关系是and
 
-	- 我们用于实验的一个perf0.dsl内容如下：（还很初级，主要针对几个实验机型，逻辑不完全）
+	- 我们用于实验的一个startup0.dsl内容如下：（还很初级，主要针对几个实验机型，逻辑不完全）
 	```
-		perf_grade(0)
+		startup(0)
 		{
+			initgm
+			{:
+				setdebug(1);
+				if(isandroid()){listenandroid();};
+				if(!isandroid()){listenclipboard(100);};
+			:};
 			init
 			{
 				log_sysinfo();
@@ -497,9 +503,9 @@ utod(val);
 		};
 	```
 
-	- 性能分级脚本的api都在Assets/PerfGrade/PerfGrade.cs里实现，这些api不用注册，脚本解释器采用reflection来自动查找相应的api
+	- 启动时设置脚本的api都在Assets/StartupApi/StartupApi.cs里实现，这些api不用注册，脚本解释器采用reflection来自动查找相应的api
 
-	- 每个性能分级脚本的api都需要二个原型，一个是脚本api方法，供脚本解释器调用，一个是api实现，供脚本翻译到的c#代码直接调用。脚本api方法一般会调用api实现来实现api功能，或者二者都调用共用的内部实现方法。api实现的名称必须是api名称加上"_impl"，参数需要与脚本里的写法匹配（下面代码里set_custom_fps是脚本api方法，set_custom_fps_impl是api实现方法）
+	- 每个启动时设置脚本的api都需要二个原型，一个是脚本api方法，供脚本解释器调用，一个是api实现，供脚本翻译到的c#代码直接调用。脚本api方法一般会调用api实现来实现api功能，或者二者都调用共用的内部实现方法。api实现的名称必须是api名称加上"_impl"，参数需要与脚本里的写法匹配（下面代码里set_custom_fps是脚本api方法，set_custom_fps_impl是api实现方法）
 	```
 		private BoxedValue set_custom_fps(BoxedValueList list)
 		{
@@ -517,7 +523,13 @@ utod(val);
 		}
 	```
 
-	- 性能分级脚本的api也可以在GM脚本里调用，但是没法提供文档查询
+	- 启动时设置脚本的api也可以在GM脚本里调用，但是没法提供文档查询
+
+3. 启动时设置脚本也可包含启动GM脚本配置，从而替代initgm.txt的配置功能
+
+	- 在2中列出的启动时设置脚本包含一个initgm块，这个块就是配置的initgm.txt相同的内容
+	- initgm块是使用的外部代码块的语法，使用{: :}将代码括起来，当然最后也需要加个分号
+	- 除支持initgm的功能外，通过增加启动时设置脚本的api，我们也可以在init代码块里实现启动时开关调试或日志的功能
 
 ## 七、调试UI
 
@@ -582,13 +594,13 @@ Assets\GmCommands\GmCommands.cs //与游戏相关的GM命令/函数的实现，�
 Assets\GmCommands\GmRootScript.cs //GM脚本的根MonoBehaviour对象与启动管理
 Assets\GmCommands\Logger.cs //GM脚本的日志系统
 Assets\GmCommands\StoryScriptUtility.cs //一些工具函数
-Assets\GmCommands\PerfGradeGm.cs //性能分级脚本解释器部分，GM脚本可以直接调用性能分级的api，不过这部分api使用"/? 过滤串"时查询不到
+Assets\GmCommands\StartupScript.cs //启动时设置脚本解释器部分，GM脚本可以直接调用启动时设置脚本的api，不过这部分api使用"/? 过滤串"时查询不到
 
 除GM脚本外，我们实现了一套简单的调试ui工具，用DSL来描述ui，然后逻辑在c#里提供，使用gm命令来加载、显示及隐藏这些ui
 Assets\GmCommands\UiHanlder.cs //调试ui的逻辑处理部分
 
-GM脚本是一个异步执行的脚本，没办法像通常的脚本在启动时立即执行（可能滞后一帧），为了支持性能分级实验，我们实现了性能分级脚本（性能分级脚本支持翻译为c#代码，从而不再依赖脚本解释器），这里是api与纯c#的逻辑框架部分
-Assets\PerfGrade\PerfGrade.cs //性能分级的api与性能分级逻辑框架
+GM脚本是一个异步执行的脚本，没办法像通常的脚本在启动时立即执行（可能滞后一帧），为了支持分级设置实验，我们实现了启动时设置脚本（启动时设置脚本支持翻译为c#代码，从而不再依赖脚本解释器），这里是api与纯c#的逻辑框架部分
+Assets\StartupApi\StartupApi.cs //启动时设置脚本的api与分级设置逻辑框架
 ```
 
 ## 九、api参考
@@ -1060,14 +1072,14 @@ c#类型转换语义下的类型转换
 = [showui]:showui() command，显示当前加载的调试ui
 = [hideui]:hideui() command，隐藏当前调试ui
 ```
-### R、性能分级脚本
+### R、启动时设置脚本
 
 - 命令类
 ```
-= [compileperf]:compileperf(perf_dsl_file) command，将性能分级脚本翻译到C#代码
-= [reloadperfs]:reloadperfs() command，重新执行全部性能分级脚本（/data/local/tmp/perf*.dsl）
-= [runperf]:runperf(perf_dsl_file) command，运行指定的性能分级脚本
-= [logcperfs]:logcperfs() command，打印编译好的性能分级脚本id
+= [compilestartup]:compilestartup(startup_dsl_file) command，将启动时设置脚本翻译到C#代码
+= [reloadstartups]:reloadstartups() command，重新执行全部启动时设置脚本（/data/local/tmp/startup*.dsl）
+= [runstartup]:runstartup(startup_dsl_file) command，运行指定的启动时设置脚本
+= [logcstartups]:logcstartups() command，打印编译好的启动时设置脚本id
 ```
 ### S、游戏功能api---外部系统交互
 
@@ -1332,7 +1344,7 @@ startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivit
   - [O、unity通用api---时间](#o-unity通用api-时间)
   - [P、unity通用api---调试等](#p-unity通用api-调试等)
   - [Q、调试UI](#q-调试ui)
-  - [R、性能分级脚本](#r-性能分级脚本)
+  - [R、启动时设置脚本](#r-启动时设置脚本)
   - [S、游戏功能api---外部系统交互](#s-游戏功能api-外部系统交互)
   - [T、游戏功能api---wetest调用](#t-游戏功能api-wetest调用)
   - [U、游戏功能api---设备查询](#u-游戏功能api-设备查询)
