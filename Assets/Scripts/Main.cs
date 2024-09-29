@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
+using System.Text;
 using UnityEngine;
-using iTextSharp.text.pdf;
-using iTextSharp.text.pdf.parser;
 using ExpressionAPI;
 using Dsl;
 using StoryScript;
@@ -23,13 +21,12 @@ public class Main : MonoBehaviour
         Application.logMessageReceived += HandleLog;
         StartCoroutine(Loop());
 
-        PerfGradeGm.TryInit();
-        UnityEditorApi.Register(PerfGradeGm.Calculator);
-        PerfGradeGm.Calculator.Register("setclipboard", "setclipboard(str) api", new ExpressionFactoryHelper<SetClipboardExp>());
-        PerfGradeGm.Calculator.Register("getclipboard", "getclipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
+        StartupScript.TryInit();
+        UnityEditorApi.Register(StartupScript.Calculator);
+        StartupScript.Calculator.Register("setclipboard", "setclipboard(str) api", new ExpressionFactoryHelper<SetClipboardExp>());
+        StartupScript.Calculator.Register("getclipboard", "getclipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
 
-        CheckGM();
-        RunPerfGrade();
+        RunStartup(true);
     }
     private IEnumerator Loop()
     {
@@ -65,41 +62,79 @@ public class Main : MonoBehaviour
 
     private StringBuilder m_LogBuilder = new StringBuilder();
 
-    public static void CheckGM()
+    public static void RunStartup(bool runGm)
     {
-        string path = Application.persistentDataPath;
-        if (Application.platform == RuntimePlatform.Android) {
-            path = "/data/local/tmp";
-        }
-        string file = System.IO.Path.Combine(path, "initgm.txt");
-        if (File.Exists(file)) {
-            GmRootScript.TryInit();
-            GameObject obj = GmRootScript.GameObj;
-            if (null != obj) {
-                //DebugConsole.Execute will reset the dsl, so the commands must be concatenated into one command
-                var sb = new StringBuilder();
-                var lines = File.ReadAllLines(file);
-                foreach (string line in lines) {
-                    string str = line.Trim();
-                    if (!str.StartsWith("//") && !str.StartsWith('#')) {
-                        if (str.IndexOf(';') < 0 && str.IndexOf('(') < 0 && str.IndexOf(')') < 0 && str.IndexOfAny(s_WhiteChars) > 0) {
-                            sb.Append("cmd(\"");
-                            sb.Append(str.Replace("\"", "\\\""));
-                            sb.Append("\");");
-                        }
-                        else {
-                            sb.Append(str);
-                            if (!str.EndsWith(";"))
-                                sb.Append(";");
-                        }
-                    }
+#if UNITY_ANDROID || UNITY_EDITOR || UNITY_STANDALONE
+        bool needRun = false;
+        for(int i = 0; i < StartupApi.c_max_startup_cfgs; ++i) {
+            string file = Path.Combine(StartupScript.ScriptPath, string.Format("startup{0}.dsl", i));
+            if (File.Exists(file)) {
+                if (!needRun) {
+                    StartupScript.TryInit();
+                    StartupScript.ClearStartups();
+                    needRun = true;
                 }
-                DebugConsole.Execute(sb.ToString());
+                StartupScript.LoadStartup(file);
+            }
+        }
+        if (needRun) {
+            StartupScript.RunStartup(out var gmtxt);
+            if (runGm) {
+                RunInitGM(gmtxt);
             }
         }
         else {
-#if UNITY_EDITOR
+            //Open later on demand
+            //StartupScript.RunStartupOnlyCsharp();
+            if (runGm) {
+                RunInitGM(string.Empty);
+            }
+        }
+#endif
+    }
+    public static void RunInitGM(string gmtxt)
+    {
+        if (!string.IsNullOrEmpty(gmtxt)) {
             GmRootScript.TryInit();
+            GameObject obj = GmRootScript.GameObj;
+            if (null != obj) {
+                DebugConsole.Execute(gmtxt);
+            }
+        }
+        else {
+            string path = Application.persistentDataPath;
+            if (Application.platform == RuntimePlatform.Android) {
+                path = "/data/local/tmp";
+            }
+            string file = Path.Combine(path, "initgm.txt");
+            if (File.Exists(file)) {
+                GmRootScript.TryInit();
+                GameObject obj = GmRootScript.GameObj;
+                if (null != obj) {
+                    //DebugConsole.Execute will reset the dsl, so the commands must be concatenated into one command
+                    var sb = new StringBuilder();
+                    var lines = File.ReadAllLines(file);
+                    foreach (string line in lines) {
+                        string str = line.Trim();
+                        if (!str.StartsWith("//") && !str.StartsWith('#')) {
+                            if (str.IndexOf(';') < 0 && str.IndexOf('(') < 0 && str.IndexOf(')') < 0 && str.IndexOfAny(s_WhiteChars) > 0) {
+                                sb.Append("cmd(\"");
+                                sb.Append(str.Replace("\"", "\\\""));
+                                sb.Append("\");");
+                            }
+                            else {
+                                sb.Append(str);
+                                if (!str.EndsWith(";"))
+                                    sb.Append(";");
+                            }
+                        }
+                    }
+                    DebugConsole.Execute(sb.ToString());
+                }
+            }
+            else {
+#if UNITY_EDITOR
+                GmRootScript.TryInit();
 #elif UNITY_STANDALONE
 #if DEVELOPMENT_BUILD
             GmRootScript.TryInit();
@@ -109,35 +144,13 @@ public class Main : MonoBehaviour
             GmRootScript.TryInit();
 #endif
 #endif
-        }
-    }
-    public static void RunPerfGrade()
-    {
-#if UNITY_ANDROID || UNITY_EDITOR || UNITY_STANDALONE
-        bool needRun = false;
-        for (int i = 0; i < PerfGrade.c_max_perf_grade_cfgs; ++i) {
-            string file = System.IO.Path.Combine(PerfGradeGm.ScriptPath, string.Format("perf{0}.dsl", i));
-            if (File.Exists(file)) {
-                if (!needRun) {
-                    PerfGradeGm.ClearPerfGradeScripts();
-                    needRun = true;
-                }
-                PerfGradeGm.LoadPerfGradeScript(file);
             }
         }
-        if (needRun) {
-            PerfGradeGm.RunPerfGrade();
-        }
-        else {
-            //Open later on demand
-            //PerfGradeGm.RunPerfGradeOnlyCsharp();
-        }
-#endif
     }
 
     public static SortedList<string, string> GetApiDocs()
     {
-        return PerfGradeGm.Calculator.ApiDocs;
+        return StartupScript.Calculator.ApiDocs;
     }
     public static void LoadScript(string file)
     {
@@ -145,7 +158,7 @@ public class Main : MonoBehaviour
         if (!System.IO.Path.IsPathRooted(file)) {
             file = System.IO.Path.Combine(basePath, file);
         }
-        PerfGradeGm.Calculator.LoadDsl(file);
+        StartupScript.Calculator.LoadDsl(file);
     }
     public static BoxedValue EvalAndRun(string code)
     {
@@ -165,25 +178,25 @@ public class Main : MonoBehaviour
     {
         BoxedValue r = BoxedValue.EmptyString;
         List<IExpression> exps = new List<IExpression>();
-        PerfGradeGm.Calculator.LoadDsl(expressions, exps);
-        r = PerfGradeGm.Calculator.CalcInCurrentContext(exps);
+        StartupScript.Calculator.LoadDsl(expressions, exps);
+        r = StartupScript.Calculator.CalcInCurrentContext(exps);
         return r;
     }
     public static void EvalAsFunc(string name, Dsl.FunctionData func, IList<string> argNames)
     {
         Debug.Assert(null != func);
-        PerfGradeGm.Calculator.LoadDsl(name, argNames, func);
+        StartupScript.Calculator.LoadDsl(name, argNames, func);
     }
     public static object Call(string func, params object[] args)
     {
         if (null == s_Instance)
             return null;
-        var vargs = PerfGradeGm.Calculator.NewCalculatorValueList();
+        var vargs = StartupScript.Calculator.NewCalculatorValueList();
         foreach(var arg in args) {
             vargs.Add(BoxedValue.FromObject(arg));
         }
-        var r = PerfGradeGm.Calculator.Calc(func, vargs);
-        PerfGradeGm.Calculator.RecycleCalculatorValueList(vargs);
+        var r = StartupScript.Calculator.Calc(func, vargs);
+        StartupScript.Calculator.RecycleCalculatorValueList(vargs);
         return r.GetObject();
     }
 
@@ -211,10 +224,10 @@ namespace StoryApi
             }
             Debug.LogFormat("read pdf {0}.", file);
             var sb = new StringBuilder();
-            PdfReader reader = new PdfReader(file);
+            var reader = new iTextSharp.text.pdf.PdfReader(file);
             for (int page = start; page < start + count && page <= reader.NumberOfPages; ++page) {
                 try {
-                    var txt = PdfTextExtractor.GetTextFromPage(reader, page);
+                    var txt = iTextSharp.text.pdf.parser.PdfTextExtractor.GetTextFromPage(reader, page);
                     sb.AppendLine(txt);
                 }
                 catch {

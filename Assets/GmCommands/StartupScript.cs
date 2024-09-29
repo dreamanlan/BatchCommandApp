@@ -9,18 +9,18 @@ using Unity.Collections.LowLevel.Unsafe;
 using System;
 using StoryScript.DslExpression;
 
-internal class PerfGradeApiExp : SimpleExpressionBase
+internal class StartupApiExp : SimpleExpressionBase
 {
-    internal PerfGradeApiExp(string method)
+    internal StartupApiExp(string method)
     {
         m_Method = method;
-        if(!PerfGradeGm.GetApi(method, out m_Api)) {
+        if(!StartupScript.GetApi(method, out m_Api)) {
             LogSystem.Error("Can't find method '{0}'", method);
         }
     }
     protected override BoxedValue OnCalc(IList<BoxedValue> operands)
     {
-        var list = PerfGradeGm.NewArgList();
+        var list = StartupScript.NewArgList();
         foreach (var operand in operands) {
             list.Add(operand);
         }
@@ -32,14 +32,14 @@ internal class PerfGradeApiExp : SimpleExpressionBase
             return r;
         }
         finally {
-            PerfGradeGm.RecycleArgList(list);
+            StartupScript.RecycleArgList(list);
         }
     }
 
     private string m_Method = string.Empty;
-    private PerfGrade.PerfApiDelegation m_Api;
+    private StartupApi.ApiDelegation m_Api;
 }
-public static class PerfGradeGm
+public static class StartupScript
 {
     public static string ScriptPath
     {
@@ -62,20 +62,22 @@ public static class PerfGradeGm
             s_Inited = true;
         }
     }
-    public static void LogCompiledPerfGrades()
+    public static void LogCompiledStartups()
     {
-        PerfGrade.Instance.LogCompiledPerfGrades();
+        StartupApi.Instance.LogCompiledStartups();
     }
-    public static void ClearPerfGradeScripts()
+    public static void ClearStartups()
     {
         s_Calculator.Clear();
-        s_PerfIds.Clear();
+        s_StartupIds.Clear();
         s_Inits.Clear();
         s_Grades.Clear();
         s_DefGrades.Clear();
         s_Settings.Clear();
+
+        s_InitGms.Clear();
     }
-    public static void LoadPerfGradeScript(string script_file)
+    public static void LoadStartup(string script_file)
     {
         int serialNumber = 0;
 
@@ -83,123 +85,148 @@ public static class PerfGradeGm
         Dsl.DslFile dslFile = new DslFile();
         if(dslFile.LoadFromString(txt, msg => { LogSystem.Warn("{0}", msg); })) {
             foreach(var dslInfo in dslFile.DslInfos) {
-                string perfSyntaxName = dslInfo.GetId();
-                if (perfSyntaxName == "perf_grade") {
-                    var perfGradeDsl = dslInfo as Dsl.FunctionData;
-                    if (null != perfGradeDsl && perfGradeDsl.IsHighOrder && perfGradeDsl.HaveStatement()) {
-                        int.TryParse(perfGradeDsl.LowerOrderFunction.GetParamId(0), out var perfId);
-                        s_PerfIds.Add(perfId);
+                string startupSyntaxName = dslInfo.GetId();
+                if (startupSyntaxName == "startup") {
+                    var startupDsl = dslInfo as Dsl.FunctionData;
+                    if (null != startupDsl && startupDsl.IsHighOrder && startupDsl.HaveStatement()) {
+                        int.TryParse(startupDsl.LowerOrderFunction.GetParamId(0), out var startupId);
+                        s_StartupIds.Add(startupId);
 
-                        foreach(var block in perfGradeDsl.Params) {
+                        var initGm = new StringBuilder();
+
+                        foreach (var block in startupDsl.Params) {
                             var funcBlock = block as Dsl.FunctionData;
                             if (null != funcBlock) {
                                 string funcId = funcBlock.GetId();
-                                string fn = funcId + "_" + serialNumber;
-                                ++serialNumber;
-                                s_Calculator.LoadDsl(fn, funcBlock);
-                                if (funcId == "init") {
-                                    s_Inits.Add(fn);
-                                }
-                                else if(funcId == "grade") {
-                                    if(funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
-                                        int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
-                                        if(!s_Grades.TryGetValue(g, out var list)) {
-                                            list = new List<Tuple<string, string>>();
-                                            s_Grades[g] = list;
-                                        }
-                                        list.Add(Tuple.Create(fn, script_file + ":" + funcBlock.GetLine()));
+                                if (funcId == "initgm") {
+                                    if (funcBlock.HaveExternScript()) {
+                                        initGm.AppendLine(funcBlock.GetParamId(0));
                                     }
                                     else {
-                                        LogSystem.Error("grade must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
+                                        LogSystem.Error("initgm must have extern script block. syntax:{0} line:{1}", funcId, block.GetLine());
                                     }
                                 }
-                                else if (funcId == "default_grade") {
-                                    if (funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
-                                        int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
-                                        if (!s_DefGrades.TryGetValue(g, out var list)) {
-                                            list = new List<Tuple<string, string>>();
-                                            s_DefGrades[g] = list;
+                                else {
+                                    string fn = funcId + "_" + serialNumber;
+                                    ++serialNumber;
+                                    s_Calculator.LoadDsl(fn, funcBlock);
+                                    if (funcId == "init") {
+                                        s_Inits.Add(fn);
+                                    }
+                                    else if (funcId == "grade") {
+                                        if (funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
+                                            int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
+                                            if (!s_Grades.TryGetValue(g, out var list)) {
+                                                list = new List<Tuple<string, string>>();
+                                                s_Grades[g] = list;
+                                            }
+                                            list.Add(Tuple.Create(fn, script_file + ":" + funcBlock.GetLine()));
                                         }
-                                        list.Add(Tuple.Create(fn, script_file + ":" + funcBlock.GetLine()));
-                                    }
-                                    else {
-                                        LogSystem.Error("default_grade must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
-                                    }
-                                }
-                                else if (funcId == "setting") {
-                                    if (funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
-                                        int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
-                                        if (!s_Settings.TryGetValue(g, out var list)) {
-                                            list = new List<string>();
-                                            s_Settings[g] = list;
+                                        else {
+                                            LogSystem.Error("grade must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
                                         }
-                                        list.Add(fn);
                                     }
-                                    else {
-                                        LogSystem.Error("setting must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
+                                    else if (funcId == "default_grade") {
+                                        if (funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
+                                            int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
+                                            if (!s_DefGrades.TryGetValue(g, out var list)) {
+                                                list = new List<Tuple<string, string>>();
+                                                s_DefGrades[g] = list;
+                                            }
+                                            list.Add(Tuple.Create(fn, script_file + ":" + funcBlock.GetLine()));
+                                        }
+                                        else {
+                                            LogSystem.Error("default_grade must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
+                                        }
+                                    }
+                                    else if (funcId == "setting") {
+                                        if (funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
+                                            int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
+                                            if (!s_Settings.TryGetValue(g, out var list)) {
+                                                list = new List<string>();
+                                                s_Settings[g] = list;
+                                            }
+                                            list.Add(fn);
+                                        }
+                                        else {
+                                            LogSystem.Error("setting must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        s_InitGms.Add(startupId, initGm.ToString());
                     }
                     else {
-                        LogSystem.Error("perf_grade must have a integer id. syntax:{0} line:{1}", perfSyntaxName, dslInfo.GetLine());
+                        LogSystem.Error("startup must have a integer id. syntax:{0} line:{1}", startupSyntaxName, dslInfo.GetLine());
                     }
                 }
                 else {
-                    LogSystem.Error("only perf_grade can be toplevel element. syntax:{0} line:{1}", perfSyntaxName, dslInfo.GetLine());
+                    LogSystem.Error("only startup can be toplevel element. syntax:{0} line:{1}", startupSyntaxName, dslInfo.GetLine());
                 }
             }
         }
     }
-    public static void RunPerfGrade()
+    public static void RunStartup(out string gmtxt)
     {
-        s_Calculator.CheckFuncXrefs();
-        PerfGrade.Instance.ClearAll();
+        gmtxt = string.Empty;
 
-        foreach (var perfId in s_PerfIds) {
-            PerfGrade.Instance.AddOverridedScript(perfId);
+        s_Calculator.CheckFuncXrefs();
+        StartupApi.Instance.ClearAll();
+
+        foreach (var startupId in s_StartupIds) {
+            StartupApi.Instance.AddOverridedScript(startupId);
         }
 
-        PerfGrade.Instance.Init();
+        StartupApi.Instance.Init();
         foreach (var init in s_Inits) {
-            PerfGrade.Instance.SetCallFromGrade(false);
+            StartupApi.Instance.SetCallFromGrade(false);
             s_Calculator.Calc(init);
         }
 
-        var grade = PerfGrade.Instance.GetGrade();
-        if (grade == PerfGrade.GradeEnum.Unknown) {
+        for (int ix = 0; ix < s_InitGms.Count; ++ix) {
+            var initgm = s_InitGms[ix];
+            if (!string.IsNullOrEmpty(initgm)) {
+                gmtxt = initgm;
+                LogSystem.Warn("select initgm from startup {0}", ix);
+                break;
+            }
+        }
+
+        var grade = StartupApi.Instance.GetGrade();
+        if (grade == StartupApi.GradeEnum.Unknown) {
             foreach (var pair in s_Grades) {
                 int g = pair.Key;
                 foreach (var tuple in pair.Value) {
-                    PerfGrade.Instance.SetCallFromGrade(true);
+                    StartupApi.Instance.SetCallFromGrade(true);
                     s_Calculator.Calc(tuple.Item1);
-                    if (PerfGrade.Instance.GradeSetState) {
-                        grade = (PerfGrade.GradeEnum)g;
+                    if (StartupApi.Instance.GradeSetState) {
+                        grade = (StartupApi.GradeEnum)g;
                         LogSystem.Warn("set grade:{0} from {1}", grade, tuple.Item2);
                         break;
                     }
                 }
-                if (grade != PerfGrade.GradeEnum.Unknown) {
+                if (grade != StartupApi.GradeEnum.Unknown) {
                     break;
                 }
             }
         }
 
-        if (grade == PerfGrade.GradeEnum.Unknown) {
-            grade = PerfGrade.Instance.GetDefaultGrade();
+        if (grade == StartupApi.GradeEnum.Unknown) {
+            grade = StartupApi.Instance.GetDefaultGrade();
             foreach (var pair in s_DefGrades) {
                 int g = pair.Key;
                 foreach (var tuple in pair.Value) {
-                    PerfGrade.Instance.SetCallFromGrade(true);
+                    StartupApi.Instance.SetCallFromGrade(true);
                     s_Calculator.Calc(tuple.Item1);
-                    if (PerfGrade.Instance.GradeSetState) {
-                        grade = (PerfGrade.GradeEnum)g;
+                    if (StartupApi.Instance.GradeSetState) {
+                        grade = (StartupApi.GradeEnum)g;
                         LogSystem.Warn("set grade:{0} from {1}", grade, tuple.Item2);
                         break;
                     }
                 }
-                if (grade != PerfGrade.GradeEnum.Unknown) {
+                if (grade != StartupApi.GradeEnum.Unknown) {
                     break;
                 }
             }
@@ -207,28 +234,28 @@ public static class PerfGradeGm
 
         LogSystem.Warn("final device grade:{0}", grade);
 
-        PerfGrade.Instance.DoSetting(grade);
+        StartupApi.Instance.DoSetting(grade);
         if (s_Settings.TryGetValue((int)grade, out var codes)) {
             foreach (var code in codes) {
-                PerfGrade.Instance.SetCallFromGrade(false);
+                StartupApi.Instance.SetCallFromGrade(false);
                 s_Calculator.Calc(code);
             }
         }
     }
-    public static void RunPerfGradeOnlyCsharp()
+    public static void RunStartupOnlyCsharp()
     {
-        PerfGrade.Instance.ClearAll();
-        PerfGrade.Instance.Init();
-        var grade = PerfGrade.Instance.GetGrade();
-        if (grade == PerfGrade.GradeEnum.Unknown) {
-            grade = PerfGrade.Instance.GetDefaultGrade();
+        StartupApi.Instance.ClearAll();
+        StartupApi.Instance.Init();
+        var grade = StartupApi.Instance.GetGrade();
+        if (grade == StartupApi.GradeEnum.Unknown) {
+            grade = StartupApi.Instance.GetDefaultGrade();
         }
 
         LogSystem.Warn("final device grade:{0}", grade);
 
-        PerfGrade.Instance.DoSetting(grade);
+        StartupApi.Instance.DoSetting(grade);
     }
-    public static void CompilePerfGradeScript(string script_file)
+    public static void CompileStartup(string script_file)
     {
 #if UNITY_EDITOR
         string path = Path.GetDirectoryName(script_file);
@@ -236,10 +263,10 @@ public static class PerfGradeGm
         Dsl.DslFile dslFile = new DslFile();
         if (dslFile.LoadFromString(txt, msg => { LogSystem.Warn("{0}", msg); })) {
             foreach (var dslInfo in dslFile.DslInfos) {
-                string perfSyntaxName = dslInfo.GetId();
-                if (perfSyntaxName == "perf_grade") {
-                    var perfGradeDsl = dslInfo as Dsl.FunctionData;
-                    if (null != perfGradeDsl && perfGradeDsl.IsHighOrder && perfGradeDsl.HaveStatement()) {
+                string startupSyntaxName = dslInfo.GetId();
+                if (startupSyntaxName == "startup") {
+                    var startupDsl = dslInfo as Dsl.FunctionData;
+                    if (null != startupDsl && startupDsl.IsHighOrder && startupDsl.HaveStatement()) {
                         var inits = new List<string>();
                         var grades = new SortedDictionary<int, List<string>>();
                         var defGrades = new SortedDictionary<int, List<string>>();
@@ -252,77 +279,82 @@ public static class PerfGradeGm
                         s_NextId = 0;
 
                         var sb = new StringBuilder();
-                        int.TryParse(perfGradeDsl.LowerOrderFunction.GetParamId(0), out var perfId);
+                        int.TryParse(startupDsl.LowerOrderFunction.GetParamId(0), out var startupId);
                         sb.AppendLine("using System.Collections;");
                         sb.AppendLine("using System.Collections.Generic;");
                         sb.AppendLine("using System.Text;");
                         sb.AppendLine("using System.Text.RegularExpressions;");
                         sb.AppendLine("using UnityEngine;");
                         sb.AppendLine();
-                        sb.AppendLine("partial class PerfGrade");
+                        sb.AppendLine("partial class StartupApi");
                         sb.AppendLine("{");
                         ++indent;
-                        foreach (var block in perfGradeDsl.Params) {
+                        foreach (var block in startupDsl.Params) {
                             var funcBlock = block as Dsl.FunctionData;
                             if (null != funcBlock) {
                                 string funcId = funcBlock.GetId();
-                                string tag = "_" + perfId + "_" + serialNumber;
-                                ++serialNumber;
-                                if (funcId == "init") {
-                                    string fn = funcId + tag;
-                                    inits.Add(fn);
-                                    CompileFunction(fn, funcBlock, sb, indent, gvars);
+                                if (funcId == "initgm") {
+                                    //initgm doesnt compile
                                 }
-                                else if (funcId == "grade") {
-                                    if (funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
-                                        int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
-                                        if (!grades.TryGetValue(g, out var list)) {
-                                            list = new List<string>();
-                                            grades[g] = list;
-                                        }
-                                        string fn = funcId + tag + "_g" + g;
-                                        list.Add(fn);
+                                else {
+                                    string tag = "_" + startupId + "_" + serialNumber;
+                                    ++serialNumber;
+                                    if (funcId == "init") {
+                                        string fn = funcId + tag;
+                                        inits.Add(fn);
                                         CompileFunction(fn, funcBlock, sb, indent, gvars);
                                     }
-                                    else {
-                                        LogSystem.Error("grade must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
-                                    }
-                                }
-                                else if (funcId == "default_grade") {
-                                    if (funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
-                                        int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
-                                        if (!defGrades.TryGetValue(g, out var list)) {
-                                            list = new List<string>();
-                                            defGrades[g] = list;
+                                    else if (funcId == "grade") {
+                                        if (funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
+                                            int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
+                                            if (!grades.TryGetValue(g, out var list)) {
+                                                list = new List<string>();
+                                                grades[g] = list;
+                                            }
+                                            string fn = funcId + tag + "_g" + g;
+                                            list.Add(fn);
+                                            CompileFunction(fn, funcBlock, sb, indent, gvars);
                                         }
-                                        string fn = funcId + tag + "_g" + g;
-                                        list.Add(fn);
-                                        CompileFunction(fn, funcBlock, sb, indent, gvars);
-                                    }
-                                    else {
-                                        LogSystem.Error("default_grade must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
-                                    }
-                                }
-                                else if (funcId == "setting") {
-                                    if (funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
-                                        int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
-                                        if (!settings.TryGetValue(g, out var list)) {
-                                            list = new List<string>();
-                                            settings[g] = list;
+                                        else {
+                                            LogSystem.Error("grade must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
                                         }
-                                        string fn = funcId + tag + "_g" + g;
-                                        list.Add(fn);
-                                        CompileFunction(fn, funcBlock, sb, indent, gvars);
                                     }
-                                    else {
-                                        LogSystem.Error("setting must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
+                                    else if (funcId == "default_grade") {
+                                        if (funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
+                                            int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
+                                            if (!defGrades.TryGetValue(g, out var list)) {
+                                                list = new List<string>();
+                                                defGrades[g] = list;
+                                            }
+                                            string fn = funcId + tag + "_g" + g;
+                                            list.Add(fn);
+                                            CompileFunction(fn, funcBlock, sb, indent, gvars);
+                                        }
+                                        else {
+                                            LogSystem.Error("default_grade must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
+                                        }
+                                    }
+                                    else if (funcId == "setting") {
+                                        if (funcBlock.IsHighOrder && funcBlock.HaveStatement()) {
+                                            int.TryParse(funcBlock.LowerOrderFunction.GetParamId(0), out var g);
+                                            if (!settings.TryGetValue(g, out var list)) {
+                                                list = new List<string>();
+                                                settings[g] = list;
+                                            }
+                                            string fn = funcId + tag + "_g" + g;
+                                            list.Add(fn);
+                                            CompileFunction(fn, funcBlock, sb, indent, gvars);
+                                        }
+                                        else {
+                                            LogSystem.Error("setting must have a integer grade. syntax:{0} line:{1}", funcBlock, dslInfo.GetLine());
+                                        }
                                     }
                                 }
                             }
                         }
 
                         sb.AppendLine();
-                        sb.AppendLine("{0}GradeEnum combined_grade_{1}()", Literal.GetIndentString(indent), perfId);
+                        sb.AppendLine("{0}GradeEnum combined_grade_{1}()", Literal.GetIndentString(indent), startupId);
                         sb.AppendLine("{0}{{", Literal.GetIndentString(indent));
                         ++indent;
                         foreach (var pair in grades) {
@@ -332,7 +364,7 @@ public static class PerfGradeGm
                                 sb.AppendLine("{0}{1}();", Literal.GetIndentString(indent), func);
                                 sb.AppendLine("{0}if (GradeSetState) {{", Literal.GetIndentString(indent));
                                 ++indent;
-                                sb.AppendLine("{0}Debug.Log(\"set grade:{1} from {2}\");", Literal.GetIndentString(indent), (PerfGrade.GradeEnum)g, func);
+                                sb.AppendLine("{0}Debug.Log(\"set grade:{1} from {2}\");", Literal.GetIndentString(indent), (StartupApi.GradeEnum)g, func);
                                 sb.AppendLine("{0}return (GradeEnum){1};", Literal.GetIndentString(indent), g);
                                 --indent;
                                 sb.AppendLine("{0}}}", Literal.GetIndentString(indent));
@@ -341,7 +373,7 @@ public static class PerfGradeGm
                         sb.AppendLine("{0}return GradeEnum.Unknown;", Literal.GetIndentString(indent));
                         --indent;
                         sb.AppendLine("{0}}}", Literal.GetIndentString(indent));
-                        sb.AppendLine("{0}GradeEnum combined_default_grade_{1}()", Literal.GetIndentString(indent), perfId);
+                        sb.AppendLine("{0}GradeEnum combined_default_grade_{1}()", Literal.GetIndentString(indent), startupId);
                         sb.AppendLine("{0}{{", Literal.GetIndentString(indent));
                         ++indent;
                         foreach (var pair in defGrades) {
@@ -351,7 +383,7 @@ public static class PerfGradeGm
                                 sb.AppendLine("{0}{1}();", Literal.GetIndentString(indent), func);
                                 sb.AppendLine("{0}if (GradeSetState) {{", Literal.GetIndentString(indent));
                                 ++indent;
-                                sb.AppendLine("{0}Debug.Log(\"set grade:{1} from {2}\");", Literal.GetIndentString(indent), (PerfGrade.GradeEnum)g, func);
+                                sb.AppendLine("{0}Debug.Log(\"set grade:{1} from {2}\");", Literal.GetIndentString(indent), (StartupApi.GradeEnum)g, func);
                                 sb.AppendLine("{0}return (GradeEnum){1};", Literal.GetIndentString(indent), g);
                                 --indent;
                                 sb.AppendLine("{0}}}", Literal.GetIndentString(indent));
@@ -360,7 +392,7 @@ public static class PerfGradeGm
                         sb.AppendLine("{0}return GradeEnum.Unknown;", Literal.GetIndentString(indent));
                         --indent;
                         sb.AppendLine("{0}}}", Literal.GetIndentString(indent));
-                        sb.AppendLine("{0}void combined_setting_{1}(GradeEnum grade)", Literal.GetIndentString(indent), perfId);
+                        sb.AppendLine("{0}void combined_setting_{1}(GradeEnum grade)", Literal.GetIndentString(indent), startupId);
                         sb.AppendLine("{0}{{", Literal.GetIndentString(indent));
                         ++indent;
                         sb.AppendLine("{0}switch ((int)grade) {{", Literal.GetIndentString(indent));
@@ -381,19 +413,19 @@ public static class PerfGradeGm
                         --indent;
                         sb.AppendLine("{0}}}", Literal.GetIndentString(indent));
                         sb.AppendLine();
-                        sb.AppendLine("{0}partial void RegisterPerfGrade_{1}()", Literal.GetIndentString(indent), perfId);
+                        sb.AppendLine("{0}partial void RegisterStartup_{1}()", Literal.GetIndentString(indent), startupId);
                         sb.AppendLine("{0}{{", Literal.GetIndentString(indent));
                         ++indent;
-                        sb.AppendLine("{0}if (!ExistsScriptablePerfGrade({1})) {{", Literal.GetIndentString(indent), perfId);
+                        sb.AppendLine("{0}if (!ExistsScriptableStartup({1})) {{", Literal.GetIndentString(indent), startupId);
                         ++indent;
                         foreach (var init in inits) {
                             sb.AppendLine("{0}SetCallFromGrade(false);", Literal.GetIndentString(indent));
                             sb.AppendLine("{0}{1}();", Literal.GetIndentString(indent), init);
                         }
-                        sb.AppendLine("{0}m_GradeCodes.Add(combined_grade_{1});", Literal.GetIndentString(indent), perfId);
-                        sb.AppendLine("{0}m_DefaultGradeCodes.Add(combined_default_grade_{1});", Literal.GetIndentString(indent), perfId);
-                        sb.AppendLine("{0}m_SettingCodes.Add(combined_setting_{1});", Literal.GetIndentString(indent), perfId);
-                        sb.AppendLine("{0}m_CompiledPerfGrades.Add({1});", Literal.GetIndentString(indent), perfId);
+                        sb.AppendLine("{0}m_GradeCodes.Add(combined_grade_{1});", Literal.GetIndentString(indent), startupId);
+                        sb.AppendLine("{0}m_DefaultGradeCodes.Add(combined_default_grade_{1});", Literal.GetIndentString(indent), startupId);
+                        sb.AppendLine("{0}m_SettingCodes.Add(combined_setting_{1});", Literal.GetIndentString(indent), startupId);
+                        sb.AppendLine("{0}m_CompiledStartups.Add({1});", Literal.GetIndentString(indent), startupId);
                         --indent;
                         sb.AppendLine("{0}}}", Literal.GetIndentString(indent));
                         --indent;
@@ -404,14 +436,14 @@ public static class PerfGradeGm
                         }
                         --indent;
                         sb.AppendLine("}");
-                        File.WriteAllText(Path.Combine(path, string.Format("perf_grade_{0}.cs", perfId)), sb.ToString());
+                        File.WriteAllText(Path.Combine(path, string.Format("startup_{0}.cs", startupId)), sb.ToString());
                     }
                     else {
-                        LogSystem.Error("perf_grade must have a integer id. syntax:{0} line:{1}", perfSyntaxName, dslInfo.GetLine());
+                        LogSystem.Error("startup must have a integer id. syntax:{0} line:{1}", startupSyntaxName, dslInfo.GetLine());
                     }
                 }
                 else {
-                    LogSystem.Error("only perf_grade can be toplevel element. syntax:{0} line:{1}", perfSyntaxName, dslInfo.GetLine());
+                    LogSystem.Error("only startup can be toplevel element. syntax:{0} line:{1}", startupSyntaxName, dslInfo.GetLine());
                 }
             }
         }
@@ -421,10 +453,10 @@ public static class PerfGradeGm
     {
         get { return s_Calculator; }
     }
-    internal static bool GetApi(string method, out PerfGrade.PerfApiDelegation api)
+    internal static bool GetApi(string method, out StartupApi.ApiDelegation api)
     {
         bool r = false;
-        api = PerfGrade.Instance.GetApi(method);
+        api = StartupApi.Instance.GetApi(method);
         if (null != api) {
             r = true;
         }
@@ -445,12 +477,12 @@ public static class PerfGradeGm
 
         var funcData = comp as Dsl.FunctionData;
         if (null != funcData) {
-            //all perf grade apis are in the form of function calls.
+            //all startup apis are in the form of function calls.
             if (funcData.HaveParam()) {
                 var callData = funcData;
                 string fn = callData.GetId();
-                if (PerfGrade.Instance.ExistsApi(fn)) {
-                    var exp = new PerfGradeApiExp(fn);
+                if (StartupApi.Instance.ExistsApi(fn)) {
+                    var exp = new StartupApiExp(fn);
                     if (exp.Load(funcData, calculator)) {
                         expression = exp;
                         ret = true;
@@ -508,7 +540,10 @@ public static class PerfGradeGm
         }
         if (idType == Dsl.ValueData.STRING_TOKEN) {
             sb.Append('"');
-            sb.Append(id);
+            if (id.Contains('\\'))
+                sb.Append(id.Replace("\\", "\\\\"));
+            else
+                sb.Append(id);
             sb.Append('"');
         }
         else if (idType == Dsl.ValueData.NUM_TOKEN) {
@@ -604,7 +639,7 @@ public static class PerfGradeGm
         }
         else {
             string funcName;
-            if (PerfGrade.Instance.ExistsApi(id)) {
+            if (StartupApi.Instance.ExistsApi(id)) {
                 funcName = id + "_impl";
             }
             else {
@@ -672,11 +707,14 @@ public static class PerfGradeGm
     private static Stack<string> s_IteratorStack = new Stack<string>();
     private static int s_NextId = 0;
 
-    private static List<int> s_PerfIds = new List<int>();
+    private static List<int> s_StartupIds = new List<int>();
     private static List<string> s_Inits = new List<string>();
     private static SortedDictionary<int, List<Tuple<string, string>>> s_Grades = new SortedDictionary<int, List<Tuple<string, string>>>();
     private static SortedDictionary<int, List<Tuple<string, string>>> s_DefGrades = new SortedDictionary<int, List<Tuple<string, string>>>();
     private static SortedDictionary<int, List<string>> s_Settings = new SortedDictionary<int, List<string>>();
+
+    //one initgm per script
+    private static SortedDictionary<int, string> s_InitGms = new SortedDictionary<int, string>();
 
     private static DslCalculator s_Calculator = null;
     private static SimpleObjectPool<BoxedValueList> s_BoxedValueListPool = new SimpleObjectPool<BoxedValueList>(256);

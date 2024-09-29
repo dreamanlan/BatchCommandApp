@@ -78,10 +78,10 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "click", "click(uiobj) command", new StoryCommandFactoryHelper<ClickCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "toggle", "toggle(uiobj) command", new StoryCommandFactoryHelper<ToggleCommand>());
 
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logcperfs", "logcperfs() command", new StoryCommandFactoryHelper<LogCompiledPerfsCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "reloadperfs", "reloadperfs() command", new StoryCommandFactoryHelper<ReloadPerfsCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "runperf", "runperf(perf_dsl_file) command", new StoryCommandFactoryHelper<RunPerfCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "compileperf", "compileperf(perf_dsl_file) command", new StoryCommandFactoryHelper<CompilePerfCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logcstartups", "logcstartups() command", new StoryCommandFactoryHelper<LogCompiledStartupsCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "reloadstartups", "reloadstartups() command", new StoryCommandFactoryHelper<ReloadStartupsCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "runstartup", "runstartup(startup_dsl_file) command", new StoryCommandFactoryHelper<RunStartupCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "compilestartup", "compilestartup(startup_dsl_file) command", new StoryCommandFactoryHelper<CompileStartupCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "loadui", "loadui(ui_name_dsl) command", new StoryCommandFactoryHelper<LoadUiCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showui", "showui() command", new StoryCommandFactoryHelper<ShowUiCommand>());
@@ -200,7 +200,7 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getactivity", "getactivity() function", new StoryFunctionFactoryHelper<StoryApi.GetActivityFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getintent", "getintent() function", new StoryFunctionFactoryHelper<StoryApi.GetIntentFunction>());
 
-                //failback to call perf grade api
+                //failback to call startup api
                 StoryCommandManager.Instance.OnCreateFailback = this.OnCreateCommandFailback;
                 StoryFunctionManager.Instance.OnCreateFailback = this.OnCreateFunctionFailback;
             }
@@ -289,12 +289,12 @@ namespace GmCommands
 
             var funcData = comp as Dsl.FunctionData;
             if (null != funcData) {
-                //all perf grade apis are in the form of function calls.
+                //all startup apis are in the form of function calls.
                 if (funcData.HaveParam()) {
                     var callData = funcData;
                     string fn = callData.GetId();
-                    if (PerfGrade.Instance.ExistsApi(fn)) {
-                        var exp = new PerfApiCommand();
+                    if (StartupApi.Instance.ExistsApi(fn)) {
+                        var exp = new StartupApiCommand();
                         exp.SetApi(fn);
                         exp.Init(callData);
                         expression = exp;
@@ -311,12 +311,12 @@ namespace GmCommands
 
             var funcData = comp as Dsl.FunctionData;
             if (null != funcData) {
-                //all perf grade apis are in the form of function calls.
+                //all startup apis are in the form of function calls.
                 if (funcData.HaveParam()) {
                     var callData = funcData;
                     string fn = callData.GetId();
-                    if (PerfGrade.Instance.ExistsApi(fn)) {
-                        var exp = new PerfApiFunction();
+                    if (StartupApi.Instance.ExistsApi(fn)) {
+                        var exp = new StartupApiFunction();
                         exp.SetApi(fn);
                         exp.InitFromDsl(callData);
                         expression = exp;
@@ -490,23 +490,23 @@ namespace GmCommands
         private static ClientGmStorySystem s_Instance = new ClientGmStorySystem();
     }
 
-    internal class PerfApiCommand : SimpleStoryCommandBase<PerfApiCommand, StoryValueParams>
+    internal class StartupApiCommand : SimpleStoryCommandBase<StartupApiCommand, StoryValueParams>
     {
         public void SetApi(string method)
         {
             m_Method = method;
-            if (!PerfGradeGm.GetApi(method, out m_Api)) {
+            if (!StartupScript.GetApi(method, out m_Api)) {
                 LogSystem.Error("Can't find method '{0}'", method);
             }
         }
-        protected override void CopyFields(PerfApiCommand other)
+        protected override void CopyFields(StartupApiCommand other)
         {
             m_Method = other.m_Method;
             m_Api = other.m_Api;
         }
         protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
         {
-            var list = PerfGradeGm.NewArgList();
+            var list = StartupScript.NewArgList();
             foreach (var operand in _params.Values) {
                 list.Add(operand);
             }
@@ -516,31 +516,31 @@ namespace GmCommands
                 }
             }
             finally {
-                PerfGradeGm.RecycleArgList(list);
+                StartupScript.RecycleArgList(list);
             }
             return false;
         }
 
         private string m_Method;
-        private PerfGrade.PerfApiDelegation m_Api;
+        private StartupApi.ApiDelegation m_Api;
     }
-    internal class PerfApiFunction : SimpleStoryFunctionBase<PerfApiFunction, StoryValueParams>
+    internal class StartupApiFunction : SimpleStoryFunctionBase<StartupApiFunction, StoryValueParams>
     {
         public void SetApi(string method)
         {
             m_Method = method;
-            if (!PerfGradeGm.GetApi(method, out m_Api)) {
+            if (!StartupScript.GetApi(method, out m_Api)) {
                 LogSystem.Error("Can't find method '{0}'", method);
             }
         }
-        protected override void CopyFields(PerfApiFunction other)
+        protected override void CopyFields(StartupApiFunction other)
         {
             m_Method = other.m_Method;
             m_Api = other.m_Api;
         }
         protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
         {
-            var list = PerfGradeGm.NewArgList();
+            var list = StartupScript.NewArgList();
             foreach (var operand in _params.Values) {
                 list.Add(operand);
             }
@@ -552,11 +552,11 @@ namespace GmCommands
                 result.Value = r;
             }
             finally {
-                PerfGradeGm.RecycleArgList(list);
+                StartupScript.RecycleArgList(list);
             }
         }
 
         private string m_Method;
-        private PerfGrade.PerfApiDelegation m_Api;
+        private StartupApi.ApiDelegation m_Api;
     }
 }

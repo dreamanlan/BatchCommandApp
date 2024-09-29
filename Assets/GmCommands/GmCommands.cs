@@ -2020,45 +2020,50 @@ namespace GmCommands
             return false;
         }
     }
-    internal sealed class LogCompiledPerfsCommand : SimpleStoryCommandBase<LogCompiledPerfsCommand, StoryValueParam>
+    internal sealed class LogCompiledStartupsCommand : SimpleStoryCommandBase<LogCompiledStartupsCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
         {
-            PerfGradeGm.LogCompiledPerfGrades();
+            StartupScript.LogCompiledStartups();
             return false;
         }
     }
-    internal sealed class ReloadPerfsCommand : SimpleStoryCommandBase<ReloadPerfsCommand, StoryValueParam>
+    internal sealed class ReloadStartupsCommand : SimpleStoryCommandBase<ReloadStartupsCommand, StoryValueParam<bool>>
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<bool> _params, long delta)
         {
-            Main.RunPerfGrade();
+            bool runGm = _params.Param1Value;
+            Main.RunStartup(runGm);
             return false;
         }
     }
-    internal sealed class RunPerfCommand : SimpleStoryCommandBase<RunPerfCommand, StoryValueParam<string>>
+    internal sealed class RunStartupCommand : SimpleStoryCommandBase<RunStartupCommand, StoryValueParam<string, bool>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, bool> _params, long delta)
+        {
+            var startupFile = _params.Param1Value;
+            bool runGm = _params.Param2Value;
+            if (!Path.IsPathRooted(startupFile)) {
+                startupFile = StartupScript.ScriptPath + startupFile;
+            }
+            StartupScript.ClearStartups();
+            StartupScript.LoadStartup(startupFile);
+            StartupScript.RunStartup(out var gmtxt);
+            if (runGm && !string.IsNullOrEmpty(gmtxt)) {
+                DebugConsole.Execute(gmtxt);
+            }
+            return false;
+        }
+    }
+    internal sealed class CompileStartupCommand : SimpleStoryCommandBase<CompileStartupCommand, StoryValueParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
         {
-            var perfFile = _params.Param1Value;
-            if (!Path.IsPathRooted(perfFile)) {
-                perfFile = PerfGradeGm.ScriptPath + perfFile;
+            var startupFile = _params.Param1Value;
+            if (!Path.IsPathRooted(startupFile)) {
+                startupFile = StartupScript.ScriptPath + startupFile;
             }
-            PerfGradeGm.ClearPerfGradeScripts();
-            PerfGradeGm.LoadPerfGradeScript(perfFile);
-            PerfGradeGm.RunPerfGrade();
-            return false;
-        }
-    }
-    internal sealed class CompilePerfCommand : SimpleStoryCommandBase<CompilePerfCommand, StoryValueParam<string>>
-    {
-        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string> _params, long delta)
-        {
-            var perfFile = _params.Param1Value;
-            if (!Path.IsPathRooted(perfFile)) {
-                perfFile = PerfGradeGm.ScriptPath + perfFile;
-            }
-            PerfGradeGm.CompilePerfGradeScript(perfFile);
+            StartupScript.CompileStartup(startupFile);
             return false;
         }
     }

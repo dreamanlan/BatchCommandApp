@@ -6,13 +6,13 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 
 [UnityEngine.Scripting.Preserve]
-public sealed partial class PerfGrade
+public sealed partial class StartupApi
 {
     public delegate GradeEnum GetGradeDelegation();
     public delegate void DoSettingDelegation(GradeEnum grade);
-    public delegate BoxedValue PerfApiDelegation(BoxedValueList args);
+    public delegate BoxedValue ApiDelegation(BoxedValueList args);
 
-    public const int c_max_perf_grade_cfgs = 32;
+    public const int c_max_startup_cfgs = 8;
     public enum GradeEnum
     {
         Unknown = -1,
@@ -40,65 +40,41 @@ public sealed partial class PerfGrade
 
     public void ClearAll()
     {
-        m_CompiledPerfGrades.Clear();
-        m_ScriptablePerfGrades.Clear();
+        m_CompiledStartups.Clear();
+        m_ScriptableStartups.Clear();
 
         m_Device2Grades.Clear();
         m_GradeCodes.Clear();
         m_DefaultGradeCodes.Clear();
         m_SettingCodes.Clear();
     }
-    public void LogCompiledPerfGrades()
+    public void LogCompiledStartups()
     {
         var sb = new StringBuilder();
-        sb.AppendLine("compiled perf grades:");
-        foreach(var id in m_CompiledPerfGrades) {
+        sb.AppendLine("compiled startups:");
+        foreach(var id in m_CompiledStartups) {
             sb.AppendLine("\t{0}", id);
         }
         Debug.LogFormat("{0}", sb.ToString());
     }
-    public bool ExistsScriptablePerfGrade(int id)
+    public bool ExistsScriptableStartup(int id)
     {
-        return m_ScriptablePerfGrades.Contains(id);
+        return m_ScriptableStartups.Contains(id);
     }
     public void AddOverridedScript(int id)
     {
-        m_ScriptablePerfGrades.Add(id);
+        m_ScriptableStartups.Add(id);
     }
     public void Init()
     {
-        RegisterPerfGrade_0();
-        RegisterPerfGrade_1();
-        RegisterPerfGrade_2();
-        RegisterPerfGrade_3();
-        RegisterPerfGrade_4();
-        RegisterPerfGrade_5();
-        RegisterPerfGrade_6();
-        RegisterPerfGrade_7();
-        RegisterPerfGrade_8();
-        RegisterPerfGrade_9();
-        RegisterPerfGrade_10();
-        RegisterPerfGrade_11();
-        RegisterPerfGrade_12();
-        RegisterPerfGrade_13();
-        RegisterPerfGrade_14();
-        RegisterPerfGrade_15();
-        RegisterPerfGrade_16();
-        RegisterPerfGrade_17();
-        RegisterPerfGrade_18();
-        RegisterPerfGrade_19();
-        RegisterPerfGrade_20();
-        RegisterPerfGrade_21();
-        RegisterPerfGrade_22();
-        RegisterPerfGrade_23();
-        RegisterPerfGrade_24();
-        RegisterPerfGrade_25();
-        RegisterPerfGrade_26();
-        RegisterPerfGrade_27();
-        RegisterPerfGrade_28();
-        RegisterPerfGrade_29();
-        RegisterPerfGrade_30();
-        RegisterPerfGrade_31();
+        RegisterStartup_0();
+        RegisterStartup_1();
+        RegisterStartup_2();
+        RegisterStartup_3();
+        RegisterStartup_4();
+        RegisterStartup_5();
+        RegisterStartup_6();
+        RegisterStartup_7();
     }
     public GradeEnum GetGrade()
     {
@@ -152,23 +128,23 @@ public sealed partial class PerfGrade
         }
         return false;
     }
-    public PerfApiDelegation GetApi(string method)
+    public ApiDelegation GetApi(string method)
     {
         var t = this.GetType();
         var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         if (null != mi) {
-            var delegation = System.Delegate.CreateDelegate(typeof(PerfApiDelegation), this, mi, false);
+            var delegation = System.Delegate.CreateDelegate(typeof(ApiDelegation), this, mi, false);
             if (null != delegation)
-                return (PerfApiDelegation)delegation;
+                return (ApiDelegation)delegation;
             else
                 return (BoxedValueList args) => { object o = mi.Invoke(this, new object[] { args }); return BoxedValue.FromObject(o); };
         }
         else {
             mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             if (null != mi) {
-                var delegation = System.Delegate.CreateDelegate(typeof(PerfApiDelegation), mi, false);
+                var delegation = System.Delegate.CreateDelegate(typeof(ApiDelegation), mi, false);
                 if (null != delegation)
-                    return (PerfApiDelegation)delegation;
+                    return (ApiDelegation)delegation;
                 else
                     return (BoxedValueList args) => { object o = mi.Invoke(null, new object[] { args }); return BoxedValue.FromObject(o); };
             }
@@ -176,7 +152,7 @@ public sealed partial class PerfGrade
         return null;
     }
 
-    //perf grade apis
+    //startup apis
     private BoxedValue device_name(BoxedValueList list)
     {
         string model = device_name_impl();
@@ -1244,52 +1220,28 @@ public sealed partial class PerfGrade
     private List<GetGradeDelegation> m_GradeCodes = new List<GetGradeDelegation>();
     private List<GetGradeDelegation> m_DefaultGradeCodes = new List<GetGradeDelegation>();
     private List<DoSettingDelegation> m_SettingCodes = new List<DoSettingDelegation>();
-    private SortedSet<int> m_CompiledPerfGrades = new SortedSet<int>();
-    private HashSet<int> m_ScriptablePerfGrades = new HashSet<int>();
+    private SortedSet<int> m_CompiledStartups = new SortedSet<int>();
+    private HashSet<int> m_ScriptableStartups = new HashSet<int>();
 
     private Dictionary<string, Regex> m_Regexes = new Dictionary<string, Regex>();
 
-    partial void RegisterPerfGrade_0();
-    partial void RegisterPerfGrade_1();
-    partial void RegisterPerfGrade_2();
-    partial void RegisterPerfGrade_3();
-    partial void RegisterPerfGrade_4();
-    partial void RegisterPerfGrade_5();
-    partial void RegisterPerfGrade_6();
-    partial void RegisterPerfGrade_7();
-    partial void RegisterPerfGrade_8();
-    partial void RegisterPerfGrade_9();
-    partial void RegisterPerfGrade_10();
-    partial void RegisterPerfGrade_11();
-    partial void RegisterPerfGrade_12();
-    partial void RegisterPerfGrade_13();
-    partial void RegisterPerfGrade_14();
-    partial void RegisterPerfGrade_15();
-    partial void RegisterPerfGrade_16();
-    partial void RegisterPerfGrade_17();
-    partial void RegisterPerfGrade_18();
-    partial void RegisterPerfGrade_19();
-    partial void RegisterPerfGrade_20();
-    partial void RegisterPerfGrade_21();
-    partial void RegisterPerfGrade_22();
-    partial void RegisterPerfGrade_23();
-    partial void RegisterPerfGrade_24();
-    partial void RegisterPerfGrade_25();
-    partial void RegisterPerfGrade_26();
-    partial void RegisterPerfGrade_27();
-    partial void RegisterPerfGrade_28();
-    partial void RegisterPerfGrade_29();
-    partial void RegisterPerfGrade_30();
-    partial void RegisterPerfGrade_31();
+    partial void RegisterStartup_0();
+    partial void RegisterStartup_1();
+    partial void RegisterStartup_2();
+    partial void RegisterStartup_3();
+    partial void RegisterStartup_4();
+    partial void RegisterStartup_5();
+    partial void RegisterStartup_6();
+    partial void RegisterStartup_7();
 
-    public static PerfGrade Instance
+    public static StartupApi Instance
     {
         get {
             if (null == s_Instance) {
-                s_Instance = new PerfGrade();
+                s_Instance = new StartupApi();
             }
             return s_Instance;
         }
     }
-    private static PerfGrade s_Instance = null;
+    private static StartupApi s_Instance = null;
 }

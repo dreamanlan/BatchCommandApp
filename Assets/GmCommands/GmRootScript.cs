@@ -81,7 +81,7 @@ public sealed class GmRootScript : MonoBehaviour
 #endif
 
         ClientGmStorySystem.Instance.Init();
-        PerfGradeGm.TryInit();
+        StartupScript.TryInit();
 
         m_CommandDocs = StoryScript.StoryCommandManager.Instance.GenCommandDocs();
         m_FunctionDocs = StoryScript.StoryFunctionManager.Instance.GenFunctionDocs();
