@@ -1077,8 +1077,8 @@ c#类型转换语义下的类型转换
 - 命令类
 ```
 = [compilestartup]:compilestartup(startup_dsl_file) command，将启动时设置脚本翻译到C#代码
-= [reloadstartups]:reloadstartups() command，重新执行全部启动时设置脚本（/data/local/tmp/startup*.dsl）
-= [runstartup]:runstartup(startup_dsl_file) command，运行指定的启动时设置脚本
+= [reloadstartups]:reloadstartups(rungm) command，重新执行全部启动时设置脚本（/data/local/tmp/startup*.dsl）
+= [runstartup]:runstartup(startup_dsl_file,rungm) command，运行指定的启动时设置脚本
 = [logcstartups]:logcstartups() command，打印编译好的启动时设置脚本id
 ```
 ### S、游戏功能api---外部系统交互
