@@ -10,7 +10,14 @@ using StoryScript.DslExpression;
 
 public class Main : MonoBehaviour
 {
-    // Start is called before the first frame update
+    void OnEnable()
+    {
+		StartupScript.InitLogger();
+    }
+    void OnDisable()
+    {
+        StartupScript.ReleaseLogger();
+    }
     void Start()
     {
         s_Instance = this;

@@ -14,12 +14,10 @@ public sealed class GmRootScript : MonoBehaviour
 
     void OnEnable()
     {
-        m_Logger.Init(Application.persistentDataPath, string.Empty);
     }
     void OnDisable()
     {
         DeinitAndroidReceiver();
-        m_Logger.Dispose();
     }
     void Start()
     {
@@ -68,41 +66,11 @@ public sealed class GmRootScript : MonoBehaviour
         s_application_identifier = Application.identifier;
         s_clipboard_cmd_tag = string.Format("[{0}]:", s_application_identifier);
 
-#if DEVELOPMENT_BUILD
-        StoryScript.StoryConfigManager.Instance.IsDevelopment = true;
-#else
-        StoryScript.StoryConfigManager.Instance.IsDevelopment = false;
-#endif
-
-#if UNITY_EDITOR
-        StoryScript.StoryConfigManager.Instance.IsDevice = false;
-#elif UNITY_ANDROID || UNITY_IOS
-        StoryScript.StoryConfigManager.Instance.IsDevice = true;
-#endif
-
         ClientGmStorySystem.Instance.Init();
         StartupScript.TryInit();
 
         m_CommandDocs = StoryScript.StoryCommandManager.Instance.GenCommandDocs();
         m_FunctionDocs = StoryScript.StoryFunctionManager.Instance.GenFunctionDocs();
-
-        LogSystem.OnOutput = (StoryLogType type, string msg) => {
-            switch (type) {
-                case StoryLogType.Error:
-                    //LogToConsole(msg);
-                    Debug.LogError(msg);
-                    break;
-                case StoryLogType.Warn:
-                    //LogToConsole(msg);
-                    Debug.LogWarning(msg);
-                    break;
-                case StoryLogType.Info:
-                    //LogToConsole(msg);
-                    Debug.Log(msg);
-                    break;
-            }
-            m_Logger.Log("{0}", msg);
-        };
 
 #if UNITY_EDITOR
         SetClipboardInterval(100);
@@ -115,10 +83,6 @@ public sealed class GmRootScript : MonoBehaviour
         InitAndroidReceiver();
 #endif
 #endif
-    }
-    private void LogToConsole(string msg)
-    {
-        DebugConsole.Log(msg);
     }
 
     private void SetClipboardInterval(int interval)
@@ -241,7 +205,6 @@ public sealed class GmRootScript : MonoBehaviour
     private SortedList<string, string> m_CommandDocs;
     private SortedList<string, string> m_FunctionDocs;
     private string m_LocalGmFile = string.Empty;
-    private GmCommands.Logger m_Logger = new GmCommands.Logger();
     private bool m_Inited = false;
 
     public static DebugConsoleShowHideDelegation OnConsoleShow;

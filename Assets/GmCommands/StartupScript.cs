@@ -52,6 +52,44 @@ public static class StartupScript
             }
         }
     }
+    public static void InitLogger()
+    {
+#if DEVELOPMENT_BUILD
+        StoryScript.StoryConfigManager.Instance.IsDevelopment = true;
+#else
+        StoryScript.StoryConfigManager.Instance.IsDevelopment = false;
+#endif
+
+#if UNITY_EDITOR
+        StoryScript.StoryConfigManager.Instance.IsDevice = false;
+#elif UNITY_ANDROID || UNITY_IOS
+        StoryScript.StoryConfigManager.Instance.IsDevice = true;
+#endif
+
+        s_Logger.Init(Application.persistentDataPath, string.Empty);
+
+        LogSystem.OnOutput = (StoryLogType type, string msg) => {
+            switch (type) {
+                case StoryLogType.Error:
+                    DebugConsole.Log(msg);
+                    Debug.LogError(msg);
+                    break;
+                case StoryLogType.Warn:
+                    DebugConsole.Log(msg);
+                    Debug.LogWarning(msg);
+                    break;
+                case StoryLogType.Info:
+                    //DebugConsole.Log(msg);
+                    Debug.Log(msg);
+                    break;
+            }
+            s_Logger.Log("{0}", msg);
+        };
+    }
+    public static void ReleaseLogger()
+    {
+        s_Logger.Dispose();
+    }
     public static void TryInit()
     {
         if (!s_Inited) {
@@ -718,5 +756,6 @@ public static class StartupScript
 
     private static DslCalculator s_Calculator = null;
     private static SimpleObjectPool<BoxedValueList> s_BoxedValueListPool = new SimpleObjectPool<BoxedValueList>(256);
+    private static GmCommands.Logger s_Logger = new GmCommands.Logger();
     private static bool s_Inited = false;
 }
