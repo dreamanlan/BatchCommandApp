@@ -32,15 +32,15 @@ namespace GmCommands
         {
             try {
 #if UNITY_EDITOR
-                string logFile = string.Format("{0}/EditorGame{1}.log", logPath, suffix);
+                string logFile = string.Format("{0}/EditorStoryScript{1}.log", logPath, suffix);
 #else
-            	string logFile = string.Format("{0}/Game{1}.log", logPath, suffix);
+            	string logFile = string.Format("{0}/StoryScript{1}.log", logPath, suffix);
 #endif
                 if (null != m_LogStream) {
                     Release();
                 }
                 m_LogStream = new StreamWriter(logFile, false);
-                Log("======GameLog Start ({0}, {1})======", DateTime.Now.ToLongDateString(), DateTime.Now.ToLongTimeString());
+                Log("======StoryScript Logger Start ({0}, {1})======", DateTime.Now.ToLongDateString(), DateTime.Now.ToLongTimeString());
             }
             catch (Exception ex) {
                 UnityEngine.Debug.LogErrorFormat("exception:{0}\n{1}", ex.Message, ex.StackTrace);

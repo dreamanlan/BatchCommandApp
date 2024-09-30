@@ -8,15 +8,12 @@ using Dsl;
 using StoryScript;
 using StoryScript.DslExpression;
 
+[UnityEngine.Scripting.Preserve]
 public class Main : MonoBehaviour
 {
-    void OnEnable()
+    void Awake()
     {
 		StartupScript.InitLogger();
-    }
-    void OnDisable()
-    {
-        StartupScript.ReleaseLogger();
     }
     void Start()
     {
@@ -34,6 +31,10 @@ public class Main : MonoBehaviour
         StartupScript.Calculator.Register("getclipboard", "getclipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
 
         RunStartup(true);
+    }
+    void OnDestroy()
+    {
+        StartupScript.ReleaseLogger();
     }
     private IEnumerator Loop()
     {
@@ -68,6 +69,29 @@ public class Main : MonoBehaviour
     }
 
     private StringBuilder m_LogBuilder = new StringBuilder();
+
+    public static bool ExistsApi(string method)
+    {
+        var t = typeof(Main);
+        var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        if (null != mi) {
+            return true;
+        }
+        return false;
+    }
+    public static StartupApi.ApiDelegation GetApi(string method)
+    {
+        var t = typeof(Main);
+        var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        if (null != mi) {
+            var delegation = System.Delegate.CreateDelegate(typeof(StartupApi.ApiDelegation), mi, false);
+            if (null != delegation)
+                return (StartupApi.ApiDelegation)delegation;
+            else
+                return (BoxedValueList args) => { object o = mi.Invoke(null, new object[] { args }); return BoxedValue.FromObject(o); };
+        }
+        return null;
+    }
 
     public static void RunStartup(bool runGm)
     {

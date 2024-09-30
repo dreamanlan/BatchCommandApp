@@ -491,14 +491,25 @@ public static class StartupScript
     {
         get { return s_Calculator; }
     }
+    internal static bool ExistsApi(string method)
+    {
+        if (StartupApi.Instance.ExistsApi(method))
+            return true;
+        if (Main.ExistsApi(method))
+            return true;
+        return false;
+    }
     internal static bool GetApi(string method, out StartupApi.ApiDelegation api)
     {
-        bool r = false;
         api = StartupApi.Instance.GetApi(method);
         if (null != api) {
-            r = true;
+            return true;
         }
-        return r;
+        api = Main.GetApi(method);
+        if (null != api) {
+            return true;
+        }
+        return false;
     }
     internal static BoxedValueList NewArgList()
     {
@@ -519,7 +530,7 @@ public static class StartupScript
             if (funcData.HaveParam()) {
                 var callData = funcData;
                 string fn = callData.GetId();
-                if (StartupApi.Instance.ExistsApi(fn)) {
+                if (ExistsApi(fn)) {
                     var exp = new StartupApiExp(fn);
                     if (exp.Load(funcData, calculator)) {
                         expression = exp;
@@ -679,6 +690,9 @@ public static class StartupScript
             string funcName;
             if (StartupApi.Instance.ExistsApi(id)) {
                 funcName = id + "_impl";
+            }
+            else if (Main.ExistsApi(id)) {
+                funcName = "Main." + id + "_impl";
             }
             else {
                 funcName = "_dsl_" + id;

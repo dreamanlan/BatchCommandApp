@@ -293,7 +293,7 @@ namespace GmCommands
                 if (funcData.HaveParam()) {
                     var callData = funcData;
                     string fn = callData.GetId();
-                    if (StartupApi.Instance.ExistsApi(fn)) {
+                    if (StartupScript.ExistsApi(fn)) {
                         var exp = new StartupApiCommand();
                         exp.SetApi(fn);
                         exp.Init(callData);
@@ -315,7 +315,7 @@ namespace GmCommands
                 if (funcData.HaveParam()) {
                     var callData = funcData;
                     string fn = callData.GetId();
-                    if (StartupApi.Instance.ExistsApi(fn)) {
+                    if (StartupScript.ExistsApi(fn)) {
                         var exp = new StartupApiFunction();
                         exp.SetApi(fn);
                         exp.InitFromDsl(callData);
