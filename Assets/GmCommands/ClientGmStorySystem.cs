@@ -66,6 +66,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "matsetvector", "matsetvector(mat_or_path,key,val) command, Material.SetVector", new StoryCommandFactoryHelper<MaterialSetVectorCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "matsetcolor", "matsetcolor(mat_or_path,key,val) command, Material.SetColor", new StoryCommandFactoryHelper<MaterialSetColorCommand>());
 
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logobjs", "logobjs(name_key,type) command", new StoryCommandFactoryHelper<LogObjectsCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logcomps", "logcomps(root_name,[name1,name2,...],type,up_level,include_inactive) command", new StoryCommandFactoryHelper<LogComponentsCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logscenepath", "logscenepath([prefixs],obj,up_level) command", new StoryCommandFactoryHelper<LogScenePathCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "clickui", "clickui(name1,name2,...) command", new StoryCommandFactoryHelper<ClickUiCommand>());
@@ -180,6 +181,8 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "finddropdown", "finddropdown(name1,name2,...) function", new StoryFunctionFactoryHelper<FindUiDropdownFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findtmpdropdown", "findtmpdropdown(name1,name2,...) function", new StoryFunctionFactoryHelper<FindTmpDropdownFunction>());
 
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findobj", "findobj(name_key,type) function", new StoryFunctionFactoryHelper<FindObjectFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "searchobjs", "searchobjs(name_key,type) function", new StoryFunctionFactoryHelper<SearchObjectsFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "findcomp", "findcomp(root_name,[name1,name2,...],type,include_inactive) function", new StoryFunctionFactoryHelper<FindComponentFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "searchcomps", "searchcomps(root_name,[name1,name2,...],type,include_inactive) function", new StoryFunctionFactoryHelper<SearchComponentsFunction>());
 

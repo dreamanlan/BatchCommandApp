@@ -1807,11 +1807,35 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
+    internal sealed class LogObjectsCommand : SimpleStoryCommandBase<LogObjectsCommand, StoryValueParam<string, object>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, object> _params, long delta)
+        {
+            var name = _params.Param1Value;
+            var typeObj = _params.Param2Value;
+            var type = typeObj as Type;
+            var typeStr = typeObj as string;
+            if (null != typeStr) {
+                type = StoryScriptUtility.GetType(typeStr);
+            }
+            if (null != type) {
+                var objs = Resources.FindObjectsOfTypeAll(type);
+                foreach (var obj in objs) {
+                    if (null != obj) {
+                        string objName = obj.name;
+                        if (objName.Contains(name)) {
+                            LogSystem.Warn("{0} {1} {2}", obj.name, obj, obj.GetType());
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+    }
     internal sealed class LogComponentsCommand : SimpleStoryCommandBase<LogComponentsCommand, StoryValueParam<string, System.Collections.IList, object, int, bool>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, System.Collections.IList, object, int, bool> _params, long delta)
         {
-            var list = new List<Component>();
             var root = _params.Param1Value;
             var vals = _params.Param2Value;
             var typeObj = _params.Param3Value;
@@ -2324,6 +2348,58 @@ namespace GmCommands
                     break;
                 }
             }
+        }
+    }
+    internal sealed class FindObjectFunction : SimpleStoryFunctionBase<FindObjectFunction, StoryValueParam<string, object>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, object> _params, StoryValueResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+            var name = _params.Param1Value;
+            var typeObj = _params.Param2Value;
+            var type = typeObj as Type;
+            var typeStr = typeObj as string;
+            if (null != typeStr) {
+                type = StoryScriptUtility.GetType(typeStr);
+            }
+            if (null != type) {
+                var objs = Resources.FindObjectsOfTypeAll(type);
+                foreach (var obj in objs) {
+                    if (null != obj) {
+                        string objName = obj.name;
+                        if (objName.Contains(name)) {
+                            result.Value = obj;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    internal sealed class SearchObjectsFunction : SimpleStoryFunctionBase<SearchObjectsFunction, StoryValueParam<string, object>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, object> _params, StoryValueResult result)
+        {
+            var list = new List<UnityEngine.Object>();
+            var name = _params.Param1Value;
+            var typeObj = _params.Param2Value;
+            var type = typeObj as Type;
+            var typeStr = typeObj as string;
+            if (null != typeStr) {
+                type = StoryScriptUtility.GetType(typeStr);
+            }
+            if (null != type) {
+                var objs = Resources.FindObjectsOfTypeAll(type);
+                foreach (var obj in objs) {
+                    if (null != obj) {
+                        string objName = obj.name;
+                        if (objName.Contains(name)) {
+                            list.Add(obj);
+                        }
+                    }
+                }
+            }
+            result.Value = BoxedValue.FromObject(list);
         }
     }
     internal sealed class FindComponentFunction : SimpleStoryFunctionBase<FindComponentFunction, StoryValueParam<string, System.Collections.IList, object, bool>>
