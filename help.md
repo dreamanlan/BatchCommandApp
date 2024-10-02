@@ -754,7 +754,7 @@ c#类型转换语义下的类型转换
 = [dotnetcall]:dotnetcall command, internal implementation, using csharp object syntax
 = [dotnetset]:dotnetset command, internal implementation, using csharp object syntax
 ```
-- 函数类
+- 函数类，如果类型名称不是已有api名称，解释器会尝试用typeof来获取类型Type对象，但名字空间无法类似处理，所以名字空间只能使用import引入或使用typeof来明确指定包含名字空间的类型字符串
 ```
 = [collectioncall]:collectioncall function, internal implementation, using csharp object syntax
 = [collectionget]:collectionget function, internal implementation, using csharp object syntax
