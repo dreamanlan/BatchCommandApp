@@ -768,7 +768,11 @@ c#类型转换语义下的类型转换
 = [getunitytype]:getunitytype(type_str) function，Type.GetType($"UnityEngine.{typeName},UnityEngine")
 = [getunityuitype]:getunityuitype(type_str) function，Type.GetType($"UnityEngine.UI.{typeName},UnityEngine.UI")
 = [getusertype]:getusertype(type_str) function，Type.GetType($"{typeName},Assembly-CSharp")
-= [typeof]:typeof(type) or typeof(type,assembly) function，Type.GetType，Automatically try gettype/getunitytype/getunityuitype/getusertype
+
+= [import]:import(ns,assembly) command, import a namespace for typeof
+= [unimport]:unimport(ns,assembly) command, remove the previously imported namespace
+= [typeof]:typeof(type) or typeof(type,assembly) function, Type.GetType, Automatically try getunitytype/getunityuitype/getusertype, then try imports, and finally try gettype
+
 = [gettypeassemblyname]:gettypeassemblyname(obj) function，get Type.AssemblyQualifiedName
 = [gettypefullname]:gettypefullname(obj) function，get Type.FullName
 = [gettypename]:gettypename(obj) function，get Type.Name
@@ -1208,11 +1212,15 @@ startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivit
 
 - 命令类
 ```
+= [logobjs]:logobjs(name_key,type) command
 = [logcomps]:logcomps(root_name,[name1,name2,...],type,up_level,include_inactive) command
 = [logscenepath]:logscenepath([prefixs],obj,up_level) command
 ```
 - 函数类
 ```
+= [findobj]:findobj(name_key,type) function
+= [searchobjs]:searchobjs(name_key,type) function
+= [findcomp]:findcomp(root_name,[name1,name2,...],type,include_inactive) function
 = [searchcomps]:searchcomps(root_name,[name1,name2,...],type,include_inactive) function
 = [getscenepath]:getscenepath([prefixs],obj,up_level) function, return partial scene path
 ```
@@ -1233,7 +1241,6 @@ startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivit
 - 函数类
 ```
 = [findbutton]:findbutton(name1,name2,...) function
-= [findcomp]:findcomp(root_name,[name1,name2,...],type,include_inactive) function
 = [finddropdown]:finddropdown(name1,name2,...) function
 = [findinput]:findinput(name1,name2,...) function
 = [findrawimg]:findrawimg(name1,name2,...) function
