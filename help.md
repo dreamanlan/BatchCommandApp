@@ -1046,6 +1046,10 @@ c#类型转换语义下的类型转换
 ```
 ### O、unity通用api---时间
 
+- 命令类
+```
+= [settimescale]:settimescale(scale) command
+```
 - 函数类
 ```
 = [gettime]:gettime() function
