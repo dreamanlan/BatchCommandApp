@@ -1217,32 +1217,34 @@ startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivit
 - 命令类
 ```
 = [logobjs]:logobjs(name_key,type) command
-= [logcomps]:logcomps(root_name,[name1,name2,...],type,up_level,include_inactive) command
+= [logcomps]:logcomps(root_name,[name1,name2,...],type,up_level,include_inactive) command，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
 = [logscenepath]:logscenepath([prefixs],obj,up_level) command
 ```
 - 函数类
 ```
 = [findobj]:findobj(name_key,type) function
 = [searchobjs]:searchobjs(name_key,type) function
-= [findcomp]:findcomp(root_name,[name1,name2,...],type,include_inactive) function
-= [searchcomps]:searchcomps(root_name,[name1,name2,...],type,include_inactive) function
+= [findcomp]:findcomp(root_name,[name1,name2,...],type,include_inactive) function，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
+= [searchcomps]:searchcomps(root_name,[name1,name2,...],type,include_inactive) function，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
 = [getscenepath]:getscenepath([prefixs],obj,up_level) function, return partial scene path
 ```
 ### W、游戏功能api---UI操作
 
+**有时候使用MFQ或安卓投屏软件远程操作手机时，有些手机的远程屏幕操作会失效，此时可以使用UI操作类命令与函数来部分代替UI操作**
+
 - 命令类
 ```
-= [click]:click(uiobj) command
-= [clickonpos]:clickonpos(x,y) command
-= [clickonptr]:clickonptr() command
-= [clickui]:clickui(name1,name2,...) command
+= [click]:click(uiobj) command，触发指定Button的点击事件
+= [clickonpos]:clickonpos(x,y) command，触发指定屏幕坐标位置的Button的点击事件
+= [clickonptr]:clickonptr() command，触发在鼠标当前位置的点击事件处理（用于Button控件点击）
+= [clickui]:clickui(name1,name2,...) command，搜索场景路径上包含name1,name2,...的Button控件（name完全匹配某一层级名字，各name不需要是连续层次的名字，只要路径上名称顺序符合，中间可以跳过一些层级的名字），并触发其点击事件
 
-= [toggle]:toggle(uiobj) command
-= [toggleon]:toggleon(name1,name2,...) command
-= [toggleonpos]:toggleonpos(x,y) command
-= [toggleonptr]:toggleonptr() command
+= [toggle]:toggle(uiobj) command，切换指定Toggle的选中状态
+= [toggleon]:toggleon(name1,name2,...) command，搜索场景路径上包含name1,name2,...的Toggle控件（name完全匹配某一层级名字，各name不需要是连续层次的名字，只要路径上名称顺序符合，中间可以跳过一些层级的名字），并切换其选中状态
+= [toggleonpos]:toggleonpos(x,y) command，切换在指定屏幕坐标位置的Toggle的选中状态
+= [toggleonptr]:toggleonptr() command，切换在鼠标当前位置的Toggle的选中状态
 ```
-- 函数类
+- 函数类（其中name1,name2,...用来匹配组件所在对象的场景路径，与命令部分相似）
 ```
 = [findbutton]:findbutton(name1,name2,...) function
 = [finddropdown]:finddropdown(name1,name2,...) function
@@ -1255,11 +1257,11 @@ startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivit
 = [finduiimg]:finduiimg(name1,name2,...) function
 
 = [getpointer]:getpointer() function, return Input.mousePosition
-= [getptrcomps]:getptrcomps(type,include_inactive) function, return List<Component>
-= [getptruis]:getptruis() function, return List<UnityEngine.EventSystems.RaycastResult>
+= [getptrcomps]:getptrcomps(type,include_inactive) function, return List<Component>，向鼠标位置打射线，返回命中的指定类型的组件列表
+= [getptruis]:getptruis() function, return List<UnityEngine.EventSystems.RaycastResult>，向鼠标位置打射线，返回命中的ui控件信息
 
-= [raycastcomps]:raycastcomps(x,y,type,include_inactive) function, return List<Component>
-= [raycastuis]:raycastuis(x,y) function, return List<UnityEngine.EventSystems.RaycastResult>
+= [raycastcomps]:raycastcomps(x,y,type,include_inactive) function, return List<Component>，向指定屏幕位置打射线，返回命中的指定类型的组件列表
+= [raycastuis]:raycastuis(x,y) function, return List<UnityEngine.EventSystems.RaycastResult>，向指定屏幕位置打射线，返回命中的ui控件信息
 ```
 
 ### X、游戏功能api---材质参数
