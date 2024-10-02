@@ -31,6 +31,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setclipboard", "setclipboard(text) command", new StoryCommandFactoryHelper<SetClipboardCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "editorbreak", "editorbreak() command", new StoryCommandFactoryHelper<EditorBreakCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "debugbreak", "debugbreak() command", new StoryCommandFactoryHelper<DebugBreakCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "settimescale", "settimescale(scale) command", new StoryCommandFactoryHelper<SetTimeScaleCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "clearglobals", "clearglobals() command", new StoryCommandFactoryHelper<ClearGlobalsCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "supportsgf", "supportsgf() command, print unsupported graphics format", new StoryCommandFactoryHelper<SupportsGfxFormatCommand>());
@@ -88,6 +89,8 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showui", "showui() command", new StoryCommandFactoryHelper<ShowUiCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "hideui", "hideui() command", new StoryCommandFactoryHelper<HideUiCommand>());
 
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "import", "import(ns,assembly) command", new StoryCommandFactoryHelper<ImportNamespaceCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "unimport", "unimport(ns,assembly) command", new StoryCommandFactoryHelper<UnImportNamespaceCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "copypdf", "copypdf(file,page_start,page_count) command, copy pdf to clipboard", new StoryCommandFactoryHelper<StoryApi.CopyPdfCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showmemory", "showmemory() command", new StoryCommandFactoryHelper<StoryApi.ShowMemoryCommand>());
 
@@ -327,6 +330,20 @@ namespace GmCommands
                     }
                 }
             }
+            else {
+                var valData = comp as Dsl.ValueData;
+                if (null != valData && valData.IsId()) {
+                    var typeName = valData.GetId();
+                    var type = StoryScriptUtility.GetType(typeName);
+                    if (null != type) {
+                        var exp = new TypeHolderFunction();
+                        exp.SetType(type);
+                        exp.InitFromDsl(valData);
+                        expression = exp;
+                        ret = true;
+                    }
+                }
+            }
             return ret;
         }
 
@@ -561,5 +578,31 @@ namespace GmCommands
 
         private string m_Method;
         private StartupApi.ApiDelegation m_Api;
+    }
+    internal class TypeHolderFunction : SimpleStoryFunctionBase<TypeHolderFunction, StoryValueParams>
+    {
+        public void SetType(Type type)
+        {
+            m_Type = type;
+        }
+        protected override void CopyFields(TypeHolderFunction other)
+        {
+            m_Type = other.m_Type;
+        }
+        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        {
+            var list = StartupScript.NewArgList();
+            foreach (var operand in _params.Values) {
+                list.Add(operand);
+            }
+            try {
+                result.Value = m_Type;
+            }
+            finally {
+                StartupScript.RecycleArgList(list);
+            }
+        }
+
+        private Type m_Type;
     }
 }

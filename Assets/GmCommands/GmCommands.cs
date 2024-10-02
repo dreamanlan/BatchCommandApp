@@ -305,6 +305,14 @@ namespace GmCommands
             return false;
         }
     }
+    internal sealed class SetTimeScaleCommand : SimpleStoryCommandBase<SetTimeScaleCommand, StoryValueParam<float>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<float> _params, long delta)
+        {
+            Time.timeScale = _params.Param1Value;
+            return false;
+        }
+    }
     internal sealed class ClearGlobalsCommand : SimpleStoryCommandBase<ClearGlobalsCommand, StoryValueParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
@@ -2141,6 +2149,26 @@ namespace GmCommands
             else {
                 LogSystem.Error("can't find GmScript");
             }
+            return false;
+        }
+    }
+    internal sealed class ImportNamespaceCommand : SimpleStoryCommandBase<ImportNamespaceCommand, StoryValueParam<string, string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, string> _params, long delta)
+        {
+            string ns = _params.Param1Value;
+            string assembly = _params.Param2Value;
+            StoryScriptUtility.ImportNamespace(ns, assembly);
+            return false;
+        }
+    }
+    internal sealed class UnImportNamespaceCommand : SimpleStoryCommandBase<UnImportNamespaceCommand, StoryValueParam<string, string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, string> _params, long delta)
+        {
+            string ns = _params.Param1Value;
+            string assembly = _params.Param2Value;
+            StoryScriptUtility.UnImportNamespace(ns, assembly);
             return false;
         }
     }

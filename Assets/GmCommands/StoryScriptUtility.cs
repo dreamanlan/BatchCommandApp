@@ -241,6 +241,20 @@ public static partial class StoryScriptUtility
     {
         SendMessageWithTagImpl(objtag, msg, arg, needReceiver);
     }
+
+    public static void ImportNamespace(string ns, string assembly)
+    {
+        s_Namespaces.Add(new KeyValuePair<string, string>(ns, assembly));
+    }
+    public static void UnImportNamespace(string ns, string assembly)
+    {
+        for (int ix = s_Namespaces.Count - 1; ix >= 0; --ix) {
+            var kv = s_Namespaces[ix];
+            if (kv.Key == ns && kv.Value == assembly) {
+                s_Namespaces.RemoveAt(ix);
+            }
+        }
+    }
     public static Type GetType(string type)
     {
         Type ret = null;
@@ -254,6 +268,18 @@ public static partial class StoryScriptUtility
             }
             if (null == ret) {
                 ret = Type.GetType(type);
+            }
+            if (null == ret) {
+                foreach(var pair in s_Namespaces) {
+                    string ns = pair.Key.Trim();
+                    string assembly = pair.Value.Trim();
+                    string prefix = string.IsNullOrEmpty(ns) ? string.Empty : ns + ".";
+                    string suffix = string.IsNullOrEmpty(assembly) ? string.Empty : ", " + assembly;
+                    ret = Type.GetType(prefix + type + suffix);
+                    if (null != ret) {
+                        break;
+                    }
+                }
             }
             if (null == ret) {
                 Debug.LogWarningFormat("null == Type.GetType({0})", type);
@@ -292,6 +318,8 @@ public static partial class StoryScriptUtility
             }
         }
     }
+
+    private static List<KeyValuePair<string, string>> s_Namespaces = new List<KeyValuePair<string, string>>();
 }
 
 internal static class Literal
