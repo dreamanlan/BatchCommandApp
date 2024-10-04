@@ -242,16 +242,30 @@ public static partial class StoryScriptUtility
         SendMessageWithTagImpl(objtag, msg, arg, needReceiver);
     }
 
+    public static bool IsNamespace(string ns, out int id)
+    {
+        if(s_Namespaces.Count==0) {
+            CollectNamespaces();
+        }
+        return s_Namespace2Ids.TryGetValue(ns, out id);
+    }
+    public static string GetNamespace(int id)
+    {
+        if (id >= 0 && id < s_Namespaces.Count) {
+            return s_Namespaces[id];
+        }
+        return string.Empty;
+    }
     public static void ImportNamespace(string ns, string assembly)
     {
-        s_Namespaces.Add(new KeyValuePair<string, string>(ns, assembly));
+        s_ImportedNamespaces.Add(new KeyValuePair<string, string>(ns, assembly));
     }
     public static void UnImportNamespace(string ns, string assembly)
     {
-        for (int ix = s_Namespaces.Count - 1; ix >= 0; --ix) {
-            var kv = s_Namespaces[ix];
+        for (int ix = s_ImportedNamespaces.Count - 1; ix >= 0; --ix) {
+            var kv = s_ImportedNamespaces[ix];
             if (kv.Key == ns && kv.Value == assembly) {
-                s_Namespaces.RemoveAt(ix);
+                s_ImportedNamespaces.RemoveAt(ix);
             }
         }
     }
@@ -270,7 +284,7 @@ public static partial class StoryScriptUtility
                 ret = Type.GetType(type);
             }
             if (null == ret) {
-                foreach(var pair in s_Namespaces) {
+                foreach(var pair in s_ImportedNamespaces) {
                     string ns = pair.Key.Trim();
                     string assembly = pair.Value.Trim();
                     string prefix = string.IsNullOrEmpty(ns) ? string.Empty : ns + ".";
@@ -288,6 +302,53 @@ public static partial class StoryScriptUtility
             Debug.LogErrorFormat("Exception:{0}\n{1}", ex.Message, ex.StackTrace);
         }
         return ret;
+    }
+    private static void CollectNamespaces()
+    {
+        int nextIndex = 0;
+        var assems = System.AppDomain.CurrentDomain.GetAssemblies();
+        foreach(var assem in assems) {
+            if (assem.IsDynamic) {
+                var sb = new StringBuilder();
+                sb.AppendFormat("dynmaic assembly: {0}", assem);
+                var dynatypes = assem.GetTypes();
+                foreach(var dtype in dynatypes) {
+                    sb.AppendLine();
+                    sb.AppendFormat("\ttype: {0}", dtype);
+                }
+                LogSystem.Warn(sb.ToString());
+                continue;
+            }
+            var types = assem.GetExportedTypes();
+            foreach(var type in types) {
+                string nss = type.Namespace;
+                if (!string.IsNullOrEmpty(nss)) {
+                    for (int ix = 0; ix < nss.Length;) {
+                        int nix = nss.IndexOf('.', ix);
+                        if (nix > ix) {
+                            string ns = nss.Substring(ix, nix - ix);
+                            if (s_Namespace2Ids.TryAdd(ns, nextIndex)) {
+                                ++nextIndex;
+                                s_Namespaces.Add(ns);
+                            }
+                            ix = nix + 1;
+                        }
+                        else {
+                            string ns = nss.Substring(ix);
+                            if (s_Namespace2Ids.TryAdd(ns, nextIndex)) {
+                                ++nextIndex;
+                                s_Namespaces.Add(ns);
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (s_Namespace2Ids.TryAdd(type.Name, nextIndex)) {
+                    ++nextIndex;
+                    s_Namespaces.Add(type.Name);
+                }
+            }
+        }
     }
 
     private static void SendMessageImpl(string objname, string msg, object arg, bool needReceiver)
@@ -319,7 +380,9 @@ public static partial class StoryScriptUtility
         }
     }
 
-    private static List<KeyValuePair<string, string>> s_Namespaces = new List<KeyValuePair<string, string>>();
+    private static Dictionary<string, int> s_Namespace2Ids = new Dictionary<string, int>();
+    private static List<string> s_Namespaces = new List<string>();
+    private static List<KeyValuePair<string, string>> s_ImportedNamespaces = new List<KeyValuePair<string, string>>();
 }
 
 internal static class Literal

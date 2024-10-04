@@ -342,6 +342,13 @@ namespace GmCommands
                         expression = exp;
                         ret = true;
                     }
+                    else if(StoryScriptUtility.IsNamespace(typeName, out var id)) {
+                        var exp = new NamespaceHolderFunction();
+                        exp.SetNamespace(typeName);
+                        exp.InitFromDsl(valData);
+                        expression = exp;
+                        ret = true;
+                    }
                 }
             }
             return ret;
@@ -579,7 +586,7 @@ namespace GmCommands
         private string m_Method;
         private StartupApi.ApiDelegation m_Api;
     }
-    internal class TypeHolderFunction : SimpleStoryFunctionBase<TypeHolderFunction, StoryFunctionParams>
+    internal class TypeHolderFunction : SimpleStoryFunctionBase<TypeHolderFunction, StoryFunctionParam>
     {
         public void SetType(Type type)
         {
@@ -589,20 +596,68 @@ namespace GmCommands
         {
             m_Type = other.m_Type;
         }
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
-            var list = StartupScript.NewArgList();
-            foreach (var operand in _params.Values) {
-                list.Add(operand);
-            }
-            try {
-                result.Value = m_Type;
-            }
-            finally {
-                StartupScript.RecycleArgList(list);
-            }
+            result.Value = m_Type;
         }
 
         private Type m_Type;
+    }
+    internal class NamespaceObject : StoryScript.IObjectDispatch
+    {
+        public NamespaceObject(string ns)
+        {
+            m_Namespace = ns;
+        }
+        public int GetDispatchId(string name)
+        {
+            if (StoryScriptUtility.IsNamespace(name, out int id))
+                return id;
+            return -1;
+        }
+        public void SetProperty(int dispId, BoxedValue val)
+        {
+            throw new NotImplementedException();
+        }
+        public BoxedValue GetProperty(int dispId)
+        {
+            string name = StoryScriptUtility.GetNamespace(dispId);
+            if (string.IsNullOrEmpty(name)) {
+                return BoxedValue.NullObject;
+            }
+            else {
+                string newName = m_Namespace + "." + name;
+                var type = StoryScriptUtility.GetType(newName);
+                if (null != type) {
+                    return type;
+                }
+                else {
+                    return BoxedValue.FromObject(new NamespaceObject(newName));
+                }
+            }
+        }
+        public BoxedValue InvokeMethod(int dispId, List<BoxedValue> args)
+        {
+            throw new NotImplementedException();
+        }
+
+        private string m_Namespace;
+    }
+    internal class NamespaceHolderFunction : SimpleStoryFunctionBase<NamespaceHolderFunction, StoryFunctionParam>
+    {
+        public void SetNamespace(string ns)
+        {
+            m_NamespaceObj = BoxedValue.FromObject(new NamespaceObject(ns));
+        }
+        protected override void CopyFields(NamespaceHolderFunction other)
+        {
+            m_NamespaceObj = other.m_NamespaceObj;
+        }
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        {
+            result.Value = m_NamespaceObj;
+        }
+
+        private BoxedValue m_NamespaceObj;
     }
 }
