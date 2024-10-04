@@ -206,7 +206,7 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryFunction();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -276,7 +276,7 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryFunction();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -351,7 +351,7 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryFunction();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -433,8 +433,8 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryFunction m_ObjPath = new StoryValue();
-        private IStoryFunction m_ComponentType = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryFunction();
+        private IStoryFunction m_ComponentType = new StoryFunction();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -537,9 +537,9 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjPath = new StoryValue();
-        private IStoryFunction m_ComponentType = new StoryValue();
-        private IStoryFunction<int> m_IncludeInactive = new StoryValue<int>();
+        private IStoryFunction m_ObjPath = new StoryFunction();
+        private IStoryFunction m_ComponentType = new StoryFunction();
+        private IStoryFunction<int> m_IncludeInactive = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -640,9 +640,9 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjPath = new StoryValue();
-        private IStoryFunction m_ComponentType = new StoryValue();
-        private IStoryFunction<int> m_IncludeInactive = new StoryValue<int>();
+        private IStoryFunction m_ObjPath = new StoryFunction();
+        private IStoryFunction m_ComponentType = new StoryFunction();
+        private IStoryFunction<int> m_IncludeInactive = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -736,8 +736,8 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryFunction m_ObjPath = new StoryValue();
-        private IStoryFunction m_ComponentType = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryFunction();
+        private IStoryFunction m_ComponentType = new StoryFunction();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -846,9 +846,9 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjPath = new StoryValue();
-        private IStoryFunction m_ComponentType = new StoryValue();
-        private IStoryFunction<int> m_IncludeInactive = new StoryValue<int>();
+        private IStoryFunction m_ObjPath = new StoryFunction();
+        private IStoryFunction m_ComponentType = new StoryFunction();
+        private IStoryFunction<int> m_IncludeInactive = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -957,9 +957,9 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjPath = new StoryValue();
-        private IStoryFunction m_ComponentType = new StoryValue();
-        private IStoryFunction<int> m_IncludeInactive = new StoryValue<int>();
+        private IStoryFunction m_ObjPath = new StoryFunction();
+        private IStoryFunction m_ComponentType = new StoryFunction();
+        private IStoryFunction<int> m_IncludeInactive = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1096,20 +1096,20 @@ namespace GmCommands
             string id = callData.GetId();
             if (id == "disable") {
                 for (int i = 0; i < callData.GetParamNum(); ++i) {
-                    var p = new StoryValue<string>();
+                    var p = new StoryFunction<string>();
                     p.InitFromDsl(callData.GetParam(i));
                     m_DisableComponents.Add(p);
                 }
             } else if (id == "remove") {
                 for (int i = 0; i < callData.GetParamNum(); ++i) {
-                    var p = new StoryValue<string>();
+                    var p = new StoryFunction<string>();
                     p.InitFromDsl(callData.GetParam(i));
                     m_RemoveComponents.Add(p);
                 }
             }
         }
 
-        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryFunction();
         private List<IStoryFunction<string>> m_DisableComponents = new List<IStoryFunction<string>>();
         private List<IStoryFunction<string>> m_RemoveComponents = new List<IStoryFunction<string>>();
         private bool m_HaveValue;
@@ -1185,7 +1185,7 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryFunction m_ObjPath = new StoryValue();
+        private IStoryFunction m_ObjPath = new StoryFunction();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1270,8 +1270,8 @@ namespace GmCommands
             }
         }
 
-        private IStoryFunction m_ObjPath = new StoryValue();
-        private IStoryFunction<string> m_ChildPath = new StoryValue<string>();
+        private IStoryFunction m_ObjPath = new StoryFunction();
+        private IStoryFunction<string> m_ChildPath = new StoryFunction<string>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1335,7 +1335,7 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryFunction<string> m_TypeName = new StoryValue<string>();
+        private IStoryFunction<string> m_TypeName = new StoryFunction<string>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1399,7 +1399,7 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryFunction<string> m_TypeName = new StoryValue<string>();
+        private IStoryFunction<string> m_TypeName = new StoryFunction<string>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1461,7 +1461,7 @@ namespace GmCommands
                 }
             }
         }
-        private IStoryFunction<string> m_TypeName = new StoryValue<string>();
+        private IStoryFunction<string> m_TypeName = new StoryFunction<string>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1543,8 +1543,8 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjId = new StoryValue();
-        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryFunction();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1626,8 +1626,8 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjId = new StoryValue();
-        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryFunction();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1709,8 +1709,8 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjId = new StoryValue();
-        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryFunction();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1792,8 +1792,8 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjId = new StoryValue();
-        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryFunction();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1875,8 +1875,8 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjId = new StoryValue();
-        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryFunction();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -1958,8 +1958,8 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjId = new StoryValue();
-        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryFunction();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -2041,8 +2041,8 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjId = new StoryValue();
-        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryFunction();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -2124,8 +2124,8 @@ namespace GmCommands
         }
 
         private int m_ParamNum = 0;
-        private IStoryFunction m_ObjId = new StoryValue();
-        private IStoryFunction<int> m_LocalOrWorld = new StoryValue<int>();
+        private IStoryFunction m_ObjId = new StoryFunction();
+        private IStoryFunction<int> m_LocalOrWorld = new StoryFunction<int>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -2196,7 +2196,7 @@ namespace GmCommands
             }
         }
 
-        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction m_ObjId = new StoryFunction();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -2267,7 +2267,7 @@ namespace GmCommands
             }
         }
 
-        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction m_ObjId = new StoryFunction();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -2338,7 +2338,7 @@ namespace GmCommands
             }
         }
 
-        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction m_ObjId = new StoryFunction();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -2409,7 +2409,7 @@ namespace GmCommands
             }
         }
 
-        private IStoryFunction m_ObjId = new StoryValue();
+        private IStoryFunction m_ObjId = new StoryFunction();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -2461,7 +2461,7 @@ namespace GmCommands
             }
         }
 
-        private IStoryFunction<float> m_Degree = new StoryValue<float>();
+        private IStoryFunction<float> m_Degree = new StoryFunction<float>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -2513,7 +2513,7 @@ namespace GmCommands
             }
         }
 
-        private IStoryFunction<float> m_Radian = new StoryValue<float>();
+        private IStoryFunction<float> m_Radian = new StoryFunction<float>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
     }
@@ -2561,7 +2561,7 @@ namespace GmCommands
             m_Value = Path.GetFileName(path);
         }
 
-        private IStoryFunction<string> m_Path = new StoryValue<string>();
+        private IStoryFunction<string> m_Path = new StoryFunction<string>();
         private int m_ParamNum;
         private bool m_HaveValue;
         private BoxedValue m_Value;
@@ -2610,7 +2610,7 @@ namespace GmCommands
             m_Value = Path.GetDirectoryName(path);
         }
 
-        private IStoryFunction<string> m_Path = new StoryValue<string>();
+        private IStoryFunction<string> m_Path = new StoryFunction<string>();
         private int m_ParamNum;
         private bool m_HaveValue;
         private BoxedValue m_Value;
@@ -2659,7 +2659,7 @@ namespace GmCommands
             m_Value = Path.GetExtension(path);
         }
 
-        private IStoryFunction<string> m_Path = new StoryValue<string>();
+        private IStoryFunction<string> m_Path = new StoryFunction<string>();
         private int m_ParamNum;
         private bool m_HaveValue;
         private BoxedValue m_Value;
@@ -2712,8 +2712,8 @@ namespace GmCommands
             m_Value = Path.Combine(path1, path2);
         }
 
-        private IStoryFunction<string> m_Path1 = new StoryValue<string>();
-        private IStoryFunction<string> m_Path2 = new StoryValue<string>();
+        private IStoryFunction<string> m_Path1 = new StoryFunction<string>();
+        private IStoryFunction<string> m_Path2 = new StoryFunction<string>();
         private int m_ParamNum;
         private bool m_HaveValue;
         private BoxedValue m_Value;
@@ -2809,7 +2809,7 @@ namespace GmCommands
                     if (null != func) {
                         m_FuncName = func.GetId();
                         for (int i = 1; i < func.GetParamNum(); ++i) {
-                            StoryValue val = new StoryValue();
+                            StoryFunction val = new StoryFunction();
                             val.InitFromDsl(func.GetParam(i));
                             m_Args.Add(val);
                         }
@@ -2817,7 +2817,7 @@ namespace GmCommands
                     else {
                         m_Func.InitFromDsl(p0);
                         for (int i = 1; i < num; ++i) {
-                            var arg = new StoryValue();
+                            var arg = new StoryFunction();
                             arg.InitFromDsl(callData.GetParam(i));
                             m_Args.Add(arg);
                         }
@@ -2880,7 +2880,7 @@ namespace GmCommands
         }
 
         private string m_FuncName = string.Empty;
-        private IStoryFunction<string> m_Func = new StoryValue<string>();
+        private IStoryFunction<string> m_Func = new StoryFunction<string>();
         private List<IStoryFunction> m_Args = new List<IStoryFunction>();
         private bool m_HaveValue;
         private BoxedValue m_Value;
@@ -2952,7 +2952,7 @@ namespace GmCommands
         }
 
         private bool m_IsString = false;
-        private IStoryFunction<string> m_Code = new StoryValue<string>();
+        private IStoryFunction<string> m_Code = new StoryFunction<string>();
         private List<ISyntaxComponent> m_Exps = new List<ISyntaxComponent>();
         private bool m_HaveValue;
         private BoxedValue m_Value;

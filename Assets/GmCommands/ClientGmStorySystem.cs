@@ -510,7 +510,7 @@ namespace GmCommands
         private static ClientGmStorySystem s_Instance = new ClientGmStorySystem();
     }
 
-    internal class StartupApiCommand : SimpleStoryCommandBase<StartupApiCommand, StoryValueParams>
+    internal class StartupApiCommand : SimpleStoryCommandBase<StartupApiCommand, StoryFunctionParams>
     {
         public void SetApi(string method)
         {
@@ -524,7 +524,7 @@ namespace GmCommands
             m_Method = other.m_Method;
             m_Api = other.m_Api;
         }
-        protected override bool ExecCommand(StoryInstance instance, StoryValueParams _params, long delta)
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
         {
             var list = StartupScript.NewArgList();
             foreach (var operand in _params.Values) {
@@ -544,7 +544,7 @@ namespace GmCommands
         private string m_Method;
         private StartupApi.ApiDelegation m_Api;
     }
-    internal class StartupApiFunction : SimpleStoryFunctionBase<StartupApiFunction, StoryValueParams>
+    internal class StartupApiFunction : SimpleStoryFunctionBase<StartupApiFunction, StoryFunctionParams>
     {
         public void SetApi(string method)
         {
@@ -558,7 +558,7 @@ namespace GmCommands
             m_Method = other.m_Method;
             m_Api = other.m_Api;
         }
-        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
         {
             var list = StartupScript.NewArgList();
             foreach (var operand in _params.Values) {
@@ -579,7 +579,7 @@ namespace GmCommands
         private string m_Method;
         private StartupApi.ApiDelegation m_Api;
     }
-    internal class TypeHolderFunction : SimpleStoryFunctionBase<TypeHolderFunction, StoryValueParams>
+    internal class TypeHolderFunction : SimpleStoryFunctionBase<TypeHolderFunction, StoryFunctionParams>
     {
         public void SetType(Type type)
         {
@@ -589,7 +589,7 @@ namespace GmCommands
         {
             m_Type = other.m_Type;
         }
-        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
         {
             var list = StartupScript.NewArgList();
             foreach (var operand in _params.Values) {

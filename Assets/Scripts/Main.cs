@@ -237,9 +237,9 @@ public class Main : MonoBehaviour
 
 namespace StoryApi
 {
-    internal sealed class CopyPdfCommand : SimpleStoryCommandBase<CopyPdfCommand, StoryValueParam<string, int, int>>
+    internal sealed class CopyPdfCommand : SimpleStoryCommandBase<CopyPdfCommand, StoryFunctionParam<string, int, int>>
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryValueParam<string, int, int> _params, long delta)
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, int, int> _params, long delta)
         {
             string file = _params.Param1Value;
             int start = _params.Param2Value;
@@ -280,9 +280,9 @@ namespace StoryApi
         static extern void SetClipboard(string str);
 #endif
     }
-    internal sealed class ShowMemoryCommand : SimpleStoryCommandBase<ShowMemoryCommand, StoryValueParam>
+    internal sealed class ShowMemoryCommand : SimpleStoryCommandBase<ShowMemoryCommand, StoryFunctionParam>
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryValueParam _params, long delta)
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
         {
             string info = string.Format("pss:{0} n:{1} g:{2} u:{3} j:{4} c:{5} t:{6} s:{7} vss:{8}", MemoryInfo.GetAppMemory(), MemoryInfo.GetNativeMemory(), MemoryInfo.GetGraphicsMemory(), MemoryInfo.GetUnknownMemory(), MemoryInfo.GetJavaMemory(), MemoryInfo.GetCodeMemory(), MemoryInfo.GetStackMemory(), MemoryInfo.GetSystemMemory(), MemoryInfo.GetVssMemory());
             Debug.LogFormat("{0}", info);
@@ -290,9 +290,9 @@ namespace StoryApi
         }
     }
 
-    internal sealed class JavaClassFunction : SimpleStoryFunctionBase<JavaClassFunction, StoryValueParam<BoxedValue>>
+    internal sealed class JavaClassFunction : SimpleStoryFunctionBase<JavaClassFunction, StoryFunctionParam<BoxedValue>>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam<BoxedValue> _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<BoxedValue> _params, StoryFunctionResult result)
         {
             var p1 = _params.Param1Value;
             var obj = p1.As<AndroidJavaClass>();
@@ -305,9 +305,9 @@ namespace StoryApi
             }
         }
     }
-    internal sealed class JavaObjectFunction : SimpleStoryFunctionBase<JavaObjectFunction, StoryValueParams>
+    internal sealed class JavaObjectFunction : SimpleStoryFunctionBase<JavaObjectFunction, StoryFunctionParams>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParams _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
         {
             var operands = _params.Values;
             if (operands.Count > 0) {
@@ -328,106 +328,106 @@ namespace StoryApi
             }
         }
     }
-    internal sealed class JavaProxyFunction : SimpleStoryFunctionBase<JavaProxyFunction, StoryValueParam<string, string>>
+    internal sealed class JavaProxyFunction : SimpleStoryFunctionBase<JavaProxyFunction, StoryFunctionParam<string, string>>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string, string> _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, string> _params, StoryFunctionResult result)
         {
             var _class = _params.Param1Value;
             var scpMethod = _params.Param2Value;
             result.Value = BoxedValue.FromObject(new JavaProxy(_class, scpMethod));
         }
     }
-    internal sealed class ObjectcClassFunction : SimpleStoryFunctionBase<ObjectcClassFunction, StoryValueParam<string>>
+    internal sealed class ObjectcClassFunction : SimpleStoryFunctionBase<ObjectcClassFunction, StoryFunctionParam<string>>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam<string> _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
         {
             var str = _params.Param1Value;
             result.Value = BoxedValue.FromObject(new ObjectcClass(str));
         }
     }
-    internal sealed class ObjectcObjectFunction : SimpleStoryFunctionBase<ObjectcObjectFunction, StoryValueParam<int>>
+    internal sealed class ObjectcObjectFunction : SimpleStoryFunctionBase<ObjectcObjectFunction, StoryFunctionParam<int>>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam<int> _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<int> _params, StoryFunctionResult result)
         {
             int objId = _params.Param1Value;
             result.Value = BoxedValue.FromObject(new ObjectcObject(objId));
         }
     }
-    internal sealed class GetPssFunction : SimpleStoryFunctionBase<GetPssFunction, StoryValueParam>
+    internal sealed class GetPssFunction : SimpleStoryFunctionBase<GetPssFunction, StoryFunctionParam>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
             result.Value = MemoryInfo.GetAppMemory();
         }
     }
-    internal sealed class GetVssFunction : SimpleStoryFunctionBase<GetVssFunction, StoryValueParam>
+    internal sealed class GetVssFunction : SimpleStoryFunctionBase<GetVssFunction, StoryFunctionParam>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
             result.Value = MemoryInfo.GetVssMemory();
         }
     }
-    internal sealed class GetNativeFunction : SimpleStoryFunctionBase<GetNativeFunction, StoryValueParam>
+    internal sealed class GetNativeFunction : SimpleStoryFunctionBase<GetNativeFunction, StoryFunctionParam>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
             result.Value = MemoryInfo.GetNativeMemory();
         }
     }
-    internal sealed class GetGraphicsFunction : SimpleStoryFunctionBase<GetGraphicsFunction, StoryValueParam>
+    internal sealed class GetGraphicsFunction : SimpleStoryFunctionBase<GetGraphicsFunction, StoryFunctionParam>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
             result.Value = MemoryInfo.GetGraphicsMemory();
         }
     }
-    internal sealed class GetUnknownFunction : SimpleStoryFunctionBase<GetUnknownFunction, StoryValueParam>
+    internal sealed class GetUnknownFunction : SimpleStoryFunctionBase<GetUnknownFunction, StoryFunctionParam>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
             result.Value = MemoryInfo.GetUnknownMemory();
         }
     }
-    internal sealed class GetJavaFunction : SimpleStoryFunctionBase<GetJavaFunction, StoryValueParam>
+    internal sealed class GetJavaFunction : SimpleStoryFunctionBase<GetJavaFunction, StoryFunctionParam>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
             result.Value = MemoryInfo.GetJavaMemory();
         }
     }
-    internal sealed class GetCodeFunction : SimpleStoryFunctionBase<GetCodeFunction, StoryValueParam>
+    internal sealed class GetCodeFunction : SimpleStoryFunctionBase<GetCodeFunction, StoryFunctionParam>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
             result.Value = MemoryInfo.GetCodeMemory();
         }
     }
-    internal sealed class GetStackFunction : SimpleStoryFunctionBase<GetStackFunction, StoryValueParam>
+    internal sealed class GetStackFunction : SimpleStoryFunctionBase<GetStackFunction, StoryFunctionParam>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
             result.Value = MemoryInfo.GetStackMemory();
         }
     }
-    internal sealed class GetSystemFunction : SimpleStoryFunctionBase<GetSystemFunction, StoryValueParam>
+    internal sealed class GetSystemFunction : SimpleStoryFunctionBase<GetSystemFunction, StoryFunctionParam>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
             result.Value = MemoryInfo.GetSystemMemory();
         }
     }
-    internal sealed class GetActivityFunction : SimpleStoryFunctionBase<GetActivityFunction, StoryValueParam>
+    internal sealed class GetActivityFunction : SimpleStoryFunctionBase<GetActivityFunction, StoryFunctionParam>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
 #if UNITY_ANDROID
             result.Value = BoxedValue.FromObject(new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"));
 #endif
         }
     }
-    internal sealed class GetIntentFunction : SimpleStoryFunctionBase<GetIntentFunction, StoryValueParam>
+    internal sealed class GetIntentFunction : SimpleStoryFunctionBase<GetIntentFunction, StoryFunctionParam>
     {
-        protected override void UpdateValue(StoryInstance instance, StoryValueParam _params, StoryValueResult result)
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
 #if UNITY_ANDROID
             var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
