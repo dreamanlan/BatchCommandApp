@@ -124,7 +124,7 @@ public sealed class GmRootScript : MonoBehaviour
     {
         try {
             ClientGmStorySystem.Instance.Reset();
-            ClientGmStorySystem.Instance.LoadStoryText(Encoding.UTF8.GetBytes("script(main){onmessage(\"start\"){" + cmd + "}}"));
+            ClientGmStorySystem.Instance.LoadStoryText(Encoding.UTF8.GetBytes("@@delimiter(string,\"[[\",\"]]\");script(main){onmessage(\"start\"){" + cmd + "}}"));
             ClientGmStorySystem.Instance.StartStory("main");
             LogSystem.Warn("ExecCommand {0} finish.", cmd);
         }
