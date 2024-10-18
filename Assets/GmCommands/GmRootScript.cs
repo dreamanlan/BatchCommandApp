@@ -35,7 +35,7 @@ public sealed class GmRootScript : MonoBehaviour
                         DebugConsole.Execute(cmd.Substring(c_clipboard_cmd_tag.Length));
                         GUIUtility.systemCopyBuffer = string.Empty;
                     }
-                    else if (cmd.StartsWith(s_clipboard_cmd_tag)) {
+                    else if (!string.IsNullOrEmpty(s_clipboard_cmd_tag) && cmd.StartsWith(s_clipboard_cmd_tag)) {
                         DebugConsole.Execute(cmd.Substring(s_clipboard_cmd_tag.Length));
                         GUIUtility.systemCopyBuffer = string.Empty;
                     }
