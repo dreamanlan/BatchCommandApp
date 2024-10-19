@@ -16,6 +16,7 @@ using UnityEngine.EventSystems;
 /// because the functional codes of the experiment are hard-coded in the project, and using
 /// scripts is of little significance and may complicate things.
 /// </summary>
+[UnityEngine.Scripting.Preserve]
 public class UiHandler : MonoBehaviour
 {
     public GameObject LabelTemplate;
@@ -83,12 +84,57 @@ public class UiHandler : MonoBehaviour
 
             m_CurUiRes = res;
             m_UiLoaded = true;
-            OnUiInit(res);
+            OnUiInit(m_CurUiRes);
             m_UiInited = true;
         }
         else {
             LogSystem.Error("Can't load test ui resource:{0}", res);
         }
+    }
+    public void LoadAndShowIndexUi()
+    {
+        const string c_IndexUiRes = "index";
+        const int c_NumPerRow = c_CellColNum - 2;
+        const int c_StartRow = 1;
+        const int c_StartCol = 1;
+
+        ClearCells();
+        m_UiLoaded = false;
+        m_UiInited = false;
+
+        int totalCt = m_DebugUis.Count;
+        int ix = 0;
+        for (int row = c_StartRow; row < c_CellRowNum && ix < totalCt; ++row)
+        {
+            for (int col = c_StartCol; col < c_StartCol + c_NumPerRow && ix < totalCt; ++col)
+            {
+                string id = GenAutoId();
+                var uiInfo = m_DebugUis[ix];
+                ++ix;
+
+                var buttonObj = AddToCell(ButtonTemplate, id, row, col);
+                var button = buttonObj.GetComponent<UnityEngine.UI.Button>();
+                var labelObj = buttonObj.transform.Find("Text (TMP)");
+                if (null != labelObj)
+                {
+                    var label = labelObj.GetComponent<TMPro.TextMeshProUGUI>();
+                    label.text = uiInfo.Key;
+
+                    AddUiControl(id + "|Text", label);
+                }
+                button.onClick.AddListener(() => {
+                    LoadUi(uiInfo.Value);
+                    ShowUi();
+                });
+
+                AddUiControl(id, button);
+            }
+        }
+
+        m_CurUiRes = c_IndexUiRes;
+        m_UiLoaded = true;
+        OnUiInit(m_CurUiRes);
+        m_UiInited = true;
     }
 
     private void InitUiCells()
@@ -531,6 +577,12 @@ public class UiHandler : MonoBehaviour
         LogSystem.Warn("OnSliderChanged {0}", val);
     }
     private const string c_TestUI = "TestUI";
+
+    private List<KeyValuePair<string, string>> m_DebugUis = new List<KeyValuePair<string, string>>
+    {
+        KeyValuePair.Create(c_TestUI, c_TestUI),
+    };
+
     private GameObject m_RootUi;
     private RectTransform[,] m_Cells;
     private Dictionary<string, UIBehaviour> m_UiControls = new Dictionary<string, UIBehaviour>();

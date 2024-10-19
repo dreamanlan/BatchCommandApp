@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -267,7 +266,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 1977197112}
+  m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
 --- !u!4 &239519530
@@ -421,12 +420,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1977197112 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7672200830703727873, guid: 58baa00f7719eb041b7967ce93b4cde7,
-    type: 3}
-  m_PrefabInstance: {fileID: 2853417072192635598}
-  m_PrefabAsset: {fileID: 0}
 --- !u!850595691 &2097485603
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -499,57 +492,57 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3294254738964756977, guid: 58baa00f7719eb041b7967ce93b4cde7,
+    - target: {fileID: 140278685428050730, guid: 58baa00f7719eb041b7967ce93b4cde7,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 503.50522
       objectReference: {fileID: 0}
-    - target: {fileID: 3294254738964756977, guid: 58baa00f7719eb041b7967ce93b4cde7,
+    - target: {fileID: 140278685428050730, guid: 58baa00f7719eb041b7967ce93b4cde7,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -10.381475
       objectReference: {fileID: 0}
-    - target: {fileID: 3294254738964756977, guid: 58baa00f7719eb041b7967ce93b4cde7,
+    - target: {fileID: 140278685428050730, guid: 58baa00f7719eb041b7967ce93b4cde7,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 535.5874
       objectReference: {fileID: 0}
-    - target: {fileID: 3294254738964756977, guid: 58baa00f7719eb041b7967ce93b4cde7,
+    - target: {fileID: 140278685428050730, guid: 58baa00f7719eb041b7967ce93b4cde7,
         type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 3294254738964756977, guid: 58baa00f7719eb041b7967ce93b4cde7,
+    - target: {fileID: 140278685428050730, guid: 58baa00f7719eb041b7967ce93b4cde7,
         type: 3}
       propertyPath: m_LocalRotation.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3294254738964756977, guid: 58baa00f7719eb041b7967ce93b4cde7,
+    - target: {fileID: 140278685428050730, guid: 58baa00f7719eb041b7967ce93b4cde7,
         type: 3}
       propertyPath: m_LocalRotation.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3294254738964756977, guid: 58baa00f7719eb041b7967ce93b4cde7,
+    - target: {fileID: 140278685428050730, guid: 58baa00f7719eb041b7967ce93b4cde7,
         type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3294254738964756977, guid: 58baa00f7719eb041b7967ce93b4cde7,
+    - target: {fileID: 140278685428050730, guid: 58baa00f7719eb041b7967ce93b4cde7,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3294254738964756977, guid: 58baa00f7719eb041b7967ce93b4cde7,
+    - target: {fileID: 140278685428050730, guid: 58baa00f7719eb041b7967ce93b4cde7,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3294254738964756977, guid: 58baa00f7719eb041b7967ce93b4cde7,
+    - target: {fileID: 140278685428050730, guid: 58baa00f7719eb041b7967ce93b4cde7,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 9160965499549253758, guid: 58baa00f7719eb041b7967ce93b4cde7,
+    - target: {fileID: 4489155999621564563, guid: 58baa00f7719eb041b7967ce93b4cde7,
         type: 3}
       propertyPath: m_Name
       value: GmScript
