@@ -53,9 +53,11 @@ namespace GmCommands
 
         private void Release()
         {
-            m_LogStream.Close();
-            m_LogStream.Dispose();
-            m_LogStream = null;
+            if (null != m_LogStream) {
+                m_LogStream.Close();
+                m_LogStream.Dispose();
+                m_LogStream = null;
+            }
         }
 
         private StreamWriter m_LogStream = null;
