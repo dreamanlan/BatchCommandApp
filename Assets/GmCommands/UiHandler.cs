@@ -197,10 +197,11 @@ public class UiHandler : MonoBehaviour
             var rowStr = fd.GetParamId(1);
             var colStr = fd.GetParamId(2);
             var dataType = fd.GetParamId(3);
-            bool hasDef = fd.GetParamNum() > 4;
-            var defStr = hasDef ? fd.GetParamId(4) : string.Empty;
+            var method = fd.GetParamId(4);
+            bool hasDef = fd.GetParamNum() > 5;
+            var defStr = hasDef ? fd.GetParamId(5) : string.Empty;
             if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
-                AddInput(id, row, col, dataType, hasDef, defStr);
+                AddInput(id, row, col, dataType, method, hasDef, defStr);
             }
         }
     }
@@ -315,7 +316,7 @@ public class UiHandler : MonoBehaviour
 
         AddUiControl(id, label);
     }
-    private void AddInput(string id, int row, int col, string dataType, bool hasDef, string defStr)
+    private void AddInput(string id, int row, int col, string dataType, string method, bool hasDef, string defStr)
     {
         var inputObj = AddToCell(InputTemplate, id, row, col);
         var input = inputObj.GetComponent<TMPro.TMP_InputField>();
@@ -328,6 +329,11 @@ public class UiHandler : MonoBehaviour
             input.contentType = TMPro.TMP_InputField.ContentType.Standard;
         if (hasDef) {
             input.text = defStr;
+        }
+
+        var mobj = GetEventHandler<string>(method);
+        if (null != mobj) {
+            input.onValueChanged.AddListener(mobj);
         }
 
         AddUiControl(id, input);
@@ -420,6 +426,7 @@ public class UiHandler : MonoBehaviour
         var slider = sliderObj.GetComponent<UnityEngine.UI.Slider>();
         slider.minValue = minVal;
         slider.maxValue = maxVal;
+        slider.wholeNumbers = false;
         if (hasDef) {
             slider.value = defVal;
         }
