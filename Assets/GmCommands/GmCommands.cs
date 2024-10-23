@@ -605,6 +605,25 @@ namespace GmCommands
             return false;
         }
     }
+    internal sealed class PlayerPrefDeleteCommand : SimpleStoryCommandBase<PlayerPrefDeleteCommand, StoryFunctionParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        {
+            string key = _params.Param1Value;
+            PlayerPrefs.DeleteKey(key);
+            PlayerPrefs.Save();
+            return false;
+        }
+    }
+    internal sealed class PlayerPrefDeleteAllCommand : SimpleStoryCommandBase<PlayerPrefDeleteAllCommand, StoryFunctionParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        {
+            PlayerPrefs.DeleteAll();
+            PlayerPrefs.Save();
+            return false;
+        }
+    }
     internal sealed class PrefByJavaCommand : SimpleStoryCommandBase<PrefByJavaCommand, StoryFunctionParam<string, BoxedValue>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, BoxedValue> _params, long delta)
