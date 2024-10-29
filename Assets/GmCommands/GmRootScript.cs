@@ -73,10 +73,10 @@ public sealed class GmRootScript : MonoBehaviour
         m_FunctionDocs = StoryScript.StoryFunctionManager.Instance.GenFunctionDocs();
 
 #if UNITY_EDITOR
-        SetClipboardInterval(100);
+        SetClipboardInterval(1000);
 #elif UNITY_STANDALONE
 #if DEVELOPMENT_BUILD
-        SetClipboardInterval(100);
+        SetClipboardInterval(1000);
 #endif
 #elif UNITY_ANDROID
 #if DEVELOPMENT_BUILD
