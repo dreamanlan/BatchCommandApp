@@ -64,7 +64,7 @@ public sealed class GmRootScript : MonoBehaviour
     private void DetectClipboardCommand()
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand)) && Input.GetKeyDown(KeyCode.V)
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand)) && Input.GetKey(KeyCode.V)
             && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift)
             && !Input.GetKey(KeyCode.LeftAlt) && !Input.GetKey(KeyCode.RightAlt)) {
             m_NeedCheckClipboard = true;
