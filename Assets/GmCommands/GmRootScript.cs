@@ -29,15 +29,18 @@ public sealed class GmRootScript : MonoBehaviour
             TimeUtility.UpdateGfxTime(Time.time, Time.realtimeSinceStartup, Time.timeScale);
             long curTime = TimeUtility.GetLocalRealMilliseconds();
             if (m_ClipboardInterval > 0) {
+                DetectClipboardCommand();
                 if (m_LastClipboardTime + m_ClipboardInterval < curTime) {
-                    string cmd = GUIUtility.systemCopyBuffer.Trim();
-                    if (cmd.StartsWith(c_clipboard_cmd_tag)) {
-                        DebugConsole.Execute(cmd.Substring(c_clipboard_cmd_tag.Length));
-                        GUIUtility.systemCopyBuffer = string.Empty;
-                    }
-                    else if (!string.IsNullOrEmpty(s_clipboard_cmd_tag) && cmd.StartsWith(s_clipboard_cmd_tag)) {
-                        DebugConsole.Execute(cmd.Substring(s_clipboard_cmd_tag.Length));
-                        GUIUtility.systemCopyBuffer = string.Empty;
+                    if (m_NeedCheckClipboard) {
+                        m_NeedCheckClipboard = false;
+
+                        string cmd = GUIUtility.systemCopyBuffer.Trim();
+                        if (cmd.StartsWith(c_clipboard_cmd_tag)) {
+                            DebugConsole.Execute(cmd.Substring(c_clipboard_cmd_tag.Length));
+                        }
+                        else if (!string.IsNullOrEmpty(s_clipboard_cmd_tag) && cmd.StartsWith(s_clipboard_cmd_tag)) {
+                            DebugConsole.Execute(cmd.Substring(s_clipboard_cmd_tag.Length));
+                        }
                     }
                     m_LastClipboardTime = curTime;
                 }
@@ -58,6 +61,16 @@ public sealed class GmRootScript : MonoBehaviour
             LogSystem.Error("Exception:{0}\n{1}", ex.Message, ex.StackTrace);
         }
     }
+    private void DetectClipboardCommand()
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand)) && Input.GetKeyDown(KeyCode.V)
+            && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift)
+            && !Input.GetKey(KeyCode.LeftAlt) && !Input.GetKey(KeyCode.RightAlt)) {
+            m_NeedCheckClipboard = true;
+        }
+#endif
+    }
     private void TryInitGmRoot()
     {
         if(m_Inited) return;
@@ -73,10 +86,10 @@ public sealed class GmRootScript : MonoBehaviour
         m_FunctionDocs = StoryScript.StoryFunctionManager.Instance.GenFunctionDocs();
 
 #if UNITY_EDITOR
-        SetClipboardInterval(1000);
+        SetClipboardInterval(100);
 #elif UNITY_STANDALONE
 #if DEVELOPMENT_BUILD
-        SetClipboardInterval(1000);
+        SetClipboardInterval(100);
 #endif
 #elif UNITY_ANDROID
 #if DEVELOPMENT_BUILD
@@ -200,6 +213,7 @@ public sealed class GmRootScript : MonoBehaviour
     private long m_LastTaskCleanupTime;
     private int m_ClipboardInterval;
     private long m_LastClipboardTime;
+    private bool m_NeedCheckClipboard;
     private BroadcastReceiverHandler m_AndroidReceiver;
 
     private SortedList<string, string> m_CommandDocs;
