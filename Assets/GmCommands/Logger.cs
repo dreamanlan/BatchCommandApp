@@ -5,6 +5,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using StoryScript;
+using System.Diagnostics;
+using UnityEngine;
 
 namespace GmCommands
 {
@@ -17,50 +19,85 @@ namespace GmCommands
         }
         public void Log(string format, params object[] args)
         {
-            try {
-                if (!m_Enabled || null == m_LogStream)
+            try
+            {
+                if (!m_Enabled)
+                    return;
+                //dont log to file on PC (There may be multiple processes writing logs at the same time)
+                if (!Application.isEditor && !Application.isMobilePlatform && !Application.isConsolePlatform)
                     return;
                 string msg = DateTime.Now.ToString("HH-mm-ss-fff:") + string.Format(format, args);
-                m_LogStream.WriteLine(msg);
-                m_LogStream.Flush();
+                lock (m_Lock)
+                {
+                    m_LogBuilder.Append(msg);
+                    m_LogBuilder.AppendLine();
+                    Flush(false);
+                }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 UnityEngine.Debug.LogErrorFormat("exception:{0}\n{1}", ex.Message, ex.StackTrace);
             }
         }
         public void Init(string logPath, string suffix)
         {
-            try {
+            try
+            {
 #if UNITY_EDITOR
-                string logFile = string.Format("{0}/EditorStoryScript{1}.log", logPath, suffix);
-#else
-            	string logFile = string.Format("{0}/StoryScript{1}.log", logPath, suffix);
-#endif
-                if (null != m_LogStream) {
-                    Release();
+                if (!Directory.Exists("Logs"))
+                {
+                    Directory.CreateDirectory("Logs");
                 }
-                m_LogStream = new StreamWriter(logFile, false);
+                string logFile;
+                if (Application.isPlaying)
+                {
+                    logFile = string.Format("Logs/StoryScript{0}.log", suffix);
+                }
+                else
+                {
+                    logFile = string.Format("Logs/EditorStoryScript{0}.log", suffix);
+                }
+#else
+                string logFile = string.Format("{0}/StoryScript{1}.log", logPath, suffix, pid);
+#endif
+                m_LogFile = logFile;
                 Log("======StoryScript Logger Start ({0}, {1})======", DateTime.Now.ToLongDateString(), DateTime.Now.ToLongTimeString());
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 UnityEngine.Debug.LogErrorFormat("exception:{0}\n{1}", ex.Message, ex.StackTrace);
             }
         }
         public void Dispose()
         {
-            Release();
-        }
-
-        private void Release()
-        {
-            if (null != m_LogStream) {
-                m_LogStream.Close();
-                m_LogStream.Dispose();
-                m_LogStream = null;
+            lock (m_Lock)
+            {
+                if (m_LogBuilder.Length > 0)
+                {
+                    Flush(true);
+                }
+                m_LogBuilder.Clear();
+                m_LogBuilder = null;
             }
         }
 
-        private StreamWriter m_LogStream = null;
+        private void Flush(bool force)
+        {
+            if (force || m_LogBuilder.Length > c_FlushSize)
+            {
+                using (var logStream = new StreamWriter(m_LogFile, true))
+                {
+                    logStream.Write(m_LogBuilder.ToString());
+                    logStream.Close();
+                }
+            }
+        }
+
+        private object m_Lock = new object();
+        private StringBuilder m_LogBuilder = new StringBuilder();
+        private string m_LogFile = string.Empty;
         private bool m_Enabled = true;
+
+        private const int c_FlushSize = 1 * 1024 * 1024;
     }
 }
