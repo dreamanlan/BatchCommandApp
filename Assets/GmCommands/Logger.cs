@@ -19,42 +19,35 @@ namespace GmCommands
         }
         public void Log(string format, params object[] args)
         {
-            try
-            {
+            try {
                 if (!m_Enabled)
                     return;
                 //dont log to file on PC (There may be multiple processes writing logs at the same time)
                 if (!Application.isEditor && !Application.isMobilePlatform && !Application.isConsolePlatform)
                     return;
                 string msg = DateTime.Now.ToString("HH-mm-ss-fff:") + string.Format(format, args);
-                lock (m_Lock)
-                {
+                lock (m_Lock) {
                     m_LogBuilder.Append(msg);
                     m_LogBuilder.AppendLine();
                     Flush(false);
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 UnityEngine.Debug.LogErrorFormat("exception:{0}\n{1}", ex.Message, ex.StackTrace);
             }
         }
         public void Init(string logPath, string suffix)
         {
-            try
-            {
+            try {
 #if UNITY_EDITOR
-                if (!Directory.Exists("Logs"))
-                {
+                if (!Directory.Exists("Logs")) {
                     Directory.CreateDirectory("Logs");
                 }
                 string logFile;
-                if (Application.isPlaying)
-                {
+                if (Application.isPlaying) {
                     logFile = string.Format("Logs/StoryScript{0}.log", suffix);
                 }
-                else
-                {
+                else {
                     logFile = string.Format("Logs/EditorStoryScript{0}.log", suffix);
                 }
 #else
@@ -63,17 +56,14 @@ namespace GmCommands
                 m_LogFile = logFile;
                 Log("======StoryScript Logger Start ({0}, {1})======", DateTime.Now.ToLongDateString(), DateTime.Now.ToLongTimeString());
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 UnityEngine.Debug.LogErrorFormat("exception:{0}\n{1}", ex.Message, ex.StackTrace);
             }
         }
         public void Dispose()
         {
-            lock (m_Lock)
-            {
-                if (m_LogBuilder.Length > 0)
-                {
+            lock (m_Lock) {
+                if (m_LogBuilder.Length > 0) {
                     Flush(true);
                 }
                 m_LogBuilder.Clear();
@@ -83,10 +73,8 @@ namespace GmCommands
 
         private void Flush(bool force)
         {
-            if (force || m_LogBuilder.Length > c_FlushSize)
-            {
-                using (var logStream = new StreamWriter(m_LogFile, true))
-                {
+            if (force || m_LogBuilder.Length > c_FlushSize) {
+                using (var logStream = new StreamWriter(m_LogFile, true)) {
                     logStream.Write(m_LogBuilder.ToString());
                     logStream.Close();
                 }
