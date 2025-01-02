@@ -51,7 +51,7 @@ namespace GmCommands
                     logFile = string.Format("Logs/EditorStoryScript{0}.log", suffix);
                 }
 #else
-                string logFile = string.Format("{0}/StoryScript{1}.log", logPath, suffix, pid);
+                string logFile = string.Format("{0}/StoryScript{1}.log", logPath, suffix);
 #endif
                 m_LogFile = logFile;
                 Log("======StoryScript Logger Start ({0}, {1})======", DateTime.Now.ToLongDateString(), DateTime.Now.ToLongTimeString());
@@ -67,7 +67,6 @@ namespace GmCommands
                     Flush(true);
                 }
                 m_LogBuilder.Clear();
-                m_LogBuilder = null;
             }
         }
 
