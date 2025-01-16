@@ -52,6 +52,9 @@ public sealed class GmRootScript : MonoBehaviour
                 HandleCommand();
             }
             ClientGmStorySystem.Instance.Tick();
+            if (GmCommands.ProfilerForGM.IsStarted()) {
+                GmCommands.ProfilerForGM.Update();
+            }
             HandleLog();
             if(m_LastTaskCleanupTime + c_TaskCleanupInterval < curTime) {
                 CleanupCompletedTasks();

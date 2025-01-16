@@ -14,10 +14,11 @@ using UnityEngine.Assertions.Must;
 using StoryScript;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
+using Unity.Profiling;
 
 namespace GmCommands
 {
-    internal static class FakeProfiler
+    internal static class ProfilerForGM
     {
         internal static long GetAllocatorCount()
         {
@@ -39,38 +40,189 @@ namespace GmCommands
         {
             return 0;
         }
-        internal static float ProfilerGetMainThreadFrameTime()
+        internal static int GetFPS()
         {
+            float time = GetMainThreadFrameTime();
+            if (time > float.Epsilon) {
+                return (int)(1 / time);
+            }
+            return 60;
+        }
+        internal static float GetMainThreadFrameTime()
+        {
+            int ix = (int)StatIndexEnum.GameTime;
+            if (ix < s_Datas.Count) {
+                return s_Datas[ix].lastValue / 1000000.0f;
+            }
             return 0.0f;
         }
-        internal static float ProfilerGetRenderThreadFrameTime()
+        internal static float GetRenderThreadFrameTime()
         {
+            int ix = (int)StatIndexEnum.RenderTime;
+            if (ix < s_Datas.Count) {
+                return s_Datas[ix].lastValue / 1000000.0f;
+            }
             return 0.0f;
         }
-        internal static int ProfilerGetVertsCount()
+        internal static int GetVertsCount()
+        {
+#if UNITY_EDITOR
+            return 0;
+#else
+            int ix = (int)StatIndexEnum.Verts;
+            if (ix < s_Datas.Count) {
+                return (int)s_Datas[ix].lastValue;
+            }
+            return 0;
+#endif
+        }
+        internal static int GetTriangleCount()
+        {
+#if UNITY_EDITOR
+            return 0;
+#else
+            int ix = (int)StatIndexEnum.Tris;
+            if (ix < s_Datas.Count) {
+                return (int)s_Datas[ix].lastValue;
+            }
+            return 0;
+#endif
+        }
+        internal static int GetDrawCallCount()
+        {
+#if UNITY_EDITOR
+            return 0;
+#else
+            int ix = (int)StatIndexEnum.DrawCall;
+            if (ix < s_Datas.Count) {
+                return (int)s_Datas[ix].lastValue;
+            }
+            return 0;
+#endif
+        }
+        internal static int GetSetPassCalls()
+        {
+#if UNITY_EDITOR
+            return 0;
+#else
+            int ix = (int)StatIndexEnum.SetPass;
+            if (ix < s_Datas.Count) {
+                return (int)s_Datas[ix].lastValue;
+            }
+            return 0;
+#endif
+        }
+        internal static long GetUsedTextureBytes()
         {
             return 0;
         }
-        internal static int ProfilerGetTriangleCount()
+        internal static int GetUsedTextureCount()
         {
             return 0;
         }
-        internal static int ProfilerGetDrawCallCount()
+
+        internal static long GetRuntimeMemorySizeLong(UnityEngine.Object o)
         {
-            return 0;
+            return Profiler.GetRuntimeMemorySizeLong(o);
         }
-        internal static int ProfilerGetSetPassCalls()
+        internal static long GetMonoHeapSizeLong()
         {
-            return 0;
+            return Profiler.GetMonoHeapSizeLong();
         }
-        internal static long ProfilerGetUsedTextureBytes()
+        internal static long GetMonoUsedSizeLong()
         {
-            return 0;
+            return Profiler.GetMonoHeapSizeLong();
         }
-        internal static int ProfilerGetUsedTextureCount()
+        internal static long GetUsedHeapSize()
         {
-            return 0;
+            return Profiler.usedHeapSizeLong;
         }
+        internal static uint GetTempAllocatorSize()
+        {
+            return Profiler.GetTempAllocatorSize();
+        }
+        internal static long GetTotalAllocatedMemoryLong()
+        {
+            return Profiler.GetTotalAllocatedMemoryLong();
+        }
+        internal static long GetTotalUnusedReservedMemoryLong()
+        {
+            return Profiler.GetTotalUnusedReservedMemoryLong();
+        }
+        internal static long GetTotalReservedMemoryLong()
+        {
+            return Profiler.GetTotalReservedMemoryLong();
+        }
+        internal static long GetAllocatedMemoryForGraphicsDriver()
+        {
+            return Profiler.GetAllocatedMemoryForGraphicsDriver();
+        }
+
+        internal static bool IsStarted()
+        {
+            return s_Started;
+        }
+        internal static void Start()
+        {
+            if (!s_Started)
+                return;
+
+            s_Datas.Clear();
+            s_Datas.Add(new Data { category = ProfilerCategory.Render, statName = "CPU Main Thread Frame Time", displayName = "Game" });
+            s_Datas.Add(new Data { category = ProfilerCategory.Render, statName = "CPU Render Thread Frame Time", displayName = "Render" });
+
+            s_Datas.Add(new Data { category = ProfilerCategory.Render, statName = "Vertices Count", displayName = "Verts" });
+            s_Datas.Add(new Data { category = ProfilerCategory.Render, statName = "Triangles Count", displayName = "Tris" });
+            s_Datas.Add(new Data { category = ProfilerCategory.Render, statName = "Draw Calls Count", displayName = "Draw" });
+            s_Datas.Add(new Data { category = ProfilerCategory.Render, statName = "SetPass Calls Count", displayName = "SetPass" });
+
+            foreach (var data in s_Datas) {
+                data.profilerRecorder = ProfilerRecorder.StartNew(data.category, data.statName);
+            }
+            Debug.Assert(s_Datas.Count == (int)StatIndexEnum.MaxNum);
+
+            s_Started = true;
+        }
+        internal static void Stop()
+        {
+            foreach(var data in s_Datas) {
+                data.profilerRecorder.Stop();
+                data.profilerRecorder.Dispose();
+            }
+            s_Datas.Clear();
+            s_Started = false;
+        }
+        internal static void Update()
+        {
+            foreach (var data in s_Datas) {
+                long v = data.profilerRecorder.LastValue;
+                if (v > 0) {
+                    data.lastValue = v;
+                }
+            }
+        }
+
+        private enum StatIndexEnum
+        {
+            GameTime = 0,
+            RenderTime,
+            Verts,
+            Tris,
+            DrawCall,
+            SetPass,
+            MaxNum
+        }
+        private class Data
+        {
+            public ProfilerRecorder profilerRecorder;
+            public ProfilerCategory category;
+            public string statName;
+            public string displayName;
+            public long lastValue = 0;
+        }
+
+        private static List<Data> s_Datas = new List<Data>();
+        private static bool s_Started = false;
     }
     //---------------------------------------------------------------------------------------------------------------
     internal sealed class LogCodeNumCommand : SimpleStoryCommandBase<LogCodeNumCommand, StoryFunctionParam>
@@ -111,12 +263,12 @@ namespace GmCommands
                     IList list = null;
                     IDictionary dict = null;
                     bool noError = true;
-                    for(int i = 1; i < args.Count; ++i) {
+                    for (int i = 1; i < args.Count; ++i) {
                         var arg = args[i];
-                        if(arg.IsString && i == 1) {
+                        if (arg.IsString && i == 1) {
                             className = arg.GetString();
                         }
-                        else if(arg.IsInteger && i <= 2) {
+                        else if (arg.IsInteger && i <= 2) {
                             flags = arg.GetInt();
                         }
                         else if (arg.IsObject && i == args.Count - 1) {
@@ -162,12 +314,12 @@ namespace GmCommands
                                     var key = list[ix] as string;
                                     var val = null == list[ix + 1] ? BoxedValue.NullObject : BoxedValue.FromObject(list[ix + 1]);
                                     if (!string.IsNullOrEmpty(key)) {
-                                         GmRootScript.PutIntentExtra(intent, key, val);
+                                        GmRootScript.PutIntentExtra(intent, key, val);
                                     }
                                 }
                             }
                             else if (null != dict) {
-                                foreach(var elem in dict) {
+                                foreach (var elem in dict) {
                                     var pair = (DictionaryEntry)elem;
                                     var key = pair.Key as string;
                                     var val = null == pair.Value ? BoxedValue.NullObject : BoxedValue.FromObject(pair.Value);
@@ -459,8 +611,7 @@ namespace GmCommands
                 log1.AppendFormat("{0} = {1}", pi.Name, v);
                 log1.AppendLine();
                 ++ct;
-                if (ct % 10 == 0)
-                {
+                if (ct % 10 == 0) {
                     LogSystem.Warn(log1.ToString());
                     log1.Length = 0;
                 }
@@ -537,20 +688,36 @@ namespace GmCommands
             return false;
         }
     }
+    internal sealed class StartProfilerCommand : SimpleStoryCommandBase<StartProfilerCommand, StoryFunctionParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        {
+            ProfilerForGM.Start();
+            return false;
+        }
+    }
+    internal sealed class StopProfilerCommand : SimpleStoryCommandBase<StopProfilerCommand, StoryFunctionParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        {
+            ProfilerForGM.Stop();
+            return false;
+        }
+    }
     internal sealed class LogProfilerCommand : SimpleStoryCommandBase<LogProfilerCommand, StoryFunctionParam>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
         {
-            LogSystem.Warn("[memory] used heap:{0:f3} profiler:{1:f3} gfx:{2:f3} alloc:{3:f3} temp:{4:f3} unused reserved:{5:f3} reserved:{6:f3} alloc count:{7} total alloc count:{8} malloc LL:{9:f3} malloc override:{10:f3}", Profiler.usedHeapSizeLong / 1024.0f / 1024.0f, FakeProfiler.GetTotalProfilerMemoryLong() / 1024.0f / 1024.0f,
-                Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024.0f / 1024.0f, Profiler.GetTotalAllocatedMemoryLong() / 1024.0f / 1024.0f, Profiler.GetTempAllocatorSize() / 1024.0f / 1024.0f, Profiler.GetTotalUnusedReservedMemoryLong() / 1024.0f / 1024.0f,
-                Profiler.GetTotalReservedMemoryLong() / 1024.0f / 1024.0f,
-                FakeProfiler.GetAllocatorCount(), FakeProfiler.GetTotalAllocationCount(),
-                FakeProfiler.GetMallocLLAllocBytes() / 1024.0f / 1024.0f, FakeProfiler.GetMallocOverrideBytes() / 1024.0f / 1024.0f);
-            LogSystem.Warn("[mono] used:{0} heap:{1}", Profiler.GetMonoUsedSizeLong() / 1024.0f / 1024.0f, Profiler.GetMonoHeapSizeLong() / 1024.0f / 1024.0f);
-            LogSystem.Warn("[time] main:{0} rendering:{1}", FakeProfiler.ProfilerGetMainThreadFrameTime(), FakeProfiler.ProfilerGetRenderThreadFrameTime());
-            LogSystem.Warn("[rendering] vertex:{0} triangle:{1} dc:{2} set pass:{3} tex:{4:f3} tex count:{5}", FakeProfiler.ProfilerGetVertsCount(), FakeProfiler.ProfilerGetTriangleCount(),
-                FakeProfiler.ProfilerGetDrawCallCount(), FakeProfiler.ProfilerGetSetPassCalls(),
-                FakeProfiler.ProfilerGetUsedTextureBytes() / 1024.0f / 1024.0f, FakeProfiler.ProfilerGetUsedTextureCount());
+            LogSystem.Warn("[memory] used heap:{0:f3} profiler:{1:f3} gfx:{2:f3} alloc:{3:f3} temp:{4:f3} unused reserved:{5:f3} reserved:{6:f3} alloc count:{7} total alloc count:{8} malloc LL:{9:f3} malloc override:{10:f3}", ProfilerForGM.GetUsedHeapSize() / 1024.0f / 1024.0f, ProfilerForGM.GetTotalProfilerMemoryLong() / 1024.0f / 1024.0f,
+                ProfilerForGM.GetAllocatedMemoryForGraphicsDriver() / 1024.0f / 1024.0f, ProfilerForGM.GetTotalAllocatedMemoryLong() / 1024.0f / 1024.0f, ProfilerForGM.GetTempAllocatorSize() / 1024.0f / 1024.0f, ProfilerForGM.GetTotalUnusedReservedMemoryLong() / 1024.0f / 1024.0f,
+                ProfilerForGM.GetTotalReservedMemoryLong() / 1024.0f / 1024.0f,
+                ProfilerForGM.GetAllocatorCount(), ProfilerForGM.GetTotalAllocationCount(),
+                ProfilerForGM.GetMallocLLAllocBytes() / 1024.0f / 1024.0f, ProfilerForGM.GetMallocOverrideBytes() / 1024.0f / 1024.0f);
+            LogSystem.Warn("[mono] used:{0} heap:{1}", ProfilerForGM.GetMonoUsedSizeLong() / 1024.0f / 1024.0f, ProfilerForGM.GetMonoHeapSizeLong() / 1024.0f / 1024.0f);
+            LogSystem.Warn("[time] main:{0} rendering:{1} fps:{2}", ProfilerForGM.GetMainThreadFrameTime(), ProfilerForGM.GetRenderThreadFrameTime(), ProfilerForGM.GetFPS());
+            LogSystem.Warn("[rendering] vertex:{0} triangle:{1} dc:{2} set pass:{3} tex:{4:f3} tex count:{5}", ProfilerForGM.GetVertsCount(), ProfilerForGM.GetTriangleCount(),
+                ProfilerForGM.GetDrawCallCount(), ProfilerForGM.GetSetPassCalls(),
+                ProfilerForGM.GetUsedTextureBytes() / 1024.0f / 1024.0f, ProfilerForGM.GetUsedTextureCount());
             return false;
         }
     }
@@ -655,7 +822,7 @@ namespace GmCommands
                 var sb = new StringBuilder();
                 sb.AppendFormat("mesh:{0} vertex count:{1} submesh count:{2} vertex attribute count:{3} vertex buffer count:{4}", mesh, mesh.vertexCount, mesh.subMeshCount, mesh.vertexAttributeCount, mesh.vertexBufferCount);
                 sb.AppendLine();
-                for(int ix = 0; ix < mesh.vertexAttributeCount; ++ix) {
+                for (int ix = 0; ix < mesh.vertexAttributeCount; ++ix) {
                     var vattr = mesh.GetVertexAttribute(ix);
                     sb.AppendFormat("\tvattr:{0} attribute:{1} format:{2} dim:{3} stream:{4}", ix, vattr.attribute, vattr.format, vattr.dimension, vattr.stream);
                     sb.AppendLine();
@@ -1759,7 +1926,7 @@ namespace GmCommands
                 if (key.IsString) {
                     result.Value = mat.GetFloat(key.AsString);
                 }
-                else if(key.IsInteger) {
+                else if (key.IsInteger) {
                     result.Value = mat.GetFloat(key.GetInt());
                 }
             }
@@ -2199,15 +2366,12 @@ namespace GmCommands
             result.Value = BoxedValue.NullObject;
             var vals = _params.Values;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var comp0 = GameObject.FindObjectsOfType<RawImage>(false);
-            foreach (var comp in comp0)
-            {
-                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                {
+            foreach (var comp in comp0) {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                     result.Value = comp;
                     break;
                 }
@@ -2221,15 +2385,12 @@ namespace GmCommands
             result.Value = BoxedValue.NullObject;
             var vals = _params.Values;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var comp0 = GameObject.FindObjectsOfType<Image>(false);
-            foreach (var comp in comp0)
-            {
-                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                {
+            foreach (var comp in comp0) {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                     result.Value = comp;
                     break;
                 }
@@ -2244,15 +2405,12 @@ namespace GmCommands
 
             var vals = _params.Values;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var comp0 = GameObject.FindObjectsOfType<Button>(false);
-            foreach (var comp in comp0)
-            {
-                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                {
+            foreach (var comp in comp0) {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                     result.Value = comp;
                     break;
                 }
@@ -2267,15 +2425,12 @@ namespace GmCommands
 
             var vals = _params.Values;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var comp0 = GameObject.FindObjectsOfType<Toggle>(false);
-            foreach (var comp in comp0)
-            {
-                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                {
+            foreach (var comp in comp0) {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                     result.Value = comp;
                     break;
                 }
@@ -2290,15 +2445,12 @@ namespace GmCommands
 
             var vals = _params.Values;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var comp0 = GameObject.FindObjectsOfType<Slider>(false);
-            foreach (var comp in comp0)
-            {
-                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                {
+            foreach (var comp in comp0) {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                     result.Value = comp;
                     break;
                 }
@@ -2313,15 +2465,12 @@ namespace GmCommands
 
             var vals = _params.Values;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var comp0 = GameObject.FindObjectsOfType<InputField>(false);
-            foreach (var comp in comp0)
-            {
-                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                {
+            foreach (var comp in comp0) {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                     result.Value = comp;
                     break;
                 }
@@ -2336,15 +2485,12 @@ namespace GmCommands
 
             var vals = _params.Values;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var comp0 = GameObject.FindObjectsOfType<TMPro.TMP_InputField>(false);
-            foreach (var comp in comp0)
-            {
-                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                {
+            foreach (var comp in comp0) {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                     result.Value = comp;
                     break;
                 }
@@ -2359,15 +2505,12 @@ namespace GmCommands
 
             var vals = _params.Values;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var comp0 = GameObject.FindObjectsOfType<Dropdown>(false);
-            foreach (var comp in comp0)
-            {
-                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                {
+            foreach (var comp in comp0) {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                     result.Value = comp;
                     break;
                 }
@@ -2382,15 +2525,12 @@ namespace GmCommands
 
             var vals = _params.Values;
             var names = new List<string>();
-            foreach (var v in vals)
-            {
+            foreach (var v in vals) {
                 names.Add(v.ToString());
             }
             var comp0 = GameObject.FindObjectsOfType<TMPro.TMP_Dropdown>(false);
-            foreach (var comp in comp0)
-            {
-                if (StoryScriptUtility.IsPathMatch(comp.transform, names))
-                {
+            foreach (var comp in comp0) {
+                if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
                     result.Value = comp;
                     break;
                 }

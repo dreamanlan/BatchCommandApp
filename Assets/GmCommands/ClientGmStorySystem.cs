@@ -45,6 +45,8 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "freememory", "freememory(key) command", new StoryCommandFactoryHelper<FreeMemoryCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "consumecpu", "consumecpu(time) command", new StoryCommandFactoryHelper<ConsumeCpuCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "gc", "gc() command, force Garbage Collect", new StoryCommandFactoryHelper<GcCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "startprofiler", "startprofiler() command", new StoryCommandFactoryHelper<StartProfilerCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "stopprofiler", "stopprofiler() command", new StoryCommandFactoryHelper<StopProfilerCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logprofiler", "logprofiler() command", new StoryCommandFactoryHelper<LogProfilerCommand>());
 
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "cmd", "cmd(str) command", new StoryCommandFactoryHelper<CmdCommand>());
@@ -344,7 +346,7 @@ namespace GmCommands
                         expression = exp;
                         ret = true;
                     }
-                    else if(StoryScriptUtility.IsNamespace(typeName, out var id)) {
+                    else if (StoryScriptUtility.IsNamespace(typeName, out var id)) {
                         var exp = new NamespaceHolderFunction();
                         exp.SetNamespace(typeName);
                         exp.InitFromDsl(valData);
@@ -358,8 +360,7 @@ namespace GmCommands
 
         public int ActiveStoryCount
         {
-            get
-            {
+            get {
                 return m_StoryLogicInfos.Count;
             }
         }
@@ -444,8 +445,7 @@ namespace GmCommands
         public void SendMessage(string msgId, BoxedValue arg1)
         {
             int ct = m_StoryLogicInfos.Count;
-            for (int ix = ct - 1; ix >= 0; --ix)
-            {
+            for (int ix = ct - 1; ix >= 0; --ix) {
                 StoryInstance info = m_StoryLogicInfos[ix];
                 info.SendMessage(msgId, arg1);
             }
@@ -453,8 +453,7 @@ namespace GmCommands
         public void SendMessage(string msgId, BoxedValue arg1, BoxedValue arg2)
         {
             int ct = m_StoryLogicInfos.Count;
-            for (int ix = ct - 1; ix >= 0; --ix)
-            {
+            for (int ix = ct - 1; ix >= 0; --ix) {
                 StoryInstance info = m_StoryLogicInfos[ix];
                 info.SendMessage(msgId, arg1, arg2);
             }
@@ -462,8 +461,7 @@ namespace GmCommands
         public void SendMessage(string msgId, BoxedValue arg1, BoxedValue arg2, BoxedValue arg3)
         {
             int ct = m_StoryLogicInfos.Count;
-            for (int ix = ct - 1; ix >= 0; --ix)
-            {
+            for (int ix = ct - 1; ix >= 0; --ix) {
                 StoryInstance info = m_StoryLogicInfos[ix];
                 info.SendMessage(msgId, arg1, arg2, arg3);
             }
@@ -481,7 +479,8 @@ namespace GmCommands
 
                 AddStoryInstance(storyId, instance);
                 return instance;
-            } else {
+            }
+            else {
                 return instance;
             }
         }
@@ -489,7 +488,8 @@ namespace GmCommands
         {
             if (!m_StoryInstancePool.ContainsKey(storyId)) {
                 m_StoryInstancePool.Add(storyId, info);
-            } else {
+            }
+            else {
                 m_StoryInstancePool[storyId] = info;
             }
         }
@@ -511,8 +511,7 @@ namespace GmCommands
 
         public static ClientGmStorySystem Instance
         {
-            get
-            {
+            get {
                 return s_Instance;
             }
         }
