@@ -44,7 +44,7 @@ namespace GmCommands
         {
             float time = GetMainThreadFrameTime();
             if (time > float.Epsilon) {
-                return (int)(1 / time);
+                return (int)Math.Floor(1000.0f / time);
             }
             return 60;
         }
@@ -164,7 +164,7 @@ namespace GmCommands
         }
         internal static void Start()
         {
-            if (!s_Started)
+            if (s_Started)
                 return;
 
             s_Datas.Clear();
@@ -185,12 +185,13 @@ namespace GmCommands
         }
         internal static void Stop()
         {
+            s_Started = false;
+			
             foreach(var data in s_Datas) {
                 data.profilerRecorder.Stop();
                 data.profilerRecorder.Dispose();
             }
             s_Datas.Clear();
-            s_Started = false;
         }
         internal static void Update()
         {
