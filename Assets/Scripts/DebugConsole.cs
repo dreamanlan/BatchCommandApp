@@ -243,7 +243,7 @@ public class DebugConsole : MonoBehaviour
         {
             var list = new List<string>();
             foreach (var msg in m_History) {
-                if (msg.StartsWith(filter)) {
+                if (msg.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0) {
                     list.Add(msg);
                 }
             }
