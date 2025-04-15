@@ -432,8 +432,7 @@ public class DebugConsole : MonoBehaviour
         GUI.FocusControl(ENTRYFIELD);
     }
 #else
-    [Conditional("UNITY_EDITOR"),
-     Conditional("DEVELOPMENT_BUILD")]
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
     void OnGUI()
     {
         var evt = Event.current;
@@ -631,6 +630,7 @@ public class DebugConsole : MonoBehaviour
             m_Dirty = false;
         }
     }
+#endif
 
     private void DrawBottomControls()
     {
