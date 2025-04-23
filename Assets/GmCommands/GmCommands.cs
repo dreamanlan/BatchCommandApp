@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.IO;
 using System.Threading;
+using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -18,6 +19,296 @@ using Unity.Profiling;
 
 namespace GmCommands
 {
+    internal static class AndroidNativeUtil
+    {
+        private static AndroidJavaClass s_debugJavaClass;
+        private static AndroidJavaObject s_memInfoObj;
+
+        static AndroidNativeUtil()
+        {
+            s_debugJavaClass = new AndroidJavaClass("android.os.Debug");
+            s_memInfoObj = new AndroidJavaObject("android.os.Debug$MemoryInfo");
+        }
+
+        public static void RefreshMeminfo()
+        {
+            s_debugJavaClass.CallStatic("getMemoryInfo", s_memInfoObj);
+        }
+
+        [UnityEngine.Scripting.Preserve]
+        public static int GetTotalPss()
+        {
+            RefreshMeminfo();
+            var mem = s_memInfoObj.Call<int>("getTotalPss");
+
+            return mem;
+        }
+
+        /// <summary>
+        /// https://developer.android.com/reference/android/os/Debug.MemoryInfo
+        /// getTotalPrivateClean getTotalPrivateDirty getTotalSharedClean getTotalSharedDirty getTotalSwappablePss
+        /// </summary>
+        /// <param name="methodName"></param>
+        /// <returns></returns>
+        [UnityEngine.Scripting.Preserve]
+        public static int GetMemInfo(string methodName)
+        {
+            var mem = s_memInfoObj.Call<int>(methodName);
+
+            return mem;
+        }
+
+        /// <summary>
+        /// https://developer.android.com/reference/android/os/Debug.MemoryInfo#getMemoryStat(java.lang.String)
+        /// summary.java-heap summary.native-heap summary.code summary.stack summary.graphics summary.private-other summary.system summary.total-pss summary.total-swap
+        /// </summary>
+        /// <param name="statName"></param>
+        /// <returns></returns>
+        [UnityEngine.Scripting.Preserve]
+        public static int GetMemoryStat(string statName)
+        {
+            var str = s_memInfoObj.Call<string>("getMemoryStat", statName);
+
+            int.TryParse(str, out var value);
+
+            return value;
+        }
+    }
+    internal static class IOSNativeUtil
+    {
+#if UNITY_IPHONE && !UNITY_EDITOR
+	    [DllImport("__Internal")]
+	    private static extern float ios_GetTotalPhysicalMemory();
+        [DllImport("__Internal")]
+        private static extern float ios_GetTotalPhysicalMemoryV2();
+        [DllImport("__Internal")]
+        private static extern long ios_GetOsProcAvailableMemory();
+#endif
+
+        public static float GetTotalPhysicalMemory()
+        {
+            float result = 0;
+
+#if UNITY_IPHONE && !UNITY_EDITOR
+            result = ios_GetTotalPhysicalMemory();
+#endif
+
+            return result;
+        }
+
+        public static float GetTotalPhysicalMemoryV2()
+        {
+            float result = 0;
+
+#if UNITY_IPHONE && !UNITY_EDITOR
+            result = ios_GetTotalPhysicalMemoryV2();
+#endif
+
+            return result;
+        }
+
+        //com.apple.developer.kernel.increased-memory-limit
+        public static long GetOsProcAvailableMemory()
+        {
+            long result = 0;
+
+#if UNITY_IPHONE && !UNITY_EDITOR
+            result = ios_GetOsProcAvailableMemory();
+#endif
+
+            return result;
+        }
+    }
+    internal static class WinNativeUtil
+    {
+        private static System.Diagnostics.Process s_process = null;
+
+        public static System.Diagnostics.Process CurProcess
+        {
+            get {
+                if (s_process == null) {
+                    s_process = System.Diagnostics.Process.GetCurrentProcess();
+                }
+                return s_process;
+            }
+        }
+
+        public static int CurProcessId => CurProcess?.Id ?? 0;
+
+#if UNITY_STANDALONE_WIN
+        public static MEMORY_STATUS_EX globalMemoryStatus = new MEMORY_STATUS_EX();
+        public static PROCESS_MEMORY_COUNTERS_EX2 processMemoryStatus = new PROCESS_MEMORY_COUNTERS_EX2();
+        
+        [StructLayout(LayoutKind.Sequential, Size = 40)]
+        public struct PROCESS_MEMORY_COUNTERS
+        {
+            public uint cb;
+            public uint PageFaultCount;
+            public UIntPtr PeakWorkingSetSize;
+            public UIntPtr WorkingSetSize;
+            public UIntPtr QuotaPeakPagedPoolUsage;
+            public UIntPtr QuotaPagedPoolUsage;
+            public UIntPtr QuotaPeakNonPagedPoolUsage;
+            public UIntPtr QuotaNonPagedPoolUsage;
+            public UIntPtr PagefileUsage;
+            public UIntPtr PeakPagefileUsage;
+        }
+        
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public class MEMORY_STATUS_EX
+        {
+            public uint dwLength;
+            public uint dwMemoryLoad;
+            public ulong ullTotalPhys;
+            public ulong ullAvailPhys;
+            public ulong ullTotalPageFile;
+            public ulong ullAvailPageFile;
+            public ulong ullTotalVirtual;
+            public ulong ullAvailVirtual;
+            public ulong ullAvailExtendedVirtual;
+
+            public MEMORY_STATUS_EX()
+            {
+                dwLength = (uint)Marshal.SizeOf(typeof(MEMORY_STATUS_EX));
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public class PROCESS_MEMORY_COUNTERS_EX2
+        {
+            public uint    cb;
+            public uint    PageFaultCount;
+            public ulong   PeakWorkingSetSize;
+            public ulong   WorkingSetSize;
+            public ulong   QuotaPeakPagedPoolUsage;
+            public ulong   QuotaPagedPoolUsage;
+            public ulong   QuotaPeakNonPagedPoolUsage;
+            public ulong   QuotaNonPagedPoolUsage;
+            public ulong   PagefileUsage;
+            public ulong   PeakPagefileUsage;
+            public ulong   PrivateUsage;
+            public ulong   PrivateWorkingSetSize;
+            public UInt64  SharedCommitUsage;
+
+            public PROCESS_MEMORY_COUNTERS_EX2()
+            {
+                cb = (uint)Marshal.SizeOf(typeof(PROCESS_MEMORY_COUNTERS_EX2));
+            }
+        }
+        
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        static extern System.IntPtr GetActiveWindow();
+
+        [DllImport("psapi.dll", SetLastError = true)]
+        public static extern bool GetProcessMemoryInfo(IntPtr hProcess, out PROCESS_MEMORY_COUNTERS counters, uint size);
+
+        [DllImport("psapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetProcessMemoryInfo([In] IntPtr processHandle, [In, Out] PROCESS_MEMORY_COUNTERS_EX2 ppsmemCounters, [In] uint cb);
+        
+        [DllImport("Kernel32.dll")]
+        private static extern void ExitProcess(uint uExitCode);
+
+        [DllImport("Kernel32.dll")]
+        private static extern bool TerminateProcess(IntPtr hProcess, uint uExitCode);
+
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetCurrentProcess();
+
+        [DllImport("kernel32.dll")]
+        private static extern bool GetExitCodeProcess(IntPtr hProcess, out uint lpExitCode);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GlobalMemoryStatusEx([In, Out] MEMORY_STATUS_EX lpBuffer);
+        
+        public static ulong GetProcessMemoryInfoWorkingSetSize()
+        {
+            var counters = new PROCESS_MEMORY_COUNTERS();
+            counters.cb = (uint) Marshal.SizeOf(typeof(PROCESS_MEMORY_COUNTERS));
+            if (GetProcessMemoryInfo(CurProcess.Handle, out counters, counters.cb))
+            {
+                return counters.WorkingSetSize.ToUInt64();
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+#endif
+
+        public static void SetWindowsTitle(string title)
+        {
+#if UNITY_STANDALONE_WIN
+            const uint WM_SETTEXT = 0x000C;
+            byte[] encodedBytes = Encoding.Unicode.GetBytes(title);
+            Array.Resize(ref encodedBytes, encodedBytes.Length + 1);
+            encodedBytes[encodedBytes.Length - 1] = 0x00;
+            string encodedString = Encoding.Unicode.GetString(encodedBytes);
+            GCHandle handle = GCHandle.Alloc(encodedBytes, GCHandleType.Pinned);
+            IntPtr titlePtr = handle.AddrOfPinnedObject();
+
+            SendMessage(GetActiveWindow(), WM_SETTEXT, IntPtr.Zero, titlePtr);
+
+            handle.Free();
+#endif
+        }
+
+        public static void ProcessExit(int code)
+        {
+#if UNITY_STANDALONE_WIN
+            ExitProcess((uint) code);
+#endif
+        }
+
+        public static void ProcessTerminateHandle(int code)
+        {
+#if UNITY_STANDALONE_WIN
+            TerminateProcess(CurProcess.Handle, (uint) code);
+#endif
+        }
+
+        public static void ProcessTerminateNativeHandle(int code)
+        {
+#if UNITY_STANDALONE_WIN
+            TerminateProcess(GetCurrentProcess(), (uint) code);
+#endif
+        }
+
+        public static void ProcessTerminateNativeExitCode()
+        {
+#if UNITY_STANDALONE_WIN
+            var succ = GetExitCodeProcess(GetCurrentProcess(), out var exitCode);
+            TerminateProcess(GetCurrentProcess(), exitCode);
+#endif
+        }
+
+        public static bool RefreshGlobalMemoryStatus()
+        {
+#if UNITY_STANDALONE_WIN
+            if (GlobalMemoryStatusEx(globalMemoryStatus))
+            {
+                return true;
+            }
+#endif
+            return false;
+        }
+
+        public static bool RefreshProcessMemoryStatusEx2()
+        {
+#if UNITY_STANDALONE_WIN
+            if (GetProcessMemoryInfo(CurProcess.Handle, processMemoryStatus, processMemoryStatus.cb))
+            {
+                return true;
+            }
+#endif
+            return false;
+        }
+    }
     internal static class ProfilerForGM
     {
         internal static long GetAllocatorCount()
@@ -720,6 +1011,93 @@ namespace GmCommands
                 ProfilerForGM.GetDrawCallCount(), ProfilerForGM.GetSetPassCalls(),
                 ProfilerForGM.GetUsedTextureBytes() / 1024.0f / 1024.0f, ProfilerForGM.GetUsedTextureCount());
             return false;
+        }
+    }
+    internal sealed class TakeSnapshotCommand : SimpleStoryCommandBase<TakeSnapshotCommand, StoryFunctionParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        {
+            string path = GetMemSnapPath();
+            bool autoClearMemory = false;
+            Unity.Profiling.Memory.CaptureFlags captureFlags = Unity.Profiling.Memory.CaptureFlags.ManagedObjects | Unity.Profiling.Memory.CaptureFlags.NativeObjects |
+                                        Unity.Profiling.Memory.CaptureFlags.NativeAllocations | Unity.Profiling.Memory.CaptureFlags.NativeAllocationSites |
+                                        Unity.Profiling.Memory.CaptureFlags.NativeStackTraces;
+            var vals = _params.Values;
+            if (vals.Count >= 1) {
+                string p = vals[0].AsString;
+                if(!string.IsNullOrEmpty(p) && File.Exists(p)) {
+                    path = p;
+                }
+            }
+            if (vals.Count >= 2) {
+                autoClearMemory = vals[1].GetBool();
+            }
+            if (vals.Count >= 3) {
+                captureFlags = (Unity.Profiling.Memory.CaptureFlags)vals[2].GetUInt();
+            }
+            TakeSnapshot(path, autoClearMemory, captureFlags);
+            LogSystem.Warn("snapshot path:{0}", path);
+            return false;
+        }
+        private static string GetMemSnapPath(string ext = "snap")
+        {
+            var dirPath = Path.Combine(Application.persistentDataPath, "MemorySnapshot");
+            if (!Directory.Exists(dirPath)) {
+                Directory.CreateDirectory(dirPath);
+            }
+
+            var pid = System.Diagnostics.Process.GetCurrentProcess()?.Id ?? 0;
+            var mem = GetAppMemory();
+            var reserved = (ProfilerForGM.GetTotalReservedMemoryLong() + ProfilerForGM.GetMonoHeapSizeLong()) / (1024.0 * 1024);
+            var allocated = (ProfilerForGM.GetTotalAllocatedMemoryLong() + ProfilerForGM.GetMonoUsedSizeLong()) / (1024.0 * 1024);
+
+            var path = string.Empty;
+            if (Application.platform == RuntimePlatform.Android) {
+                var heap = AndroidNativeUtil.GetMemoryStat("summary.native-heap") / 1024.0f;
+                var code = AndroidNativeUtil.GetMemoryStat("summary.code") / 1024.0f;
+                var graphics = AndroidNativeUtil.GetMemoryStat("summary.graphics") / 1024.0f;
+                var other = AndroidNativeUtil.GetMemoryStat("summary.private-other") / 1024.0f;
+                var system = AndroidNativeUtil.GetMemoryStat("summary.system") / 1024.0f;
+                path = Path.Combine(dirPath, $"app_{pid}_{DateTime.Now:yyyyMMdd_HHmmss}_Mem[{mem:F2}]_Reserved[{reserved:F2}]_Allocated[{allocated:F2}]_Heap[{heap:F2}]_Code[{code:F2}]_Graphics[{graphics:F2}]_Other[{other:F2}]_System[{system:F2}].{ext}");
+            }
+            else {
+                path = Path.Combine(dirPath, $"app_{pid}_{DateTime.Now:yyyyMMdd_HHmmss}_Mem[{mem:F2}]_Reserved[{reserved:F2}]_Allocated[{allocated:F2}].{ext}");
+            }
+
+            return path;
+        }
+        private static float GetAppMemory()
+        {
+            float mem = 0;
+            try {
+#if UNITY_EDITOR
+                mem = ((float)Profiler.GetTotalAllocatedMemoryLong()) / (1024 * 1024);
+#elif UNITY_ANDROID
+                mem = AndroidNativeUtil.GetTotalPss() / 1024.0f;
+#elif UNITY_IOS
+                mem = IOSNativeUtil.GetTotalPhysicalMemory();
+#elif UNITY_STANDALONE_WIN
+                mem = (float) ((double) WinNativeUtil.GetProcessMemoryInfoWorkingSetSize() / (1024 * 1024));
+#endif
+            }
+            catch (Exception e) {
+                LogSystem.Error(e.Message);
+            }
+
+            return mem;
+        }
+        private static void TakeSnapshot(string path, bool autoClearMemory = false,
+            Unity.Profiling.Memory.CaptureFlags captureFlags = Unity.Profiling.Memory.CaptureFlags.ManagedObjects | Unity.Profiling.Memory.CaptureFlags.NativeObjects |
+                                        Unity.Profiling.Memory.CaptureFlags.NativeAllocations | Unity.Profiling.Memory.CaptureFlags.NativeAllocationSites |
+                                        Unity.Profiling.Memory.CaptureFlags.NativeStackTraces,
+            Action<string, bool> finishCallback = null)
+        {
+            if (autoClearMemory) {
+                GC.Collect();
+                Resources.UnloadUnusedAssets();
+            }
+
+            Unity.Profiling.Memory.MemoryProfiler.TakeSnapshot(path, finishCallback, captureFlags);
         }
     }
     internal sealed class CmdCommand : SimpleStoryCommandBase<CmdCommand, StoryFunctionParam<string>>
