@@ -111,6 +111,7 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "deviceinfo", "deviceinfo() function, get device name/model and gpu model", new StoryFunctionFactoryHelper<DeviceInfoFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getclipboard", "getclipboard() function, get system clipboard content", new StoryFunctionFactoryHelper<GetClipboardFunction>());
 
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getandroidsdk", "getandroidsdk() function", new StoryFunctionFactoryHelper<GetAndroidSdkIntFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getbool", "getbool(str) function", new StoryFunctionFactoryHelper<GetBoolFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getboolarray", "getboolarray(str) function", new StoryFunctionFactoryHelper<GetBoolArrayFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getstring", "getstring(str) function", new StoryFunctionFactoryHelper<GetStringFunction>());

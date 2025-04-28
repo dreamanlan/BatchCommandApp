@@ -400,6 +400,13 @@ public sealed class GmRootScript : MonoBehaviour
         return null;
     }
 
+    internal static int GetAndroidSdkInt()
+    {
+        using (var versionClass = new AndroidJavaClass("android.os.Build$VERSION"))
+        {
+            return versionClass.GetStatic<int>("SDK_INT");
+        }
+    }
     internal static void StartService(string srvClass, string extraName, BoxedValue extraValue)
     {
         using (var unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
@@ -994,7 +1001,16 @@ internal sealed class BroadcastReceiverHandler
 
                             using (var intentFilter = new AndroidJavaObject("android.content.IntentFilter")) {
                                 intentFilter.Call("addAction", actionName);
-                                context.Call<AndroidJavaObject>("registerReceiver", m_BroadcastReceiver, intentFilter);
+                                int sdkInt = GmRootScript.GetAndroidSdkInt();
+                                if (sdkInt >= 26) {
+                                    using (var ctxClass = new AndroidJavaClass("android.content.Context")) {
+                                        var flags = ctxClass.GetStatic<int>("RECEIVER_EXPORTED");
+                                        context.Call<AndroidJavaObject>("registerReceiver", m_BroadcastReceiver, intentFilter, flags);
+                                    }
+                                }
+                                else {
+                                    context.Call("registerReceiver", m_BroadcastReceiver, intentFilter);
+                                }
                             }
                         }
                     }

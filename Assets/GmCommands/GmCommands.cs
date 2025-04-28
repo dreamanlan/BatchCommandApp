@@ -1548,6 +1548,15 @@ namespace GmCommands
             result.Value = GUIUtility.systemCopyBuffer;
         }
     }
+    internal sealed class GetAndroidSdkIntFunction : SimpleStoryFunctionBase<GetAndroidSdkIntFunction, StoryFunctionParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        {
+#if UNITY_ANDROID
+            result.Value = GmRootScript.GetAndroidSdkInt();
+#endif
+        }
+    }
     internal sealed class GetBoolFunction : SimpleStoryFunctionBase<GetBoolFunction, StoryFunctionParam<string, bool>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, bool> _params, StoryFunctionResult result)
