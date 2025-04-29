@@ -1002,14 +1002,14 @@ internal sealed class BroadcastReceiverHandler
                             using (var intentFilter = new AndroidJavaObject("android.content.IntentFilter")) {
                                 intentFilter.Call("addAction", actionName);
                                 int sdkInt = GmRootScript.GetAndroidSdkInt();
-                                if (sdkInt >= 26) {
+                                if (sdkInt >= 33) {
                                     using (var ctxClass = new AndroidJavaClass("android.content.Context")) {
                                         var flags = ctxClass.GetStatic<int>("RECEIVER_EXPORTED");
                                         context.Call<AndroidJavaObject>("registerReceiver", m_BroadcastReceiver, intentFilter, flags);
                                     }
                                 }
                                 else {
-                                    context.Call("registerReceiver", m_BroadcastReceiver, intentFilter);
+                                    context.Call<AndroidJavaObject>("registerReceiver", m_BroadcastReceiver, intentFilter);
                                 }
                             }
                         }
