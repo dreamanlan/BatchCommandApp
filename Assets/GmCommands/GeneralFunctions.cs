@@ -1534,10 +1534,10 @@ namespace GmCommands
                         pt = obj.transform.localPosition;
                     else
                         pt = obj.transform.position;
-                    m_Value = pt;
+                    m_Value = (StoryScript.Vector3Obj)pt;
                 }
                 else {
-                    m_Value = UnityEngine.Vector3.zero;
+                    m_Value = (StoryScript.Vector3Obj)UnityEngine.Vector3.zero;
                 }
             }
         }
@@ -1866,10 +1866,10 @@ namespace GmCommands
                         pt = obj.transform.localEulerAngles;
                     else
                         pt = obj.transform.eulerAngles;
-                    m_Value = pt;
+                    m_Value = (StoryScript.Vector3Obj)pt;
                 }
                 else {
-                    m_Value = UnityEngine.Vector3.zero;
+                    m_Value = (StoryScript.Vector3Obj)UnityEngine.Vector3.zero;
                 }
             }
         }
@@ -2188,10 +2188,10 @@ namespace GmCommands
                 if (null != obj) {
                     UnityEngine.Vector3 pt;
                     pt = obj.transform.localScale;
-                    m_Value = pt;
+                    m_Value = (StoryScript.Vector3Obj)pt;
                 }
                 else {
-                    m_Value = new UnityEngine.Vector3(1, 1, 1);
+                    m_Value = (StoryScript.Vector3Obj)new UnityEngine.Vector3(1, 1, 1);
                 }
             }
         }

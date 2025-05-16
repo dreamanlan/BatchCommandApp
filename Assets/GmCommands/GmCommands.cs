@@ -1427,7 +1427,7 @@ namespace GmCommands
             var val = _params.Param3Value;
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
-                var v = val.GetVector4();
+                var v = val.As<Vector4Obj>();
                 if (key.IsString) {
                     mat.SetVector(key.AsString, v);
                 }
@@ -1452,7 +1452,7 @@ namespace GmCommands
                     v = StoryScriptUtility.GetColor(val.AsString);
                 }
                 else {
-                    v = val.GetColor();
+                    v = val.As<ColorObj>();
                 }
                 if (key.IsString) {
                     mat.SetColor(key.AsString, v);
@@ -2120,7 +2120,7 @@ namespace GmCommands
     {
         protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
         {
-            result.Value = Input.mousePosition;
+            result.Value = (StoryScript.Vector3Obj)Input.mousePosition;
         }
     }
     internal sealed class PointerRaycastUisFunction : SimpleStoryFunctionBase<PointerRaycastUisFunction, StoryFunctionParam>
@@ -2363,10 +2363,10 @@ namespace GmCommands
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 if (key.IsString) {
-                    result.Value = mat.GetVector(key.AsString);
+                    result.Value = (StoryScript.Vector4Obj)mat.GetVector(key.AsString);
                 }
                 else if (key.IsInteger) {
-                    result.Value = mat.GetVector(key.GetInt());
+                    result.Value = (StoryScript.Vector4Obj)mat.GetVector(key.GetInt());
                 }
             }
         }
@@ -2380,10 +2380,10 @@ namespace GmCommands
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 if (key.IsString) {
-                    result.Value = mat.GetColor(key.AsString);
+                    result.Value = (StoryScript.ColorObj)mat.GetColor(key.AsString);
                 }
                 else if (key.IsInteger) {
-                    result.Value = mat.GetColor(key.GetInt());
+                    result.Value = (StoryScript.ColorObj)mat.GetColor(key.GetInt());
                 }
             }
         }
