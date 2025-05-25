@@ -1548,6 +1548,31 @@ namespace GmCommands
             result.Value = GUIUtility.systemCopyBuffer;
         }
     }
+    internal sealed class GetObjectByIdFunction : SimpleStoryFunctionBase<GetObjectByIdFunction, StoryFunctionParam<int>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<int> _params, StoryFunctionResult result)
+        {
+            result.Value = BoxedValue.NullObject;
+            var instId = _params.Param1Value;
+            if (instId != 0)
+            {
+                var o = typeof(UnityEngine.Object).InvokeMember("FindObjectFromInstanceID", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.InvokeMethod, null, null, new object[] { instId });
+                result.Value = o as UnityEngine.Object;
+            }
+        }
+    }
+    internal sealed class GetObjectIdFunction : SimpleStoryFunctionBase<GetObjectIdFunction, StoryFunctionParam<UnityEngine.Object>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<UnityEngine.Object> _params, StoryFunctionResult result)
+        {
+            result.Value = 0;
+            var obj = _params.Param1Value;
+            if (null != obj)
+            {
+                result.Value = obj.GetInstanceID();
+            }
+        }
+    }
     internal sealed class GetAndroidSdkIntFunction : SimpleStoryFunctionBase<GetAndroidSdkIntFunction, StoryFunctionParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
