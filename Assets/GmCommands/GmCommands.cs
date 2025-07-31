@@ -2771,6 +2771,32 @@ namespace GmCommands
             return false;
         }
     }
+    internal sealed class AddOrUpdateSceneViewerCommand : SimpleStoryCommandBase<AddOrUpdateSceneViewerCommand, StoryFunctionParam<string, int, int, float>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, int, int, float> _params, long delta)
+        {
+            string key = _params.Param1Value;
+            int w = _params.Param2Value;
+            int h = _params.Param3Value;
+            float interval = _params.Param4Value;
+            var gobj = GameObject.Find(key);
+            if (null == gobj) {
+                gobj = new GameObject(key);
+            }
+            var viewer = gobj.GetComponent<AutoFitSceneViewer>();
+            if (null == viewer) {
+                viewer = gobj.AddComponent<AutoFitSceneViewer>();
+                viewer.rtWidth = w;
+                viewer.rtHeight = h;
+                viewer.refreshInterval = interval;
+            }
+            else {
+                viewer.Setup(w, h, interval);
+                viewer.Refresh();
+            }
+            return false;
+        }
+    }
     //---------------------------------------------------------------------------------------------------------------
     internal sealed class FindRawImageFunction : SimpleStoryFunctionBase<FindRawImageFunction, StoryFunctionParams>
     {
