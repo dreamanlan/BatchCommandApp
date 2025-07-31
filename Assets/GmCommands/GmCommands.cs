@@ -2793,11 +2793,18 @@ namespace GmCommands
             else {
                 viewer.Setup(w, h, interval);
             }
-            var player = Camera.main.gameObject;
-            if (null != player) {
-                viewer.target = player.transform;
-            }
+            viewer.target = GetCameraTarget();
             return false;
+        }
+        internal static Transform GetCameraTarget()
+        {
+            var camera = Camera.main;
+            if (null == camera)
+                camera = Camera.current;
+            if (null != camera) {
+                return camera.transform;
+            }
+            return null;
         }
     }
     internal sealed class SceneViewerLookAtCommand : SimpleStoryCommandBase<SceneViewerLookAtCommand, StoryFunctionParams>
@@ -2810,22 +2817,22 @@ namespace GmCommands
             if (null != gobj) {
                 var viewer = gobj.GetComponent<AutoFitSceneViewer>();
                 if (null != viewer) {
-                    var player = Camera.main.gameObject;
+                    Transform player = AddOrUpdateSceneViewerCommand.GetCameraTarget();
                     switch (args.Count) {
                         case 1://viewerlookat(key)
                             if (null != player) {
-                                viewer.target = player.transform;
+                                viewer.target = player;
                             }
                             break;
                         case 2://viewerlookat(key, distance)
                             if (null != player) {
-                                viewer.target = player.transform;
+                                viewer.target = player;
                             }
                             viewer.distToTarget = args[1].GetFloat();
                             break;
                         case 3://viewerlookat(key, distance, direction)
                             if (null != player) {
-                                viewer.target = player.transform;
+                                viewer.target = player;
                             }
                             viewer.distToTarget = args[1].GetFloat();
                             viewer.direction = args[2].As<Vector3Obj>().Value;
