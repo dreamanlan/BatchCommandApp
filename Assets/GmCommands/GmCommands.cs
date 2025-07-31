@@ -2792,7 +2792,57 @@ namespace GmCommands
             }
             else {
                 viewer.Setup(w, h, interval);
-                viewer.Refresh();
+            }
+            var player = Camera.main.gameObject;
+            if (null != player) {
+                viewer.target = player.transform;
+            }
+            return false;
+        }
+    }
+    internal sealed class SceneViewerLookAtCommand : SimpleStoryCommandBase<SceneViewerLookAtCommand, StoryFunctionParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        {
+            var args = _params.Values;
+            string key = args[0].GetString();
+            var gobj = GameObject.Find(key);
+            if (null != gobj) {
+                var viewer = gobj.GetComponent<AutoFitSceneViewer>();
+                if (null != viewer) {
+                    var player = Camera.main.gameObject;
+                    switch (args.Count) {
+                        case 1://viewerlookat(key)
+                            if (null != player) {
+                                viewer.target = player.transform;
+                            }
+                            break;
+                        case 2://viewerlookat(key, distance)
+                            if (null != player) {
+                                viewer.target = player.transform;
+                            }
+                            viewer.distToTarget = args[1].GetFloat();
+                            break;
+                        case 3://viewerlookat(key, distance, direction)
+                            if (null != player) {
+                                viewer.target = player.transform;
+                            }
+                            viewer.distToTarget = args[1].GetFloat();
+                            viewer.direction = args[2].As<Vector3Obj>().Value;
+                            break;
+                        case 4://viewerlookat(key, distance, direction, target)
+                            viewer.distToTarget = args[1].GetFloat();
+                            viewer.direction = args[2].As<Vector3Obj>().Value;
+                            if (args[3].IsString) {
+                                var tobj = GameObject.Find(args[3].GetString());
+                                if (null != tobj) {
+                                    viewer.target = tobj.transform;
+                                }
+                            }
+                            break;
+                    }
+                    viewer.Refresh();
+                }
             }
             return false;
         }

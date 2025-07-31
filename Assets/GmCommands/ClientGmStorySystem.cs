@@ -99,6 +99,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "copypdf", "copypdf(file,page_start,page_count) command, copy pdf to clipboard", new StoryCommandFactoryHelper<StoryApi.CopyPdfCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "showmemory", "showmemory() command", new StoryCommandFactoryHelper<StoryApi.ShowMemoryCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setviewer", "setviewer(key,w,h,interval) command", new StoryCommandFactoryHelper<AddOrUpdateSceneViewerCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "viewerlookat", "viewerlookat(key) or viewerlookat(key,dist) or viewerlookat(key,dist,dir) or viewerlookat(key,dist,dir,target) command", new StoryCommandFactoryHelper<SceneViewerLookAtCommand>());
                 //register value or function
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isdebug", "isdebug() function", new StoryFunctionFactoryHelper<IsDebugFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isdev", "isdev() function", new StoryFunctionFactoryHelper<IsDevelopmentFunction>());

@@ -3,12 +3,16 @@ using UnityEngine.UI;
 
 public class AutoFitSceneViewer : MonoBehaviour
 {
+    public Transform target;
     public Camera captureCamera;
     public RenderTexture renderTexture;
 
     public int rtWidth = 256;
     public int rtHeight = 256;
-    public float refreshInterval = 1f;
+    public float refreshInterval = 0.1f;
+
+    public float distToTarget = 100f;
+    public Vector3 direction = new Vector3(0, -1, 1);
 
     private RawImage rawImage;
     private float lastRefreshTime;
@@ -42,8 +46,10 @@ public class AutoFitSceneViewer : MonoBehaviour
     }
     public void Refresh()
     {
-        Bounds sceneBounds = CalculateSceneBounds();
-        PositionCameraToFitBounds(captureCamera, sceneBounds);
+        if (null == target || null == captureCamera) {
+            return;
+        }
+        CameraLookAt(captureCamera, distToTarget, direction, target.transform.position);
     }
 
     void Start()
@@ -58,9 +64,6 @@ public class AutoFitSceneViewer : MonoBehaviour
 
         captureCamera.targetTexture = renderTexture;
 
-        Bounds sceneBounds = CalculateSceneBounds();
-        PositionCameraToFitBounds(captureCamera, sceneBounds);
-
         SetupUI();
         lastRefreshTime = Time.time;
     }
@@ -74,43 +77,24 @@ public class AutoFitSceneViewer : MonoBehaviour
         }
     }
 
-    Bounds CalculateSceneBounds()
+    void CameraLookAt(Camera cam, float distance, Vector3 direction, Vector3 to)
     {
-        Renderer[] renderers = FindObjectsOfType<Renderer>();
-        if (renderers.Length == 0)
-            return new Bounds(Vector3.zero, Vector3.one);
+        cam.transform.position = to - direction * distance;
+        cam.transform.LookAt(to);
 
-        Bounds bounds = renderers[0].bounds;
-        foreach (var rend in renderers) {
-            bounds.Encapsulate(rend.bounds);
-        }
-        return bounds;
-    }
-
-    void PositionCameraToFitBounds(Camera cam, Bounds bounds)
-    {
-        Vector3 center = bounds.center;
-        Vector3 size = bounds.size;
-
-        float maxSize = Mathf.Max(size.x, size.y, size.z);
-
-        float fov = cam.fieldOfView;
-        float aspect = cam.aspect;
-
-        float distance = maxSize / Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad);
-
-        Vector3 direction = new Vector3(0, -1, 1);
-        cam.transform.position = center - direction * distance;
-
-        cam.transform.LookAt(center);
-
-        cam.nearClipPlane = distance * 0.1f;
-        cam.farClipPlane = distance * 3f;
+        float near = distance * 0.1f;
+        float far = distance * 5f;
+        cam.nearClipPlane = near < 0.1f ? near : 0.1f;
+        cam.farClipPlane = far > 3000f ? far : 3000f;
     }
 
     void SetupUI()
     {
-        Canvas canvas = FindObjectOfType<Canvas>();
+        Canvas canvas = null;
+        var gmObj = GameObject.Find("GmScript");
+        if (null != gmObj) {
+            canvas = gmObj.GetComponentInChildren<Canvas>();
+        }
         if (canvas == null) {
             GameObject canvasGO = new GameObject("SceneViewCanvas");
             canvas = canvasGO.AddComponent<Canvas>();
