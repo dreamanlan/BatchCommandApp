@@ -7,6 +7,8 @@ public class AutoFitSceneViewer : MonoBehaviour
     public Camera captureCamera;
     public RenderTexture renderTexture;
 
+    public int imgLeft = 10;
+    public int imgTop = 50;
     public int rtWidth = 256;
     public int rtHeight = 256;
     public float refreshInterval = 0.1f;
@@ -17,7 +19,7 @@ public class AutoFitSceneViewer : MonoBehaviour
     private RawImage rawImage;
     private float lastRefreshTime;
 
-    public void Setup(int width, int height, float interval)
+    public void Setup(int left, int top, int width, int height, float interval)
     {
         if (rtWidth != width || rtHeight != height) {
             rtWidth = width;
@@ -39,7 +41,21 @@ public class AutoFitSceneViewer : MonoBehaviour
                 rt.anchorMax = new Vector2(0, 1);
                 rt.pivot = new Vector2(0, 1);
                 rt.sizeDelta = new Vector2(rtWidth, rtHeight);
-                rt.anchoredPosition = new Vector2(10, -10);
+                rt.anchoredPosition = new Vector2(imgLeft, -1 * imgTop);
+            }
+        }
+        else if (left != imgLeft || top != imgTop) {
+            imgLeft = left;
+            imgTop = top;
+            if (null != rawImage) {
+                rawImage.texture = renderTexture;
+
+                RectTransform rt = rawImage.rectTransform;
+                rt.anchorMin = new Vector2(0, 1);
+                rt.anchorMax = new Vector2(0, 1);
+                rt.pivot = new Vector2(0, 1);
+                rt.sizeDelta = new Vector2(rtWidth, rtHeight);
+                rt.anchoredPosition = new Vector2(imgLeft, -1 * imgTop);
             }
         }
         refreshInterval = interval;
@@ -114,7 +130,7 @@ public class AutoFitSceneViewer : MonoBehaviour
         rt.anchorMax = new Vector2(0, 1);
         rt.pivot = new Vector2(0, 1);
         rt.sizeDelta = new Vector2(rtWidth, rtHeight);
-        rt.anchoredPosition = new Vector2(10, -10);
+        rt.anchoredPosition = new Vector2(imgLeft, -1 * imgTop);
     }
 
     void OnDestroy()

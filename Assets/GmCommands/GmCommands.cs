@@ -2771,14 +2771,25 @@ namespace GmCommands
             return false;
         }
     }
-    internal sealed class AddOrUpdateSceneViewerCommand : SimpleStoryCommandBase<AddOrUpdateSceneViewerCommand, StoryFunctionParam<string, int, int, float>>
+    internal sealed class AddOrUpdateSceneViewerCommand : SimpleStoryCommandBase<AddOrUpdateSceneViewerCommand, StoryFunctionParams>
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, int, int, float> _params, long delta)
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
         {
-            string key = _params.Param1Value;
-            int w = _params.Param2Value;
-            int h = _params.Param3Value;
-            float interval = _params.Param4Value;
+            var args = _params.Values;
+            string key = args[0].GetString();
+            Vector4Obj v4obj = null;
+            float interval = 0.1f;
+            switch(args.Count) {
+                case 1://setviewer(key)
+                    break;
+                case 2://setviewer(key,rect)
+                    v4obj = args[1].As<Vector4Obj>();
+                    break;
+                case 3://setviewer(key,rect,interval)
+                    v4obj = args[1].As<Vector4Obj>();
+                    interval = args[2].GetFloat();
+                    break;
+            }
             var gobj = GameObject.Find(key);
             if (null == gobj) {
                 gobj = new GameObject(key);
@@ -2786,18 +2797,33 @@ namespace GmCommands
             var viewer = gobj.GetComponent<AutoFitSceneViewer>();
             if (null == viewer) {
                 viewer = gobj.AddComponent<AutoFitSceneViewer>();
-                viewer.rtWidth = w;
-                viewer.rtHeight = h;
+                if (null != v4obj) {
+                    var v4 = v4obj.Value;
+                    viewer.imgLeft = (int)v4.x;
+                    viewer.imgTop = (int)v4.y;
+                    viewer.rtWidth = (int)v4.z;
+                    viewer.rtHeight = (int)v4.w;
+                }
                 viewer.refreshInterval = interval;
             }
             else {
-                viewer.Setup(w, h, interval);
+                if (null != v4obj) {
+                    var v4 = v4obj.Value;
+                    viewer.Setup((int)v4.x, (int)v4.y, (int)v4.z, (int)v4.w, interval);
+                }
+                else {
+                    viewer.refreshInterval = interval;
+                }
             }
             viewer.target = GetCameraTarget();
             return false;
         }
         internal static Transform GetCameraTarget()
         {
+            var root  = GameObject.Find("LookPos");
+            if (null != root) {
+				return root.transform;
+			}
             var camera = Camera.main;
             if (null == camera)
                 camera = Camera.current;
