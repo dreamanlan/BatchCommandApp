@@ -111,8 +111,8 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "total", "total() function, get total native memory", new StoryFunctionFactoryHelper<GetTotalMemoryFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "deviceinfo", "deviceinfo() function, get device name/model and gpu model", new StoryFunctionFactoryHelper<DeviceInfoFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getclipboard", "getclipboard() function, get system clipboard content", new StoryFunctionFactoryHelper<GetClipboardFunction>());
-                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getobjectbyid", "getobjectbyid() function, get unity object by instance id", new StoryFunctionFactoryHelper<GetObjectByIdFunction>());
-                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getobjectid", "getobjectid() function, get unity object instance id", new StoryFunctionFactoryHelper<GetObjectIdFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getobjectbyid", "getobjectbyid(id) function, get unity object by instance id", new StoryFunctionFactoryHelper<GetObjectByIdFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getobjectid", "getobjectid(obj) function, get unity object instance id", new StoryFunctionFactoryHelper<GetObjectIdFunction>());
 
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getandroidsdk", "getandroidsdk() function", new StoryFunctionFactoryHelper<GetAndroidSdkIntFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getbool", "getbool(str) function", new StoryFunctionFactoryHelper<GetBoolFunction>());
