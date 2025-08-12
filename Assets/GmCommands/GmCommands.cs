@@ -1532,6 +1532,14 @@ namespace GmCommands
             result.Value = Profiler.GetTotalReservedMemoryLong() / 1024.0f / 1024.0f;
         }
     }
+    internal sealed class GetObjectMemoryFunction : SimpleStoryFunctionBase<GetObjectMemoryFunction, StoryFunctionParam<UnityEngine.Object>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<UnityEngine.Object> _params, StoryFunctionResult result)
+        {
+            var obj = _params.Param1Value;
+            result.Value = Profiler.GetRuntimeMemorySizeLong(obj);
+        }
+    }
     internal sealed class DeviceInfoFunction : SimpleStoryFunctionBase<DeviceInfoFunction, StoryFunctionParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
