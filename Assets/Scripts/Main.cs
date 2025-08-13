@@ -79,14 +79,14 @@ public class Main : MonoBehaviour
         }
         return false;
     }
-    public static StartupApi.ApiDelegation GetApi(string method)
+    public static StartupScript.ApiDelegation GetApi(string method)
     {
         var t = typeof(Main);
         var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
         if (null != mi) {
-            var delegation = System.Delegate.CreateDelegate(typeof(StartupApi.ApiDelegation), mi, false);
+            var delegation = System.Delegate.CreateDelegate(typeof(StartupScript.ApiDelegation), mi, false);
             if (null != delegation)
-                return (StartupApi.ApiDelegation)delegation;
+                return (StartupScript.ApiDelegation)delegation;
             else
                 return (BoxedValueList args) => { object o = mi.Invoke(null, new object[] { args }); return BoxedValue.FromObject(o); };
         }

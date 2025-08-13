@@ -4,8 +4,10 @@ using StoryScript;
 
 namespace GmCommands
 {
+    public delegate void RegisterGmCommandsAndFunctionsDelegation();
     public sealed class ClientGmStorySystem
     {
+        public RegisterGmCommandsAndFunctionsDelegation OnRegisterGmCommandsAndFunctions;
         public void Init()
         {
             try {
@@ -215,6 +217,10 @@ namespace GmCommands
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getsystem", "getsystem() function", new StoryFunctionFactoryHelper<StoryApi.GetSystemFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getactivity", "getactivity() function", new StoryFunctionFactoryHelper<StoryApi.GetActivityFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "getintent", "getintent() function", new StoryFunctionFactoryHelper<StoryApi.GetIntentFunction>());
+
+                if (null != OnRegisterGmCommandsAndFunctions) {
+                    OnRegisterGmCommandsAndFunctions();
+                }
 
                 //failback to call startup api
                 StoryCommandManager.Instance.OnCreateFailback = this.OnCreateCommandFailback;
@@ -556,7 +562,7 @@ namespace GmCommands
         }
 
         private string m_Method;
-        private StartupApi.ApiDelegation m_Api;
+        private StartupScript.ApiDelegation m_Api;
     }
     internal class StartupApiFunction : SimpleStoryFunctionBase<StartupApiFunction, StoryFunctionParams>
     {
@@ -591,7 +597,7 @@ namespace GmCommands
         }
 
         private string m_Method;
-        private StartupApi.ApiDelegation m_Api;
+        private StartupScript.ApiDelegation m_Api;
     }
     internal class TypeHolderFunction : SimpleStoryFunctionBase<TypeHolderFunction, StoryFunctionParam>
     {

@@ -10,6 +10,7 @@ using StoryScript;
 
 public sealed class GmRootScript : MonoBehaviour
 {
+    public delegate GameObject LoadResDelegation(string resPath);
     public delegate void DebugConsoleShowHideDelegation();
 
     void OnEnable()
@@ -232,6 +233,7 @@ public sealed class GmRootScript : MonoBehaviour
     private string m_LocalGmFile = string.Empty;
     private bool m_Inited = false;
 
+    public static LoadResDelegation OnLoadRes;
     public static DebugConsoleShowHideDelegation OnConsoleShow;
     public static DebugConsoleShowHideDelegation OnConsoleHide;
 
@@ -252,7 +254,12 @@ public sealed class GmRootScript : MonoBehaviour
     public static void TryLoad()
     {
         if (null == s_GameObj) {
-            var prefab = Resources.Load<GameObject>("GmScript");
+            var prefab = LoadRes("GmScript");
+            if (prefab == null)
+            {
+                LogSystem.Error("[GmScript] GmScript.prefab load failed");
+                return;
+            }
             var gobj = GameObject.Instantiate<GameObject>(prefab);
             gobj.name = "GmScript";
             TryInit();
@@ -312,6 +319,13 @@ public sealed class GmRootScript : MonoBehaviour
         }
     }
 
+    private static GameObject LoadRes(string res)
+    {
+        if (null != OnLoadRes) {
+            return OnLoadRes(res);
+        }
+        return null;
+    }
     private static void HandleCommand()
     {
 #if UNITY_ANDROID

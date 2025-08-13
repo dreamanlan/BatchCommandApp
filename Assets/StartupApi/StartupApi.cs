@@ -10,7 +10,6 @@ public sealed partial class StartupApi
 {
     public delegate GradeEnum GetGradeDelegation();
     public delegate void DoSettingDelegation(GradeEnum grade);
-    public delegate BoxedValue ApiDelegation(BoxedValueList args);
 
     public const int c_max_startup_cfgs = 8;
     public enum GradeEnum
@@ -128,23 +127,23 @@ public sealed partial class StartupApi
         }
         return false;
     }
-    public ApiDelegation GetApi(string method)
+    public StartupScript.ApiDelegation GetApi(string method)
     {
         var t = this.GetType();
         var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         if (null != mi) {
-            var delegation = System.Delegate.CreateDelegate(typeof(ApiDelegation), this, mi, false);
+            var delegation = System.Delegate.CreateDelegate(typeof(StartupScript.ApiDelegation), this, mi, false);
             if (null != delegation)
-                return (ApiDelegation)delegation;
+                return (StartupScript.ApiDelegation)delegation;
             else
                 return (BoxedValueList args) => { object o = mi.Invoke(this, new object[] { args }); return BoxedValue.FromObject(o); };
         }
         else {
             mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             if (null != mi) {
-                var delegation = System.Delegate.CreateDelegate(typeof(ApiDelegation), mi, false);
+                var delegation = System.Delegate.CreateDelegate(typeof(StartupScript.ApiDelegation), mi, false);
                 if (null != delegation)
-                    return (ApiDelegation)delegation;
+                    return (StartupScript.ApiDelegation)delegation;
                 else
                     return (BoxedValueList args) => { object o = mi.Invoke(null, new object[] { args }); return BoxedValue.FromObject(o); };
             }

@@ -14,7 +14,7 @@ internal class StartupApiExp : SimpleExpressionBase
     internal StartupApiExp(string method)
     {
         m_Method = method;
-        if(!StartupScript.GetApi(method, out m_Api)) {
+        if (!StartupScript.GetApi(method, out m_Api)) {
             LogSystem.Error("Can't find method '{0}'", method);
         }
     }
@@ -37,10 +37,16 @@ internal class StartupApiExp : SimpleExpressionBase
     }
 
     private string m_Method = string.Empty;
-    private StartupApi.ApiDelegation m_Api;
+    private StartupScript.ApiDelegation m_Api;
 }
 public static class StartupScript
 {
+    public delegate BoxedValue ApiDelegation(BoxedValueList args);
+    public delegate bool ExistsApiDelegation(string method);
+    public delegate bool GetApiDelegation(string method, out StartupScript.ApiDelegation api);
+
+    public static ExistsApiDelegation OnExistsApi;
+    public static GetApiDelegation OnGetApi;
     public static string ScriptPath
     {
         get {
@@ -121,8 +127,8 @@ public static class StartupScript
 
         string txt = File.ReadAllText(script_file);
         Dsl.DslFile dslFile = new DslFile();
-        if(dslFile.LoadFromString(txt, msg => { LogSystem.Warn("{0}", msg); })) {
-            foreach(var dslInfo in dslFile.DslInfos) {
+        if (dslFile.LoadFromString(txt, msg => { LogSystem.Warn("{0}", msg); })) {
+            foreach (var dslInfo in dslFile.DslInfos) {
                 string startupSyntaxName = dslInfo.GetId();
                 if (startupSyntaxName == "startup") {
                     var startupDsl = dslInfo as Dsl.FunctionData;
@@ -397,7 +403,7 @@ public static class StartupScript
                         ++indent;
                         foreach (var pair in grades) {
                             int g = pair.Key;
-                            foreach(var func in pair.Value) {
+                            foreach (var func in pair.Value) {
                                 sb.AppendLine("{0}SetCallFromGrade(true);", Literal.GetIndentString(indent));
                                 sb.AppendLine("{0}{1}();", Literal.GetIndentString(indent), func);
                                 sb.AppendLine("{0}if (GradeSetState) {{", Literal.GetIndentString(indent));
@@ -493,14 +499,28 @@ public static class StartupScript
     }
     internal static bool ExistsApi(string method)
     {
-        if (StartupApi.Instance.ExistsApi(method))
+        if (null != OnExistsApi) {
+            if (OnExistsApi(method)) {
+                return true;
+            }
+        }
+        if (StartupApi.Instance.ExistsApi(method)) {
             return true;
-        if (Main.ExistsApi(method))
+        }
+        if (Main.ExistsApi(method)) {
             return true;
+        }
         return false;
     }
-    internal static bool GetApi(string method, out StartupApi.ApiDelegation api)
+    internal static bool GetApi(string method, out StartupScript.ApiDelegation api)
     {
+        api = null;
+        if (null != OnGetApi) {
+            OnGetApi(method, out api);
+        }
+        if (null != api) {
+            return true;
+        }
         api = StartupApi.Instance.GetApi(method);
         if (null != api) {
             return true;
@@ -551,7 +571,7 @@ public static class StartupScript
         foreach (var p in funcData.Params) {
             CompileSyntaxComponent(p, bodySb, indent, true, gvars, lvars);
         }
-        foreach(var v in lvars) {
+        foreach (var v in lvars) {
             sb.AppendLine("{0}BoxedValue {1};", Literal.GetIndentString(indent), v);
         }
         sb.Append(bodySb);
@@ -571,7 +591,7 @@ public static class StartupScript
             }
             else {
                 var stmData = comp as Dsl.StatementData;
-                if(null != stmData) {
+                if (null != stmData) {
                     CompileStatementData(stmData, sb, indent, isStatement, gvars, lvars);
                 }
                 else {
@@ -746,7 +766,7 @@ public static class StartupScript
     }
     private static void CompileStatementBlock(Dsl.FunctionData funcData, StringBuilder sb, int indent, bool isStatement, SortedSet<string> gvars, SortedSet<string> lvars)
     {
-        foreach(var p in funcData.Params) {
+        foreach (var p in funcData.Params) {
             CompileSyntaxComponent(p, sb, indent, true, gvars, lvars);
         }
     }
