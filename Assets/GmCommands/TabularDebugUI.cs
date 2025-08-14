@@ -54,41 +54,31 @@ public class TabularDebugUI
         UiLoaded = false;
         UiInited = false;
 
-        if (null != ta)
-        {
+        if (null != ta) {
             string txt = ta.text;
             Dsl.DslFile file = new Dsl.DslFile();
-            if (file.LoadFromString(txt, LogSystem.Log))
-            {
-                foreach (var info in file.DslInfos)
-                {
+            if (file.LoadFromString(txt, LogSystem.Log)) {
+                foreach (var info in file.DslInfos) {
                     string type = info.GetId();
-                    if (type == "label")
-                    {
+                    if (type == "label") {
                         BuildLabel(info);
                     }
-                    else if (type == "input")
-                    {
+                    else if (type == "input") {
                         BuildInput(info);
                     }
-                    else if (type == "button")
-                    {
+                    else if (type == "button") {
                         BuildButton(info);
                     }
-                    else if (type == "dropdown")
-                    {
+                    else if (type == "dropdown") {
                         BuildDropdown(info);
                     }
-                    else if (type == "toggle")
-                    {
+                    else if (type == "toggle") {
                         BuildToggle(info);
                     }
-                    else if (type == "toggle_group")
-                    {
+                    else if (type == "toggle_group") {
                         BuildToggleGroup(info);
                     }
-                    else if (type == "slider")
-                    {
+                    else if (type == "slider") {
                         BuildSlider(info);
                     }
                 }
@@ -113,10 +103,8 @@ public class TabularDebugUI
 
         int totalCt = m_DebugUis.Count;
         int ix = 0;
-        for (int row = c_StartRow; row < c_CellRowNum && ix < totalCt; ++row)
-        {
-            for (int col = c_StartCol; col < c_StartCol + c_NumPerRow && ix < totalCt; ++col)
-            {
+        for (int row = c_StartRow; row < c_CellRowNum && ix < totalCt; ++row) {
+            for (int col = c_StartCol; col < c_StartCol + c_NumPerRow && ix < totalCt; ++col) {
                 string id = GenAutoId();
                 var uiInfo = m_DebugUis[ix];
                 ++ix;
@@ -124,8 +112,7 @@ public class TabularDebugUI
                 var buttonObj = AddToCell(ButtonTemplate, id, row, col);
                 var button = buttonObj.GetComponent<UnityEngine.UI.Button>();
                 var labelObj = buttonObj.transform.Find("Text (TMP)");
-                if (null != labelObj)
-                {
+                if (null != labelObj) {
                     var label = labelObj.GetComponent<TMPro.TextMeshProUGUI>();
                     label.text = uiInfo.Key;
 
@@ -147,25 +134,19 @@ public class TabularDebugUI
     }
     public void CheckTmpFont()
     {
-        if (!m_Font)
-        {
+        if (!m_Font) {
             var comps = GameObject.FindObjectsOfType<TMPro.TextMeshProUGUI>(true);
-            foreach (var comp in comps)
-            {
-                if (comp.font && comp.font.name.Contains(c_FontKey))
-                {
+            foreach (var comp in comps) {
+                if (comp.font && comp.font.name.Contains(c_FontKey)) {
                     m_Font = comp.font;
                     break;
                 }
             }
         }
-        if (m_Font)
-        {
+        if (m_Font) {
             var comps = m_RootUi.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true);
-            foreach (var comp in comps)
-            {
-                if (!comp.font)
-                {
+            foreach (var comp in comps) {
+                if (!comp.font) {
                     comp.font = m_Font;
                 }
             }
@@ -174,22 +155,19 @@ public class TabularDebugUI
 
     private void CallLoadUi(string uiRes)
     {
-        if (null != OnLoadUi)
-        {
+        if (null != OnLoadUi) {
             OnLoadUi(uiRes);
         }
     }
     private void CallShowUi()
     {
-        if (null != OnShowUi)
-        {
+        if (null != OnShowUi) {
             OnShowUi();
         }
     }
     private void CallInitUi(string uiRes)
     {
-        if (null != OnInitUi)
-        {
+        if (null != OnInitUi) {
             OnInitUi(uiRes);
         }
     }
@@ -199,10 +177,8 @@ public class TabularDebugUI
         float ratioRow = 1.0f / c_CellRowNum;
         float ratioCol = 1.0f / c_CellColNum;
         m_Cells = new RectTransform[c_CellRowNum, c_CellColNum];
-        for (int i = 0; i < c_CellRowNum; ++i)
-        {
-            for (int j = 0; j < c_CellColNum; ++j)
-            {
+        for (int i = 0; i < c_CellRowNum; ++i) {
+            for (int j = 0; j < c_CellColNum; ++j) {
                 var cellObj = new GameObject("cell" + i + "" + j);
                 cellObj.transform.SetParent(m_RootUi.transform);
                 var cell = cellObj.AddComponent<RectTransform>();
@@ -218,17 +194,14 @@ public class TabularDebugUI
     }
     private void ClearCells()
     {
-        foreach (var cell in m_Cells)
-        {
+        foreach (var cell in m_Cells) {
             var list = new List<GameObject>();
-            for (int ix = 0; ix < cell.childCount; ++ix)
-            {
+            for (int ix = 0; ix < cell.childCount; ++ix) {
                 var gobj = cell.GetChild(ix).gameObject;
                 list.Add(gobj);
             }
             cell.DetachChildren();
-            foreach (var gobj in list)
-            {
+            foreach (var gobj in list) {
                 StoryScriptUtility.DestroyObject(gobj);
             }
         }
@@ -239,15 +212,13 @@ public class TabularDebugUI
     private void BuildLabel(Dsl.ISyntaxComponent info)
     {
         var fd = info as Dsl.FunctionData;
-        if (null != fd)
-        {
+        if (null != fd) {
             var id = fd.GetParamId(0);
             id = ResolveId(id);
             var rowStr = fd.GetParamId(1);
             var colStr = fd.GetParamId(2);
             var caption = fd.GetParamId(3);
-            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col))
-            {
+            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
                 AddLabel(id, row, col, caption);
             }
         }
@@ -255,8 +226,7 @@ public class TabularDebugUI
     private void BuildInput(Dsl.ISyntaxComponent info)
     {
         var fd = info as Dsl.FunctionData;
-        if (null != fd)
-        {
+        if (null != fd) {
             var id = fd.GetParamId(0);
             id = ResolveId(id);
             var rowStr = fd.GetParamId(1);
@@ -265,8 +235,7 @@ public class TabularDebugUI
             var method = fd.GetParamId(4);
             bool hasDef = fd.GetParamNum() > 5;
             var defStr = hasDef ? fd.GetParamId(5) : string.Empty;
-            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col))
-            {
+            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
                 AddInput(id, row, col, dataType, method, hasDef, defStr);
             }
         }
@@ -274,16 +243,14 @@ public class TabularDebugUI
     private void BuildButton(Dsl.ISyntaxComponent info)
     {
         var fd = info as Dsl.FunctionData;
-        if (null != fd)
-        {
+        if (null != fd) {
             var id = fd.GetParamId(0);
             id = ResolveId(id);
             var rowStr = fd.GetParamId(1);
             var colStr = fd.GetParamId(2);
             var caption = fd.GetParamId(3);
             var method = fd.GetParamId(4);
-            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col))
-            {
+            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
                 AddButton(id, row, col, caption, method);
             }
         }
@@ -291,8 +258,7 @@ public class TabularDebugUI
     private void BuildDropdown(Dsl.ISyntaxComponent info)
     {
         var fd = info as Dsl.FunctionData;
-        if (null != fd && fd.IsHighOrder && fd.HaveStatement())
-        {
+        if (null != fd && fd.IsHighOrder && fd.HaveStatement()) {
             var cd = fd.LowerOrderFunction;
             var id = cd.GetParamId(0);
             id = ResolveId(id);
@@ -301,17 +267,14 @@ public class TabularDebugUI
             var method = cd.GetParamId(3);
             bool hasDef = fd.GetParamNum() > 4;
             var selStr = hasDef ? cd.GetParamId(4) : string.Empty;
-            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col))
-            {
+            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
                 var dropdown = AddDropdown(id, row, col, method);
                 var list = new List<string>();
-                foreach (var p in fd.Params)
-                {
+                foreach (var p in fd.Params) {
                     list.Add(p.GetId());
                 }
                 dropdown.AddOptions(list);
-                if (hasDef && int.TryParse(selStr, out var select))
-                {
+                if (hasDef && int.TryParse(selStr, out var select)) {
                     dropdown.value = select;
                 }
             }
@@ -320,8 +283,7 @@ public class TabularDebugUI
     private void BuildToggle(Dsl.ISyntaxComponent info)
     {
         var fd = info as Dsl.FunctionData;
-        if (null != fd)
-        {
+        if (null != fd) {
             var id = fd.GetParamId(0);
             id = ResolveId(id);
             var rowStr = fd.GetParamId(1);
@@ -330,8 +292,7 @@ public class TabularDebugUI
             var method = fd.GetParamId(4);
             bool hasDef = fd.GetParamNum() > 5;
             var checkStr = hasDef ? fd.GetParamId(5) : string.Empty;
-            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col))
-            {
+            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
                 AddToggle(id, row, col, caption, method, hasDef, checkStr == "true" || checkStr == "True");
             }
         }
@@ -339,21 +300,17 @@ public class TabularDebugUI
     private void BuildToggleGroup(Dsl.ISyntaxComponent info)
     {
         var fd = info as Dsl.FunctionData;
-        if (null != fd && fd.IsHighOrder && fd.HaveStatement())
-        {
+        if (null != fd && fd.IsHighOrder && fd.HaveStatement()) {
             var cd = fd.LowerOrderFunction;
             var id = cd.GetParamId(0);
             id = ResolveId(id);
             var rowStr = cd.GetParamId(1);
             var colStr = cd.GetParamId(2);
-            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col))
-            {
+            if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
                 var group = AddToggleGroup(id, row, col);
-                foreach (var p in fd.Params)
-                {
+                foreach (var p in fd.Params) {
                     var pfd = p as Dsl.FunctionData;
-                    if (null != pfd && pfd.GetId() == "toggle")
-                    {
+                    if (null != pfd && pfd.GetId() == "toggle") {
                         var pid = pfd.GetParamId(0);
                         pid = ResolveId(pid);
                         var pcap = pfd.GetParamId(1);
@@ -369,8 +326,7 @@ public class TabularDebugUI
     private void BuildSlider(Dsl.ISyntaxComponent info)
     {
         var fd = info as Dsl.FunctionData;
-        if (null != fd)
-        {
+        if (null != fd) {
             var id = fd.GetParamId(0);
             id = ResolveId(id);
             var rowStr = fd.GetParamId(1);
@@ -381,8 +337,7 @@ public class TabularDebugUI
             bool hasDef = fd.GetParamNum() > 6;
             var defValStr = hasDef ? fd.GetParamId(6) : string.Empty;
             if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)
-                && float.TryParse(minValStr, out var minVal) && float.TryParse(maxValStr, out var maxVal) && float.TryParse(defValStr, out var defVal))
-            {
+                && float.TryParse(minValStr, out var minVal) && float.TryParse(maxValStr, out var maxVal) && float.TryParse(defValStr, out var defVal)) {
                 AddSlider(id, row, col, method, minVal, maxVal, hasDef, defVal);
             }
         }
@@ -407,14 +362,12 @@ public class TabularDebugUI
             input.contentType = TMPro.TMP_InputField.ContentType.DecimalNumber;
         else
             input.contentType = TMPro.TMP_InputField.ContentType.Standard;
-        if (hasDef)
-        {
+        if (hasDef) {
             input.text = defStr;
         }
 
         var mobj = GetEventHandler<string>(method);
-        if (null != mobj)
-        {
+        if (null != mobj) {
             input.onValueChanged.AddListener(mobj);
         }
 
@@ -425,16 +378,14 @@ public class TabularDebugUI
         var buttonObj = AddToCell(ButtonTemplate, id, row, col);
         var button = buttonObj.GetComponent<UnityEngine.UI.Button>();
         var labelObj = buttonObj.transform.Find("Text (TMP)");
-        if (null != labelObj)
-        {
+        if (null != labelObj) {
             var label = labelObj.GetComponent<TMPro.TextMeshProUGUI>();
             label.text = caption;
 
             AddUiControl(id + "|Text", label);
         }
         var mobj = GetEventHandler(method);
-        if (null != mobj)
-        {
+        if (null != mobj) {
             button.onClick.AddListener(mobj);
         }
 
@@ -445,8 +396,7 @@ public class TabularDebugUI
         var dropdownObj = AddToCell(DropDownTemplate, id, row, col);
         var dropdown = dropdownObj.GetComponent<TMPro.TMP_Dropdown>();
         var mobj = GetEventHandler<int>(method);
-        if (null != mobj)
-        {
+        if (null != mobj) {
             dropdown.onValueChanged.AddListener(mobj);
         }
 
@@ -458,21 +408,18 @@ public class TabularDebugUI
         var toggleObj = AddToCell(ToggleTemplate, id, row, col);
         var toggle = toggleObj.GetComponent<UnityEngine.UI.Toggle>();
         var labelObj = toggleObj.transform.Find("Label");
-        if (null != labelObj)
-        {
+        if (null != labelObj) {
             var label = labelObj.GetComponent<Text>();
             label.text = caption;
 
             AddUiControl(id + "|Label", label);
         }
-        if (hasDef)
-        {
+        if (hasDef) {
             toggle.isOn = isChecked;
         }
         toggle.group = null;
         var mobj = GetEventHandler<bool>(method);
-        if (null != mobj)
-        {
+        if (null != mobj) {
             toggle.onValueChanged.AddListener(mobj);
         }
 
@@ -491,21 +438,18 @@ public class TabularDebugUI
         var toggleObj = AddToCell(ToggleTemplate, id, row, col);
         var toggle = toggleObj.GetComponent<UnityEngine.UI.Toggle>();
         var labelObj = toggleObj.transform.Find("Label");
-        if (null != labelObj)
-        {
+        if (null != labelObj) {
             var label = labelObj.GetComponent<Text>();
             label.text = caption;
 
             AddUiControl(id + "|Label", label);
         }
-        if (hasDef)
-        {
+        if (hasDef) {
             toggle.isOn = isChecked;
         }
         toggle.group = group;
         var mobj = GetEventHandler<bool>(method);
-        if (null != mobj)
-        {
+        if (null != mobj) {
             toggle.onValueChanged.AddListener(mobj);
         }
 
@@ -518,13 +462,11 @@ public class TabularDebugUI
         slider.minValue = minVal;
         slider.maxValue = maxVal;
         slider.wholeNumbers = false;
-        if (hasDef)
-        {
+        if (hasDef) {
             slider.value = defVal;
         }
         var mobj = GetEventHandler<float>(method);
-        if (null != mobj)
-        {
+        if (null != mobj) {
             slider.onValueChanged.AddListener(mobj);
         }
 
@@ -568,22 +510,19 @@ public class TabularDebugUI
     {
         var t = ApiObject.GetType();
         var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (null != mi)
-        {
+        if (null != mi) {
             var delegation = System.Delegate.CreateDelegate(typeof(UnityAction), ApiObject, mi, false);
             if (null != delegation)
-                return (UnityAction) delegation;
+                return (UnityAction)delegation;
             else
                 return () => { mi.Invoke(ApiObject, null); };
         }
-        else
-        {
+        else {
             mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            if (null != mi)
-            {
+            if (null != mi) {
                 var delegation = System.Delegate.CreateDelegate(typeof(UnityAction), mi, false);
                 if (null != delegation)
-                    return (UnityAction) delegation;
+                    return (UnityAction)delegation;
                 else
                     return () => { mi.Invoke(null, null); };
             }
@@ -594,22 +533,19 @@ public class TabularDebugUI
     {
         var t = ApiObject.GetType();
         var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (null != mi)
-        {
+        if (null != mi) {
             var delegation = System.Delegate.CreateDelegate(typeof(UnityAction<T>), ApiObject, mi, false);
             if (null != delegation)
-                return (UnityAction<T>) delegation;
+                return (UnityAction<T>)delegation;
             else
                 return (T val) => { mi.Invoke(ApiObject, new object[] { val }); };
         }
-        else
-        {
+        else {
             mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            if (null != mi)
-            {
+            if (null != mi) {
                 var delegation = System.Delegate.CreateDelegate(typeof(UnityAction<T>), mi, false);
                 if (null != delegation)
-                    return (UnityAction<T>) delegation;
+                    return (UnityAction<T>)delegation;
                 else
                     return (T val) => { mi.Invoke(null, new object[] { val }); };
             }

@@ -84,8 +84,8 @@ public class UiHandler : MonoBehaviour
 
     //Event handling corresponding to TestUI configuration
     private void InitTestUi()
-	{
-	}
+    {
+    }
     private void OnButton()
     {
         LogSystem.Warn("OnButton");
@@ -114,6 +114,6 @@ public class UiHandler : MonoBehaviour
 
     private TabularDebugUI m_DebugUi = new TabularDebugUI(new List<KeyValuePair<string, string>>
         {
-        	KeyValuePair.Create(c_TestUI, c_TestUI),
+            KeyValuePair.Create(c_TestUI, c_TestUI),
         });
 }

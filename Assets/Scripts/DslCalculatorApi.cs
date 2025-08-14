@@ -26,11 +26,9 @@ namespace StoryScript.DslExpression
         protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             UnityEngine.Object r = null;
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var instId = operands[0].GetInt();
-                if (instId != 0)
-                {
+                if (instId != 0) {
                     var o = typeof(UnityEngine.Object).InvokeMember("FindObjectFromInstanceID", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.InvokeMethod, null, null, new object[] { instId });
                     r = o as UnityEngine.Object;
                 }
@@ -43,11 +41,9 @@ namespace StoryScript.DslExpression
         protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             int r = 0;
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var obj = operands[0].As<UnityEngine.Object>();
-                if (null != obj)
-                {
+                if (null != obj) {
                     r = obj.GetInstanceID();
                 }
             }

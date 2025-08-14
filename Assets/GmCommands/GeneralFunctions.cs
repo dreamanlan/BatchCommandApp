@@ -32,15 +32,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -77,15 +75,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -168,15 +164,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -191,16 +185,20 @@ namespace GmCommands
                     UnityEngine.GameObject obj = UnityEngine.GameObject.Find(objPath);
                     if (null != obj) {
                         m_Value = obj.activeSelf ? 1 : 0;
-                    } else {
+                    }
+                    else {
                         m_Value = 0;
                     }
-                } else if (null != uobj) {
+                }
+                else if (null != uobj) {
                     m_Value = uobj.activeSelf ? 1 : 0;
-                } else {
+                }
+                else {
                     try {
                         int objId = o.GetInt();
                         m_Value = 0;
-                    } catch {
+                    }
+                    catch {
                         m_Value = 0;
                     }
                 }
@@ -238,15 +236,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -261,16 +257,20 @@ namespace GmCommands
                     UnityEngine.GameObject obj = UnityEngine.GameObject.Find(objPath);
                     if (null != obj) {
                         m_Value = obj.activeInHierarchy ? 1 : 0;
-                    } else {
+                    }
+                    else {
                         m_Value = 0;
                     }
-                } else if (null != uobj) {
+                }
+                else if (null != uobj) {
                     m_Value = uobj.activeInHierarchy ? 1 : 0;
-                } else {
+                }
+                else {
                     try {
                         int objId = o.GetInt();
                         m_Value = 0;
-                    } catch {
+                    }
+                    catch {
                         m_Value = 0;
                     }
                 }
@@ -308,15 +308,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -330,11 +328,13 @@ namespace GmCommands
                 if (null == uobj) {
                     if (null != objPath) {
                         uobj = UnityEngine.GameObject.Find(objPath);
-                    } else {
+                    }
+                    else {
                         try {
                             int objId = o.GetInt();
                             uobj = null;
-                        } catch {
+                        }
+                        catch {
                             uobj = null;
                         }
                     }
@@ -343,10 +343,12 @@ namespace GmCommands
                     var renderer = uobj.GetComponentInChildren<UnityEngine.Renderer>();
                     if (null != renderer) {
                         m_Value = renderer.isVisible ? 1 : 0;
-                    } else {
+                    }
+                    else {
                         m_Value = 0;
                     }
-                } else {
+                }
+                else {
                     m_Value = 0;
                 }
             }
@@ -386,15 +388,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -409,11 +409,13 @@ namespace GmCommands
                     string path = objPath.IsString ? objPath.StringVal : null;
                     if (null != path) {
                         obj = UnityEngine.GameObject.Find(path);
-                    } else {
+                    }
+                    else {
                         try {
                             int objId = objPath.GetInt();
                             obj = null;
-                        } catch {
+                        }
+                        catch {
                             obj = null;
                         }
                     }
@@ -423,7 +425,8 @@ namespace GmCommands
                     if (null != t) {
                         UnityEngine.Component component = obj.GetComponent(t);
                         m_Value = component;
-                    } else {
+                    }
+                    else {
                         string name = componentType.IsString ? componentType.StringVal : null;
                         if (null != name) {
                             UnityEngine.Component component = obj.GetComponent(name);
@@ -630,7 +633,8 @@ namespace GmCommands
                             if (null != t) {
                                 UnityEngine.Component component = obj.GetComponentInChildren(t, includeInactive != 0);
                                 m_Value = component;
-                            } else {
+                            }
+                            else {
                                 m_Value = BoxedValue.NullObject;
                             }
                         }
@@ -728,7 +732,8 @@ namespace GmCommands
                                     m_Value = comps;
                                 else
                                     m_Value = new List<UnityEngine.Component>();
-                            } else {
+                            }
+                            else {
                                 m_Value = new List<UnityEngine.Component>();
                             }
                         }
@@ -1000,15 +1005,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -1032,15 +1035,18 @@ namespace GmCommands
                     obj = UnityEngine.GameObject.Find(objPath);
                     if (null != obj) {
                         m_Value = obj;
-                    } else {
+                    }
+                    else {
                         m_Value = BoxedValue.NullObject;
                     }
-                } else {
+                }
+                else {
                     try {
                         int objId = o.GetInt();
                         obj = null;
                         m_Value = obj;
-                    } catch {
+                    }
+                    catch {
                         m_Value = BoxedValue.NullObject;
                     }
                 }
@@ -1100,7 +1106,8 @@ namespace GmCommands
                     p.InitFromDsl(callData.GetParam(i));
                     m_DisableComponents.Add(p);
                 }
-            } else if (id == "remove") {
+            }
+            else if (id == "remove") {
                 for (int i = 0; i < callData.GetParamNum(); ++i) {
                     var p = new StoryFunction<string>();
                     p.InitFromDsl(callData.GetParam(i));
@@ -1143,15 +1150,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -1166,20 +1171,25 @@ namespace GmCommands
                     var obj = UnityEngine.GameObject.Find(objPath);
                     if (null != obj && null != obj.transform.parent) {
                         m_Value = obj.transform.parent.gameObject;
-                    } else {
+                    }
+                    else {
                         m_Value = BoxedValue.NullObject;
                     }
-                } else if (null != uobj) {
+                }
+                else if (null != uobj) {
                     if (null != uobj.transform.parent) {
                         m_Value = uobj.transform.parent.gameObject;
-                    } else {
+                    }
+                    else {
                         m_Value = BoxedValue.NullObject;
                     }
-                } else {
+                }
+                else {
                     try {
                         int objId = o.GetInt();
                         m_Value = BoxedValue.NullObject;
-                    } catch {
+                    }
+                    catch {
                         m_Value = BoxedValue.NullObject;
                     }
                 }
@@ -1220,15 +1230,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -1246,24 +1254,30 @@ namespace GmCommands
                         var t = StoryScriptUtility.FindChildRecursive(obj.transform, childPath);
                         if (null != t) {
                             m_Value = t.gameObject;
-                        } else {
+                        }
+                        else {
                             m_Value = BoxedValue.NullObject;
                         }
-                    } else {
+                    }
+                    else {
                         m_Value = BoxedValue.NullObject;
                     }
-                } else if (null != uobj) {
+                }
+                else if (null != uobj) {
                     var t = StoryScriptUtility.FindChildRecursive(uobj.transform, childPath);
                     if (null != t) {
                         m_Value = t.gameObject;
-                    } else {
+                    }
+                    else {
                         m_Value = BoxedValue.NullObject;
                     }
-                } else {
+                }
+                else {
                     try {
                         int objId = o.GetInt();
                         m_Value = BoxedValue.NullObject;
-                    } catch {
+                    }
+                    catch {
                         m_Value = BoxedValue.NullObject;
                     }
                 }
@@ -1303,15 +1317,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -1327,10 +1339,12 @@ namespace GmCommands
                     Type t = Type.GetType(typeName);
                     if (null != t) {
                         m_Value = t;
-                    } else {
+                    }
+                    else {
                         m_Value = BoxedValue.NullObject;
                     }
-                } else {
+                }
+                else {
                     m_Value = BoxedValue.NullObject;
                 }
             }
@@ -1367,15 +1381,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -1391,10 +1403,12 @@ namespace GmCommands
                     Type t = Type.GetType(typeName);
                     if (null != t) {
                         m_Value = t;
-                    } else {
+                    }
+                    else {
                         m_Value = BoxedValue.NullObject;
                     }
-                } else {
+                }
+                else {
                     m_Value = BoxedValue.NullObject;
                 }
             }
@@ -1431,15 +1445,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -1453,10 +1465,12 @@ namespace GmCommands
                     Type t = Type.GetType(typeName);
                     if (null != t) {
                         m_Value = t;
-                    } else {
+                    }
+                    else {
                         m_Value = BoxedValue.NullObject;
                     }
-                } else {
+                }
+                else {
                     m_Value = BoxedValue.NullObject;
                 }
             }
@@ -1496,12 +1510,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -1579,12 +1595,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -1662,12 +1680,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -1745,12 +1765,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -1828,12 +1850,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -1911,12 +1935,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -1994,12 +2020,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2077,12 +2105,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2154,12 +2184,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2225,12 +2257,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2296,12 +2330,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2367,12 +2403,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2440,15 +2478,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -2492,15 +2528,13 @@ namespace GmCommands
         }
         public bool HaveValue
         {
-            get
-            {
+            get {
                 return m_HaveValue;
             }
         }
         public BoxedValue Value
         {
-            get
-            {
+            get {
                 return m_Value;
             }
         }
@@ -2544,12 +2578,14 @@ namespace GmCommands
             m_Path.Evaluate(instance, handler, iterator, args);
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2593,12 +2629,14 @@ namespace GmCommands
             m_Path.Evaluate(instance, handler, iterator, args);
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2642,12 +2680,14 @@ namespace GmCommands
             m_Path.Evaluate(instance, handler, iterator, args);
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2694,12 +2734,14 @@ namespace GmCommands
             m_Path2.Evaluate(instance, handler, iterator, args);
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2739,12 +2781,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2778,12 +2822,14 @@ namespace GmCommands
 
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2850,12 +2896,14 @@ namespace GmCommands
             }
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }
@@ -2925,12 +2973,14 @@ namespace GmCommands
                 m_Code.Evaluate(instance, handler, iterator, args);
             TryUpdateValue(instance);
         }
-        public bool HaveValue {
+        public bool HaveValue
+        {
             get {
                 return m_HaveValue;
             }
         }
-        public BoxedValue Value {
+        public BoxedValue Value
+        {
             get {
                 return m_Value;
             }

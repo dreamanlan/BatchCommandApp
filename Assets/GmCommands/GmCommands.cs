@@ -19,7 +19,7 @@ using Unity.Profiling;
 
 namespace GmCommands
 {
-    internal static class AndroidNativeUtil
+    public static class AndroidNativeUtil
     {
         private static AndroidJavaClass s_debugJavaClass;
         private static AndroidJavaObject s_memInfoObj;
@@ -74,7 +74,7 @@ namespace GmCommands
             return value;
         }
     }
-    internal static class IOSNativeUtil
+    public static class IOSNativeUtil
     {
 #if UNITY_IPHONE && !UNITY_EDITOR
 	    [DllImport("__Internal")]
@@ -119,7 +119,7 @@ namespace GmCommands
             return result;
         }
     }
-    internal static class WinNativeUtil
+    public static class WinNativeUtil
     {
         private static System.Diagnostics.Process s_process = null;
 
@@ -138,7 +138,7 @@ namespace GmCommands
 #if UNITY_STANDALONE_WIN
         public static MEMORY_STATUS_EX globalMemoryStatus = new MEMORY_STATUS_EX();
         public static PROCESS_MEMORY_COUNTERS_EX2 processMemoryStatus = new PROCESS_MEMORY_COUNTERS_EX2();
-        
+
         [StructLayout(LayoutKind.Sequential, Size = 40)]
         public struct PROCESS_MEMORY_COUNTERS
         {
@@ -153,7 +153,7 @@ namespace GmCommands
             public UIntPtr PagefileUsage;
             public UIntPtr PeakPagefileUsage;
         }
-        
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public class MEMORY_STATUS_EX
         {
@@ -176,26 +176,26 @@ namespace GmCommands
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public class PROCESS_MEMORY_COUNTERS_EX2
         {
-            public uint    cb;
-            public uint    PageFaultCount;
-            public ulong   PeakWorkingSetSize;
-            public ulong   WorkingSetSize;
-            public ulong   QuotaPeakPagedPoolUsage;
-            public ulong   QuotaPagedPoolUsage;
-            public ulong   QuotaPeakNonPagedPoolUsage;
-            public ulong   QuotaNonPagedPoolUsage;
-            public ulong   PagefileUsage;
-            public ulong   PeakPagefileUsage;
-            public ulong   PrivateUsage;
-            public ulong   PrivateWorkingSetSize;
-            public UInt64  SharedCommitUsage;
+            public uint cb;
+            public uint PageFaultCount;
+            public ulong PeakWorkingSetSize;
+            public ulong WorkingSetSize;
+            public ulong QuotaPeakPagedPoolUsage;
+            public ulong QuotaPagedPoolUsage;
+            public ulong QuotaPeakNonPagedPoolUsage;
+            public ulong QuotaNonPagedPoolUsage;
+            public ulong PagefileUsage;
+            public ulong PeakPagefileUsage;
+            public ulong PrivateUsage;
+            public ulong PrivateWorkingSetSize;
+            public UInt64 SharedCommitUsage;
 
             public PROCESS_MEMORY_COUNTERS_EX2()
             {
                 cb = (uint)Marshal.SizeOf(typeof(PROCESS_MEMORY_COUNTERS_EX2));
             }
         }
-        
+
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
@@ -208,7 +208,7 @@ namespace GmCommands
         [DllImport("psapi.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetProcessMemoryInfo([In] IntPtr processHandle, [In, Out] PROCESS_MEMORY_COUNTERS_EX2 ppsmemCounters, [In] uint cb);
-        
+
         [DllImport("Kernel32.dll")]
         private static extern void ExitProcess(uint uExitCode);
 
@@ -224,17 +224,15 @@ namespace GmCommands
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GlobalMemoryStatusEx([In, Out] MEMORY_STATUS_EX lpBuffer);
-        
+
         public static ulong GetProcessMemoryInfoWorkingSetSize()
         {
             var counters = new PROCESS_MEMORY_COUNTERS();
-            counters.cb = (uint) Marshal.SizeOf(typeof(PROCESS_MEMORY_COUNTERS));
-            if (GetProcessMemoryInfo(CurProcess.Handle, out counters, counters.cb))
-            {
+            counters.cb = (uint)Marshal.SizeOf(typeof(PROCESS_MEMORY_COUNTERS));
+            if (GetProcessMemoryInfo(CurProcess.Handle, out counters, counters.cb)) {
                 return counters.WorkingSetSize.ToUInt64();
             }
-            else
-            {
+            else {
                 return 0;
             }
         }
@@ -261,21 +259,21 @@ namespace GmCommands
         public static void ProcessExit(int code)
         {
 #if UNITY_STANDALONE_WIN
-            ExitProcess((uint) code);
+            ExitProcess((uint)code);
 #endif
         }
 
         public static void ProcessTerminateHandle(int code)
         {
 #if UNITY_STANDALONE_WIN
-            TerminateProcess(CurProcess.Handle, (uint) code);
+            TerminateProcess(CurProcess.Handle, (uint)code);
 #endif
         }
 
         public static void ProcessTerminateNativeHandle(int code)
         {
 #if UNITY_STANDALONE_WIN
-            TerminateProcess(GetCurrentProcess(), (uint) code);
+            TerminateProcess(GetCurrentProcess(), (uint)code);
 #endif
         }
 
@@ -290,8 +288,7 @@ namespace GmCommands
         public static bool RefreshGlobalMemoryStatus()
         {
 #if UNITY_STANDALONE_WIN
-            if (GlobalMemoryStatusEx(globalMemoryStatus))
-            {
+            if (GlobalMemoryStatusEx(globalMemoryStatus)) {
                 return true;
             }
 #endif
@@ -301,37 +298,36 @@ namespace GmCommands
         public static bool RefreshProcessMemoryStatusEx2()
         {
 #if UNITY_STANDALONE_WIN
-            if (GetProcessMemoryInfo(CurProcess.Handle, processMemoryStatus, processMemoryStatus.cb))
-            {
+            if (GetProcessMemoryInfo(CurProcess.Handle, processMemoryStatus, processMemoryStatus.cb)) {
                 return true;
             }
 #endif
             return false;
         }
     }
-    internal static class ProfilerForGM
+    public static class ProfilerForGM
     {
-        internal static long GetAllocatorCount()
+        public static long GetAllocatorCount()
         {
             return 0;
         }
-        internal static long GetTotalAllocationCount()
+        public static long GetTotalAllocationCount()
         {
             return 0;
         }
-        internal static long GetMallocLLAllocBytes()
+        public static long GetMallocLLAllocBytes()
         {
             return 0;
         }
-        internal static long GetMallocOverrideBytes()
+        public static long GetMallocOverrideBytes()
         {
             return 0;
         }
-        internal static long GetTotalProfilerMemoryLong()
+        public static long GetTotalProfilerMemoryLong()
         {
             return 0;
         }
-        internal static int GetFPS()
+        public static int GetFPS()
         {
             float time = GetMainThreadFrameTime();
             if (time > float.Epsilon) {
@@ -339,7 +335,7 @@ namespace GmCommands
             }
             return 60;
         }
-        internal static float GetMainThreadFrameTime()
+        public static float GetMainThreadFrameTime()
         {
             int ix = (int)StatIndexEnum.GameTime;
             if (ix < s_Datas.Count) {
@@ -347,7 +343,7 @@ namespace GmCommands
             }
             return 0.0f;
         }
-        internal static float GetRenderThreadFrameTime()
+        public static float GetRenderThreadFrameTime()
         {
             int ix = (int)StatIndexEnum.RenderTime;
             if (ix < s_Datas.Count) {
@@ -355,7 +351,7 @@ namespace GmCommands
             }
             return 0.0f;
         }
-        internal static int GetVertsCount()
+        public static int GetVertsCount()
         {
 #if UNITY_EDITOR
             return 0;
@@ -367,7 +363,7 @@ namespace GmCommands
             return 0;
 #endif
         }
-        internal static int GetTriangleCount()
+        public static int GetTriangleCount()
         {
 #if UNITY_EDITOR
             return 0;
@@ -379,7 +375,7 @@ namespace GmCommands
             return 0;
 #endif
         }
-        internal static int GetDrawCallCount()
+        public static int GetDrawCallCount()
         {
 #if UNITY_EDITOR
             return 0;
@@ -391,7 +387,7 @@ namespace GmCommands
             return 0;
 #endif
         }
-        internal static int GetSetPassCalls()
+        public static int GetSetPassCalls()
         {
 #if UNITY_EDITOR
             return 0;
@@ -403,48 +399,48 @@ namespace GmCommands
             return 0;
 #endif
         }
-        internal static long GetUsedTextureBytes()
+        public static long GetUsedTextureBytes()
         {
             return 0;
         }
-        internal static int GetUsedTextureCount()
+        public static int GetUsedTextureCount()
         {
             return 0;
         }
 
-        internal static long GetRuntimeMemorySizeLong(UnityEngine.Object o)
+        public static long GetRuntimeMemorySizeLong(UnityEngine.Object o)
         {
             return Profiler.GetRuntimeMemorySizeLong(o);
         }
-        internal static long GetMonoHeapSizeLong()
+        public static long GetMonoHeapSizeLong()
         {
             return Profiler.GetMonoHeapSizeLong();
         }
-        internal static long GetMonoUsedSizeLong()
+        public static long GetMonoUsedSizeLong()
         {
             return Profiler.GetMonoHeapSizeLong();
         }
-        internal static long GetUsedHeapSize()
+        public static long GetUsedHeapSize()
         {
             return Profiler.usedHeapSizeLong;
         }
-        internal static uint GetTempAllocatorSize()
+        public static uint GetTempAllocatorSize()
         {
             return Profiler.GetTempAllocatorSize();
         }
-        internal static long GetTotalAllocatedMemoryLong()
+        public static long GetTotalAllocatedMemoryLong()
         {
             return Profiler.GetTotalAllocatedMemoryLong();
         }
-        internal static long GetTotalUnusedReservedMemoryLong()
+        public static long GetTotalUnusedReservedMemoryLong()
         {
             return Profiler.GetTotalUnusedReservedMemoryLong();
         }
-        internal static long GetTotalReservedMemoryLong()
+        public static long GetTotalReservedMemoryLong()
         {
             return Profiler.GetTotalReservedMemoryLong();
         }
-        internal static long GetAllocatedMemoryForGraphicsDriver()
+        public static long GetAllocatedMemoryForGraphicsDriver()
         {
             return Profiler.GetAllocatedMemoryForGraphicsDriver();
         }
@@ -477,8 +473,8 @@ namespace GmCommands
         internal static void Stop()
         {
             s_Started = false;
-			
-            foreach(var data in s_Datas) {
+
+            foreach (var data in s_Datas) {
                 data.profilerRecorder.Stop();
                 data.profilerRecorder.Dispose();
             }
@@ -1025,7 +1021,7 @@ namespace GmCommands
             var vals = _params.Values;
             if (vals.Count >= 1) {
                 string p = vals[0].AsString;
-                if(!string.IsNullOrEmpty(p) && File.Exists(p)) {
+                if (!string.IsNullOrEmpty(p) && File.Exists(p)) {
                     path = p;
                 }
             }
@@ -1562,8 +1558,7 @@ namespace GmCommands
         {
             result.Value = BoxedValue.NullObject;
             var instId = _params.Param1Value;
-            if (instId != 0)
-            {
+            if (instId != 0) {
                 var o = typeof(UnityEngine.Object).InvokeMember("FindObjectFromInstanceID", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.InvokeMethod, null, null, new object[] { instId });
                 result.Value = o as UnityEngine.Object;
             }
@@ -1575,8 +1570,7 @@ namespace GmCommands
         {
             result.Value = 0;
             var obj = _params.Param1Value;
-            if (null != obj)
-            {
+            if (null != obj) {
                 result.Value = obj.GetInstanceID();
             }
         }
@@ -2176,7 +2170,7 @@ namespace GmCommands
             }
         }
     }
-    internal sealed class RaycastUisFunction : SimpleStoryFunctionBase<RaycastUisFunction, StoryFunctionParam<float, float>>
+    public sealed class RaycastUisFunction : SimpleStoryFunctionBase<RaycastUisFunction, StoryFunctionParam<float, float>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<float, float> _params, StoryFunctionResult result)
         {
@@ -2184,7 +2178,7 @@ namespace GmCommands
             float y = _params.Param2Value;
             result.Value = BoxedValue.FromObject(GetUiObjectsUnderMouse(new Vector2(x, y)));
         }
-        internal static List<UnityEngine.EventSystems.RaycastResult> GetUiObjectsUnderMouse(Vector2 pos)
+        public static List<UnityEngine.EventSystems.RaycastResult> GetUiObjectsUnderMouse(Vector2 pos)
         {
             List<UnityEngine.EventSystems.RaycastResult> results = new List<UnityEngine.EventSystems.RaycastResult>();
 
@@ -2203,7 +2197,7 @@ namespace GmCommands
             return results;
         }
     }
-    internal sealed class RaycastComponentsFunction : SimpleStoryFunctionBase<RaycastComponentsFunction, StoryFunctionParam<float, float, object, bool>>
+    public sealed class RaycastComponentsFunction : SimpleStoryFunctionBase<RaycastComponentsFunction, StoryFunctionParam<float, float, object, bool>>
     {
         protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<float, float, object, bool> _params, StoryFunctionResult result)
         {
@@ -2217,7 +2211,7 @@ namespace GmCommands
                 result.Value = BoxedValue.FromObject(list);
             }
         }
-        internal static List<Component> GetUiComponentsUnderMouse(Vector2 pos, object typeObj, bool include_inactive)
+        public static List<Component> GetUiComponentsUnderMouse(Vector2 pos, object typeObj, bool include_inactive)
         {
             var type = typeObj as Type;
             var typeStr = typeObj as string;
@@ -2787,7 +2781,7 @@ namespace GmCommands
             string key = args[0].GetString();
             Vector4Obj v4obj = null;
             float interval = 0.1f;
-            switch(args.Count) {
+            switch (args.Count) {
                 case 1://setviewer(key)
                     break;
                 case 2://setviewer(key,rect)
@@ -2828,10 +2822,10 @@ namespace GmCommands
         }
         internal static Transform GetCameraTarget()
         {
-            var root  = GameObject.Find("LookPos");
+            var root = GameObject.Find("LookPos");
             if (null != root) {
-				return root.transform;
-			}
+                return root.transform;
+            }
             var camera = Camera.main;
             if (null == camera)
                 camera = Camera.current;

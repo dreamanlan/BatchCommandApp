@@ -45,7 +45,7 @@ public sealed class GmRootScript : MonoBehaviour
                     }
                     m_LastClipboardTime = curTime;
                 }
-                else if(m_LastClipboardTime > curTime) {
+                else if (m_LastClipboardTime > curTime) {
                     m_LastClipboardTime = 0;
                 }
             }
@@ -57,7 +57,7 @@ public sealed class GmRootScript : MonoBehaviour
                 GmCommands.ProfilerForGM.Update();
             }
             HandleLog();
-            if(m_LastTaskCleanupTime + c_TaskCleanupInterval < curTime) {
+            if (m_LastTaskCleanupTime + c_TaskCleanupInterval < curTime) {
                 CleanupCompletedTasks();
             }
         }
@@ -85,7 +85,7 @@ public sealed class GmRootScript : MonoBehaviour
     }
     private void TryInitGmRoot()
     {
-        if(m_Inited) return;
+        if (m_Inited) return;
         m_Inited = true;
 
         s_application_identifier = Application.identifier;
@@ -255,8 +255,7 @@ public sealed class GmRootScript : MonoBehaviour
     {
         if (null == s_GameObj) {
             var prefab = LoadRes("GmScript");
-            if (prefab == null)
-            {
+            if (prefab == null) {
                 LogSystem.Error("[GmScript] GmScript.prefab load failed");
                 return;
             }
@@ -347,7 +346,7 @@ public sealed class GmRootScript : MonoBehaviour
                     int ct = 0;
                     var sb = new StringBuilder();
                     sb.AppendLine();
-                    foreach(var line in lines) {
+                    foreach (var line in lines) {
                         var logLine = line.TrimEnd();
                         LogSystem.Warn("{0}", logLine);
                         sb.AppendLine(logLine);
@@ -416,8 +415,7 @@ public sealed class GmRootScript : MonoBehaviour
 
     internal static int GetAndroidSdkInt()
     {
-        using (var versionClass = new AndroidJavaClass("android.os.Build$VERSION"))
-        {
+        using (var versionClass = new AndroidJavaClass("android.os.Build$VERSION")) {
             return versionClass.GetStatic<int>("SDK_INT");
         }
     }
@@ -497,7 +495,7 @@ public sealed class GmRootScript : MonoBehaviour
     internal static BoxedValue GetPlayerPrefByJava(string key, BoxedValue defval)
     {
         BoxedValue ret = BoxedValue.EmptyString;
-        string prefsName = Application.identifier+ ".v2.playerprefs";
+        string prefsName = Application.identifier + ".v2.playerprefs";
 
         using (var unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
             using (var unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity")) {
@@ -506,13 +504,13 @@ public sealed class GmRootScript : MonoBehaviour
                         if (null != context) {
                             using (var prefs = context.Call<AndroidJavaObject>("getSharedPreferences", prefsName, 0)) {
                                 if (null != prefs) {
-                                    if(defval.IsInteger) {
+                                    if (defval.IsInteger) {
                                         ret = prefs.Call<int>("getInt", key, defval.GetInt());
                                     }
-                                    else if(defval.IsNumber) {
+                                    else if (defval.IsNumber) {
                                         ret = prefs.Call<float>("getFloat", key, defval.GetFloat());
                                     }
-                                    else if(defval.IsString) {
+                                    else if (defval.IsString) {
                                         ret = prefs.Call<string>("getString", key, defval.GetString());
                                     }
                                 }
@@ -571,84 +569,84 @@ public sealed class GmRootScript : MonoBehaviour
                         if (list.Count > 0) {
                             var bv = BoxedValue.FromObject(list[0]);
                             switch (bv.Type) {
-                                    case BoxedValue.c_StringType: {
-                                            var arr = new string[list.Count];
-                                            for (int ix = 0; ix < arr.Length; ++ix) {
-                                                arr[ix] = list[ix] as string;
-                                            }
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                case BoxedValue.c_StringType: {
+                                        var arr = new string[list.Count];
+                                        for (int ix = 0; ix < arr.Length; ++ix) {
+                                            arr[ix] = list[ix] as string;
                                         }
-                                        break;
-                                    case BoxedValue.c_BoolType: {
-                                            var arr = new bool[list.Count];
-                                            for (int ix = 0; ix < arr.Length; ++ix) {
-                                                arr[ix] = (bool)list[ix];
-                                            }
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                    }
+                                    break;
+                                case BoxedValue.c_BoolType: {
+                                        var arr = new bool[list.Count];
+                                        for (int ix = 0; ix < arr.Length; ++ix) {
+                                            arr[ix] = (bool)list[ix];
                                         }
-                                        break;
-                                    case BoxedValue.c_CharType: {
-                                            var arr = new char[list.Count];
-                                            for (int ix = 0; ix < arr.Length; ++ix) {
-                                                arr[ix] = (char)list[ix];
-                                            }
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                    }
+                                    break;
+                                case BoxedValue.c_CharType: {
+                                        var arr = new char[list.Count];
+                                        for (int ix = 0; ix < arr.Length; ++ix) {
+                                            arr[ix] = (char)list[ix];
                                         }
-                                        break;
-                                    case BoxedValue.c_SByteType:
-                                    case BoxedValue.c_ByteType: {
-                                            var arr = new sbyte[list.Count];
-                                            for (int ix = 0; ix < arr.Length; ++ix) {
-                                                arr[ix] = (sbyte)list[ix];
-                                            }
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                    }
+                                    break;
+                                case BoxedValue.c_SByteType:
+                                case BoxedValue.c_ByteType: {
+                                        var arr = new sbyte[list.Count];
+                                        for (int ix = 0; ix < arr.Length; ++ix) {
+                                            arr[ix] = (sbyte)list[ix];
                                         }
-                                        break;
-                                    case BoxedValue.c_ShortType:
-                                    case BoxedValue.c_UShortType: {
-                                            var arr = new short[list.Count];
-                                            for (int ix = 0; ix < arr.Length; ++ix) {
-                                                arr[ix] = (short)list[ix];
-                                            }
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                    }
+                                    break;
+                                case BoxedValue.c_ShortType:
+                                case BoxedValue.c_UShortType: {
+                                        var arr = new short[list.Count];
+                                        for (int ix = 0; ix < arr.Length; ++ix) {
+                                            arr[ix] = (short)list[ix];
                                         }
-                                        break;
-                                    case BoxedValue.c_IntType:
-                                    case BoxedValue.c_UIntType: {
-                                            var arr = new int[list.Count];
-                                            for (int ix = 0; ix < arr.Length; ++ix) {
-                                                arr[ix] = (int)list[ix];
-                                            }
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                    }
+                                    break;
+                                case BoxedValue.c_IntType:
+                                case BoxedValue.c_UIntType: {
+                                        var arr = new int[list.Count];
+                                        for (int ix = 0; ix < arr.Length; ++ix) {
+                                            arr[ix] = (int)list[ix];
                                         }
-                                        break;
-                                    case BoxedValue.c_LongType:
-                                    case BoxedValue.c_ULongType: {
-                                            var arr = new long[list.Count];
-                                            for (int ix = 0; ix < arr.Length; ++ix) {
-                                                arr[ix] = (long)list[ix];
-                                            }
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                    }
+                                    break;
+                                case BoxedValue.c_LongType:
+                                case BoxedValue.c_ULongType: {
+                                        var arr = new long[list.Count];
+                                        for (int ix = 0; ix < arr.Length; ++ix) {
+                                            arr[ix] = (long)list[ix];
                                         }
-                                        break;
-                                    case BoxedValue.c_FloatType:
-                                    case BoxedValue.c_DecimalType: {
-                                            var arr = new float[list.Count];
-                                            for (int ix = 0; ix < arr.Length; ++ix) {
-                                                arr[ix] = (float)list[ix];
-                                            }
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                    }
+                                    break;
+                                case BoxedValue.c_FloatType:
+                                case BoxedValue.c_DecimalType: {
+                                        var arr = new float[list.Count];
+                                        for (int ix = 0; ix < arr.Length; ++ix) {
+                                            arr[ix] = (float)list[ix];
                                         }
-                                        break;
-                                    case BoxedValue.c_DoubleType: {
-                                            var arr = new double[list.Count];
-                                            for (int ix = 0; ix < arr.Length; ++ix) {
-                                                arr[ix] = (double)list[ix];
-                                            }
-                                            intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                        intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                    }
+                                    break;
+                                case BoxedValue.c_DoubleType: {
+                                        var arr = new double[list.Count];
+                                        for (int ix = 0; ix < arr.Length; ++ix) {
+                                            arr[ix] = (double)list[ix];
                                         }
-                                        break;
-                                }
+                                        intent.Call<AndroidJavaObject>("putExtra", extraName, arr);
+                                    }
+                                    break;
+                            }
                         }
                     }
                 }
@@ -1062,7 +1060,7 @@ internal sealed class BroadcastReceiverCallback : AndroidJavaProxy
     void onReceive(AndroidJavaObject context, AndroidJavaObject intent)
     {
         string cmd = intent.Call<string>("getStringExtra", "cmd");
-        if(!string.IsNullOrEmpty(cmd)) {
+        if (!string.IsNullOrEmpty(cmd)) {
             GmRootScript.SendCommand(cmd);
 
             LogSystem.Warn("receive a command: {0}", cmd);
@@ -1084,8 +1082,7 @@ internal static class WeTestAutomation
     internal static void InjectTouch(int action, float x, float y)
     {
         Prepare();
-        if (null != s_WeTestAutomation)
-        {
+        if (null != s_WeTestAutomation) {
             s_WeTestAutomation.CallStatic("InjectTouchEvent", action, x, y);
         }
     }
@@ -1093,8 +1090,7 @@ internal static class WeTestAutomation
     {
         float x = 0;
         Prepare();
-        if (null != s_WeTestAutomation)
-        {
+        if (null != s_WeTestAutomation) {
             x = s_WeTestAutomation.CallStatic<float>("GetX");
         }
         return x;
@@ -1103,8 +1099,7 @@ internal static class WeTestAutomation
     {
         float y = 0;
         Prepare();
-        if (null != s_WeTestAutomation)
-        {
+        if (null != s_WeTestAutomation) {
             y = s_WeTestAutomation.CallStatic<float>("GetY");
         }
         return y;
@@ -1113,8 +1108,7 @@ internal static class WeTestAutomation
     {
         int w = 0;
         Prepare();
-        if (null != s_WeTestAutomation)
-        {
+        if (null != s_WeTestAutomation) {
             w = s_WeTestAutomation.CallStatic<int>("GetWidth");
         }
         return w;
@@ -1123,16 +1117,14 @@ internal static class WeTestAutomation
     {
         int h = 0;
         Prepare();
-        if (null != s_WeTestAutomation)
-        {
+        if (null != s_WeTestAutomation) {
             h = s_WeTestAutomation.CallStatic<int>("GetHeight");
         }
         return h;
     }
     private static void Prepare()
     {
-        if (null == s_WeTestAutomation)
-        {
+        if (null == s_WeTestAutomation) {
             s_WeTestAutomation = new AndroidJavaClass("com.tencent.wetest.U3DAutomation");
         }
     }

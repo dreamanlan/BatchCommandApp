@@ -164,7 +164,8 @@ namespace GmCommands
                 try {
                     int objId = objVal.IsInteger ? objVal.GetInt() : -1;
                     uobj = null;
-                } catch {
+                }
+                catch {
                     uobj = null;
                 }
             }
@@ -309,7 +310,8 @@ namespace GmCommands
                         if (null != pobj) {
                             obj.transform.SetParent(pobj.transform, false);
                         }
-                    } else {
+                    }
+                    else {
                         UnityEngine.GameObject pobj = parentVal.IsObject ? parentVal.ObjectVal as UnityEngine.GameObject : null;
                         if (null != pobj) {
                             obj.transform.SetParent(pobj.transform, false);
@@ -340,7 +342,7 @@ namespace GmCommands
                 var callData = funcData.LowerOrderFunction;
                 LoadCall(callData);
             }
-            else if(funcData.HaveParam()) {
+            else if (funcData.HaveParam()) {
                 LoadCall(funcData);
             }
             if (funcData.HaveStatement()) {
@@ -418,13 +420,15 @@ namespace GmCommands
                     m_Scale.InitFromDsl(callData);
                 else
                     m_Scale.InitFromDsl(callData.GetParam(0));
-            } else if (id == "disable") {
+            }
+            else if (id == "disable") {
                 for (int i = 0; i < callData.GetParamNum(); ++i) {
                     var p = new StoryFunction<string>();
                     p.InitFromDsl(callData.GetParam(i));
                     m_DisableComponents.Add(p);
                 }
-            } else if (id == "remove") {
+            }
+            else if (id == "remove") {
                 for (int i = 0; i < callData.GetParamNum(); ++i) {
                     var p = new StoryFunction<string>();
                     p.InitFromDsl(callData.GetParam(i));
@@ -487,13 +491,15 @@ namespace GmCommands
                 UnityEngine.GameObject obj = null;
                 if (null != objPath) {
                     obj = UnityEngine.GameObject.Find(objPath);
-                } else {
+                }
+                else {
                     obj = objVal.IsObject ? objVal.ObjectVal as UnityEngine.GameObject : null;
                     if (null == obj) {
                         try {
                             int id = objVal.GetInt();
                             obj = null;
-                        } catch {
+                        }
+                        catch {
                             obj = null;
                         }
                     }
@@ -531,7 +537,7 @@ namespace GmCommands
                 var callData = funcData.LowerOrderFunction;
                 LoadCall(callData);
             }
-            else if(funcData.HaveParam()) {
+            else if (funcData.HaveParam()) {
                 LoadCall(funcData);
             }
             if (funcData.HaveStatement()) {
@@ -561,12 +567,14 @@ namespace GmCommands
                     m_Position.InitFromDsl(callData);
                 else
                     m_Position.InitFromDsl(callData.GetParam(0));
-            } else if (id == "rotation") {
+            }
+            else if (id == "rotation") {
                 if (num == 3)
                     m_Rotation.InitFromDsl(callData);
                 else
                     m_Rotation.InitFromDsl(callData.GetParam(0));
-            } else if (id == "scale") {
+            }
+            else if (id == "scale") {
                 if (num == 3)
                     m_Scale.InitFromDsl(callData);
                 else
@@ -748,9 +756,10 @@ namespace GmCommands
                 var obj = UnityEngine.GameObject.Find(path);
                 if (null != obj) {
                     obj.transform.SetParent(null);
-                    
+
                 }
-            } else {
+            }
+            else {
                 var obj = pathVal.IsObject ? pathVal.ObjectVal as UnityEngine.GameObject : null;
                 if (null != obj) {
                     obj.transform.SetParent(null);
@@ -806,13 +815,15 @@ namespace GmCommands
                 UnityEngine.GameObject obj = null;
                 if (null != objPath) {
                     obj = UnityEngine.GameObject.Find(objPath);
-                } else {
+                }
+                else {
                     obj = objVal.IsObject ? objVal.ObjectVal as UnityEngine.GameObject : null;
                     if (null == obj) {
                         try {
                             int id = objVal.GetInt();
                             obj = null;
-                        } catch {
+                        }
+                        catch {
                             obj = null;
                         }
                     }
@@ -823,46 +834,55 @@ namespace GmCommands
                     if (null != parentPath) {
                         if (string.IsNullOrEmpty(parentPath)) {
                             obj.transform.SetParent(null, stayWorldPos != 0);
-                        } else {
+                        }
+                        else {
                             var pobj = UnityEngine.GameObject.Find(parentPath);
                             if (null != pobj) {
                                 m_ParentObject = pobj;
                                 obj.transform.SetParent(pobj.transform, stayWorldPos != 0);
                             }
                         }
-                    } else {
+                    }
+                    else {
                         UnityEngine.GameObject pobj = parentVal.IsObject ? parentVal.ObjectVal as UnityEngine.GameObject : null;
                         if (null != pobj) {
                             m_ParentObject = pobj;
                             obj.transform.SetParent(pobj.transform, stayWorldPos != 0);
-                        } else {
+                        }
+                        else {
                             try {
                                 int id = parentVal.GetInt();
                                 if (id < 0) {
                                     m_ParentObject = null;
                                     obj.transform.SetParent(null, stayWorldPos != 0);
-                                } else {
+                                }
+                                else {
                                     pobj = null;
                                     if (null != pobj) {
                                         m_ParentObject = pobj;
                                         obj.transform.SetParent(pobj.transform, stayWorldPos != 0);
                                     }
                                 }
-                            } catch {
+                            }
+                            catch {
                             }
                         }
                     }
                     return true;
                 }
-            } else if (null != m_Object) {
+            }
+            else if (null != m_Object) {
                 if (null == m_Object.transform.parent && null == m_ParentObject) {
                     return false;
-                } else if (null != m_Object.transform.parent && null != m_ParentObject && m_Object.transform.parent.gameObject == m_ParentObject) {
+                }
+                else if (null != m_Object.transform.parent && null != m_ParentObject && m_Object.transform.parent.gameObject == m_ParentObject) {
                     return false;
-                } else if (null == m_ParentObject) {
+                }
+                else if (null == m_ParentObject) {
                     m_Object.transform.SetParent(null, stayWorldPos != 0);
                     return true;
-                } else {
+                }
+                else {
                     m_Object.transform.SetParent(m_ParentObject.transform, stayWorldPos != 0);
                     return true;
                 }
@@ -920,13 +940,15 @@ namespace GmCommands
                 UnityEngine.GameObject obj = null;
                 if (null != objPath) {
                     obj = UnityEngine.GameObject.Find(objPath);
-                } else {
+                }
+                else {
                     obj = objVal.IsObject ? objVal.ObjectVal as UnityEngine.GameObject : null;
                     if (null == obj) {
                         try {
                             int id = objVal.GetInt();
                             obj = null;
-                        } catch {
+                        }
+                        catch {
                             obj = null;
                         }
                     }
@@ -936,14 +958,16 @@ namespace GmCommands
                     m_Object = obj;
                     return true;
                 }
-            } else if (null != m_Object) {
+            }
+            else if (null != m_Object) {
                 if (active != 0 && m_Object.activeSelf || active == 0 && !m_Object.activeSelf) {
                     return false;
-                } else {
+                }
+                else {
                     m_Object.SetActive(active != 0);
                     return false;
                 }
-            }        
+            }
             return false;
         }
         protected override bool Load(Dsl.FunctionData callData)
@@ -994,13 +1018,15 @@ namespace GmCommands
                 UnityEngine.GameObject obj = null;
                 if (null != objPath) {
                     obj = UnityEngine.GameObject.Find(objPath);
-                } else {
+                }
+                else {
                     obj = objVal.IsObject ? objVal.ObjectVal as UnityEngine.GameObject : null;
                     if (null == obj) {
                         try {
                             int id = objVal.GetInt();
                             obj = null;
-                        } catch {
+                        }
+                        catch {
                             obj = null;
                         }
                     }
@@ -1015,7 +1041,8 @@ namespace GmCommands
                     }
                     return true;
                 }
-            } else if (null != m_Object) {
+            }
+            else if (null != m_Object) {
                 var renderers = m_Object.GetComponentsInChildren<UnityEngine.Renderer>();
                 if (null != renderers) {
                     for (int i = 0; i < renderers.Length; ++i) {
@@ -1080,11 +1107,13 @@ namespace GmCommands
                 string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
                 if (null != objPath) {
                     obj = UnityEngine.GameObject.Find(objPath);
-                } else {
+                }
+                else {
                     try {
                         int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
                         obj = null;
-                    } catch {
+                    }
+                    catch {
                         obj = null;
                     }
                 }
@@ -1094,7 +1123,8 @@ namespace GmCommands
                 Type t = componentType.IsObject ? componentType.ObjectVal as Type : null;
                 if (null != t) {
                     component = obj.AddComponent(t);
-                } else {
+                }
+                else {
                     string name = componentType.IsString ? componentType.StringVal : null;
                     if (null != name) {
                         t = StoryScriptUtility.GetType(name);
@@ -1167,11 +1197,13 @@ namespace GmCommands
                 string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
                 if (null != objPath) {
                     obj = UnityEngine.GameObject.Find(objPath);
-                } else {
+                }
+                else {
                     try {
                         int id = objPathVal.IsInteger ? objPathVal.GetInt() : -1;
                         obj = null;
-                    } catch {
+                    }
+                    catch {
                         obj = null;
                     }
                 }
@@ -1182,7 +1214,8 @@ namespace GmCommands
                 if (null != t) {
                     var comp = obj.GetComponent(t);
                     StoryScriptUtility.DestroyObject(comp);
-                } else {
+                }
+                else {
                     string name = componentType.IsString ? componentType.StringVal : null;
                     if (null != name) {
                         t = StoryScriptUtility.GetType(name);
@@ -1222,7 +1255,7 @@ namespace GmCommands
         protected override void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
         {
             m_Url.Evaluate(instance, handler, iterator, args);
-        
+
         }
         protected override bool ExecCommand(StoryInstance instance, StoryMessageHandler handler, long delta)
         {
@@ -1251,7 +1284,7 @@ namespace GmCommands
         }
         protected override void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
         {
-        
+
         }
         protected override bool ExecCommand(StoryInstance instance, StoryMessageHandler handler, long delta)
         {
@@ -1296,11 +1329,13 @@ namespace GmCommands
             if (null == uobj) {
                 if (null != objPath) {
                     uobj = UnityEngine.GameObject.Find(objPath);
-                } else {
+                }
+                else {
                     try {
                         int objId = o.GetInt();
                         uobj = null;
-                    } catch {
+                    }
+                    catch {
                         uobj = null;
                     }
                 }
@@ -1379,11 +1414,13 @@ namespace GmCommands
             if (null == obj) {
                 if (null != objPath) {
                     obj = UnityEngine.GameObject.Find(objPath);
-                } else {
+                }
+                else {
                     try {
                         int objId = o.GetInt();
                         obj = null;
-                    } catch {
+                    }
+                    catch {
                         obj = null;
                     }
                 }
@@ -1399,17 +1436,21 @@ namespace GmCommands
                         if (type == "int") {
                             int v = val.GetInt();
                             animator.SetInteger(key, v);
-                        } else if (type == "float") {
+                        }
+                        else if (type == "float") {
                             float v = val.GetFloat();
                             animator.SetFloat(key, v);
-                        } else if (type == "bool") {
+                        }
+                        else if (type == "bool") {
                             bool v = val.GetBool();
                             animator.SetBool(key, v);
-                        } else if (type == "trigger") {
+                        }
+                        else if (type == "trigger") {
                             string v = val.ToString();
                             if (v == "false") {
                                 animator.ResetTrigger(key);
-                            } else {
+                            }
+                            else {
                                 animator.SetTrigger(key);
                             }
                         }
@@ -1573,7 +1614,7 @@ namespace GmCommands
         {
             CallScriptCommand cmd = new CallScriptCommand();
             cmd.m_FuncName = m_FuncName;
-            if(string.IsNullOrEmpty(m_FuncName))
+            if (string.IsNullOrEmpty(m_FuncName))
                 cmd.m_Func = m_Func.Clone();
             for (int i = 0; i < m_Args.Count; ++i) {
                 IStoryFunction val = m_Args[i];
@@ -1655,7 +1696,7 @@ namespace GmCommands
         { }
         protected override void Evaluate(StoryInstance instance, StoryMessageHandler handler, BoxedValue iterator, BoxedValueList args)
         {
-            if(m_IsString)
+            if (m_IsString)
                 m_Code.Evaluate(instance, handler, iterator, args);
         }
         protected override bool ExecCommand(StoryInstance instance, StoryMessageHandler handler, long delta)
@@ -1677,7 +1718,7 @@ namespace GmCommands
                 }
                 else {
                     m_IsString = false;
-                    foreach(var p in callData.Params) {
+                    foreach (var p in callData.Params) {
                         m_Exps.Add(p);
                     }
                 }

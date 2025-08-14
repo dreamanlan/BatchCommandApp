@@ -62,7 +62,6 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefdelall", "prefdelall() command", new StoryCommandFactoryHelper<PlayerPrefDeleteAllCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "prefbyjava", "prefbyjava(key,val) command", new StoryCommandFactoryHelper<PrefByJavaCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "wetesttouch", "wetesttouch(action,x,y) command, simulate touch event with WeTest", new StoryCommandFactoryHelper<WeTestTouchCommand>());
-
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logmesh", "logmesh(mesh_or_path) command", new StoryCommandFactoryHelper<LogMeshCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setmat", "setmat(renderer_or_path,mat_or_path) or setmat(renderer_or_path,ix,mat_or_path) or setmat(renderer_or_path,ix,mats_or_path,ix) command", new StoryCommandFactoryHelper<SetMaterialCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setsmat", "setsmat(renderer_or_path,mat_or_path) or setsmat(renderer_or_path,ix,mat_or_path) or setsmat(renderer_or_path,ix,mats_or_path,ix) command", new StoryCommandFactoryHelper<SetSharedMaterialCommand>());

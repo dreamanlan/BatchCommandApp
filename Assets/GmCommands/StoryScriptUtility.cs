@@ -13,7 +13,8 @@ public static partial class StoryScriptUtility
         Transform t = parent.Find(bonePath);
         if (null != t) {
             return t;
-        } else {
+        }
+        else {
             int ct = parent.childCount;
             for (int i = 0; i < ct; ++i) {
                 t = FindChildRecursive(parent.GetChild(i), bonePath);
@@ -28,10 +29,8 @@ public static partial class StoryScriptUtility
     {
         int ix = names.Count - 1;
         var p = tr;
-        while (null != p && ix >= 0)
-        {
-            if (p.name == names[ix])
-            {
+        while (null != p && ix >= 0) {
+            if (p.name == names[ix]) {
                 --ix;
             }
             p = p.parent;
@@ -43,14 +42,12 @@ public static partial class StoryScriptUtility
         var sb = new StringBuilder();
         var stack = new Stack<string>();
         int lvl = 0;
-        while (null != tr && lvl <= up_level)
-        {
+        while (null != tr && lvl <= up_level) {
             stack.Push(tr.name);
             tr = tr.parent;
             ++lvl;
         }
-        while (stack.Count > 0)
-        {
+        while (stack.Count > 0) {
             sb.Append('/');
             sb.Append(stack.Pop());
         }
@@ -205,7 +202,7 @@ public static partial class StoryScriptUtility
         if (obj != null) {
             if (Application.isPlaying) {
                 if (Application.isEditor) {
-                    if(obj is GameObject)
+                    if (obj is GameObject)
                         UnityEngine.Object.Destroy(obj);
                 }
                 else {
@@ -219,7 +216,8 @@ public static partial class StoryScriptUtility
         if (obj != null) {
             if (Application.isEditor && !Application.isPlaying) {
                 UnityEngine.Object.DestroyImmediate(obj);
-            } else {
+            }
+            else {
                 UnityEngine.Object.Destroy(obj);
             }
         }
@@ -244,7 +242,7 @@ public static partial class StoryScriptUtility
 
     public static bool IsNamespace(string ns, out int id)
     {
-        if(s_Namespaces.Count==0) {
+        if (s_Namespaces.Count == 0) {
             CollectNamespaces();
         }
         return s_Namespace2Ids.TryGetValue(ns, out id);
@@ -284,7 +282,7 @@ public static partial class StoryScriptUtility
                 ret = Type.GetType(type);
             }
             if (null == ret) {
-                foreach(var pair in s_ImportedNamespaces) {
+                foreach (var pair in s_ImportedNamespaces) {
                     string ns = pair.Key.Trim();
                     string assembly = pair.Value.Trim();
                     string prefix = string.IsNullOrEmpty(ns) ? string.Empty : ns + ".";
@@ -298,7 +296,8 @@ public static partial class StoryScriptUtility
             if (null == ret) {
                 Debug.LogWarningFormat("null == Type.GetType({0})", type);
             }
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             Debug.LogErrorFormat("Exception:{0}\n{1}", ex.Message, ex.StackTrace);
         }
         return ret;
@@ -307,12 +306,12 @@ public static partial class StoryScriptUtility
     {
         int nextIndex = 0;
         var assems = System.AppDomain.CurrentDomain.GetAssemblies();
-        foreach(var assem in assems) {
+        foreach (var assem in assems) {
             if (assem.IsDynamic) {
                 var sb = new StringBuilder();
                 sb.AppendFormat("dynmaic assembly: {0}", assem);
                 var dynatypes = assem.GetTypes();
-                foreach(var dtype in dynatypes) {
+                foreach (var dtype in dynatypes) {
                     sb.AppendLine();
                     sb.AppendFormat("\ttype: {0}", dtype);
                 }
@@ -320,7 +319,7 @@ public static partial class StoryScriptUtility
                 continue;
             }
             var types = assem.GetExportedTypes();
-            foreach(var type in types) {
+            foreach (var type in types) {
                 string nss = type.Namespace;
                 if (!string.IsNullOrEmpty(nss)) {
                     for (int ix = 0; ix < nss.Length;) {
@@ -359,7 +358,8 @@ public static partial class StoryScriptUtility
                 obj.SendMessage(msg, arg, needReceiver ? SendMessageOptions.RequireReceiver : SendMessageOptions.DontRequireReceiver);
                 if (msg.CompareTo("LogToConsole") != 0)
                     Debug.LogFormat("SendMessage {0} {1} {2} {3}", objname, msg, arg, needReceiver);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Debug.LogErrorFormat("SendMessage({0} {1} {2} {3}) Exception {4}\n{5}", objname, msg, arg, needReceiver, ex.Message, ex.StackTrace);
             }
         }
@@ -373,7 +373,8 @@ public static partial class StoryScriptUtility
                     objs[i].SendMessage(msg, arg, needReceiver ? SendMessageOptions.RequireReceiver : SendMessageOptions.DontRequireReceiver);
                     if (msg.CompareTo("LogToConsole") != 0)
                         Debug.LogFormat("SendMessageWithTag {0} {1} {2} {3}", objtag, msg, arg, needReceiver);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     Debug.LogErrorFormat("SendMessageWithTag({0} {1} {2} {3}) Exception {4}\n{5}", objtag, msg, arg, needReceiver, ex.Message, ex.StackTrace);
                 }
             }
