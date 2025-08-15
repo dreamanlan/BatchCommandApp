@@ -200,26 +200,14 @@ public static partial class StoryScriptUtility
     public static void DestroyObject(UnityEngine.Object obj)
     {
         if (obj != null) {
-            if (Application.isPlaying) {
-                if (Application.isEditor) {
-                    if (obj is GameObject)
-                        UnityEngine.Object.Destroy(obj);
-                }
-                else {
-                    UnityEngine.Object.Destroy(obj);
-                }
-            }
-        }
-    }
-    public static void DestroyObjectFull(UnityEngine.Object obj)
-    {
-        if (obj != null) {
-            if (Application.isEditor && !Application.isPlaying) {
-                UnityEngine.Object.DestroyImmediate(obj);
-            }
-            else {
+#if UNITY_EDITOR
+            if (Application.isPlaying && !UnityEditor.EditorApplication.isPaused)
                 UnityEngine.Object.Destroy(obj);
-            }
+            else
+                UnityEngine.Object.DestroyImmediate(obj, false);
+#else
+                UnityEngine.Object.DestroyImmediate(obj);
+#endif
         }
     }
 
