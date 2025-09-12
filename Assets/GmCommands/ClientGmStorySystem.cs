@@ -46,7 +46,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "createdir", "createdir(dir) command", new StoryCommandFactoryHelper<CreateDirectoryCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "deletedir", "deletedir(dir) command", new StoryCommandFactoryHelper<DeleteDirectoryCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "copydir", "copydir(src,dest,filter1,new_ext1,...) command", new StoryCommandFactoryHelper<CopyDirectoryCommand>());
-                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "copyfile", "copyfile(file) command", new StoryCommandFactoryHelper<CopyFileCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "copyfile", "copyfile(src,dest) command", new StoryCommandFactoryHelper<CopyFileCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "deletefile", "deletefile(file) command", new StoryCommandFactoryHelper<DeleteFileCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "copyfiles", "copyfiles(src,dest,filter1,new_ext1,...) command", new StoryCommandFactoryHelper<CopyFilesCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "deletefiles", "deletefiles(dir,filter1,filter2,...) command", new StoryCommandFactoryHelper<DeleteFilesCommand>());
