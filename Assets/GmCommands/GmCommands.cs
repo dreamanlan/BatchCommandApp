@@ -1197,7 +1197,7 @@ namespace GmCommands
             return false;
         }
     }
-    internal sealed class SetCurrentDirectoryCommand : SimpleStoryCommandBase<CreateDirectoryCommand, StoryFunctionParam<string>>
+    internal sealed class SetCurrentDirectoryCommand : SimpleStoryCommandBase<SetCurrentDirectoryCommand, StoryFunctionParam<string>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
         {
