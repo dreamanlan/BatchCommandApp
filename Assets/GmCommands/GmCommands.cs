@@ -1202,7 +1202,13 @@ namespace GmCommands
         protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
         {
             string dir = _params.Param1Value;
-            Environment.CurrentDirectory = Environment.ExpandEnvironmentVariables(dir);
+            string path = Environment.ExpandEnvironmentVariables(dir);
+            if (Path.IsPathRooted(path)) {
+                Environment.CurrentDirectory = path;
+            }
+            else {
+                Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, path);
+            }
             return false;
         }
     }
