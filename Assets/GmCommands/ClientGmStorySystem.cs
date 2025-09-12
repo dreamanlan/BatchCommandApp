@@ -43,6 +43,16 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "devicesupports", "devicesupports() command, print unsupported feature", new StoryCommandFactoryHelper<DeviceSupportsCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "logresolutions", "logresolutions() command, print supported resolutions", new StoryCommandFactoryHelper<LogResolutionsCommand>());
 
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "createdir", "createdir(dir) command", new StoryCommandFactoryHelper<CreateDirectoryCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "deletedir", "deletedir(dir) command", new StoryCommandFactoryHelper<DeleteDirectoryCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "copydir", "copydir(src,dest,filter1,new_ext1,...) command", new StoryCommandFactoryHelper<CopyDirectoryCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "copyfile", "copyfile(file) command", new StoryCommandFactoryHelper<CopyFileCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "deletefile", "deletefile(file) command", new StoryCommandFactoryHelper<DeleteFileCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "copyfiles", "copyfiles(src,dest,filter1,new_ext1,...) command", new StoryCommandFactoryHelper<CopyFilesCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "deletefiles", "deletefiles(dir,filter1,filter2,...) command", new StoryCommandFactoryHelper<DeleteFilesCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "deleteallfiles", "deleteallfiles(dir,filter1,filter2,...) command", new StoryCommandFactoryHelper<DeleteAllFilesCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "cd", "cd(dir) command", new StoryCommandFactoryHelper<SetCurrentDirectoryCommand>());
+
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "allocmemory", "allocmemory(key,size) command", new StoryCommandFactoryHelper<AllocMemoryCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "freememory", "freememory(key) command", new StoryCommandFactoryHelper<FreeMemoryCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "consumecpu", "consumecpu(time) command", new StoryCommandFactoryHelper<ConsumeCpuCommand>());
@@ -102,6 +112,12 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "setviewer", "setviewer(key) or setviewer(key,rect) or setviewer(key,rect,interval) command", new StoryCommandFactoryHelper<AddOrUpdateSceneViewerCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "viewerlookat", "viewerlookat(key) or viewerlookat(key,dist) or viewerlookat(key,dist,dir) or viewerlookat(key,dist,dir,target) command", new StoryCommandFactoryHelper<SceneViewerLookAtCommand>());
                 //register value or function
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "existsdir", "existsdir(dir) function", new StoryFunctionFactoryHelper<ExistsDirectoryFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "existsfile", "existsfile(file) function", new StoryFunctionFactoryHelper<ExistsFileFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "expand", "expand(file) function", new StoryFunctionFactoryHelper<ExpandEnvironmentsFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "envs", "envs() function", new StoryFunctionFactoryHelper<EnvironmentsFunction>());
+                StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "pwd", "pwd() function", new StoryFunctionFactoryHelper<GetCurrentDirectoryFunction>());
+
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isdebug", "isdebug() function", new StoryFunctionFactoryHelper<IsDebugFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "isdev", "isdev() function", new StoryFunctionFactoryHelper<IsDevelopmentFunction>());
                 StoryFunctionManager.Instance.RegisterFunctionFactory(StoryFunctionGroupDefine.GM, "typeof", "typeof(type) or typeof(type,assembly) function", new StoryFunctionFactoryHelper<TypeOfFunction>());

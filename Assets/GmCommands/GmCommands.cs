@@ -926,6 +926,286 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------
+    internal sealed class CreateDirectoryCommand : SimpleStoryCommandBase<CreateDirectoryCommand, StoryFunctionParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        {
+            string dir = _params.Param1Value;
+            dir = Environment.ExpandEnvironmentVariables(dir);
+            if (!Directory.Exists(dir)) {
+                Directory.CreateDirectory(dir);
+                LogSystem.Warn("create directory {0}", dir);
+            }
+            return false;
+        }
+    }
+    internal sealed class DeleteDirectoryCommand : SimpleStoryCommandBase<DeleteDirectoryCommand, StoryFunctionParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        {
+            string dir = _params.Param1Value;
+            dir = Environment.ExpandEnvironmentVariables(dir);
+            if (Directory.Exists(dir)) {
+                Directory.Delete(dir, recursive: true);
+                LogSystem.Warn("delete directory {0}", dir);
+            }
+            return false;
+        }
+    }
+    internal sealed class CopyDirectoryCommand : SimpleStoryCommandBase<CopyDirectoryCommand, StoryFunctionParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        {
+            var operands = _params.Values;
+            string dir1 = operands[0].AsString;
+            string dir2 = operands[1].AsString;
+            dir1 = Environment.ExpandEnvironmentVariables(dir1);
+            dir2 = Environment.ExpandEnvironmentVariables(dir2);
+            List<string> filterAndNewExts = new List<string>();
+            for (int i = 2; i < operands.Count; i++) {
+                string str = operands[i].AsString;
+                if (str != null) {
+                    filterAndNewExts.Add(str);
+                    continue;
+                }
+                IList strList = operands[i].As<IList>();
+                if (strList == null) {
+                    continue;
+                }
+                foreach (object strObj in strList) {
+                    if (strObj is string tempStr) {
+                        filterAndNewExts.Add(tempStr);
+                    }
+                }
+            }
+            if (filterAndNewExts.Count <= 0) {
+                filterAndNewExts.Add("*");
+            }
+            string targetRoot = Path.GetFullPath(dir2);
+            if (Directory.Exists(dir1)) {
+                int ct = 0;
+                CopyFolder(targetRoot, dir1, dir2, filterAndNewExts, ref ct);
+                LogSystem.Warn("copy {0} files", ct);
+            }
+            return false;
+        }
+        private static void CopyFolder(string targetRoot, string from, string to, IList<string> filterAndNewExts, ref int ct)
+        {
+            if (!string.IsNullOrEmpty(to) && !Directory.Exists(to)) {
+                Directory.CreateDirectory(to);
+            }
+            string[] directories = Directory.GetDirectories(from);
+            foreach (string sub in directories) {
+                string srcPath = Path.GetFullPath(sub);
+                if (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX) {
+                    if (srcPath.IndexOf(targetRoot) == 0) {
+                        continue;
+                    }
+                }
+                else if (srcPath.IndexOf(targetRoot, StringComparison.CurrentCultureIgnoreCase) == 0) {
+                    continue;
+                }
+                string sName = Path.GetFileName(sub);
+                CopyFolder(targetRoot, sub, Path.Combine(to, sName), filterAndNewExts, ref ct);
+            }
+            for (int j = 0; j < filterAndNewExts.Count; j += 2) {
+                string filter = filterAndNewExts[j];
+                string newExt = string.Empty;
+                if (j + 1 < filterAndNewExts.Count) {
+                    newExt = filterAndNewExts[j + 1];
+                }
+                string[] files = Directory.GetFiles(from, filter, SearchOption.TopDirectoryOnly);
+                foreach (string file in files) {
+                    string targetFile = ((!string.IsNullOrEmpty(newExt)) ? Path.Combine(to, Path.ChangeExtension(Path.GetFileName(file), newExt)) : Path.Combine(to, Path.GetFileName(file)));
+                    File.Copy(file, targetFile, overwrite: true);
+                    ct++;
+                    LogSystem.Warn("copy file {0} => {1}", file, targetFile);
+                }
+            }
+        }
+    }
+    internal sealed class CopyFileCommand : SimpleStoryCommandBase<CopyFileCommand, StoryFunctionParam<string, string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, string> _params, long delta)
+        {
+            string file1 = _params.Param1Value;
+            string file2 = _params.Param2Value;
+            file1 = Environment.ExpandEnvironmentVariables(file1);
+            file2 = Environment.ExpandEnvironmentVariables(file2);
+            if (File.Exists(file1)) {
+                string dir = Path.GetDirectoryName(file2);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) {
+                    Directory.CreateDirectory(dir);
+                }
+                File.Copy(file1, file2, overwrite: true);
+                LogSystem.Warn("copy file {0} => {1}", file1, file2);
+            }
+            return false;
+        }
+    }
+    internal sealed class DeleteFileCommand : SimpleStoryCommandBase<DeleteFileCommand, StoryFunctionParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        {
+            string file = _params.Param1Value;
+            file = Environment.ExpandEnvironmentVariables(file);
+            if (File.Exists(file)) {
+                File.Delete(file);
+                LogSystem.Warn("delete file {0}", file);
+            }
+            return false;
+        }
+    }
+    internal sealed class CopyFilesCommand : SimpleStoryCommandBase<CopyFilesCommand, StoryFunctionParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        {
+            var operands = _params.Values;
+            string dir1 = operands[0].AsString;
+            string dir2 = operands[1].AsString;
+            dir1 = Environment.ExpandEnvironmentVariables(dir1);
+            dir2 = Environment.ExpandEnvironmentVariables(dir2);
+            List<string> filterAndNewExts = new List<string>();
+            for (int i = 2; i < operands.Count; i++) {
+                string str = operands[i].AsString;
+                if (str != null) {
+                    filterAndNewExts.Add(str);
+                    continue;
+                }
+                IList strList = operands[i].As<IList>();
+                if (strList == null) {
+                    continue;
+                }
+                foreach (object strObj in strList) {
+                    if (strObj is string tempStr) {
+                        filterAndNewExts.Add(tempStr);
+                    }
+                }
+            }
+            if (filterAndNewExts.Count <= 0) {
+                filterAndNewExts.Add("*");
+            }
+            if (Directory.Exists(dir1)) {
+                int ct = 0;
+                CopyFolder(dir1, dir2, filterAndNewExts, ref ct);
+                LogSystem.Warn("copy {0} files", ct);
+            }
+            return false;
+        }
+        private static void CopyFolder(string from, string to, IList<string> filterAndNewExts, ref int ct)
+        {
+            if (!string.IsNullOrEmpty(to) && !Directory.Exists(to)) {
+                Directory.CreateDirectory(to);
+            }
+            for (int i = 0; i < filterAndNewExts.Count; i += 2) {
+                string filter = filterAndNewExts[i];
+                string newExt = string.Empty;
+                if (i + 1 < filterAndNewExts.Count) {
+                    newExt = filterAndNewExts[i + 1];
+                }
+                string[] files = Directory.GetFiles(from, filter, SearchOption.TopDirectoryOnly);
+                foreach (string file in files) {
+                    string targetFile = ((!string.IsNullOrEmpty(newExt)) ? Path.Combine(to, Path.ChangeExtension(Path.GetFileName(file), newExt)) : Path.Combine(to, Path.GetFileName(file)));
+                    File.Copy(file, targetFile, overwrite: true);
+                    ct++;
+                    Debug.LogFormat("copy file {0} => {1}", file, targetFile);
+                }
+            }
+        }
+    }
+    internal sealed class DeleteFilesCommand : SimpleStoryCommandBase<DeleteFilesCommand, StoryFunctionParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        {
+            var operands = _params.Values;
+            string dir = operands[0].AsString;
+            List<string> filters = new List<string>();
+            for (int i = 1; i < operands.Count; i++) {
+                string str = operands[i].AsString;
+                if (str != null) {
+                    filters.Add(str);
+                    continue;
+                }
+                IList strList = operands[i].As<IList>();
+                if (strList == null) {
+                    continue;
+                }
+                foreach (object strObj in strList) {
+                    if (strObj is string tempStr) {
+                        filters.Add(tempStr);
+                    }
+                }
+            }
+            if (filters.Count <= 0) {
+                filters.Add("*");
+            }
+            dir = Environment.ExpandEnvironmentVariables(dir);
+            if (Directory.Exists(dir)) {
+                int ct = 0;
+                foreach (string filter in filters) {
+                    string[] files = Directory.GetFiles(dir, filter, SearchOption.TopDirectoryOnly);
+                    foreach (string file in files) {
+                        File.Delete(file);
+                        ct++;
+                        LogSystem.Warn("delete file {0}", file);
+                    }
+                }
+                LogSystem.Warn("delete {0} files", ct);
+            }
+            return false;
+        }
+    }
+    internal sealed class DeleteAllFilesCommand : SimpleStoryCommandBase<DeleteAllFilesCommand, StoryFunctionParams>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        {
+            var operands = _params.Values;
+            string dir = operands[0].AsString;
+            List<string> filters = new List<string>();
+            for (int i = 1; i < operands.Count; i++) {
+                string str = operands[i].AsString;
+                if (str != null) {
+                    filters.Add(str);
+                    continue;
+                }
+                IList strList = operands[i].As<IList>();
+                if (strList == null) {
+                    continue;
+                }
+                foreach (object strObj in strList) {
+                    if (strObj is string tempStr) {
+                        filters.Add(tempStr);
+                    }
+                }
+            }
+            if (filters.Count <= 0) {
+                filters.Add("*");
+            }
+            dir = Environment.ExpandEnvironmentVariables(dir);
+            if (Directory.Exists(dir)) {
+                int ct = 0;
+                foreach (string filter in filters) {
+                    string[] files = Directory.GetFiles(dir, filter, SearchOption.AllDirectories);
+                    foreach (string file in files) {
+                        File.Delete(file);
+                        ct++;
+                        LogSystem.Warn("delete file {0}", file);
+                    }
+                }
+                LogSystem.Warn("delete {0} files", ct);
+            }
+            return false;
+        }
+    }
+    internal sealed class SetCurrentDirectoryCommand : SimpleStoryCommandBase<CreateDirectoryCommand, StoryFunctionParam<string>>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        {
+            string dir = _params.Param1Value;
+            Environment.CurrentDirectory = Environment.ExpandEnvironmentVariables(dir);
+            return false;
+        }
+    }
     internal sealed class AllocMemoryCommand : SimpleStoryCommandBase<AllocMemoryCommand, StoryFunctionParam<string, int>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, int> _params, long delta)
@@ -1461,6 +1741,46 @@ namespace GmCommands
         }
     }
     //---------------------------------------------------------------------------------------------------------------------------------
+    internal sealed class ExistsDirectoryFunction : SimpleStoryFunctionBase<ExistsDirectoryFunction, StoryFunctionParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        {
+            string dir = _params.Param1Value;
+            dir = Environment.ExpandEnvironmentVariables(dir);
+            result.Value = BoxedValue.FromBool(Directory.Exists(dir));
+        }
+    }
+    internal sealed class ExistsFileFunction : SimpleStoryFunctionBase<ExistsFileFunction, StoryFunctionParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        {
+            string file = _params.Param1Value;
+            file = Environment.ExpandEnvironmentVariables(file);
+            result.Value = BoxedValue.FromBool(File.Exists(file));
+        }
+    }
+    internal sealed class ExpandEnvironmentsFunction : SimpleStoryFunctionBase<ExpandEnvironmentsFunction, StoryFunctionParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        {
+            string file = _params.Param1Value;
+            result.Value = Environment.ExpandEnvironmentVariables(file);
+        }
+    }
+    internal sealed class EnvironmentsFunction : SimpleStoryFunctionBase<EnvironmentsFunction, StoryFunctionParam>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        {
+            result.Value = BoxedValue.FromObject(Environment.GetEnvironmentVariables());
+        }
+    }
+    internal sealed class GetCurrentDirectoryFunction : SimpleStoryFunctionBase<GetCurrentDirectoryFunction, StoryFunctionParam<string>>
+    {
+        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        {
+            result.Value = Environment.CurrentDirectory;
+        }
+    }
     internal sealed class IsDebugFunction : SimpleStoryFunctionBase<IsDebugFunction, StoryFunctionParam>
     {
         protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
