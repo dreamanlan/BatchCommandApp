@@ -166,23 +166,17 @@ namespace StoryScript.DslExpression
         {
             string[] ret = null;
 #if UNITY_EDITOR
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var list = new List<string>();
-                for (int i = 0; i < operands.Count; ++i)
-                {
+                for (int i = 0; i < operands.Count; ++i) {
                     var str = operands[i].AsString;
-                    if (null != str)
-                    {
+                    if (null != str) {
                         list.Add(str);
                     }
-                    else
-                    {
+                    else {
                         var strList = operands[i].As<IList>();
-                        if (null != strList)
-                        {
-                            foreach (var strObj in strList)
-                            {
+                        if (null != strList) {
+                            foreach (var strObj in strList) {
                                 var tempStr = strObj as string;
                                 if (null != tempStr)
                                     list.Add(tempStr);
@@ -190,12 +184,10 @@ namespace StoryScript.DslExpression
                         }
                     }
                 }
-                if (list.Count == 1)
-                {
+                if (list.Count == 1) {
                     ret = AssetDatabase.GetDependencies(list[0], false);
                 }
-                else if (list.Count > 1)
-                {
+                else if (list.Count > 1) {
                     ret = AssetDatabase.GetDependencies(list.ToArray(), false);
                 }
             }
@@ -209,23 +201,17 @@ namespace StoryScript.DslExpression
         {
             string[] ret = null;
 #if UNITY_EDITOR
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var list = new List<string>();
-                for (int i = 0; i < operands.Count; ++i)
-                {
+                for (int i = 0; i < operands.Count; ++i) {
                     var str = operands[i].AsString;
-                    if (null != str)
-                    {
+                    if (null != str) {
                         list.Add(str);
                     }
-                    else
-                    {
+                    else {
                         var strList = operands[i].As<IList>();
-                        if (null != strList)
-                        {
-                            foreach (var strObj in strList)
-                            {
+                        if (null != strList) {
+                            foreach (var strObj in strList) {
                                 var tempStr = strObj as string;
                                 if (null != tempStr)
                                     list.Add(tempStr);
@@ -236,32 +222,25 @@ namespace StoryScript.DslExpression
                 List<string> results = new List<string>();
                 HashSet<string> accessed = new HashSet<string>();
                 Queue<Tuple<string, string>> queue = new Queue<Tuple<string, string>>();
-                foreach (var str in list)
-                {
+                foreach (var str in list) {
                     queue.Enqueue(Tuple.Create(str, string.Empty));
                 }
-                while (queue.Count > 0)
-                {
+                while (queue.Count > 0) {
                     var tuple = queue.Dequeue();
                     string asset = tuple.Item1;
                     string path = tuple.Item2 + "->" + tuple.Item1;
-                    if (accessed.Contains(asset))
-                    {
+                    if (accessed.Contains(asset)) {
                         results.Add(path);
                     }
-                    else
-                    {
+                    else {
                         accessed.Add(asset);
                         var deps = AssetDatabase.GetDependencies(asset, false);
-                        if (deps.Length > 0)
-                        {
-                            foreach (var dep in deps)
-                            {
+                        if (deps.Length > 0) {
+                            foreach (var dep in deps) {
                                 queue.Enqueue(Tuple.Create(dep, path));
                             }
                         }
-                        else
-                        {
+                        else {
                             results.Add(path);
                         }
                     }
@@ -304,6 +283,22 @@ namespace StoryScript.DslExpression
             return r;
         }
     }
+    internal class LoadAssetsExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var r = BoxedValue.NullObject;
+#if UNITY_EDITOR
+            if (operands.Count >= 1) {
+                var path = operands[0].AsString;
+                if (null != path) {
+                    r = BoxedValue.FromObject(AssetDatabase.LoadAllAssetsAtPath(path));
+                }
+            }
+#endif
+            return r;
+        }
+    }
     internal class UnloadAssetExp : SimpleExpressionBase
     {
         protected override BoxedValue OnCalc(IList<BoxedValue> operands)
@@ -326,6 +321,46 @@ namespace StoryScript.DslExpression
                 }
             }
             return BoxedValue.NullObject;
+        }
+    }
+    internal class AddObjectToAssetExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var r = false;
+#if UNITY_EDITOR
+            if (operands.Count >= 2) {
+                var obj = operands[0].As<UnityEngine.Object>();
+                var path = operands[1].AsString;
+                var assetObj = operands[1].As<UnityEngine.Object>();
+                if (null != obj && !string.IsNullOrEmpty(path)) {
+                    AssetDatabase.AddObjectToAsset(obj, path);
+                    r = true;
+                }
+                else if (null != obj && null != assetObj) {
+                    AssetDatabase.AddObjectToAsset(obj, assetObj);
+                    r = true;
+                }
+            }
+#endif
+            return r;
+        }
+    }
+    internal class RemoveObjectFromAssetExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var r = false;
+#if UNITY_EDITOR
+            if (operands.Count >= 1) {
+                var obj = operands[0].As<UnityEngine.Object>();
+                if (null != obj) {
+                    AssetDatabase.RemoveObjectFromAsset(obj);
+                    r = true;
+                }
+            }
+#endif
+            return r;
         }
     }
     internal class GetPrefabTypeExp : SimpleExpressionBase
@@ -398,12 +433,10 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 2)
-            {
+            if (operands.Count >= 2) {
                 var obj = operands[0].As<UnityEngine.Object>();
                 var assetPath = operands[1].AsString;
-                if (null != obj && !string.IsNullOrEmpty(assetPath))
-                {
+                if (null != obj && !string.IsNullOrEmpty(assetPath)) {
                     r = BoxedValue.FromObject(PrefabUtility.GetCorrespondingObjectFromSourceAtPath(obj, assetPath));
                 }
             }
@@ -417,11 +450,9 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var obj = operands[0].As<UnityEngine.Object>();
-                if (null != obj)
-                {
+                if (null != obj) {
                     r = BoxedValue.FromObject(PrefabUtility.GetCorrespondingObjectFromOriginalSource(obj));
                 }
             }
@@ -435,11 +466,9 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var obj = operands[0].As<UnityEngine.Object>();
-                if (null != obj)
-                {
+                if (null != obj) {
                     r = BoxedValue.FromObject(PrefabUtility.GetNearestPrefabInstanceRoot(obj));
                 }
             }
@@ -453,11 +482,9 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var obj = operands[0].As<UnityEngine.Object>();
-                if (null != obj)
-                {
+                if (null != obj) {
                     r = BoxedValue.FromObject(PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(obj));
                 }
             }
@@ -471,11 +498,9 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var obj = operands[0].As<UnityEngine.Object>();
-                if (null != obj)
-                {
+                if (null != obj) {
                     r = BoxedValue.FromObject(PrefabUtility.GetOutermostPrefabInstanceRoot(obj));
                 }
             }
@@ -489,11 +514,9 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var obj = operands[0].As<UnityEngine.GameObject>();
-                if (null != obj)
-                {
+                if (null != obj) {
                     r = BoxedValue.FromObject(PrefabUtility.GetOriginalSourceRootWhereGameObjectIsAdded(obj));
                 }
             }
@@ -507,16 +530,13 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var obj = operands[0].As<UnityEngine.GameObject>();
                 bool includeDefaultOverrides = false;
-                if(operands.Count >= 2)
-                {
+                if (operands.Count >= 2) {
                     includeDefaultOverrides = operands[1].GetBool();
                 }
-                if (null != obj)
-                {
+                if (null != obj) {
                     r = BoxedValue.FromObject(PrefabUtility.GetObjectOverrides(obj, includeDefaultOverrides));
                 }
             }
@@ -530,11 +550,9 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var obj = operands[0].As<UnityEngine.GameObject>();
-                if (null != obj)
-                {
+                if (null != obj) {
                     r = BoxedValue.FromObject(PrefabUtility.FindAllInstancesOfPrefab(obj));
                 }
             }
@@ -548,12 +566,10 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var obj = operands[0].As<UnityEngine.GameObject>();
-                var scene = operands[1].CastTo< UnityEngine.SceneManagement.Scene>();
-                if (null != obj && scene.IsValid())
-                {
+                var scene = operands[1].CastTo<UnityEngine.SceneManagement.Scene>();
+                if (null != obj && scene.IsValid()) {
                     r = BoxedValue.FromObject(PrefabUtility.FindAllInstancesOfPrefab(obj, scene));
                 }
             }
@@ -567,11 +583,9 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 1)
-            {
+            if (operands.Count >= 1) {
                 var obj = operands[0].As<UnityEngine.GameObject>();
-                if (null != obj)
-                {
+                if (null != obj) {
                     var sb = new StringBuilder();
                     CheckPrefabRecursively(sb, obj, 0);
                     return sb.ToString();
@@ -590,15 +604,12 @@ namespace StoryScript.DslExpression
             sb.AppendFormat("obj:{0} objFromSource:{1} origin:{2} objFromOrigin:{3}", obj, objFromSource, originObj, objFromOrigin);
             var prefab = PrefabUtility.GetPrefabInstanceHandle(obj) as UnityEngine.GameObject;
             bool isInst = true;
-            if (!prefab)
-            {
+            if (!prefab) {
                 prefab = obj;
                 isInst = false;
             }
-            if (null != prefab)
-            {
-                if (isInst)
-                {
+            if (null != prefab) {
+                if (isInst) {
                     var objFromSourcePrefab = PrefabUtility.GetCorrespondingObjectFromSource(prefab);
                     var originObjPrefab = PrefabUtility.GetOriginalSourceRootWhereGameObjectIsAdded(prefab);
                     var objFromOriginPrefab = originObjPrefab ? PrefabUtility.GetCorrespondingObjectFromOriginalSource(originObjPrefab) : null;
@@ -614,12 +625,10 @@ namespace StoryScript.DslExpression
                 bool overridesNearst = rootNearst ? PrefabUtility.HasPrefabInstanceAnyOverrides(rootNearst, true) : false;
                 bool overridesOuter = rootOutermost ? PrefabUtility.HasPrefabInstanceAnyOverrides(rootOutermost, true) : false;
                 sb.AppendFormat(" type:{0} status:{1} missing:{2} overrides:{3} overridesNearst:{4} overridesOutermost:{5} asset:{6}", assetType, status, missing, overrides, overridesNearst, overridesOuter, asset);
-                if (rootNearst)
-                {
+                if (rootNearst) {
                     sb.AppendFormat(" root:{0}", rootNearst.name);
                 }
-                if (rootOutermost)
-                {
+                if (rootOutermost) {
                     sb.AppendFormat(" rootOuter:{0}", rootOutermost.name);
                 }
                 sb.AppendFormat(" added_comp_overrides:{0} added_obj_overrides:{1} anyroot:{2} outermost:{3}", PrefabUtility.IsAddedComponentOverride(prefab)
@@ -637,62 +646,49 @@ namespace StoryScript.DslExpression
                     , PrefabUtility.IsPartOfRegularPrefab(prefab)
                     , PrefabUtility.IsPartOfVariantPrefab(prefab)
                     , PrefabUtility.IsPrefabAssetMissing(prefab));
-                if (isInst)
-                {
+                if (isInst) {
                     sb.Append(" modifications:");
                     var modifications = PrefabUtility.GetPropertyModifications(prefab);
-                    if (null != modifications)
-                    {
-                        foreach (var modification in modifications)
-                        {
+                    if (null != modifications) {
+                        foreach (var modification in modifications) {
                             sb.AppendFormat(" {0}", modification.propertyPath);
                         }
                     }
                     sb.Append(" added_objs:");
                     var addObjs = PrefabUtility.GetAddedGameObjects(prefab);
-                    if (null != addObjs)
-                    {
-                        foreach (var mobj in addObjs)
-                        {
+                    if (null != addObjs) {
+                        foreach (var mobj in addObjs) {
                             sb.AppendFormat(" {0}", mobj);
                         }
                     }
                     sb.Append(" removed_objs:");
                     var removeObjs = PrefabUtility.GetRemovedGameObjects(prefab);
-                    if (null != removeObjs)
-                    {
-                        foreach (var mobj in removeObjs)
-                        {
+                    if (null != removeObjs) {
+                        foreach (var mobj in removeObjs) {
                             sb.AppendFormat(" {0}", mobj);
                         }
                     }
                     sb.Append(" added_comps:");
                     var addComps = PrefabUtility.GetAddedComponents(prefab);
-                    if (null != addComps)
-                    {
-                        foreach (var mobj in addComps)
-                        {
+                    if (null != addComps) {
+                        foreach (var mobj in addComps) {
                             sb.AppendFormat(" {0}", mobj);
                         }
                     }
                     sb.Append(" removed_comps:");
                     var removeComps = PrefabUtility.GetRemovedComponents(prefab);
-                    if (null != removeComps)
-                    {
-                        foreach (var mobj in removeObjs)
-                        {
+                    if (null != removeComps) {
+                        foreach (var mobj in removeObjs) {
                             sb.AppendFormat(" {0}", mobj);
                         }
                     }
                 }
                 sb.Append(" comps:");
-                foreach (var comp in obj.GetComponents<Component>())
-                {
+                foreach (var comp in obj.GetComponents<Component>()) {
                     sb.AppendFormat(" {0}({1})", comp.name, comp.GetType().Name);
                 }
                 sb.AppendLine();
-                for (int ix = 0; ix < obj.transform.childCount; ++ix)
-                {
+                for (int ix = 0; ix < obj.transform.childCount; ++ix) {
                     var tr = obj.transform.GetChild(ix);
                     CheckPrefabRecursively(sb, tr.gameObject, indent + 1);
                 }
@@ -707,12 +703,10 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 2)
-            {
+            if (operands.Count >= 2) {
                 var prefabA = operands[0].AsString;
                 var prefabB = operands[1].AsString;
-                if (!string.IsNullOrEmpty(prefabA) && !string.IsNullOrEmpty(prefabB))
-                {
+                if (!string.IsNullOrEmpty(prefabA) && !string.IsNullOrEmpty(prefabB)) {
                     var sb = new StringBuilder();
                     ScanForDependency(prefabA, prefabB, sb);
                     return sb.ToString();
@@ -727,28 +721,24 @@ namespace StoryScript.DslExpression
             GameObject sourcePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(sourcePath);
             GameObject targetDependency = AssetDatabase.LoadAssetAtPath<GameObject>(targetPath);
 
-            if (sourcePrefab == null || targetDependency == null)
-            {
+            if (sourcePrefab == null || targetDependency == null) {
                 sb.AppendLine("The path is incorrect; please check the path in the script.");
                 return;
             }
 
             sb.AppendLine($"[Start] Checking if '{sourcePrefab.name}' depends on '{targetDependency.name}'...");
 
-            GameObject instance = (GameObject) PrefabUtility.InstantiatePrefab(sourcePrefab);
+            GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(sourcePrefab);
             bool foundDependency = false;
 
-            try
-            {
+            try {
                 // PHASE 1: Hierarchy
                 Transform[] allTransforms = instance.GetComponentsInChildren<Transform>(true);
-                foreach (Transform t in allTransforms)
-                {
+                foreach (Transform t in allTransforms) {
                     GameObject sourceAsset = PrefabUtility.GetCorrespondingObjectFromSource(t.gameObject);
 
                     // Use Shared Utility
-                    if (sourceAsset != null && IsAssetDerivedFrom(sourceAsset, targetPath))
-                    {
+                    if (sourceAsset != null && IsAssetDerivedFrom(sourceAsset, targetPath)) {
                         sb.AppendLine();
                         sb.AppendLine($"    [Hierarchy Dependency] Node: '{GetHierarchyPath(t)}' is instance/variant of target.");
                         foundDependency = true;
@@ -757,36 +747,28 @@ namespace StoryScript.DslExpression
 
                 // PHASE 2: Properties
                 Component[] allComponents = instance.GetComponentsInChildren<Component>(true);
-                foreach (Component comp in allComponents)
-                {
-                    if (comp == null)
-                    {
+                foreach (Component comp in allComponents) {
+                    if (comp == null) {
                         continue;
                     }
                     SerializedObject so = new SerializedObject(comp);
                     SerializedProperty sp = so.GetIterator();
 
-                    while (sp.Next(true))
-                    {
-                        if (sp.propertyType == SerializedPropertyType.ObjectReference)
-                        {
+                    while (sp.Next(true)) {
+                        if (sp.propertyType == SerializedPropertyType.ObjectReference) {
                             var refObj = sp.objectReferenceValue;
-                            if (refObj == null)
-                            {
+                            if (refObj == null) {
                                 continue;
                             }
-                            if (IsSelfReference(refObj, instance.transform))
-                            {
+                            if (IsSelfReference(refObj, instance.transform)) {
                                 continue;
                             }
                             string refPath = AssetDatabase.GetAssetPath(refObj);
-                            if (refPath == sourcePath)
-                            {
+                            if (refPath == sourcePath) {
                                 continue;
                             }
                             // Use Shared Utility
-                            if (IsObjectDerivedFrom(refObj, targetPath))
-                            {
+                            if (IsObjectDerivedFrom(refObj, targetPath)) {
                                 sb.AppendLine();
                                 sb.AppendLine($"    [Property Dependency] Source: '{GetHierarchyPath(comp.transform)}' -> Property: '{sp.propertyPath}' refers to target.");
                                 foundDependency = true;
@@ -796,17 +778,14 @@ namespace StoryScript.DslExpression
                 }
 
                 sb.AppendLine();
-                if (!foundDependency)
-                {
+                if (!foundDependency) {
                     sb.AppendLine($"    [Result] No dependency found.");
                 }
-                else
-                {
+                else {
                     sb.AppendLine($"    [Result] Dependencies found!");
                 }
             }
-            finally
-            {
+            finally {
                 GameObject.DestroyImmediate(instance);
             }
         }
@@ -817,12 +796,10 @@ namespace StoryScript.DslExpression
         /// <returns>True if the object is a child of the root or the root itself.</returns>
         internal static bool IsSelfReference(UnityEngine.Object obj, Transform rootTransform)
         {
-            if (obj is GameObject go)
-            {
+            if (obj is GameObject go) {
                 return go.transform.IsChildOf(rootTransform);
             }
-            else if (obj is Component comp)
-            {
+            else if (obj is Component comp) {
                 return comp.transform.IsChildOf(rootTransform);
             }
 
@@ -833,21 +810,18 @@ namespace StoryScript.DslExpression
         // that is (or inherits from) the target path.
         internal static bool IsObjectDerivedFrom(UnityEngine.Object obj, string targetPath)
         {
-            if (obj == null)
-            {
+            if (obj == null) {
                 return false;
             }
 
             // Get the path of the asset this object belongs to
             string objPath = AssetDatabase.GetAssetPath(obj);
-            if (string.IsNullOrEmpty(objPath))
-            {
+            if (string.IsNullOrEmpty(objPath)) {
                 return false;
             }
 
             // 1. Direct path match (Fastest)
-            if (objPath == targetPath)
-            {
+            if (objPath == targetPath) {
                 return true;
             }
 
@@ -859,25 +833,21 @@ namespace StoryScript.DslExpression
         // Recursive check for Prefab Variants
         internal static bool IsAssetDerivedFrom(GameObject assetToCheck, string targetPath)
         {
-            if (assetToCheck == null)
-            {
+            if (assetToCheck == null) {
                 return false;
             }
 
             string currentPath = AssetDatabase.GetAssetPath(assetToCheck);
-            if (currentPath == targetPath)
-            {
+            if (currentPath == targetPath) {
                 return true;
             }
 
             GameObject basePrefab = PrefabUtility.GetCorrespondingObjectFromSource(assetToCheck);
 
-            if (basePrefab == null)
-            {
+            if (basePrefab == null) {
                 return false;
             }
-            if (basePrefab == assetToCheck)
-            {
+            if (basePrefab == assetToCheck) {
                 return false;
             }
             return IsAssetDerivedFrom(basePrefab, targetPath);
@@ -885,8 +855,7 @@ namespace StoryScript.DslExpression
         // Helper: Check if a GameObject is the main root of its own asset file
         internal static bool IsRootOfItsAsset(GameObject go)
         {
-            if (go == null)
-            {
+            if (go == null) {
                 return false;
             }
             string assetPath = AssetDatabase.GetAssetPath(go);
@@ -895,13 +864,11 @@ namespace StoryScript.DslExpression
         }
         internal static string GetHierarchyPath(Transform t)
         {
-            if (t == null)
-            {
+            if (t == null) {
                 return "";
             }
             string path = t.name;
-            while (t.parent != null && t.parent.parent != null)
-            {
+            while (t.parent != null && t.parent.parent != null) {
                 t = t.parent;
                 path = t.name + "/" + path;
             }
@@ -915,26 +882,21 @@ namespace StoryScript.DslExpression
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR
-            if (operands.Count >= 2)
-            {
+            if (operands.Count >= 2) {
                 var prefabA = operands[0].AsString;
                 var prefabB = operands[1].AsString;
                 bool checkRootObjComp = false;
                 bool checkChildGameObjects = false;
-                if (operands.Count >= 3)
-                {
+                if (operands.Count >= 3) {
                     checkRootObjComp = operands[2].GetBool();
                 }
-                if (operands.Count >= 4)
-                {
+                if (operands.Count >= 4) {
                     checkChildGameObjects = operands[3].GetBool();
                 }
-                if (!string.IsNullOrEmpty(prefabA) && !string.IsNullOrEmpty(prefabB))
-                {
+                if (!string.IsNullOrEmpty(prefabA) && !string.IsNullOrEmpty(prefabB)) {
                     var sb = new StringBuilder();
                     bool foundIssue = CheckInternalDependency(prefabA, prefabB, checkRootObjComp, checkChildGameObjects, sb);
-                    if (foundIssue)
-                    {
+                    if (foundIssue) {
                         return sb.ToString();
                     }
                     return string.Empty;
@@ -949,115 +911,93 @@ namespace StoryScript.DslExpression
             GameObject sourcePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(sourcePath);
             GameObject targetDependency = AssetDatabase.LoadAssetAtPath<GameObject>(targetPath);
 
-            if (sourcePrefab == null || targetDependency == null)
-            {
+            if (sourcePrefab == null || targetDependency == null) {
                 Debug.LogErrorFormat("source:{0} target:{1} checkRoot:{2} checkChild:{3} sourcePrefab:{4} targetDependency:{5}", sourcePath, targetPath, checkRootObjComp, checkChildGameObjects, sourcePrefab, targetDependency);
                 return false;
             }
 
             // Load the Main Asset (Root GameObject) of B to distinguish between Root and Child
             GameObject targetRoot = AssetDatabase.LoadMainAssetAtPath(targetPath) as GameObject;
-            if (targetRoot == null)
-            {
+            if (targetRoot == null) {
                 Debug.LogErrorFormat("source:{0} target:{1} checkRoot:{2} checkChild:{3} targetRoot is null", sourcePath, targetPath, checkRootObjComp, checkChildGameObjects);
                 return false;
             }
 
-            GameObject instance = (GameObject) PrefabUtility.InstantiatePrefab(sourcePrefab);
+            GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(sourcePrefab);
             bool foundIssue = false;
 
-            try
-            {
+            try {
                 Component[] allComponents = instance.GetComponentsInChildren<Component>(true);
 
-                foreach (Component comp in allComponents)
-                {
-                    if (comp == null)
-                    {
+                foreach (Component comp in allComponents) {
+                    if (comp == null) {
                         continue;
                     }
 
                     SerializedObject so = null;
-                    try
-                    {
+                    try {
                         so = new SerializedObject(comp);
                     }
-                    catch(Exception ex)
-                    {
+                    catch (Exception ex) {
                         Debug.LogErrorFormat("source:{0} target:{1} checkRoot:{2} checkChild:{3} comp:{4} exception:{5}\n{6}", sourcePath, targetPath, checkRootObjComp, checkChildGameObjects, comp, ex.Message, ex.StackTrace);
                         so = null;
                     }
-                    if (null == so)
-                    {
+                    if (null == so) {
                         Debug.LogErrorFormat("source:{0} target:{1} checkRoot:{2} checkChild:{3} comp:{4} so is null", sourcePath, targetPath, checkRootObjComp, checkChildGameObjects, comp);
                         continue;
                     }
 
                     SerializedProperty sp = so.GetIterator();
 
-                    while (sp.Next(true))
-                    {
-                        if (sp.propertyType == SerializedPropertyType.ObjectReference)
-                        {
+                    while (sp.Next(true)) {
+                        if (sp.propertyType == SerializedPropertyType.ObjectReference) {
                             var refObj = sp.objectReferenceValue;
 
-                            if (refObj == null)
-                            {
+                            if (refObj == null) {
                                 continue;
                             }
-                            if (ScanDependencyExp.IsSelfReference(refObj, instance.transform))
-                            {
+                            if (ScanDependencyExp.IsSelfReference(refObj, instance.transform)) {
                                 continue;
                             }
                             string refPath = AssetDatabase.GetAssetPath(refObj);
-                            if (refPath == sourcePath)
-                            {
+                            if (refPath == sourcePath) {
                                 continue;
                             }
                             // 1. Check if the referenced object is (or inherits from) the target Prefab
-                            if (ScanDependencyExp.IsObjectDerivedFrom(refObj, targetPath))
-                            {
+                            if (ScanDependencyExp.IsObjectDerivedFrom(refObj, targetPath)) {
                                 bool shouldReport = false;
                                 string referenceType = "";
 
                                 // 2. Analyze the type of reference
-                                if (refObj is Component refComp)
-                                {
-                                    if (ScanDependencyExp.IsRootOfItsAsset(refComp.gameObject))
-                                    {
-                                        if (checkRootObjComp)
-                                        {
+                                if (refObj is Component refComp) {
+                                    if (ScanDependencyExp.IsRootOfItsAsset(refComp.gameObject)) {
+                                        if (checkRootObjComp) {
                                             // Case A: Reference to a Component (Script, Transform, etc.)
                                             // Always report.
                                             shouldReport = true;
                                             referenceType = $"Component({refObj.GetType().Name})";
                                         }
                                     }
-                                    else
-                                    {
+                                    else {
                                         // Case A: Reference to a Component (Script, Transform, etc.)
                                         // Always report.
                                         shouldReport = true;
                                         referenceType = $"Component({refObj.GetType().Name})";
                                     }
                                 }
-                                else if (refObj is GameObject refGo)
-                                {
+                                else if (refObj is GameObject refGo) {
                                     // Case B: Reference to a GameObject
                                     // We need to check if it's the Root or a Child.
 
                                     // To do this accurately for Variants, we check if the referenced GO
                                     // corresponds to the Root of the asset it lives in.
-                                    if (ScanDependencyExp.IsRootOfItsAsset(refGo))
-                                    {
+                                    if (ScanDependencyExp.IsRootOfItsAsset(refGo)) {
                                         // It is a Root GameObject (Safe dependency)
                                         // (Logic: pass)
                                     }
-                                    else
-                                    {
+                                    else {
                                         // It is a Child GameObject (Sub-Asset)
-                                        if (checkChildGameObjects)
-                                        {
+                                        if (checkChildGameObjects) {
                                             shouldReport = true;
                                             referenceType = "Child_GameObject";
                                         }
@@ -1065,10 +1005,8 @@ namespace StoryScript.DslExpression
                                 }
 
                                 // 3. Log
-                                if (shouldReport)
-                                {
-                                    if (foundIssue)
-                                    {
+                                if (shouldReport) {
+                                    if (foundIssue) {
                                         sb.Append(" ");
                                     }
                                     foundIssue = true;
@@ -1085,8 +1023,7 @@ namespace StoryScript.DslExpression
 
                 return foundIssue;
             }
-            finally
-            {
+            finally {
                 GameObject.DestroyImmediate(instance);
             }
         }
@@ -1096,12 +1033,10 @@ namespace StoryScript.DslExpression
     {
         protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            if (operands.Count >= 2)
-            {
+            if (operands.Count >= 2) {
                 var binFile = operands[0].AsString;
                 var txtFile = operands[1].AsString;
-                if (!string.IsNullOrEmpty(binFile) && !string.IsNullOrEmpty(txtFile))
-                {
+                if (!string.IsNullOrEmpty(binFile) && !string.IsNullOrEmpty(txtFile)) {
                     Convert(binFile, txtFile);
                     return true;
                 }
@@ -1149,7 +1084,7 @@ namespace StoryScript.DslExpression
             sw.WriteLine($"{ToHex64(startAddr)} {ToHex64(size)} {ToHex64(sizeTruncated)}");
 
             // Read data region
-            byte[] data = br.ReadBytes(checked((int) sizeTruncated));
+            byte[] data = br.ReadBytes(checked((int)sizeTruncated));
 
             const int bytesPerLine = 16;
 
@@ -1161,9 +1096,8 @@ namespace StoryScript.DslExpression
 
             // Handle possible first partial line before startAddr
             long delta = startAddr - alignedAddr; // how many bytes before the first real byte
-            if (delta > 0)
-            {
-                int preBytes = (int) Math.Min(bytesPerLine, delta);
+            if (delta > 0) {
+                int preBytes = (int)Math.Min(bytesPerLine, delta);
                 int lineBytes = Math.Min(bytesPerLine, preBytes + data.Length);
 
                 // 1) Address field
@@ -1171,23 +1105,19 @@ namespace StoryScript.DslExpression
                 sw.Write(' ');
 
                 // 2) Hex bytes: positions before start_addr are spaces
-                for (int i = 0; i < bytesPerLine; i++)
-                {
-                    if (i < preBytes)
-                    {
+                for (int i = 0; i < bytesPerLine; i++) {
+                    if (i < preBytes) {
                         // 2 hex chars + 1 space => 3 spaces
                         sw.Write("   ");
                     }
-                    else if (i < lineBytes)
-                    {
+                    else if (i < lineBytes) {
                         int dataIndex = i - preBytes;
                         sw.Write(data[dataIndex].ToString("x2"));
                         sw.Write(i == bytesPerLine - 1 ? ' ' : ' ');
                         if (i < bytesPerLine - 1)
                             sw.Write(' '); // keep one extra space as separator
                     }
-                    else
-                    {
+                    else {
                         // no more data on this line; fill hex area with spaces
                         sw.Write("   ");
                     }
@@ -1196,21 +1126,17 @@ namespace StoryScript.DslExpression
                 sw.Write(' ');
 
                 // 3) ASCII: spaces for positions before start_addr or without data
-                for (int i = 0; i < bytesPerLine; i++)
-                {
-                    if (i < preBytes)
-                    {
+                for (int i = 0; i < bytesPerLine; i++) {
+                    if (i < preBytes) {
                         sw.Write(' ');
                     }
-                    else if (i < lineBytes)
-                    {
+                    else if (i < lineBytes) {
                         int dataIndex = i - preBytes;
                         byte b = data[dataIndex];
-                        char c = (b >= 32 && b < 127) ? (char) b : '.';
+                        char c = (b >= 32 && b < 127) ? (char)b : '.';
                         sw.Write(c);
                     }
-                    else
-                    {
+                    else {
                         sw.Write(' ');
                     }
                 }
@@ -1224,8 +1150,7 @@ namespace StoryScript.DslExpression
             }
 
             // Normal full/partial lines after the first aligned line
-            while (offset < data.Length)
-            {
+            while (offset < data.Length) {
                 int count = Math.Min(bytesPerLine, data.Length - offset);
 
                 // 1) Address field (16 hex digits)
@@ -1233,18 +1158,14 @@ namespace StoryScript.DslExpression
                 sw.Write(' ');
 
                 // 2) Hex bytes (up to 16, separated by spaces; pad to 16-byte width)
-                for (int i = 0; i < bytesPerLine; i++)
-                {
-                    if (i < count)
-                    {
+                for (int i = 0; i < bytesPerLine; i++) {
+                    if (i < count) {
                         sw.Write(data[offset + i].ToString("x2"));
-                        if (i < bytesPerLine - 1)
-                        {
+                        if (i < bytesPerLine - 1) {
                             sw.Write(' ');
                         }
                     }
-                    else
-                    {
+                    else {
                         // pad hex area for missing bytes
                         sw.Write("   ");
                     }
@@ -1253,16 +1174,13 @@ namespace StoryScript.DslExpression
                 sw.Write(' ');
 
                 // 3) ASCII representation (pad with spaces for missing bytes)
-                for (int i = 0; i < bytesPerLine; i++)
-                {
-                    if (i < count)
-                    {
+                for (int i = 0; i < bytesPerLine; i++) {
+                    if (i < count) {
                         byte b = data[offset + i];
-                        char c = (b >= 32 && b < 127) ? (char) b : '.';
+                        char c = (b >= 32 && b < 127) ? (char)b : '.';
                         sw.Write(c);
                     }
-                    else
-                    {
+                    else {
                         sw.Write(' ');
                     }
                 }
@@ -1280,8 +1198,7 @@ namespace StoryScript.DslExpression
         {
             const long alignment = 8;
             long remainder = value & (alignment - 1);
-            if (remainder == 0)
-            {
+            if (remainder == 0) {
                 return value;
             }
             return value + (alignment - remainder);
@@ -1679,7 +1596,10 @@ namespace StoryScript.DslExpression
             calculator.Register("getdependenciesgraph", "getdependenciesgraph(list_or_str1,list_or_str2,...) api, return string[]", new ExpressionFactoryHelper<GetDependenciesGraphExp>());
             calculator.Register("getassetimporter", "getassetimporter(path) api", new ExpressionFactoryHelper<GetAssetImporterExp>());
             calculator.Register("loadasset", "loadasset(asset_path) api", new ExpressionFactoryHelper<LoadAssetExp>());
+            calculator.Register("loadassets", "loadassets(asset_path) api", new ExpressionFactoryHelper<LoadAssetsExp>());
             calculator.Register("unloadasset", "unloadasset(obj) api", new ExpressionFactoryHelper<UnloadAssetExp>());
+            calculator.Register("addobjecttoasset", "addobjecttoasset(obj) api", new ExpressionFactoryHelper<AddObjectToAssetExp>());
+            calculator.Register("removeobjectfromasset", "removeobjectfromasset(obj) api", new ExpressionFactoryHelper<RemoveObjectFromAssetExp>());
             calculator.Register("getprefabtype", "getprefabtype(obj) api", new ExpressionFactoryHelper<GetPrefabTypeExp>());
             calculator.Register("getprefabstatus", "getprefabstatus(obj) api", new ExpressionFactoryHelper<GetPrefabStatusExp>());
             calculator.Register("getprefabobject", "getprefabobject(obj) api", new ExpressionFactoryHelper<GetPrefabObjectExp>());
