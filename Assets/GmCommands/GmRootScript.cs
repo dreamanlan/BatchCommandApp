@@ -4,7 +4,10 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using UnityEngine;
 using StoryScript;
 
@@ -19,6 +22,7 @@ public sealed class GmRootScript : MonoBehaviour
     void OnDisable()
     {
         DeinitAndroidReceiver();
+        DeinitSocketServer();
     }
     void Start()
     {
@@ -49,7 +53,7 @@ public sealed class GmRootScript : MonoBehaviour
                     m_LastClipboardTime = 0;
                 }
             }
-            if (null != m_AndroidReceiver) {
+            if (null != m_AndroidReceiver || m_SocketServerInited) {
                 HandleCommand();
             }
             ClientGmStorySystem.Instance.Tick();
@@ -98,14 +102,18 @@ public sealed class GmRootScript : MonoBehaviour
         m_FunctionDocs = StoryScript.StoryFunctionManager.Instance.GenFunctionDocs();
 
 #if UNITY_EDITOR
-        SetClipboardInterval(100);
+        InitSocketServer();
 #elif UNITY_STANDALONE
 #if DEVELOPMENT_BUILD
-        SetClipboardInterval(100);
+        InitSocketServer();
 #endif
 #elif UNITY_ANDROID
 #if DEVELOPMENT_BUILD
         InitAndroidReceiver();
+#endif
+#else
+#if DEVELOPMENT_BUILD
+        InitSocketServer();
 #endif
 #endif
     }
@@ -130,6 +138,23 @@ public sealed class GmRootScript : MonoBehaviour
             m_AndroidReceiver.UnregisterBroadcastReceiver();
         }
 #endif
+    }
+    private void InitSocketServer()
+    {
+        if (m_SocketServerInited) return;
+        m_SocketServerInited = true;
+        s_SocketServer = new GmSocketServer(c_SocketServerPort);
+        s_SocketServer.Start();
+        LogSystem.Warn("GmSocketServer started on port {0}", c_SocketServerPort);
+    }
+    private void DeinitSocketServer()
+    {
+        if (m_SocketServerInited && null != s_SocketServer) {
+            s_SocketServer.Stop();
+            s_SocketServer = null;
+            m_SocketServerInited = false;
+            LogSystem.Warn("GmSocketServer stopped.");
+        }
     }
 
     private void OnResetDsl()
@@ -227,6 +252,7 @@ public sealed class GmRootScript : MonoBehaviour
     private long m_LastClipboardTime;
     private bool m_NeedCheckClipboard;
     private BroadcastReceiverHandler m_AndroidReceiver;
+    private bool m_SocketServerInited;
 
     private SortedList<string, string> m_CommandDocs;
     private SortedList<string, string> m_FunctionDocs;
@@ -298,9 +324,14 @@ public sealed class GmRootScript : MonoBehaviour
             GetGmRootScript().InitAndroidReceiver();
         }
     }
+    public static void ListenSocket()
+    {
+        if (null != s_GameObj) {
+            GetGmRootScript().InitSocketServer();
+        }
+    }
     public static void SendCommand(string cmd)
     {
-#if UNITY_ANDROID
         lock (s_Lock) {
             if (s_CommandQueue.Count < c_max_command_in_queue) {
                 s_CommandQueue.Enqueue(cmd);
@@ -309,7 +340,6 @@ public sealed class GmRootScript : MonoBehaviour
                 LogSystem.Error("command queue overflow !");
             }
         }
-#endif
     }
     public static void SendLog(string log)
     {
@@ -327,14 +357,12 @@ public sealed class GmRootScript : MonoBehaviour
     }
     private static void HandleCommand()
     {
-#if UNITY_ANDROID
         lock (s_Lock) {
             if (s_CommandQueue.Count > 0) {
                 string cmd = s_CommandQueue.Dequeue();
                 DebugConsole.Execute(cmd);
             }
         }
-#endif
     }
     private static void HandleLog()
     {
@@ -940,6 +968,8 @@ public sealed class GmRootScript : MonoBehaviour
     private const int c_CheckStartInterval = 500;
     private const int c_ElapsedTimeLineCount = 100;
     private const int c_TaskCleanupInterval = 1000;
+    private const int c_SocketServerPort = 39527;
+    private static GmSocketServer s_SocketServer;
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
     [System.Runtime.InteropServices.DllImport("kernel32.dll")]

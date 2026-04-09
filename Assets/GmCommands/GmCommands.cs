@@ -665,6 +665,14 @@ namespace GmCommands
             return false;
         }
     }
+    internal sealed class ListenSocketCommand : SimpleStoryCommandBase<ListenSocketCommand, StoryFunctionParam>
+    {
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        {
+            GmRootScript.ListenSocket();
+            return false;
+        }
+    }
     internal sealed class StartServiceCommand : SimpleStoryCommandBase<StartServiceCommand, StoryFunctionParam<string, string, BoxedValue>>
     {
         protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, string, BoxedValue> _params, long delta)

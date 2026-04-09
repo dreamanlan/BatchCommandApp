@@ -24,6 +24,7 @@ namespace GmCommands
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "finishactivity", "finishactivity() command", new StoryCommandFactoryHelper<FinishActivityCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "listenclipboard", "listenclipboard(interval) command", new StoryCommandFactoryHelper<ListenClipboardCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "listenandroid", "listenandroid() command", new StoryCommandFactoryHelper<ListenAndroidCommand>());
+                StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "listensocket", "listensocket() command", new StoryCommandFactoryHelper<ListenSocketCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "startservice", "startservice(srv_class, extra_name, extra_val) command", new StoryCommandFactoryHelper<StartServiceCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "stopservice", "stopservice(srv_class) command", new StoryCommandFactoryHelper<StopServiceCommand>());
                 StoryCommandManager.Instance.RegisterCommandFactory(StoryCommandGroupDefine.GM, "shell", "shell(cmd) command", new StoryCommandFactoryHelper<ShellCommand>());
