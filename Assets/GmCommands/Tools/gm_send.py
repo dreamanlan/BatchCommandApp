@@ -5,7 +5,7 @@ GM Command Sender for HarmonyOS devices.
 
 Usage:
     # 1. Setup port forwarding first:
-    #    hdc forward tcp:39527 tcp:39527
+    #    hdc fport tcp:39527 tcp:39527
     #
     # 2. Send a single command:
     #    python gm_send.py "your_gm_command_here"

@@ -665,11 +665,12 @@ namespace GmCommands
             return false;
         }
     }
-    internal sealed class ListenSocketCommand : SimpleStoryCommandBase<ListenSocketCommand, StoryFunctionParam>
+    internal sealed class ListenSocketCommand : SimpleStoryCommandBase<ListenSocketCommand, StoryFunctionParam<int>>
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<int> _params, long delta)
         {
-            GmRootScript.ListenSocket();
+            int port = _params.Param1Value;
+            GmRootScript.ListenSocket(port);
             return false;
         }
     }

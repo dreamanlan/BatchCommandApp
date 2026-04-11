@@ -143,9 +143,9 @@ public sealed class GmRootScript : MonoBehaviour
     {
         if (m_SocketServerInited) return;
         m_SocketServerInited = true;
-        s_SocketServer = new GmSocketServer(c_SocketServerPort);
+        s_SocketServer = new GmSocketServer(s_SocketServerPort);
         s_SocketServer.Start();
-        LogSystem.Warn("GmSocketServer started on port {0}", c_SocketServerPort);
+        LogSystem.Warn("GmSocketServer started on port {0}", s_SocketServerPort);
     }
     private void DeinitSocketServer()
     {
@@ -324,9 +324,11 @@ public sealed class GmRootScript : MonoBehaviour
             GetGmRootScript().InitAndroidReceiver();
         }
     }
-    public static void ListenSocket()
+    public static void ListenSocket(int port)
     {
         if (null != s_GameObj) {
+            s_SocketServerPort = port;
+            GetGmRootScript().DeinitSocketServer();
             GetGmRootScript().InitSocketServer();
         }
     }
@@ -968,7 +970,7 @@ public sealed class GmRootScript : MonoBehaviour
     private const int c_CheckStartInterval = 500;
     private const int c_ElapsedTimeLineCount = 100;
     private const int c_TaskCleanupInterval = 1000;
-    private const int c_SocketServerPort = 39527;
+    private static int s_SocketServerPort = 39527;
     private static GmSocketServer s_SocketServer;
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
