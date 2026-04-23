@@ -1,4 +1,4 @@
-using GmCommands;
+﻿using GmCommands;
 using System;
 using System.IO;
 using System.Collections;
@@ -98,8 +98,7 @@ public sealed class GmRootScript : MonoBehaviour
         ClientGmStorySystem.Instance.Init();
         StartupScript.TryInit();
 
-        m_CommandDocs = StoryScript.StoryCommandManager.Instance.GenCommandDocs();
-        m_FunctionDocs = StoryScript.StoryFunctionManager.Instance.GenFunctionDocs();
+        m_StoryDocs = DslCalculatorHost.GetSharedApiRegistry().ApiDocs;
 
 #if UNITY_EDITOR
         InitSocketServer();
@@ -161,7 +160,7 @@ public sealed class GmRootScript : MonoBehaviour
     {
         try {
             ResetGmCode();
-            ClientGmStorySystem.Instance.ClearGlobalVariables();
+            ClientGmStorySystem.Instance.ClearContextVariables();
             ClientGmStorySystem.Instance.Reset();
             StoryScript.StoryConfigManager.Instance.Clear();
             LogSystem.Warn("ResetDsl finish.");
@@ -254,8 +253,7 @@ public sealed class GmRootScript : MonoBehaviour
     private BroadcastReceiverHandler m_AndroidReceiver;
     private bool m_SocketServerInited;
 
-    private SortedList<string, string> m_CommandDocs;
-    private SortedList<string, string> m_FunctionDocs;
+    private SortedList<string, string> m_StoryDocs;
     private string m_LocalGmFile = string.Empty;
     private bool m_Inited = false;
 
@@ -263,13 +261,9 @@ public sealed class GmRootScript : MonoBehaviour
     public static DebugConsoleShowHideDelegation OnConsoleShow;
     public static DebugConsoleShowHideDelegation OnConsoleHide;
 
-    public static SortedList<string, string> CommandDocs
+    public static SortedList<string, string> StoryDocs
     {
-        get { return GetGmRootScript().m_CommandDocs; }
-    }
-    public static SortedList<string, string> FunctionDocs
-    {
-        get { return GetGmRootScript().m_FunctionDocs; }
+        get { return GetGmRootScript().m_StoryDocs; }
     }
     public static GameObject GameObj
     {

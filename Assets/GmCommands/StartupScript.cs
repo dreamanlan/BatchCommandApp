@@ -100,7 +100,7 @@ public static class StartupScript
     {
         if (!s_Inited) {
             s_Calculator = new DslCalculator();
-            s_Calculator.Init();
+            s_Calculator.NewApiRegistry();
             s_Calculator.OnLog = LogSystem.Log;
             s_Calculator.OnLoadFailback = OnLoadFailback;
             s_Inited = true;

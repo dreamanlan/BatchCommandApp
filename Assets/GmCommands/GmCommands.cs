@@ -13,6 +13,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Assertions.Must;
 using StoryScript;
+using StoryScript.DslExpression;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
 using Unity.Profiling;
@@ -513,36 +514,36 @@ namespace GmCommands
         private static bool s_Started = false;
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal sealed class LogCodeNumCommand : SimpleStoryCommandBase<LogCodeNumCommand, StoryFunctionParam>
+    internal sealed class LogCodeNumCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            LogSystem.Warn("app code num:{0}", 113);
-            return false;
+            LogSystem.Warn("app code num:{0}", 116);
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class HelpCommand : SimpleStoryCommandBase<HelpCommand, StoryFunctionParam>
+    internal sealed class HelpCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             Application.OpenURL("https://github.com/dreamanlan/BatchCommandApp/blob/master/help.md");
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SetDebugCommand : SimpleStoryCommandBase<SetDebugCommand, StoryFunctionParam<int>>
+    internal sealed class SetDebugCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<int> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            int val = _params.Param1Value;
+            int val = operands[0].GetInt();
             StoryConfigManager.Instance.IsDebug = val != 0;
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class StartActivityCommand : SimpleStoryCommandBase<StartActivityCommand, StoryFunctionParams>
+    internal sealed class StartActivityCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var args = _params.Values;
+            var args = operands;
             if (Application.platform == RuntimePlatform.Android) {
                 if (args.Count >= 1 && args[0].IsString) {
                     string packageName = args[0].GetString();
@@ -577,7 +578,7 @@ namespace GmCommands
                     LogSystem.Error("expect startactivity(package_name, ...)");
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
         private static void StartActivity(string packageName, string className, int flags, IList list, IDictionary dict)
         {
@@ -630,14 +631,14 @@ namespace GmCommands
             }
         }
     }
-    internal sealed class FinishActivityCommand : SimpleStoryCommandBase<FinishActivityCommand, StoryFunctionParam>
+    internal sealed class FinishActivityCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             if (Application.platform == RuntimePlatform.Android) {
                 FinishActivity();
             }
-            return false;
+            return BoxedValue.NullObject;
         }
         private static void FinishActivity()
         {
@@ -648,131 +649,131 @@ namespace GmCommands
             }
         }
     }
-    internal sealed class ListenClipboardCommand : SimpleStoryCommandBase<ListenClipboardCommand, StoryFunctionParam<int>>
+    internal sealed class ListenClipboardCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<int> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            int val = _params.Param1Value;
+            int val = operands[0].GetInt();
             GmRootScript.ListenClipboard(val);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ListenAndroidCommand : SimpleStoryCommandBase<ListenAndroidCommand, StoryFunctionParam>
+    internal sealed class ListenAndroidCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             GmRootScript.ListenAndroid();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ListenSocketCommand : SimpleStoryCommandBase<ListenSocketCommand, StoryFunctionParam<int>>
+    internal sealed class ListenSocketCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<int> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            int port = _params.Param1Value;
+            int port = operands[0].GetInt();
             GmRootScript.ListenSocket(port);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class StartServiceCommand : SimpleStoryCommandBase<StartServiceCommand, StoryFunctionParam<string, string, BoxedValue>>
+    internal sealed class StartServiceCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, string, BoxedValue> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string srvClass = _params.Param1Value;
-            string extraName = _params.Param2Value;
-            BoxedValue extraValue = _params.Param3Value;
+            string srvClass = operands[0].GetString();
+            string extraName = operands[1].GetString();
+            BoxedValue extraValue = operands[2];
             GmRootScript.StartService(srvClass, extraName, extraValue);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class StopServiceCommand : SimpleStoryCommandBase<StopServiceCommand, StoryFunctionParam<string>>
+    internal sealed class StopServiceCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string srvClass = _params.Param1Value;
+            string srvClass = operands[0].GetString();
             GmRootScript.StopService(srvClass);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ShellCommand : SimpleStoryCommandBase<ShellCommand, StoryFunctionParam<string>>
+    internal sealed class ShellCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string cmd = _params.Param1Value;
+            string cmd = operands[0].GetString();
             GmRootScript.ExecNoWait(cmd, 0);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ShellTimeoutCommand : SimpleStoryCommandBase<ShellTimeoutCommand, StoryFunctionParam<string, int>>
+    internal sealed class ShellTimeoutCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, int> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string cmd = _params.Param1Value;
-            int timeout = _params.Param2Value;
+            string cmd = operands[0].GetString();
+            int timeout = operands[1].GetInt();
             GmRootScript.ExecNoWait(cmd, timeout);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class CleanupCompletedTasksCommand : SimpleStoryCommandBase<CleanupCompletedTasksCommand, StoryFunctionParam>
+    internal sealed class CleanupCompletedTasksCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             GmRootScript.CleanupCompletedTasks();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class UseJavaTaskCommand : SimpleStoryCommandBase<UseJavaTaskCommand, StoryFunctionParam<bool>>
+    internal sealed class UseJavaTaskCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<bool> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            GmRootScript.UseJavaTask = _params.Param1Value;
-            return false;
+            GmRootScript.UseJavaTask = operands[0].GetBool();
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SetClipboardCommand : SimpleStoryCommandBase<SetClipboardCommand, StoryFunctionParam<string>>
+    internal sealed class SetClipboardCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string text = _params.Param1Value;
+            string text = operands[0].GetString();
             GUIUtility.systemCopyBuffer = text;
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class EditorBreakCommand : SimpleStoryCommandBase<EditorBreakCommand, StoryFunctionParam>
+    internal sealed class EditorBreakCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             UnityEngine.Debug.Break();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class DebugBreakCommand : SimpleStoryCommandBase<DebugBreakCommand, StoryFunctionParam>
+    internal sealed class DebugBreakCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             UnityEngine.Debug.DebugBreak();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SetTimeScaleCommand : SimpleStoryCommandBase<SetTimeScaleCommand, StoryFunctionParam<float>>
+    internal sealed class SetTimeScaleCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<float> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            Time.timeScale = _params.Param1Value;
-            return false;
+            Time.timeScale = operands[0].GetFloat();
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ClearGlobalsCommand : SimpleStoryCommandBase<ClearGlobalsCommand, StoryFunctionParam>
+    internal sealed class ClearGlobalsCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            ClientGmStorySystem.Instance.ClearGlobalVariables();
-            return false;
+            ClientGmStorySystem.Instance.ClearContextVariables();
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SupportsGfxFormatCommand : SimpleStoryCommandBase<SupportsGfxFormatCommand, StoryFunctionParam>
+    internal sealed class SupportsGfxFormatCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             var vs = Enum.GetValues(typeof(GraphicsFormat));
             var us = Enum.GetValues(typeof(FormatUsage));
@@ -804,12 +805,12 @@ namespace GmCommands
                     LogSystem.Error("invalid graphics format {0}, exception:{1}", gf, ex.Message);
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SupportsTexCommand : SimpleStoryCommandBase<SupportsTexCommand, StoryFunctionParam>
+    internal sealed class SupportsTexCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             var vs = Enum.GetValues(typeof(TextureFormat));
             int ct = 0;
@@ -831,12 +832,12 @@ namespace GmCommands
                     LogSystem.Error("invalid tex format {0}, exception:{1}", tf, ex.Message);
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SupportsRTCommand : SimpleStoryCommandBase<SupportsRTCommand, StoryFunctionParam>
+    internal sealed class SupportsRTCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             var vs = Enum.GetValues(typeof(RenderTextureFormat));
             int ct = 0;
@@ -864,12 +865,12 @@ namespace GmCommands
                     LogSystem.Error("invalid rt format {0}, exception:{1}", rtf, ex.Message);
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SupportsVertexAttributeFormatCommand : SimpleStoryCommandBase<SupportsVertexAttributeFormatCommand, StoryFunctionParam>
+    internal sealed class SupportsVertexAttributeFormatCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             var vs = Enum.GetValues(typeof(VertexAttributeFormat));
             int ct = 0;
@@ -891,12 +892,12 @@ namespace GmCommands
                     LogSystem.Error("invalid vertex attribute format {0}, exception:{1}", vaf, ex.Message);
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class DeviceSupportsCommand : SimpleStoryCommandBase<DeviceSupportsCommand, StoryFunctionParam>
+    internal sealed class DeviceSupportsCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             var log1 = new StringBuilder();
             var log2 = new StringBuilder();
@@ -921,51 +922,50 @@ namespace GmCommands
                 }
             }
             LogSystem.Warn(log2.ToString());
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class LogResolutionsCommand : SimpleStoryCommandBase<LogResolutionsCommand, StoryFunctionParam>
+    internal sealed class LogResolutionsCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             foreach (var reso in Screen.resolutions) {
                 LogSystem.Warn("resolution:{0}x{1} refresh rate ratio:{2}", reso.width, reso.height, reso.refreshRateRatio);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal sealed class CreateDirectoryCommand : SimpleStoryCommandBase<CreateDirectoryCommand, StoryFunctionParam<string>>
+    internal sealed class CreateDirectoryCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string dir = _params.Param1Value;
+            string dir = operands[0].GetString();
             dir = Environment.ExpandEnvironmentVariables(dir);
             if (!Directory.Exists(dir)) {
                 Directory.CreateDirectory(dir);
                 LogSystem.Warn("create directory {0}", dir);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class DeleteDirectoryCommand : SimpleStoryCommandBase<DeleteDirectoryCommand, StoryFunctionParam<string>>
+    internal sealed class DeleteDirectoryCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string dir = _params.Param1Value;
+            string dir = operands[0].GetString();
             dir = Environment.ExpandEnvironmentVariables(dir);
             if (Directory.Exists(dir)) {
                 Directory.Delete(dir, recursive: true);
                 LogSystem.Warn("delete directory {0}", dir);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class CopyDirectoryCommand : SimpleStoryCommandBase<CopyDirectoryCommand, StoryFunctionParams>
+    internal sealed class CopyDirectoryCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var operands = _params.Values;
             string dir1 = operands[0].AsString;
             string dir2 = operands[1].AsString;
             dir1 = Environment.ExpandEnvironmentVariables(dir1);
@@ -996,7 +996,7 @@ namespace GmCommands
                 CopyFolder(targetRoot, dir1, dir2, filterAndNewExts, ref ct);
                 LogSystem.Warn("copy {0} files", ct);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
         private static void CopyFolder(string targetRoot, string from, string to, IList<string> filterAndNewExts, ref int ct)
         {
@@ -1033,12 +1033,12 @@ namespace GmCommands
             }
         }
     }
-    internal sealed class CopyFileCommand : SimpleStoryCommandBase<CopyFileCommand, StoryFunctionParam<string, string>>
+    internal sealed class CopyFileCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string file1 = _params.Param1Value;
-            string file2 = _params.Param2Value;
+            string file1 = operands[0].GetString();
+            string file2 = operands[1].GetString();
             file1 = Environment.ExpandEnvironmentVariables(file1);
             file2 = Environment.ExpandEnvironmentVariables(file2);
             if (File.Exists(file1)) {
@@ -1049,27 +1049,26 @@ namespace GmCommands
                 File.Copy(file1, file2, overwrite: true);
                 LogSystem.Warn("copy file {0} => {1}", file1, file2);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class DeleteFileCommand : SimpleStoryCommandBase<DeleteFileCommand, StoryFunctionParam<string>>
+    internal sealed class DeleteFileCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string file = _params.Param1Value;
+            string file = operands[0].GetString();
             file = Environment.ExpandEnvironmentVariables(file);
             if (File.Exists(file)) {
                 File.Delete(file);
                 LogSystem.Warn("delete file {0}", file);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class CopyFilesCommand : SimpleStoryCommandBase<CopyFilesCommand, StoryFunctionParams>
+    internal sealed class CopyFilesCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var operands = _params.Values;
             string dir1 = operands[0].AsString;
             string dir2 = operands[1].AsString;
             dir1 = Environment.ExpandEnvironmentVariables(dir1);
@@ -1099,7 +1098,7 @@ namespace GmCommands
                 CopyFolder(dir1, dir2, filterAndNewExts, ref ct);
                 LogSystem.Warn("copy {0} files", ct);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
         private static void CopyFolder(string from, string to, IList<string> filterAndNewExts, ref int ct)
         {
@@ -1122,11 +1121,10 @@ namespace GmCommands
             }
         }
     }
-    internal sealed class DeleteFilesCommand : SimpleStoryCommandBase<DeleteFilesCommand, StoryFunctionParams>
+    internal sealed class DeleteFilesCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var operands = _params.Values;
             string dir = operands[0].AsString;
             List<string> filters = new List<string>();
             for (int i = 1; i < operands.Count; i++) {
@@ -1161,14 +1159,13 @@ namespace GmCommands
                 }
                 LogSystem.Warn("delete {0} files", ct);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class DeleteAllFilesCommand : SimpleStoryCommandBase<DeleteAllFilesCommand, StoryFunctionParams>
+    internal sealed class DeleteAllFilesCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var operands = _params.Values;
             string dir = operands[0].AsString;
             List<string> filters = new List<string>();
             for (int i = 1; i < operands.Count; i++) {
@@ -1203,14 +1200,14 @@ namespace GmCommands
                 }
                 LogSystem.Warn("delete {0} files", ct);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SetCurrentDirectoryCommand : SimpleStoryCommandBase<SetCurrentDirectoryCommand, StoryFunctionParam<string>>
+    internal sealed class SetCurrentDirectoryCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string dir = _params.Param1Value;
+            string dir = operands[0].GetString();
             string path = Environment.ExpandEnvironmentVariables(dir);
             if (Path.IsPathRooted(path)) {
                 Environment.CurrentDirectory = path;
@@ -1218,78 +1215,80 @@ namespace GmCommands
             else {
                 Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, path);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class AllocMemoryCommand : SimpleStoryCommandBase<AllocMemoryCommand, StoryFunctionParam<string, int>>
+    internal sealed class AllocMemoryCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, int> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string key = _params.Param1Value;
-            int size = _params.Param2Value;
+            string key = operands[0].GetString();
+            int size = operands[1].GetInt();
             BoxedValue m = BoxedValue.FromObject(new byte[size]);
-            if (instance.GlobalVariables.ContainsKey(key)) {
-                instance.GlobalVariables[key] = m;
+            var instance = Calculator.GetFuncContext<StoryInstance>();
+            if (instance.ContextVariables.ContainsKey(key)) {
+                instance.ContextVariables[key] = m;
             }
             else {
-                instance.GlobalVariables.Add(key, m);
+                instance.ContextVariables.Add(key, m);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class FreeMemoryCommand : SimpleStoryCommandBase<FreeMemoryCommand, StoryFunctionParam<string>>
+    internal sealed class FreeMemoryCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string key = _params.Param1Value;
-            if (instance.GlobalVariables.ContainsKey(key)) {
-                instance.GlobalVariables.Remove(key);
+            string key = operands[0].GetString();
+            var instance = Calculator.GetFuncContext<StoryInstance>();
+            if (instance.ContextVariables.ContainsKey(key)) {
+                instance.ContextVariables.Remove(key);
                 GC.Collect();
             }
             else {
                 GC.Collect();
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ConsumeCpuCommand : SimpleStoryCommandBase<ConsumeCpuCommand, StoryFunctionParam<int>>
+    internal sealed class ConsumeCpuCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<int> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            int time = _params.Param1Value;
+            int time = operands[0].GetInt();
             long startTime = TimeUtility.GetElapsedTimeUs();
             while (startTime + time > TimeUtility.GetElapsedTimeUs()) {
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GcCommand : SimpleStoryCommandBase<GcCommand, StoryFunctionParam>
+    internal sealed class GcCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             GC.Collect();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class StartProfilerCommand : SimpleStoryCommandBase<StartProfilerCommand, StoryFunctionParam>
+    internal sealed class StartProfilerCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             ProfilerForGM.Start();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class StopProfilerCommand : SimpleStoryCommandBase<StopProfilerCommand, StoryFunctionParam>
+    internal sealed class StopProfilerCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             ProfilerForGM.Stop();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class LogProfilerCommand : SimpleStoryCommandBase<LogProfilerCommand, StoryFunctionParam>
+    internal sealed class LogProfilerCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             LogSystem.Warn("[memory] used heap:{0:f3} profiler:{1:f3} gfx:{2:f3} alloc:{3:f3} temp:{4:f3} unused reserved:{5:f3} reserved:{6:f3} alloc count:{7} total alloc count:{8} malloc LL:{9:f3} malloc override:{10:f3}", ProfilerForGM.GetUsedHeapSize() / 1024.0f / 1024.0f, ProfilerForGM.GetTotalProfilerMemoryLong() / 1024.0f / 1024.0f,
                 ProfilerForGM.GetAllocatedMemoryForGraphicsDriver() / 1024.0f / 1024.0f, ProfilerForGM.GetTotalAllocatedMemoryLong() / 1024.0f / 1024.0f, ProfilerForGM.GetTempAllocatorSize() / 1024.0f / 1024.0f, ProfilerForGM.GetTotalUnusedReservedMemoryLong() / 1024.0f / 1024.0f,
@@ -1301,19 +1300,19 @@ namespace GmCommands
             LogSystem.Warn("[rendering] vertex:{0} triangle:{1} dc:{2} set pass:{3} tex:{4:f3} tex count:{5}", ProfilerForGM.GetVertsCount(), ProfilerForGM.GetTriangleCount(),
                 ProfilerForGM.GetDrawCallCount(), ProfilerForGM.GetSetPassCalls(),
                 ProfilerForGM.GetUsedTextureBytes() / 1024.0f / 1024.0f, ProfilerForGM.GetUsedTextureCount());
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class TakeSnapshotCommand : SimpleStoryCommandBase<TakeSnapshotCommand, StoryFunctionParams>
+    internal sealed class TakeSnapshotCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             string path = GetMemSnapPath();
             bool autoClearMemory = false;
             Unity.Profiling.Memory.CaptureFlags captureFlags = Unity.Profiling.Memory.CaptureFlags.ManagedObjects | Unity.Profiling.Memory.CaptureFlags.NativeObjects |
                                         Unity.Profiling.Memory.CaptureFlags.NativeAllocations | Unity.Profiling.Memory.CaptureFlags.NativeAllocationSites |
                                         Unity.Profiling.Memory.CaptureFlags.NativeStackTraces;
-            var vals = _params.Values;
+            var vals = operands;
             if (vals.Count >= 1) {
                 string p = vals[0].AsString;
                 if (!string.IsNullOrEmpty(p) && File.Exists(p)) {
@@ -1328,7 +1327,7 @@ namespace GmCommands
             }
             TakeSnapshot(path, autoClearMemory, captureFlags);
             LogSystem.Warn("snapshot path:{0}", path);
-            return false;
+            return BoxedValue.NullObject;
         }
         private static string GetMemSnapPath(string ext = "snap")
         {
@@ -1391,102 +1390,102 @@ namespace GmCommands
             Unity.Profiling.Memory.MemoryProfiler.TakeSnapshot(path, finishCallback, captureFlags);
         }
     }
-    internal sealed class CmdCommand : SimpleStoryCommandBase<CmdCommand, StoryFunctionParam<string>>
+    internal sealed class CmdCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string cmd = _params.Param1Value;
+            string cmd = operands[0].GetString();
             DebugConsole.Execute(cmd);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GmCommand : SimpleStoryCommandBase<GmCommand, StoryFunctionParam<string>>
+    internal sealed class GmCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string gmToServer = _params.Param1Value;
+            string gmToServer = operands[0].GetString();
             LogSystem.Warn("todo: gm {0}", gmToServer);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class PlayerPrefIntCommand : SimpleStoryCommandBase<PlayerPrefIntCommand, StoryFunctionParam<string, int>>
+    internal sealed class PlayerPrefIntCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, int> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string key = _params.Param1Value;
-            int val = _params.Param2Value;
+            string key = operands[0].GetString();
+            int val = operands[1].GetInt();
             PlayerPrefs.SetInt(key, val);
             PlayerPrefs.Save();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class PlayerPrefFloatCommand : SimpleStoryCommandBase<PlayerPrefFloatCommand, StoryFunctionParam<string, float>>
+    internal sealed class PlayerPrefFloatCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, float> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string key = _params.Param1Value;
-            float val = _params.Param2Value;
+            string key = operands[0].GetString();
+            float val = operands[1].GetFloat();
             PlayerPrefs.SetFloat(key, val);
             PlayerPrefs.Save();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class PlayerPrefStringCommand : SimpleStoryCommandBase<PlayerPrefStringCommand, StoryFunctionParam<string, string>>
+    internal sealed class PlayerPrefStringCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string key = _params.Param1Value;
-            string val = _params.Param2Value;
+            string key = operands[0].GetString();
+            string val = operands[1].GetString();
             PlayerPrefs.SetString(key, val);
             PlayerPrefs.Save();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class PlayerPrefDeleteCommand : SimpleStoryCommandBase<PlayerPrefDeleteCommand, StoryFunctionParam<string>>
+    internal sealed class PlayerPrefDeleteCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string key = _params.Param1Value;
+            string key = operands[0].GetString();
             PlayerPrefs.DeleteKey(key);
             PlayerPrefs.Save();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class PlayerPrefDeleteAllCommand : SimpleStoryCommandBase<PlayerPrefDeleteAllCommand, StoryFunctionParam>
+    internal sealed class PlayerPrefDeleteAllCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             PlayerPrefs.DeleteAll();
             PlayerPrefs.Save();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class PrefByJavaCommand : SimpleStoryCommandBase<PrefByJavaCommand, StoryFunctionParam<string, BoxedValue>>
+    internal sealed class PrefByJavaCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, BoxedValue> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string key = _params.Param1Value;
-            BoxedValue val = _params.Param2Value;
+            string key = operands[0].GetString();
+            BoxedValue val = operands[1];
             GmRootScript.SetPlayerPrefByJava(key, val);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class WeTestTouchCommand : SimpleStoryCommandBase<WeTestTouchCommand, StoryFunctionParam<int, float, float>>
+    internal sealed class WeTestTouchCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<int, float, float> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            int action = _params.Param1Value;
-            float x = _params.Param2Value;
-            float y = _params.Param3Value;
+            int action = operands[0].GetInt();
+            float x = operands[1].GetFloat();
+            float y = operands[2].GetFloat();
             WeTestAutomation.InjectTouch(action, x, y);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class LogMeshCommand : SimpleStoryCommandBase<LogMeshCommand, StoryFunctionParam<BoxedValue>>
+    internal sealed class LogMeshCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<BoxedValue> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var meshObj = _params.Param1Value;
+            var meshObj = operands[0];
             Mesh mesh = StoryScriptUtility.GetMeshArg(ref meshObj);
             if (null != mesh) {
                 var sb = new StringBuilder();
@@ -1517,14 +1516,14 @@ namespace GmCommands
                 }
                 LogSystem.Warn("{0}", sb.ToString());
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SetMaterialCommand : SimpleStoryCommandBase<SetMaterialCommand, StoryFunctionParams>
+    internal sealed class SetMaterialCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var args = _params.Values;
+            var args = operands;
             if (args.Count == 2) {
                 var dest = args[0];
                 var src = args[1];
@@ -1569,14 +1568,14 @@ namespace GmCommands
                     StoryScriptUtility.DestroyObject(oldMat);
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SetSharedMaterialCommand : SimpleStoryCommandBase<SetSharedMaterialCommand, StoryFunctionParams>
+    internal sealed class SetSharedMaterialCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var args = _params.Values;
+            var args = operands;
             if (args.Count == 2) {
                 var dest = args[0];
                 var src = args[1];
@@ -1615,14 +1614,14 @@ namespace GmCommands
                     rd.sharedMaterials = newMats;
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SetMaterialsCommand : SimpleStoryCommandBase<SetMaterialsCommand, StoryFunctionParams>
+    internal sealed class SetMaterialsCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var args = _params.Values;
+            var args = operands;
             if (args.Count == 2) {
                 var dest = args[0];
                 var src = args[1];
@@ -1632,14 +1631,14 @@ namespace GmCommands
                     rd.materials = ms;
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SetSharedMaterialsCommand : SimpleStoryCommandBase<SetSharedMaterialsCommand, StoryFunctionParams>
+    internal sealed class SetSharedMaterialsCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var args = _params.Values;
+            var args = operands;
             if (args.Count == 2) {
                 var dest = args[0];
                 var src = args[1];
@@ -1649,16 +1648,16 @@ namespace GmCommands
                     rd.sharedMaterials = ms;
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class MaterialSetFloatCommand : SimpleStoryCommandBase<MaterialSetFloatCommand, StoryFunctionParam<BoxedValue, BoxedValue, float>>
+    internal sealed class MaterialSetFloatCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<BoxedValue, BoxedValue, float> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var matObj = _params.Param1Value;
-            var key = _params.Param2Value;
-            var val = _params.Param3Value;
+            var matObj = operands[0];
+            var key = operands[1];
+            var val = operands[2].GetFloat();
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 if (key.IsString) {
@@ -1668,16 +1667,16 @@ namespace GmCommands
                     mat.SetFloat(key.GetInt(), val);
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class MaterialSetIntCommand : SimpleStoryCommandBase<MaterialSetIntCommand, StoryFunctionParam<BoxedValue, BoxedValue, int>>
+    internal sealed class MaterialSetIntCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<BoxedValue, BoxedValue, int> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var matObj = _params.Param1Value;
-            var key = _params.Param2Value;
-            var val = _params.Param3Value;
+            var matObj = operands[0];
+            var key = operands[1];
+            var val = operands[2].GetInt();
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 if (key.IsString) {
@@ -1687,16 +1686,16 @@ namespace GmCommands
                     mat.SetInt(key.GetInt(), val);
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class MaterialSetIntegerCommand : SimpleStoryCommandBase<MaterialSetIntegerCommand, StoryFunctionParam<BoxedValue, BoxedValue, int>>
+    internal sealed class MaterialSetIntegerCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<BoxedValue, BoxedValue, int> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var matObj = _params.Param1Value;
-            var key = _params.Param2Value;
-            var val = _params.Param3Value;
+            var matObj = operands[0];
+            var key = operands[1];
+            var val = operands[2].GetInt();
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 if (key.IsString) {
@@ -1706,16 +1705,16 @@ namespace GmCommands
                     mat.SetInteger(key.GetInt(), val);
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class MaterialSetVectorCommand : SimpleStoryCommandBase<MaterialSetVectorCommand, StoryFunctionParam<BoxedValue, BoxedValue, BoxedValue>>
+    internal sealed class MaterialSetVectorCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<BoxedValue, BoxedValue, BoxedValue> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var matObj = _params.Param1Value;
-            var key = _params.Param2Value;
-            var val = _params.Param3Value;
+            var matObj = operands[0];
+            var key = operands[1];
+            var val = operands[2];
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 var v = val.As<Vector4Obj>();
@@ -1726,16 +1725,16 @@ namespace GmCommands
                     mat.SetVector(key.GetInt(), v);
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class MaterialSetColorCommand : SimpleStoryCommandBase<MaterialSetColorCommand, StoryFunctionParam<BoxedValue, BoxedValue, BoxedValue>>
+    internal sealed class MaterialSetColorCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<BoxedValue, BoxedValue, BoxedValue> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var matObj = _params.Param1Value;
-            var key = _params.Param2Value;
-            var val = _params.Param3Value;
+            var matObj = operands[0];
+            var key = operands[1];
+            var val = operands[2];
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 Color v;
@@ -1752,69 +1751,69 @@ namespace GmCommands
                     mat.SetColor(key.GetInt(), v);
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
     //---------------------------------------------------------------------------------------------------------------------------------
-    internal sealed class ExistsDirectoryFunction : SimpleStoryFunctionBase<ExistsDirectoryFunction, StoryFunctionParam<string>>
+    internal sealed class ExistsDirectoryFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string dir = _params.Param1Value;
+            string dir = operands[0].GetString();
             dir = Environment.ExpandEnvironmentVariables(dir);
-            result.Value = BoxedValue.FromBool(Directory.Exists(dir));
+            return BoxedValue.FromBool(Directory.Exists(dir));
         }
     }
-    internal sealed class ExistsFileFunction : SimpleStoryFunctionBase<ExistsFileFunction, StoryFunctionParam<string>>
+    internal sealed class ExistsFileFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string file = _params.Param1Value;
+            string file = operands[0].GetString();
             file = Environment.ExpandEnvironmentVariables(file);
-            result.Value = BoxedValue.FromBool(File.Exists(file));
+            return BoxedValue.FromBool(File.Exists(file));
         }
     }
-    internal sealed class ExpandEnvironmentsFunction : SimpleStoryFunctionBase<ExpandEnvironmentsFunction, StoryFunctionParam<string>>
+    internal sealed class ExpandEnvironmentsFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string file = _params.Param1Value;
-            result.Value = Environment.ExpandEnvironmentVariables(file);
+            string file = operands[0].GetString();
+            return Environment.ExpandEnvironmentVariables(file);
         }
     }
-    internal sealed class EnvironmentsFunction : SimpleStoryFunctionBase<EnvironmentsFunction, StoryFunctionParam>
+    internal sealed class EnvironmentsFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.FromObject(Environment.GetEnvironmentVariables());
+            return BoxedValue.FromObject(Environment.GetEnvironmentVariables());
         }
     }
-    internal sealed class GetCurrentDirectoryFunction : SimpleStoryFunctionBase<GetCurrentDirectoryFunction, StoryFunctionParam<string>>
+    internal sealed class GetCurrentDirectoryFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Environment.CurrentDirectory;
+            return Environment.CurrentDirectory;
         }
     }
-    internal sealed class IsDebugFunction : SimpleStoryFunctionBase<IsDebugFunction, StoryFunctionParam>
+    internal sealed class IsDebugFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = StoryConfigManager.Instance.IsDebug;
+            return StoryConfigManager.Instance.IsDebug;
         }
     }
-    internal sealed class IsDevelopmentFunction : SimpleStoryFunctionBase<IsDevelopmentFunction, StoryFunctionParam>
+    internal sealed class IsDevelopmentFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = StoryConfigManager.Instance.IsDevelopment;
+            return StoryConfigManager.Instance.IsDevelopment;
         }
     }
-    internal sealed class TypeOfFunction : SimpleStoryFunctionBase<TypeOfFunction, StoryFunctionParams>
+    internal sealed class TypeOfFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var args = _params.Values;
+            var args = operands;
             string type = string.Empty;
             if (args.Count == 1) {
                 type = args[0].AsString;
@@ -1823,422 +1822,442 @@ namespace GmCommands
                 type = args[0].AsString + ", " + args[1].AsString;
             }
             if (string.IsNullOrEmpty(type))
-                result.Value = BoxedValue.NullObject;
+                return BoxedValue.NullObject;
             else
-                result.Value = StoryScriptUtility.GetType(type);
+                return StoryScriptUtility.GetType(type);
         }
     }
-    internal sealed class GetMonoMemoryFunction : SimpleStoryFunctionBase<GetMonoMemoryFunction, StoryFunctionParam>
+    internal sealed class GetMonoMemoryFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = GC.GetTotalMemory(false) / 1024.0f / 1024.0f;
+            return GC.GetTotalMemory(false) / 1024.0f / 1024.0f;
         }
     }
-    internal sealed class GetNativeMemoryFunction : SimpleStoryFunctionBase<GetNativeMemoryFunction, StoryFunctionParam>
+    internal sealed class GetNativeMemoryFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Profiler.GetTotalAllocatedMemoryLong() / 1024.0f / 1024.0f;
+            return Profiler.GetTotalAllocatedMemoryLong() / 1024.0f / 1024.0f;
         }
     }
-    internal sealed class GetGfxMemoryFunction : SimpleStoryFunctionBase<GetGfxMemoryFunction, StoryFunctionParam>
+    internal sealed class GetGfxMemoryFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024.0f / 1024.0f;
+            return Profiler.GetAllocatedMemoryForGraphicsDriver() / 1024.0f / 1024.0f;
         }
     }
-    internal sealed class GetUnusedMemoryFunction : SimpleStoryFunctionBase<GetUnusedMemoryFunction, StoryFunctionParam>
+    internal sealed class GetUnusedMemoryFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Profiler.GetTotalUnusedReservedMemoryLong() / 1024.0f / 1024.0f;
+            return Profiler.GetTotalUnusedReservedMemoryLong() / 1024.0f / 1024.0f;
         }
     }
-    internal sealed class GetTotalMemoryFunction : SimpleStoryFunctionBase<GetTotalMemoryFunction, StoryFunctionParam>
+    internal sealed class GetTotalMemoryFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Profiler.GetTotalReservedMemoryLong() / 1024.0f / 1024.0f;
+            return Profiler.GetTotalReservedMemoryLong() / 1024.0f / 1024.0f;
         }
     }
-    internal sealed class GetObjectMemoryFunction : SimpleStoryFunctionBase<GetObjectMemoryFunction, StoryFunctionParam<UnityEngine.Object>>
+    internal sealed class GetObjectMemoryFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<UnityEngine.Object> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var obj = _params.Param1Value;
-            result.Value = Profiler.GetRuntimeMemorySizeLong(obj);
+            var obj = (operands[0].GetObject() as UnityEngine.Object);
+            return Profiler.GetRuntimeMemorySizeLong(obj);
         }
     }
-    internal sealed class DeviceInfoFunction : SimpleStoryFunctionBase<DeviceInfoFunction, StoryFunctionParam>
+    internal sealed class DeviceInfoFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = SystemInfo.deviceName + " | " + SystemInfo.deviceModel + " | "
+            return SystemInfo.deviceName + " | " + SystemInfo.deviceModel + " | "
                 + SystemInfo.graphicsDeviceName + " | " + SystemInfo.graphicsDeviceVersion + " | "
                 + SystemInfo.operatingSystem + " | " + SystemInfo.processorType;
         }
     }
-    internal sealed class GetClipboardFunction : SimpleStoryFunctionBase<GetClipboardFunction, StoryFunctionParam>
+    internal sealed class GetClipboardFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = GUIUtility.systemCopyBuffer;
+            return GUIUtility.systemCopyBuffer;
         }
     }
-    internal sealed class GetObjectByIdFunction : SimpleStoryFunctionBase<GetObjectByIdFunction, StoryFunctionParam<int>>
+    internal sealed class GetObjectByIdFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<int> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
-            var instId = _params.Param1Value;
+            var instId = operands[0].GetInt();
             if (instId != 0) {
                 var o = typeof(UnityEngine.Object).InvokeMember("FindObjectFromInstanceID", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.InvokeMethod, null, null, new object[] { instId });
-                result.Value = o as UnityEngine.Object;
+                return o as UnityEngine.Object;
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetObjectIdFunction : SimpleStoryFunctionBase<GetObjectIdFunction, StoryFunctionParam<UnityEngine.Object>>
+    internal sealed class GetObjectIdFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<UnityEngine.Object> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = 0;
-            var obj = _params.Param1Value;
+            var obj = (operands[0].GetObject() as UnityEngine.Object);
             if (null != obj) {
-                result.Value = obj.GetInstanceID();
+                return obj.GetInstanceID();
             }
+            return 0;
         }
     }
-    internal sealed class GetAndroidSdkIntFunction : SimpleStoryFunctionBase<GetAndroidSdkIntFunction, StoryFunctionParam>
+    internal sealed class GetAndroidSdkIntFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            result.Value = GmRootScript.GetAndroidSdkInt();
+            return GmRootScript.GetAndroidSdkInt();
 #endif
+            return 0;
         }
     }
-    internal sealed class GetBoolFunction : SimpleStoryFunctionBase<GetBoolFunction, StoryFunctionParam<string, bool>>
+    internal sealed class GetBoolFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, bool> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
-            var def = _params.Param2Value;
+            var str = operands[0].GetString();
+            var def = operands[1].GetBool();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = intent.Call<bool>("getBooleanExtra", str, def);
+                return intent.Call<bool>("getBooleanExtra", str, def);
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetBoolArrayFunction : SimpleStoryFunctionBase<GetBoolArrayFunction, StoryFunctionParam<string>>
+    internal sealed class GetBoolArrayFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
+            var str = operands[0].GetString();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = BoxedValue.FromObject(intent.Call<bool[]>("getBooleanArrayExtra", str));
+                return BoxedValue.FromObject(intent.Call<bool[]>("getBooleanArrayExtra", str));
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetStringFunction : SimpleStoryFunctionBase<GetStringFunction, StoryFunctionParam<string>>
+    internal sealed class GetStringFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
+            var str = operands[0].GetString();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = intent.Call<string>("getStringExtra", str);
+                return intent.Call<string>("getStringExtra", str);
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetStringArrayFunction : SimpleStoryFunctionBase<GetStringArrayFunction, StoryFunctionParam<string>>
+    internal sealed class GetStringArrayFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
+            var str = operands[0].GetString();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = BoxedValue.FromObject(intent.Call<string[]>("getStringArrayExtra", str));
+                return BoxedValue.FromObject(intent.Call<string[]>("getStringArrayExtra", str));
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetCharFunction : SimpleStoryFunctionBase<GetCharFunction, StoryFunctionParam<string, char>>
+    internal sealed class GetCharFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, char> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
-            var def = _params.Param2Value;
+            var str = operands[0].GetString();
+            var def = operands[1].GetChar();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = intent.Call<char>("getCharExtra", str, def);
+                return intent.Call<char>("getCharExtra", str, def);
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetCharArrayFunction : SimpleStoryFunctionBase<GetCharArrayFunction, StoryFunctionParam<string>>
+    internal sealed class GetCharArrayFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
+            var str = operands[0].GetString();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = BoxedValue.FromObject(intent.Call<char[]>("getCharArrayExtra", str));
+                return BoxedValue.FromObject(intent.Call<char[]>("getCharArrayExtra", str));
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetByteFunction : SimpleStoryFunctionBase<GetByteFunction, StoryFunctionParam<string, sbyte>>
+    internal sealed class GetByteFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, sbyte> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
-            var def = _params.Param2Value;
+            var str = operands[0].GetString();
+            var def = operands[1].GetSByte();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = intent.Call<sbyte>("getByteExtra", str, def);
+                return intent.Call<sbyte>("getByteExtra", str, def);
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetByteArrayFunction : SimpleStoryFunctionBase<GetByteArrayFunction, StoryFunctionParam<string>>
+    internal sealed class GetByteArrayFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
+            var str = operands[0].GetString();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = BoxedValue.FromObject(intent.Call<sbyte[]>("getByteArrayExtra", str));
+                return BoxedValue.FromObject(intent.Call<sbyte[]>("getByteArrayExtra", str));
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetShortFunction : SimpleStoryFunctionBase<GetShortFunction, StoryFunctionParam<string, short>>
+    internal sealed class GetShortFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, short> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
-            var def = _params.Param2Value;
+            var str = operands[0].GetString();
+            var def = operands[1].GetShort();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = intent.Call<short>("getShortExtra", str, def);
+                return intent.Call<short>("getShortExtra", str, def);
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetShortArrayFunction : SimpleStoryFunctionBase<GetShortArrayFunction, StoryFunctionParam<string>>
+    internal sealed class GetShortArrayFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
+            var str = operands[0].GetString();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = BoxedValue.FromObject(intent.Call<short[]>("getShortArrayExtra", str));
+                return BoxedValue.FromObject(intent.Call<short[]>("getShortArrayExtra", str));
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetIntFunction : SimpleStoryFunctionBase<GetIntFunction, StoryFunctionParam<string, int>>
+    internal sealed class GetIntFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, int> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
-            var def = _params.Param2Value;
+            var str = operands[0].GetString();
+            var def = operands[1].GetInt();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = intent.Call<int>("getIntExtra", str, def);
+                return intent.Call<int>("getIntExtra", str, def);
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetIntArrayFunction : SimpleStoryFunctionBase<GetIntArrayFunction, StoryFunctionParam<string>>
+    internal sealed class GetIntArrayFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
+            var str = operands[0].GetString();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = BoxedValue.FromObject(intent.Call<int[]>("getIntArrayExtra", str));
+                return BoxedValue.FromObject(intent.Call<int[]>("getIntArrayExtra", str));
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetLongFunction : SimpleStoryFunctionBase<GetLongFunction, StoryFunctionParam<string, long>>
+    internal sealed class GetLongFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, long> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
-            var def = _params.Param2Value;
+            var str = operands[0].GetString();
+            var def = operands[1].GetLong();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = intent.Call<long>("getLongExtra", str, def);
+                return intent.Call<long>("getLongExtra", str, def);
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetLongArrayFunction : SimpleStoryFunctionBase<GetLongArrayFunction, StoryFunctionParam<string>>
+    internal sealed class GetLongArrayFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
+            var str = operands[0].GetString();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = BoxedValue.FromObject(intent.Call<long[]>("getLongArrayExtra", str));
+                return BoxedValue.FromObject(intent.Call<long[]>("getLongArrayExtra", str));
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetFloatFunction : SimpleStoryFunctionBase<GetFloatFunction, StoryFunctionParam<string, float>>
+    internal sealed class GetFloatFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, float> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
-            var def = _params.Param2Value;
+            var str = operands[0].GetString();
+            var def = operands[1].GetFloat();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = intent.Call<float>("getFloatExtra", str, def);
+                return intent.Call<float>("getFloatExtra", str, def);
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetFloatArrayFunction : SimpleStoryFunctionBase<GetFloatArrayFunction, StoryFunctionParam<string>>
+    internal sealed class GetFloatArrayFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
+            var str = operands[0].GetString();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = BoxedValue.FromObject(intent.Call<float[]>("getFloatArrayExtra", str));
+                return BoxedValue.FromObject(intent.Call<float[]>("getFloatArrayExtra", str));
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetDoubleFunction : SimpleStoryFunctionBase<GetDoubleFunction, StoryFunctionParam<string, double>>
+    internal sealed class GetDoubleFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, double> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
-            var def = _params.Param2Value;
+            var str = operands[0].GetString();
+            var def = operands[1].GetDouble();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = intent.Call<double>("getDoubleExtra", str, def);
+                return intent.Call<double>("getDoubleExtra", str, def);
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetDoubleArrayFunction : SimpleStoryFunctionBase<GetDoubleArrayFunction, StoryFunctionParam<string>>
+    internal sealed class GetDoubleArrayFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
-            var str = _params.Param1Value;
+            var str = operands[0].GetString();
             if (!string.IsNullOrEmpty(str)) {
                 var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 var intent = act.Call<AndroidJavaObject>("getIntent");
-                result.Value = BoxedValue.FromObject(intent.Call<double[]>("getDoubleArrayExtra", str));
+                return BoxedValue.FromObject(intent.Call<double[]>("getDoubleArrayExtra", str));
             }
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetActivityClassNameFunction : SimpleStoryFunctionBase<GetActivityClassNameFunction, StoryFunctionParam>
+    internal sealed class GetActivityClassNameFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
             var javaObject = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
             string fullClassName = javaObject.Call<AndroidJavaObject>("getClass").Call<string>("getName");
-            result.Value = fullClassName;
+            return fullClassName;
 #endif
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class PlayerPrefIntFunction : SimpleStoryFunctionBase<PlayerPrefIntFunction, StoryFunctionParam<string, int>>
+    internal sealed class PlayerPrefIntFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, int> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string key = _params.Param1Value;
-            int def = _params.Param2Value;
+            string key = operands[0].GetString();
+            int def = operands.Count > 1 ? operands[1].GetInt() : 0;
             int val = PlayerPrefs.GetInt(key, def);
 
-            result.Value = val;
+            return val;
         }
     }
-    internal sealed class PlayerPrefFloatFunction : SimpleStoryFunctionBase<PlayerPrefFloatFunction, StoryFunctionParam<string, float>>
+    internal sealed class PlayerPrefFloatFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, float> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string key = _params.Param1Value;
-            float def = _params.Param2Value;
+            string key = operands[0].GetString();
+            float def = operands.Count > 1 ? operands[1].GetFloat() : 0;
             float val = PlayerPrefs.GetFloat(key, def);
 
-            result.Value = val;
+            return val;
         }
     }
-    internal sealed class PlayerPrefStringFunction : SimpleStoryFunctionBase<PlayerPrefStringFunction, StoryFunctionParam<string, string>>
+    internal sealed class PlayerPrefStringFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string key = _params.Param1Value;
-            string def = _params.Param2Value;
+            string key = operands[0].GetString();
+            string def = operands.Count > 1 ? operands[1].GetString() : string.Empty;
             string val = PlayerPrefs.GetString(key, def);
 
-            result.Value = val;
+            return val;
         }
     }
-    internal sealed class PrefByJavaFunction : SimpleStoryFunctionBase<PrefByJavaFunction, StoryFunctionParam<string, BoxedValue>>
+    internal sealed class PrefByJavaFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, BoxedValue> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string key = _params.Param1Value;
-            BoxedValue def = _params.Param2Value;
-            result.Value = GmRootScript.GetPlayerPrefByJava(key, def);
+            string key = operands[0].GetString();
+            BoxedValue def = operands.Count > 1 ? operands[1] : BoxedValue.NullObject;
+            return GmRootScript.GetPlayerPrefByJava(key, def);
         }
     }
-    internal sealed class IsFormatSupportedFunction : SimpleStoryFunctionBase<IsFormatSupportedFunction, StoryFunctionParam<string, string>>
+    internal sealed class IsFormatSupportedFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             int r = -1;
-            string ename = _params.Param1Value;
-            string uname = _params.Param2Value;
+            string ename = operands[0].GetString();
+            string uname = operands[1].GetString();
             GraphicsFormat gf;
             FormatUsage fu;
             if (Enum.TryParse(ename, out gf) && Enum.TryParse(uname, out fu)) {
@@ -2249,16 +2268,16 @@ namespace GmCommands
                     r = -1;
                 }
             }
-            result.Value = r;
+            return r;
         }
     }
-    internal sealed class GetCompatibleFormatFunction : SimpleStoryFunctionBase<GetCompatibleFormatFunction, StoryFunctionParam<string, string>>
+    internal sealed class GetCompatibleFormatFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             string r = string.Empty;
-            string ename = _params.Param1Value;
-            string uname = _params.Param2Value;
+            string ename = operands[0].GetString();
+            string uname = operands[1].GetString();
             GraphicsFormat gf;
             FormatUsage fu;
             if (Enum.TryParse(ename, out gf) && Enum.TryParse(uname, out fu)) {
@@ -2270,15 +2289,15 @@ namespace GmCommands
                     r = string.Empty;
                 }
             }
-            result.Value = r;
+            return r;
         }
     }
-    internal sealed class GetGraphicsFormatFunction : SimpleStoryFunctionBase<GetGraphicsFormatFunction, StoryFunctionParam<string>>
+    internal sealed class GetGraphicsFormatFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             string r = string.Empty;
-            string ename = _params.Param1Value;
+            string ename = operands[0].GetString();
             DefaultFormat df;
             if (Enum.TryParse(ename, out df)) {
                 try {
@@ -2289,19 +2308,19 @@ namespace GmCommands
                     r = string.Empty;
                 }
             }
-            result.Value = r;
+            return r;
         }
     }
-    internal sealed class GetMSAASampleCountFunction : SimpleStoryFunctionBase<GetMSAASampleCountFunction, StoryFunctionParam<int, int, string, int, int>>
+    internal sealed class GetMSAASampleCountFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<int, int, string, int, int> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             int r = -1;
-            int w = _params.Param1Value;
-            int h = _params.Param2Value;
-            string ename = _params.Param3Value;
-            int d = _params.Param4Value;
-            int mips = _params.Param5Value;
+            int w = operands[0].GetInt();
+            int h = operands[1].GetInt();
+            string ename = operands[2].GetString();
+            int d = operands[3].GetInt();
+            int mips = operands[4].GetInt();
             GraphicsFormat gfc;
             if (Enum.TryParse(ename, out gfc)) {
                 try {
@@ -2311,207 +2330,207 @@ namespace GmCommands
                     r = -1;
                 }
             }
-            result.Value = r;
+            return r;
         }
     }
-    internal sealed class SystemInfoFunction : SimpleStoryFunctionBase<SystemInfoFunction, StoryFunctionParam>
+    internal sealed class SystemInfoFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = typeof(SystemInfo);
+            return typeof(SystemInfo);
         }
     }
-    internal sealed class ScreenFunction : SimpleStoryFunctionBase<ScreenFunction, StoryFunctionParam>
+    internal sealed class ScreenFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = typeof(Screen);
+            return typeof(Screen);
         }
     }
-    internal sealed class ScreenWidthFunction : SimpleStoryFunctionBase<ScreenWidthFunction, StoryFunctionParam>
+    internal sealed class ScreenWidthFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Screen.width;
+            return Screen.width;
         }
     }
-    internal sealed class ScreenHeightFunction : SimpleStoryFunctionBase<ScreenHeightFunction, StoryFunctionParam>
+    internal sealed class ScreenHeightFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Screen.height;
+            return Screen.height;
         }
     }
-    internal sealed class ScreenDPIFunction : SimpleStoryFunctionBase<ScreenDPIFunction, StoryFunctionParam>
+    internal sealed class ScreenDPIFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Screen.dpi;
+            return Screen.dpi;
         }
     }
-    internal sealed class ApplicationFunction : SimpleStoryFunctionBase<ApplicationFunction, StoryFunctionParam>
+    internal sealed class ApplicationFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = typeof(Application);
+            return typeof(Application);
         }
     }
-    internal sealed class AppIdFunction : SimpleStoryFunctionBase<AppIdFunction, StoryFunctionParam>
+    internal sealed class AppIdFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Application.identifier;
+            return Application.identifier;
         }
     }
-    internal sealed class AppNameFunction : SimpleStoryFunctionBase<AppNameFunction, StoryFunctionParam>
+    internal sealed class AppNameFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Application.productName;
+            return Application.productName;
         }
     }
-    internal sealed class PlatformFunction : SimpleStoryFunctionBase<PlatformFunction, StoryFunctionParam>
+    internal sealed class PlatformFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Application.platform.ToString();
+            return Application.platform.ToString();
         }
     }
-    internal sealed class IsEditorFunction : SimpleStoryFunctionBase<IsEditorFunction, StoryFunctionParam>
+    internal sealed class IsEditorFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Application.isEditor;
+            return Application.isEditor;
         }
     }
-    internal sealed class IsConsoleFunction : SimpleStoryFunctionBase<IsConsoleFunction, StoryFunctionParam>
+    internal sealed class IsConsoleFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Application.isConsolePlatform;
+            return Application.isConsolePlatform;
         }
     }
-    internal sealed class IsMobileFunction : SimpleStoryFunctionBase<IsMobileFunction, StoryFunctionParam>
+    internal sealed class IsMobileFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Application.isMobilePlatform;
+            return Application.isMobilePlatform;
         }
     }
-    internal sealed class IsAndroidFunction : SimpleStoryFunctionBase<IsAndroidFunction, StoryFunctionParam>
+    internal sealed class IsAndroidFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Application.platform == RuntimePlatform.Android;
+            return Application.platform == RuntimePlatform.Android;
         }
     }
-    internal sealed class IsIPhoneFunction : SimpleStoryFunctionBase<IsIPhoneFunction, StoryFunctionParam>
+    internal sealed class IsIPhoneFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = Application.platform == RuntimePlatform.IPhonePlayer;
+            return Application.platform == RuntimePlatform.IPhonePlayer;
         }
     }
-    internal sealed class IsPCFunction : SimpleStoryFunctionBase<IsPCFunction, StoryFunctionParam>
+    internal sealed class IsPCFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = !Application.isMobilePlatform && !Application.isConsolePlatform;
+            return !Application.isMobilePlatform && !Application.isConsolePlatform;
         }
     }
-    internal sealed class ShellFunction : SimpleStoryFunctionBase<ShellFunction, StoryFunctionParam<string>>
+    internal sealed class ShellFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string cmd = _params.Param1Value;
-            result.Value = GmRootScript.Exec(cmd, 0);
+            string cmd = operands[0].GetString();
+            return GmRootScript.Exec(cmd, 0);
         }
     }
-    internal sealed class ShellTimeoutFunction : SimpleStoryFunctionBase<ShellTimeoutFunction, StoryFunctionParam<string, int>>
+    internal sealed class ShellTimeoutFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, int> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string cmd = _params.Param1Value;
-            int timeout = _params.Param2Value;
-            result.Value = GmRootScript.Exec(cmd, timeout);
+            string cmd = operands[0].GetString();
+            int timeout = operands[1].GetInt();
+            return GmRootScript.Exec(cmd, timeout);
         }
     }
-    internal sealed class IsJavaTaskFunction : SimpleStoryFunctionBase<IsJavaTaskFunction, StoryFunctionParam>
+    internal sealed class IsJavaTaskFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = GmRootScript.UseJavaTask;
+            return GmRootScript.UseJavaTask;
         }
     }
-    internal sealed class GetTaskCountFunction : SimpleStoryFunctionBase<GetTaskCountFunction, StoryFunctionParam>
+    internal sealed class GetTaskCountFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = GmRootScript.UseJavaTask ? GmRootScript.JavaTasks.Count : GmRootScript.Tasks.Count;
+            return GmRootScript.UseJavaTask ? GmRootScript.JavaTasks.Count : GmRootScript.Tasks.Count;
         }
     }
-    internal sealed class WeTestGetXFunction : SimpleStoryFunctionBase<WeTestGetXFunction, StoryFunctionParam>
+    internal sealed class WeTestGetXFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = WeTestAutomation.GetX();
+            return WeTestAutomation.GetX();
         }
     }
-    internal sealed class WeTestGetYFunction : SimpleStoryFunctionBase<WeTestGetYFunction, StoryFunctionParam>
+    internal sealed class WeTestGetYFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = WeTestAutomation.GetY();
+            return WeTestAutomation.GetY();
         }
     }
-    internal sealed class WeTestGetWidthFunction : SimpleStoryFunctionBase<WeTestGetWidthFunction, StoryFunctionParam>
+    internal sealed class WeTestGetWidthFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = WeTestAutomation.GetWidth();
+            return WeTestAutomation.GetWidth();
         }
     }
-    internal sealed class WeTestGetHeightFunction : SimpleStoryFunctionBase<WeTestGetHeightFunction, StoryFunctionParam>
+    internal sealed class WeTestGetHeightFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = WeTestAutomation.GetHeight();
+            return WeTestAutomation.GetHeight();
         }
     }
-    internal sealed class GetPointerFunction : SimpleStoryFunctionBase<GetPointerFunction, StoryFunctionParam>
+    internal sealed class GetPointerFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = (StoryScript.Vector3Obj)Input.mousePosition;
+            return (StoryScript.Vector3Obj)Input.mousePosition;
         }
     }
-    internal sealed class PointerRaycastUisFunction : SimpleStoryFunctionBase<PointerRaycastUisFunction, StoryFunctionParam>
+    internal sealed class PointerRaycastUisFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.FromObject(RaycastUisFunction.GetUiObjectsUnderMouse(Input.mousePosition));
+            return BoxedValue.FromObject(RaycastUisFunction.GetUiObjectsUnderMouse(Input.mousePosition));
         }
     }
-    internal sealed class GetPointerComponentsFunction : SimpleStoryFunctionBase<GetPointerComponentsFunction, StoryFunctionParam<object, bool>>
+    internal sealed class GetPointerComponentsFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<object, bool> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
-            var typeObj = _params.Param1Value;
-            bool include_inactive = _params.Param2Value;
+            var typeObj = operands[0].GetObject();
+            bool include_inactive = operands[1].GetBool();
             var list = RaycastComponentsFunction.GetUiComponentsUnderMouse(Input.mousePosition, typeObj, include_inactive);
             if (null != list) {
-                result.Value = BoxedValue.FromObject(list);
+                return BoxedValue.FromObject(list);
             }
+            return BoxedValue.NullObject;
         }
     }
-    public sealed class RaycastUisFunction : SimpleStoryFunctionBase<RaycastUisFunction, StoryFunctionParam<float, float>>
+    public sealed class RaycastUisFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<float, float> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            float x = _params.Param1Value;
-            float y = _params.Param2Value;
-            result.Value = BoxedValue.FromObject(GetUiObjectsUnderMouse(new Vector2(x, y)));
+            float x = operands[0].GetFloat();
+            float y = operands[1].GetFloat();
+            return BoxedValue.FromObject(GetUiObjectsUnderMouse(new Vector2(x, y)));
         }
         public static List<UnityEngine.EventSystems.RaycastResult> GetUiObjectsUnderMouse(Vector2 pos)
         {
@@ -2532,19 +2551,19 @@ namespace GmCommands
             return results;
         }
     }
-    public sealed class RaycastComponentsFunction : SimpleStoryFunctionBase<RaycastComponentsFunction, StoryFunctionParam<float, float, object, bool>>
+    public sealed class RaycastComponentsFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<float, float, object, bool> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
-            float x = _params.Param1Value;
-            float y = _params.Param2Value;
-            var typeObj = _params.Param3Value;
-            bool include_inactive = _params.Param4Value;
+            float x = operands[0].GetFloat();
+            float y = operands[1].GetFloat();
+            var typeObj = operands[2].GetObject();
+            bool include_inactive = operands[3].GetBool();
             var list = GetUiComponentsUnderMouse(new Vector2(x, y), typeObj, include_inactive);
             if (null != list) {
-                result.Value = BoxedValue.FromObject(list);
+                return BoxedValue.FromObject(list);
             }
+            return BoxedValue.NullObject;
         }
         public static List<Component> GetUiComponentsUnderMouse(Vector2 pos, object typeObj, bool include_inactive)
         {
@@ -2579,14 +2598,14 @@ namespace GmCommands
             return null;
         }
     }
-    internal sealed class GetScenePathFunction : SimpleStoryFunctionBase<GetScenePathFunction, StoryFunctionParam<System.Collections.IList, object, int>>
+    internal sealed class GetScenePathFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<System.Collections.IList, object, int> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var prefixs = _params.Param1Value;
-            var obj = _params.Param2Value;
-            int up_level = _params.Param3Value;
-            result.Value = GetScenePath(prefixs, obj, up_level);
+            var prefixs = (operands[0].GetObject() as System.Collections.IList);
+            var obj = operands[1].GetObject();
+            int up_level = operands[2].GetInt();
+            return GetScenePath(prefixs, obj, up_level);
         }
         internal static string GetScenePath(System.Collections.IList prefixs, object obj, int up_level)
         {
@@ -2620,143 +2639,150 @@ namespace GmCommands
             return sb.ToString();
         }
     }
-    internal sealed class ShaderFunction : SimpleStoryFunctionBase<ShaderFunction, StoryFunctionParam>
+    internal sealed class ShaderFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = typeof(Shader);
+            return typeof(Shader);
         }
     }
-    internal sealed class GetMaterialFunction : SimpleStoryFunctionBase<GetMaterialFunction, StoryFunctionParams>
+    internal sealed class GetMaterialFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            if (_params.Values.Count == 1) {
-                var matObj = _params.Values[0];
+            if (operands.Count == 1) {
+                var matObj = operands[0];
                 var mat = StoryScriptUtility.GetMaterialArg(ref matObj);
-                result.Value = mat;
+                return mat;
             }
-            else if (_params.Values.Count == 2) {
-                var matObj = _params.Values[0];
-                var matIx = _params.Values[1].GetInt();
+            else if (operands.Count == 2) {
+                var matObj = operands[0];
+                var matIx = operands[1].GetInt();
                 var mats = StoryScriptUtility.GetMaterialsArg(ref matObj);
                 if (null != mats && matIx >= 0 && matIx < mats.Length) {
-                    result.Value = mats[matIx];
+                    return mats[matIx];
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class GetSharedMaterialFunction : SimpleStoryFunctionBase<GetSharedMaterialFunction, StoryFunctionParams>
+    internal sealed class GetSharedMaterialFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            if (_params.Values.Count == 1) {
-                var matObj = _params.Values[0];
+            if (operands.Count == 1) {
+                var matObj = operands[0];
                 var mat = StoryScriptUtility.GetSharedMaterialArg(ref matObj);
-                result.Value = mat;
+                return mat;
             }
-            else if (_params.Values.Count == 2) {
-                var matObj = _params.Values[0];
-                var matIx = _params.Values[1].GetInt();
+            else if (operands.Count == 2) {
+                var matObj = operands[0];
+                var matIx = operands[1].GetInt();
                 var mats = StoryScriptUtility.GetSharedMaterialsArg(ref matObj);
                 if (null != mats && matIx >= 0 && matIx < mats.Length) {
-                    result.Value = mats[matIx];
+                    return mats[matIx];
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class MaterialGetFloatFunction : SimpleStoryFunctionBase<MaterialGetFloatFunction, StoryFunctionParam<BoxedValue, BoxedValue>>
+    internal sealed class MaterialGetFloatFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<BoxedValue, BoxedValue> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var matObj = _params.Param1Value;
-            var key = _params.Param2Value;
+            var matObj = operands[0];
+            var key = operands[1];
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 if (key.IsString) {
-                    result.Value = mat.GetFloat(key.AsString);
+                    return mat.GetFloat(key.AsString);
                 }
                 else if (key.IsInteger) {
-                    result.Value = mat.GetFloat(key.GetInt());
+                    return mat.GetFloat(key.GetInt());
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class MaterialGetIntFunction : SimpleStoryFunctionBase<MaterialGetIntFunction, StoryFunctionParam<BoxedValue, BoxedValue>>
+    internal sealed class MaterialGetIntFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<BoxedValue, BoxedValue> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var matObj = _params.Param1Value;
-            var key = _params.Param2Value;
+            var matObj = operands[0];
+            var key = operands[1];
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 if (key.IsString) {
-                    result.Value = mat.GetInt(key.AsString);
+                    return mat.GetInt(key.AsString);
                 }
                 else if (key.IsInteger) {
-                    result.Value = mat.GetInt(key.GetInt());
+                    return mat.GetInt(key.GetInt());
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class MaterialGetIntegerFunction : SimpleStoryFunctionBase<MaterialGetIntegerFunction, StoryFunctionParam<BoxedValue, BoxedValue>>
+    internal sealed class MaterialGetIntegerFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<BoxedValue, BoxedValue> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var matObj = _params.Param1Value;
-            var key = _params.Param2Value;
+            var matObj = operands[0];
+            var key = operands[1];
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 if (key.IsString) {
-                    result.Value = mat.GetInteger(key.AsString);
+                    return mat.GetInteger(key.AsString);
                 }
                 else if (key.IsInteger) {
-                    result.Value = mat.GetInteger(key.GetInt());
+                    return mat.GetInteger(key.GetInt());
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class MaterialGetVectorFunction : SimpleStoryFunctionBase<MaterialGetVectorFunction, StoryFunctionParam<BoxedValue, BoxedValue>>
+    internal sealed class MaterialGetVectorFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<BoxedValue, BoxedValue> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var matObj = _params.Param1Value;
-            var key = _params.Param2Value;
+            var matObj = operands[0];
+            var key = operands[1];
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 if (key.IsString) {
-                    result.Value = (StoryScript.Vector4Obj)mat.GetVector(key.AsString);
+                    return (StoryScript.Vector4Obj)mat.GetVector(key.AsString);
                 }
                 else if (key.IsInteger) {
-                    result.Value = (StoryScript.Vector4Obj)mat.GetVector(key.GetInt());
+                    return (StoryScript.Vector4Obj)mat.GetVector(key.GetInt());
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class MaterialGetColorFunction : SimpleStoryFunctionBase<MaterialGetColorFunction, StoryFunctionParam<BoxedValue, BoxedValue>>
+    internal sealed class MaterialGetColorFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<BoxedValue, BoxedValue> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var matObj = _params.Param1Value;
-            var key = _params.Param2Value;
+            var matObj = operands[0];
+            var key = operands[1];
             Material mat = StoryScriptUtility.GetMaterialArg(ref matObj);
             if (null != mat) {
                 if (key.IsString) {
-                    result.Value = (StoryScript.ColorObj)mat.GetColor(key.AsString);
+                    return (StoryScript.ColorObj)mat.GetColor(key.AsString);
                 }
                 else if (key.IsInteger) {
-                    result.Value = (StoryScript.ColorObj)mat.GetColor(key.GetInt());
+                    return (StoryScript.ColorObj)mat.GetColor(key.GetInt());
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal sealed class LogObjectsCommand : SimpleStoryCommandBase<LogObjectsCommand, StoryFunctionParam<string, object>>
+    internal sealed class LogObjectsCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, object> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var name = _params.Param1Value;
-            var typeObj = _params.Param2Value;
+            var name = operands[0].GetString();
+            var typeObj = operands[1].GetObject();
             var type = typeObj as Type;
             var typeStr = typeObj as string;
             if (null != typeStr) {
@@ -2773,18 +2799,18 @@ namespace GmCommands
                     }
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class LogComponentsCommand : SimpleStoryCommandBase<LogComponentsCommand, StoryFunctionParam<string, System.Collections.IList, object, int, bool>>
+    internal sealed class LogComponentsCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, System.Collections.IList, object, int, bool> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var root = _params.Param1Value;
-            var vals = _params.Param2Value;
-            var typeObj = _params.Param3Value;
-            int up_level = _params.Param4Value;
-            bool include_inactive = _params.Param5Value;
+            var root = operands[0].GetString();
+            var vals = (operands[1].GetObject() as System.Collections.IList);
+            var typeObj = operands[2].GetObject();
+            int up_level = operands[3].GetInt();
+            bool include_inactive = operands[4].GetBool();
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -2818,25 +2844,25 @@ namespace GmCommands
                     }
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class LogScenePathCommand : SimpleStoryCommandBase<LogScenePathCommand, StoryFunctionParam<System.Collections.IList, object, int>>
+    internal sealed class LogScenePathCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<System.Collections.IList, object, int> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var prefixs = _params.Param1Value;
-            var obj = _params.Param2Value;
-            int up_level = _params.Param3Value;
+            var prefixs = (operands[0].GetObject() as System.Collections.IList);
+            var obj = operands[1].GetObject();
+            int up_level = operands[2].GetInt();
             LogSystem.Warn(GetScenePathFunction.GetScenePath(prefixs, obj, up_level));
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ClickUiCommand : SimpleStoryCommandBase<ClickUiCommand, StoryFunctionParams>
+    internal sealed class ClickUiCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var vals = _params.Values;
+            var vals = operands;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -2848,14 +2874,14 @@ namespace GmCommands
                     break;
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ToggleOnCommand : SimpleStoryCommandBase<ToggleOnCommand, StoryFunctionParams>
+    internal sealed class ToggleOnCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var vals = _params.Values;
+            var vals = operands;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -2867,33 +2893,33 @@ namespace GmCommands
                     break;
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ClickOnPointerCommand : SimpleStoryCommandBase<ClickOnPointerCommand, StoryFunctionParam>
+    internal sealed class ClickOnPointerCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             ClickOnPosCommand.ClickFirstOnPos(Input.mousePosition);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ToggleOnPointerCommand : SimpleStoryCommandBase<ToggleOnPointerCommand, StoryFunctionParam>
+    internal sealed class ToggleOnPointerCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             ToggleOnPosCommand.ClickFirstOnPos(Input.mousePosition);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ClickOnPosCommand : SimpleStoryCommandBase<ClickOnPosCommand, StoryFunctionParam<float, float>>
+    internal sealed class ClickOnPosCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<float, float> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            float x = _params.Param1Value;
-            float y = _params.Param2Value;
+            float x = operands[0].GetFloat();
+            float y = operands[1].GetFloat();
             ClickFirstOnPos(new Vector2(x, y));
-            return false;
+            return BoxedValue.NullObject;
         }
         internal static void ClickFirstOnPos(Vector2 pos)
         {
@@ -2925,14 +2951,14 @@ namespace GmCommands
             }
         }
     }
-    internal sealed class ToggleOnPosCommand : SimpleStoryCommandBase<ToggleOnPosCommand, StoryFunctionParam<float, float>>
+    internal sealed class ToggleOnPosCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<float, float> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            float x = _params.Param1Value;
-            float y = _params.Param2Value;
+            float x = operands[0].GetFloat();
+            float y = operands[1].GetFloat();
             ClickFirstOnPos(new Vector2(x, y));
-            return false;
+            return BoxedValue.NullObject;
         }
         internal static void ClickFirstOnPos(Vector2 pos)
         {
@@ -2964,53 +2990,53 @@ namespace GmCommands
             }
         }
     }
-    internal sealed class ClickCommand : SimpleStoryCommandBase<ClickCommand, StoryFunctionParam<object>>
+    internal sealed class ClickCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<object> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var obj = _params.Param1Value;
+            var obj = operands[0].GetObject();
             var btn = obj as Button;
             if (null != btn) {
                 btn.onClick.Invoke();
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ToggleCommand : SimpleStoryCommandBase<ToggleCommand, StoryFunctionParam<object>>
+    internal sealed class ToggleCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<object> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var obj = _params.Param1Value;
+            var obj = operands[0].GetObject();
             var toggle = obj as Toggle;
             if (null != toggle) {
                 toggle.isOn = !toggle.isOn;
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class LogCompiledStartupsCommand : SimpleStoryCommandBase<LogCompiledStartupsCommand, StoryFunctionParam>
+    internal sealed class LogCompiledStartupsCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             StartupScript.LogCompiledStartups();
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ReloadStartupsCommand : SimpleStoryCommandBase<ReloadStartupsCommand, StoryFunctionParam<bool>>
+    internal sealed class ReloadStartupsCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<bool> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            bool runGm = _params.Param1Value;
+            bool runGm = operands[0].GetBool();
             Main.RunStartup(runGm);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class RunStartupCommand : SimpleStoryCommandBase<RunStartupCommand, StoryFunctionParam<string, bool>>
+    internal sealed class RunStartupCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, bool> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var startupFile = _params.Param1Value;
-            bool runGm = _params.Param2Value;
+            var startupFile = operands[0].GetString();
+            bool runGm = operands[1].GetBool();
             if (!Path.IsPathRooted(startupFile)) {
                 startupFile = StartupScript.ScriptPath + startupFile;
             }
@@ -3020,26 +3046,26 @@ namespace GmCommands
             if (runGm && !string.IsNullOrEmpty(gmtxt)) {
                 DebugConsole.Execute(gmtxt);
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class CompileStartupCommand : SimpleStoryCommandBase<CompileStartupCommand, StoryFunctionParam<string>>
+    internal sealed class CompileStartupCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var startupFile = _params.Param1Value;
+            var startupFile = operands[0].GetString();
             if (!Path.IsPathRooted(startupFile)) {
                 startupFile = StartupScript.ScriptPath + startupFile;
             }
             StartupScript.CompileStartup(startupFile);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class LoadUiCommand : SimpleStoryCommandBase<LoadUiCommand, StoryFunctionParam<Dsl.ValueData>>
+    internal sealed class LoadUiCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<Dsl.ValueData> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var uiRes = _params.Param1Value;
+            var uiRes = (operands[0].GetObject() as Dsl.ValueData);
 
             var fv = GmRootScript.GameObj;
             if (null != fv) {
@@ -3051,12 +3077,12 @@ namespace GmCommands
             else {
                 LogSystem.Error("can't find GmScript");
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ShowUiCommand : SimpleStoryCommandBase<ShowUiCommand, StoryFunctionParam>
+    internal sealed class ShowUiCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             var fv = GmRootScript.GameObj;
             if (null != fv) {
@@ -3068,12 +3094,12 @@ namespace GmCommands
             else {
                 LogSystem.Error("can't find GmScript");
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class HideUiCommand : SimpleStoryCommandBase<HideUiCommand, StoryFunctionParam>
+    internal sealed class HideUiCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             var fv = GmRootScript.GameObj;
             if (null != fv) {
@@ -3085,34 +3111,34 @@ namespace GmCommands
             else {
                 LogSystem.Error("can't find GmScript");
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class ImportNamespaceCommand : SimpleStoryCommandBase<ImportNamespaceCommand, StoryFunctionParam<string, string>>
+    internal sealed class ImportNamespaceCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string ns = _params.Param1Value;
-            string assembly = _params.Param2Value;
+            string ns = operands[0].GetString();
+            string assembly = operands[1].GetString();
             StoryScriptUtility.ImportNamespace(ns, assembly);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class UnImportNamespaceCommand : SimpleStoryCommandBase<UnImportNamespaceCommand, StoryFunctionParam<string, string>>
+    internal sealed class UnImportNamespaceCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, string> _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            string ns = _params.Param1Value;
-            string assembly = _params.Param2Value;
+            string ns = operands[0].GetString();
+            string assembly = operands[1].GetString();
             StoryScriptUtility.UnImportNamespace(ns, assembly);
-            return false;
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class AddOrUpdateSceneViewerCommand : SimpleStoryCommandBase<AddOrUpdateSceneViewerCommand, StoryFunctionParams>
+    internal sealed class AddOrUpdateSceneViewerCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var args = _params.Values;
+            var args = operands;
             string key = args[0].GetString();
             Vector4Obj v4obj = null;
             float interval = 0.1f;
@@ -3153,7 +3179,7 @@ namespace GmCommands
                 }
             }
             viewer.target = GetCameraTarget();
-            return false;
+            return BoxedValue.NullObject;
         }
         internal static Transform GetCameraTarget()
         {
@@ -3170,11 +3196,11 @@ namespace GmCommands
             return null;
         }
     }
-    internal sealed class SceneViewerLookAtCommand : SimpleStoryCommandBase<SceneViewerLookAtCommand, StoryFunctionParams>
+    internal sealed class SceneViewerLookAtCommand : SimpleExpressionBase
     {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParams _params, long delta)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            var args = _params.Values;
+            var args = operands;
             string key = args[0].GetString();
             var gobj = GameObject.Find(key);
             if (null != gobj) {
@@ -3214,16 +3240,15 @@ namespace GmCommands
                     viewer.Refresh();
                 }
             }
-            return false;
+            return BoxedValue.NullObject;
         }
     }
     //---------------------------------------------------------------------------------------------------------------
-    internal sealed class FindRawImageFunction : SimpleStoryFunctionBase<FindRawImageFunction, StoryFunctionParams>
+    internal sealed class FindRawImageFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
-            var vals = _params.Values;
+            var vals = operands;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -3231,18 +3256,17 @@ namespace GmCommands
             var comp0 = GameObject.FindObjectsOfType<RawImage>(false);
             foreach (var comp in comp0) {
                 if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
-                    result.Value = comp;
-                    break;
+                    return comp;
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class FindUiImageFunction : SimpleStoryFunctionBase<FindUiImageFunction, StoryFunctionParams>
+    internal sealed class FindUiImageFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
-            var vals = _params.Values;
+            var vals = operands;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -3250,19 +3274,18 @@ namespace GmCommands
             var comp0 = GameObject.FindObjectsOfType<Image>(false);
             foreach (var comp in comp0) {
                 if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
-                    result.Value = comp;
-                    break;
+                    return comp;
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class FindUiButtonFunction : SimpleStoryFunctionBase<FindUiButtonFunction, StoryFunctionParams>
+    internal sealed class FindUiButtonFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
 
-            var vals = _params.Values;
+            var vals = operands;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -3270,19 +3293,18 @@ namespace GmCommands
             var comp0 = GameObject.FindObjectsOfType<Button>(false);
             foreach (var comp in comp0) {
                 if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
-                    result.Value = comp;
-                    break;
+                    return comp;
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class FindUiToggleFunction : SimpleStoryFunctionBase<FindUiToggleFunction, StoryFunctionParams>
+    internal sealed class FindUiToggleFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
 
-            var vals = _params.Values;
+            var vals = operands;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -3290,19 +3312,18 @@ namespace GmCommands
             var comp0 = GameObject.FindObjectsOfType<Toggle>(false);
             foreach (var comp in comp0) {
                 if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
-                    result.Value = comp;
-                    break;
+                    return comp;
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class FindUiSliderFunction : SimpleStoryFunctionBase<FindUiSliderFunction, StoryFunctionParams>
+    internal sealed class FindUiSliderFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
 
-            var vals = _params.Values;
+            var vals = operands;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -3310,19 +3331,18 @@ namespace GmCommands
             var comp0 = GameObject.FindObjectsOfType<Slider>(false);
             foreach (var comp in comp0) {
                 if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
-                    result.Value = comp;
-                    break;
+                    return comp;
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class FindUiInputFunction : SimpleStoryFunctionBase<FindUiInputFunction, StoryFunctionParams>
+    internal sealed class FindUiInputFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
 
-            var vals = _params.Values;
+            var vals = operands;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -3330,19 +3350,18 @@ namespace GmCommands
             var comp0 = GameObject.FindObjectsOfType<InputField>(false);
             foreach (var comp in comp0) {
                 if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
-                    result.Value = comp;
-                    break;
+                    return comp;
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class FindTmpInputFunction : SimpleStoryFunctionBase<FindTmpInputFunction, StoryFunctionParams>
+    internal sealed class FindTmpInputFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
 
-            var vals = _params.Values;
+            var vals = operands;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -3350,19 +3369,18 @@ namespace GmCommands
             var comp0 = GameObject.FindObjectsOfType<TMPro.TMP_InputField>(false);
             foreach (var comp in comp0) {
                 if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
-                    result.Value = comp;
-                    break;
+                    return comp;
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class FindUiDropdownFunction : SimpleStoryFunctionBase<FindUiDropdownFunction, StoryFunctionParams>
+    internal sealed class FindUiDropdownFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
 
-            var vals = _params.Values;
+            var vals = operands;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -3370,19 +3388,18 @@ namespace GmCommands
             var comp0 = GameObject.FindObjectsOfType<Dropdown>(false);
             foreach (var comp in comp0) {
                 if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
-                    result.Value = comp;
-                    break;
+                    return comp;
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class FindTmpDropdownFunction : SimpleStoryFunctionBase<FindTmpDropdownFunction, StoryFunctionParams>
+    internal sealed class FindTmpDropdownFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
 
-            var vals = _params.Values;
+            var vals = operands;
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -3390,19 +3407,18 @@ namespace GmCommands
             var comp0 = GameObject.FindObjectsOfType<TMPro.TMP_Dropdown>(false);
             foreach (var comp in comp0) {
                 if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
-                    result.Value = comp;
-                    break;
+                    return comp;
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class FindObjectFunction : SimpleStoryFunctionBase<FindObjectFunction, StoryFunctionParam<string, object>>
+    internal sealed class FindObjectFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, object> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
-            var name = _params.Param1Value;
-            var typeObj = _params.Param2Value;
+            var name = operands[0].GetString();
+            var typeObj = operands[1].GetObject();
             var type = typeObj as Type;
             var typeStr = typeObj as string;
             if (null != typeStr) {
@@ -3414,21 +3430,21 @@ namespace GmCommands
                     if (null != obj) {
                         string objName = obj.name;
                         if (objName.Contains(name)) {
-                            result.Value = obj;
-                            return;
+                            return BoxedValue.FromObject(obj);
                         }
                     }
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SearchObjectsFunction : SimpleStoryFunctionBase<SearchObjectsFunction, StoryFunctionParam<string, object>>
+    internal sealed class SearchObjectsFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, object> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             var list = new List<UnityEngine.Object>();
-            var name = _params.Param1Value;
-            var typeObj = _params.Param2Value;
+            var name = operands[0].GetString();
+            var typeObj = operands[1].GetObject();
             var type = typeObj as Type;
             var typeStr = typeObj as string;
             if (null != typeStr) {
@@ -3445,18 +3461,17 @@ namespace GmCommands
                     }
                 }
             }
-            result.Value = BoxedValue.FromObject(list);
+            return BoxedValue.FromObject(list);
         }
     }
-    internal sealed class FindComponentFunction : SimpleStoryFunctionBase<FindComponentFunction, StoryFunctionParam<string, System.Collections.IList, object, bool>>
+    internal sealed class FindComponentFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, System.Collections.IList, object, bool> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
-            result.Value = BoxedValue.NullObject;
-            var root = _params.Param1Value;
-            var vals = _params.Param2Value;
-            var typeObj = _params.Param3Value;
-            bool include_inactive = _params.Param4Value;
+            var root = operands[0].GetString();
+            var vals = (operands[1].GetObject() as System.Collections.IList);
+            var typeObj = operands[2].GetObject();
+            bool include_inactive = operands[3].GetBool();
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -3473,8 +3488,7 @@ namespace GmCommands
                         var comp = obj as Component;
                         if (null != comp) {
                             if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
-                                result.Value = comp;
-                                return;
+                                return BoxedValue.FromObject(comp);
                             }
                         }
                     }
@@ -3485,24 +3499,24 @@ namespace GmCommands
                         var comps = rootObj.GetComponentsInChildren(type, include_inactive);
                         foreach (var comp in comps) {
                             if (StoryScriptUtility.IsPathMatch(comp.transform, names)) {
-                                result.Value = comp;
-                                return;
+                                return BoxedValue.FromObject(comp);
                             }
                         }
                     }
                 }
             }
+            return BoxedValue.NullObject;
         }
     }
-    internal sealed class SearchComponentsFunction : SimpleStoryFunctionBase<SearchComponentsFunction, StoryFunctionParam<string, System.Collections.IList, object, bool>>
+    internal sealed class SearchComponentsFunction : SimpleExpressionBase
     {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, System.Collections.IList, object, bool> _params, StoryFunctionResult result)
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {
             var list = new List<Component>();
-            var root = _params.Param1Value;
-            var vals = _params.Param2Value;
-            var typeObj = _params.Param3Value;
-            bool include_inactive = _params.Param4Value;
+            var root = operands[0].GetString();
+            var vals = (operands[1].GetObject() as System.Collections.IList);
+            var typeObj = operands[2].GetObject();
+            bool include_inactive = operands[3].GetBool();
             var names = new List<string>();
             foreach (var v in vals) {
                 names.Add(v.ToString());
@@ -3536,7 +3550,7 @@ namespace GmCommands
                     }
                 }
             }
-            result.Value = list;
+            return list;
         }
     }
 

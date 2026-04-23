@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,6 +7,7 @@ using ExpressionAPI;
 using Dsl;
 using StoryScript;
 using StoryScript.DslExpression;
+using StoryApi;
 
 [UnityEngine.Scripting.Preserve]
 public class Main : MonoBehaviour
@@ -218,6 +219,10 @@ public class Main : MonoBehaviour
         Debug.Assert(null != func);
         StartupScript.Calculator.LoadDsl(name, argNames, func);
     }
+    public static bool TryGetApiFactory(string name, out IExpressionFactory factory)
+    {
+        return StartupScript.Calculator.ApiRegistry.TryGetFactory(name, out factory);
+    }
     public static object Call(string func, params object[] args)
     {
         if (null == s_Instance)
@@ -237,205 +242,6 @@ public class Main : MonoBehaviour
 
 namespace StoryApi
 {
-    internal sealed class CopyPdfCommand : SimpleStoryCommandBase<CopyPdfCommand, StoryFunctionParam<string, int, int>>
-    {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam<string, int, int> _params, long delta)
-        {
-            string file = _params.Param1Value;
-            int start = _params.Param2Value;
-            int count = _params.Param3Value;
-            CopyPdf(file, start, count);
-            return false;
-        }
-        private void CopyPdf(string file, int start, int count)
-        {
-            var basePath = Application.persistentDataPath;
-            if (!System.IO.Path.IsPathRooted(file)) {
-                file = System.IO.Path.Combine(basePath, file);
-            }
-            Debug.LogFormat("read pdf {0}.", file);
-            var sb = new StringBuilder();
-            var reader = new iTextSharp.text.pdf.PdfReader(file);
-            for (int page = start; page < start + count && page <= reader.NumberOfPages; ++page) {
-                try {
-                    var txt = iTextSharp.text.pdf.parser.PdfTextExtractor.GetTextFromPage(reader, page);
-                    sb.AppendLine(txt);
-                }
-                catch {
-                    Debug.LogErrorFormat("page {0} read failed !", page);
-                }
-            }
-            reader.Close();
-#if UNITY_EDITOR
-            GUIUtility.systemCopyBuffer = sb.ToString();
-#elif UNITY_IOS
-            SetClipboard(sb.ToString());
-#elif UNITY_ANDROID
-            AndroidJavaClass cb = new AndroidJavaClass("jp.ne.donuts.uniclipboard.Clipboard");
-            cb.CallStatic ("setText", sb.ToString());
-#endif
-        }
-#if UNITY_IOS
-        [DllImport("__Internal")]
-        static extern void SetClipboard(string str);
-#endif
-    }
-    internal sealed class ShowMemoryCommand : SimpleStoryCommandBase<ShowMemoryCommand, StoryFunctionParam>
-    {
-        protected override bool ExecCommand(StoryInstance instance, StoryFunctionParam _params, long delta)
-        {
-            string info = string.Format("pss:{0} n:{1} g:{2} u:{3} j:{4} c:{5} t:{6} s:{7} vss:{8}", MemoryInfo.GetAppMemory(), MemoryInfo.GetNativeMemory(), MemoryInfo.GetGraphicsMemory(), MemoryInfo.GetUnknownMemory(), MemoryInfo.GetJavaMemory(), MemoryInfo.GetCodeMemory(), MemoryInfo.GetStackMemory(), MemoryInfo.GetSystemMemory(), MemoryInfo.GetVssMemory());
-            Debug.LogFormat("{0}", info);
-            return false;
-        }
-    }
-
-    internal sealed class JavaClassFunction : SimpleStoryFunctionBase<JavaClassFunction, StoryFunctionParam<BoxedValue>>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<BoxedValue> _params, StoryFunctionResult result)
-        {
-            var p1 = _params.Param1Value;
-            var obj = p1.As<AndroidJavaClass>();
-            if (null != obj) {
-                result.Value = BoxedValue.FromObject(new JavaClass(obj));
-            }
-            else {
-                var str = p1.AsString;
-                result.Value = BoxedValue.FromObject(new JavaClass(str));
-            }
-        }
-    }
-    internal sealed class JavaObjectFunction : SimpleStoryFunctionBase<JavaObjectFunction, StoryFunctionParams>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParams _params, StoryFunctionResult result)
-        {
-            var operands = _params.Values;
-            if (operands.Count > 0) {
-                var obj = operands[0].As<AndroidJavaClass>();
-                if (null != obj) {
-                    result.Value = BoxedValue.FromObject(new JavaObject(obj));
-                }
-                else {
-                    var str = operands[0].AsString;
-                    var al = new ArrayList();
-                    for (int i = 1; i < operands.Count; ++i) {
-                        al.Add(operands[i].GetObject());
-                    }
-                    if (!string.IsNullOrEmpty(str)) {
-                        result.Value = BoxedValue.FromObject(new JavaObject(str, al.ToArray()));
-                    }
-                }
-            }
-        }
-    }
-    internal sealed class JavaProxyFunction : SimpleStoryFunctionBase<JavaProxyFunction, StoryFunctionParam<string, string>>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string, string> _params, StoryFunctionResult result)
-        {
-            var _class = _params.Param1Value;
-            var scpMethod = _params.Param2Value;
-            result.Value = BoxedValue.FromObject(new JavaProxy(_class, scpMethod));
-        }
-    }
-    internal sealed class ObjectcClassFunction : SimpleStoryFunctionBase<ObjectcClassFunction, StoryFunctionParam<string>>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<string> _params, StoryFunctionResult result)
-        {
-            var str = _params.Param1Value;
-            result.Value = BoxedValue.FromObject(new ObjectcClass(str));
-        }
-    }
-    internal sealed class ObjectcObjectFunction : SimpleStoryFunctionBase<ObjectcObjectFunction, StoryFunctionParam<int>>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam<int> _params, StoryFunctionResult result)
-        {
-            int objId = _params.Param1Value;
-            result.Value = BoxedValue.FromObject(new ObjectcObject(objId));
-        }
-    }
-    internal sealed class GetPssFunction : SimpleStoryFunctionBase<GetPssFunction, StoryFunctionParam>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
-        {
-            result.Value = MemoryInfo.GetAppMemory();
-        }
-    }
-    internal sealed class GetVssFunction : SimpleStoryFunctionBase<GetVssFunction, StoryFunctionParam>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
-        {
-            result.Value = MemoryInfo.GetVssMemory();
-        }
-    }
-    internal sealed class GetNativeFunction : SimpleStoryFunctionBase<GetNativeFunction, StoryFunctionParam>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
-        {
-            result.Value = MemoryInfo.GetNativeMemory();
-        }
-    }
-    internal sealed class GetGraphicsFunction : SimpleStoryFunctionBase<GetGraphicsFunction, StoryFunctionParam>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
-        {
-            result.Value = MemoryInfo.GetGraphicsMemory();
-        }
-    }
-    internal sealed class GetUnknownFunction : SimpleStoryFunctionBase<GetUnknownFunction, StoryFunctionParam>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
-        {
-            result.Value = MemoryInfo.GetUnknownMemory();
-        }
-    }
-    internal sealed class GetJavaFunction : SimpleStoryFunctionBase<GetJavaFunction, StoryFunctionParam>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
-        {
-            result.Value = MemoryInfo.GetJavaMemory();
-        }
-    }
-    internal sealed class GetCodeFunction : SimpleStoryFunctionBase<GetCodeFunction, StoryFunctionParam>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
-        {
-            result.Value = MemoryInfo.GetCodeMemory();
-        }
-    }
-    internal sealed class GetStackFunction : SimpleStoryFunctionBase<GetStackFunction, StoryFunctionParam>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
-        {
-            result.Value = MemoryInfo.GetStackMemory();
-        }
-    }
-    internal sealed class GetSystemFunction : SimpleStoryFunctionBase<GetSystemFunction, StoryFunctionParam>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
-        {
-            result.Value = MemoryInfo.GetSystemMemory();
-        }
-    }
-    internal sealed class GetActivityFunction : SimpleStoryFunctionBase<GetActivityFunction, StoryFunctionParam>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
-        {
-#if UNITY_ANDROID
-            result.Value = BoxedValue.FromObject(new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"));
-#endif
-        }
-    }
-    internal sealed class GetIntentFunction : SimpleStoryFunctionBase<GetIntentFunction, StoryFunctionParam>
-    {
-        protected override void UpdateValue(StoryInstance instance, StoryFunctionParam _params, StoryFunctionResult result)
-        {
-#if UNITY_ANDROID
-            var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
-            result.Value = BoxedValue.FromObject(act.Call<AndroidJavaObject>("getIntent"));
-#endif
-        }
-    }
-
     internal static class MemoryInfo
     {
         internal static float GetAppMemory()
@@ -689,6 +495,224 @@ namespace StoryApi
 
 namespace ExpressionAPI
 {
+    using MemoryInfo = StoryApi.MemoryInfo;
+
+    internal sealed class CopyPdfExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count >= 3) {
+                string file = operands[0].GetString();
+                int start = operands[1].GetInt();
+                int count = operands[2].GetInt();
+                CopyPdf(file, start, count);
+            }
+            return BoxedValue.NullObject;
+        }
+        private void CopyPdf(string file, int start, int count)
+        {
+            var basePath = Application.persistentDataPath;
+            if (!System.IO.Path.IsPathRooted(file)) {
+                file = System.IO.Path.Combine(basePath, file);
+            }
+            Debug.LogFormat("read pdf {0}.", file);
+            var sb = new StringBuilder();
+            var reader = new iTextSharp.text.pdf.PdfReader(file);
+            for (int page = start; page < start + count && page <= reader.NumberOfPages; ++page) {
+                try {
+                    var txt = iTextSharp.text.pdf.parser.PdfTextExtractor.GetTextFromPage(reader, page);
+                    sb.AppendLine(txt);
+                }
+                catch {
+                    Debug.LogErrorFormat("page {0} read failed !", page);
+                }
+            }
+            reader.Close();
+#if UNITY_EDITOR
+            GUIUtility.systemCopyBuffer = sb.ToString();
+#elif UNITY_IOS
+            SetClipboard(sb.ToString());
+#elif UNITY_ANDROID
+            AndroidJavaClass cb = new AndroidJavaClass("jp.ne.donuts.uniclipboard.Clipboard");
+            cb.CallStatic ("setText", sb.ToString());
+#endif
+        }
+#if UNITY_IOS
+        [DllImport("__Internal")]
+        static extern void SetClipboard(string str);
+#endif
+    }
+    internal sealed class ShowMemoryExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            string info = string.Format("pss:{0} n:{1} g:{2} u:{3} j:{4} c:{5} t:{6} s:{7} vss:{8}", MemoryInfo.GetAppMemory(), MemoryInfo.GetNativeMemory(), MemoryInfo.GetGraphicsMemory(), MemoryInfo.GetUnknownMemory(), MemoryInfo.GetJavaMemory(), MemoryInfo.GetCodeMemory(), MemoryInfo.GetStackMemory(), MemoryInfo.GetSystemMemory(), MemoryInfo.GetVssMemory());
+            Debug.LogFormat("{0}", info);
+            return BoxedValue.NullObject;
+        }
+    }
+    internal sealed class JavaClassExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count >= 1) {
+                var p1 = operands[0];
+                var obj = p1.As<AndroidJavaClass>();
+                if (null != obj) {
+                    return BoxedValue.FromObject(new JavaClass(obj));
+                }
+                else {
+                    var str = p1.AsString;
+                    return BoxedValue.FromObject(new JavaClass(str));
+                }
+            }
+            return BoxedValue.NullObject;
+        }
+    }
+    internal sealed class JavaObjectExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count > 0) {
+                var obj = operands[0].As<AndroidJavaClass>();
+                if (null != obj) {
+                    return BoxedValue.FromObject(new JavaObject(obj));
+                }
+                else {
+                    var str = operands[0].AsString;
+                    var al = new ArrayList();
+                    for (int i = 1; i < operands.Count; ++i) {
+                        al.Add(operands[i].GetObject());
+                    }
+                    if (!string.IsNullOrEmpty(str)) {
+                        return BoxedValue.FromObject(new JavaObject(str, al.ToArray()));
+                    }
+                }
+            }
+            return BoxedValue.NullObject;
+        }
+    }
+    internal sealed class JavaProxyExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count >= 2) {
+                var _class = operands[0].GetString();
+                var scpMethod = operands[1].GetString();
+                return BoxedValue.FromObject(new JavaProxy(_class, scpMethod));
+            }
+            return BoxedValue.NullObject;
+        }
+    }
+    internal sealed class ObjectcClassExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count >= 1) {
+                var str = operands[0].GetString();
+                return BoxedValue.FromObject(new ObjectcClass(str));
+            }
+            return BoxedValue.NullObject;
+        }
+    }
+    internal sealed class ObjectcObjectExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count >= 1) {
+                int objId = operands[0].GetInt();
+                return BoxedValue.FromObject(new ObjectcObject(objId));
+            }
+            return BoxedValue.NullObject;
+        }
+    }
+    internal sealed class GetPssExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            return MemoryInfo.GetAppMemory();
+        }
+    }
+    internal sealed class GetVssExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            return MemoryInfo.GetVssMemory();
+        }
+    }
+    internal sealed class GetNativeExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            return MemoryInfo.GetNativeMemory();
+        }
+    }
+    internal sealed class GetGraphicsExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            return MemoryInfo.GetGraphicsMemory();
+        }
+    }
+    internal sealed class GetUnknownExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            return MemoryInfo.GetUnknownMemory();
+        }
+    }
+    internal sealed class GetJavaExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            return MemoryInfo.GetJavaMemory();
+        }
+    }
+    internal sealed class GetCodeExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            return MemoryInfo.GetCodeMemory();
+        }
+    }
+    internal sealed class GetStackExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            return MemoryInfo.GetStackMemory();
+        }
+    }
+    internal sealed class GetSystemExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            return MemoryInfo.GetSystemMemory();
+        }
+    }
+    internal sealed class GetActivityExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+#if UNITY_ANDROID
+            return BoxedValue.FromObject(new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"));
+#else
+            return BoxedValue.NullObject;
+#endif
+        }
+    }
+    internal sealed class GetIntentExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+#if UNITY_ANDROID
+            var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+            return BoxedValue.FromObject(act.Call<AndroidJavaObject>("getIntent"));
+#else
+            return BoxedValue.NullObject;
+#endif
+        }
+    }
+
     internal sealed class SetClipboardExp : SimpleExpressionBase
     {
         protected override BoxedValue OnCalc(IList<BoxedValue> operands)
