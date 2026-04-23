@@ -47,6 +47,27 @@ namespace GmCommands
                         ret = true;
                     }
                 }
+                else {
+                    var valData = comp as Dsl.ValueData;
+                    if (null != valData && valData.IsId()) {
+                        var typeName = valData.GetId();
+                        var type = StoryScriptUtility.GetType(typeName);
+                        if (null != type) {
+                            var exp = new TypeHolderFunction();
+                            exp.SetType(type);
+                            exp.Load(valData, calculator);
+                            expression = exp;
+                            ret = true;
+                        }
+                        else if (StoryScriptUtility.IsNamespace(typeName, out var id)) {
+                            var exp = new NamespaceHolderFunction();
+                            exp.SetNamespace(typeName);
+                            exp.Load(valData, calculator);
+                            expression = exp;
+                            ret = true;
+                        }
+                    }
+                }
             }
             return ret;
         }
