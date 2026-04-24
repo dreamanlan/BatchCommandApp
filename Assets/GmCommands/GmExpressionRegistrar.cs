@@ -171,8 +171,8 @@ namespace GmCommands
             registry.Register("isandroid", "isandroid() function, return Application.platform==Android", new ExpressionFactoryHelper<IsAndroidFunction>());
             registry.Register("isiphone", "isiphone() function, return Application.platform==IPhone", new ExpressionFactoryHelper<IsIPhoneFunction>());
             registry.Register("ispc", "ispc() function, return not mobile and not console", new ExpressionFactoryHelper<IsPCFunction>());
-            registry.Register("shell", "shell(cmd) function, return string", new ExpressionFactoryHelper<ShellFunction>());
-            registry.Register("shelltimeout", "shelltimeout(cmd,ms) function, return string", new ExpressionFactoryHelper<ShellTimeoutFunction>());
+            registry.Register("getshell", "getshell(cmd) function, return string", new ExpressionFactoryHelper<ShellFunction>());
+            registry.Register("getshelltimeout", "getshelltimeout(cmd,ms) function, return string", new ExpressionFactoryHelper<ShellTimeoutFunction>());
             registry.Register("isjavatask", "isjavatask() function, return int", new ExpressionFactoryHelper<IsJavaTaskFunction>());
             registry.Register("gettaskcount", "gettaskcount() function, return int", new ExpressionFactoryHelper<GetTaskCountFunction>());
             registry.Register("wetestx", "wetestx() function, WeTest GetX", new ExpressionFactoryHelper<WeTestGetXFunction>());

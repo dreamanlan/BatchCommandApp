@@ -717,24 +717,22 @@ public sealed class GmRootScript : MonoBehaviour
     }
     internal static void ExecNoWait(string cmd, int timeout)
     {
+        var state = (cmd, timeout);
         if (s_UseJavaTask) {
-            var task = JavaTask.Run(() => {
-                string txt = Exec(cmd, timeout);
-                SendLog(txt);
-            });
+            var task = JavaTask.Run(ExecAndSendLogCallback, state);
             s_JavaTasks.Add(task);
         }
         else {
-            var task = Task.Run(() => {
-                string txt = Exec(cmd, timeout);
-                SendLog(txt);
-            });
-            s_Tasks.Add(task);
-            while (task.Status == TaskStatus.Created || task.Status == TaskStatus.WaitingForActivation || task.Status == TaskStatus.WaitingToRun) {
-                Debug.LogFormat("wait ({0})[{1}] start", cmd, task.Status);
-                task.Wait(c_CheckStartInterval);
-            }
+            // Use ThreadPool to avoid GC from Task.Run lambda
+            System.Threading.ThreadPool.QueueUserWorkItem(ExecAndSendLogCallback, state);
         }
+    }
+
+    private static void ExecAndSendLogCallback(object state)
+    {
+        var (cmd, timeout) = ((string, int))state;
+        string txt = Exec(cmd, timeout);
+        SendLog(txt);
     }
     internal static string Exec(string cmd, int timeout)
     {
@@ -874,12 +872,17 @@ public sealed class GmRootScript : MonoBehaviour
             if (null != output) {
                 psi.RedirectStandardOutput = true;
                 psi.StandardOutputEncoding = outEncoding;
-                p.OutputDataReceived += (sender, e) => OnOutputDataReceived(sender, e, output, outEncoding);
+                // Store buffers in static dictionary to avoid GC from lambda closure
+                s_ProcessOutputContexts[p] = new ProcessOutputContext { Output = output, Error = error, Encoding = outEncoding };
+                p.OutputDataReceived += OnOutputDataReceivedStatic;
             }
             if (null != error) {
                 psi.RedirectStandardError = true;
                 psi.StandardErrorEncoding = outEncoding;
-                p.ErrorDataReceived += (sender, e) => OnErrorDataReceived(sender, e, error, outEncoding);
+                if (null == output) {
+                    s_ProcessOutputContexts[p] = new ProcessOutputContext { Output = output, Error = error, Encoding = outEncoding };
+                }
+                p.ErrorDataReceived += OnErrorDataReceivedStatic;
             }
             if (p.Start()) {
                 if (psi.RedirectStandardOutput)
@@ -898,12 +901,16 @@ public sealed class GmRootScript : MonoBehaviour
                 if (psi.RedirectStandardError) {
                     p.CancelErrorRead();
                 }
+                // Clean up dictionary entry
+                s_ProcessOutputContexts.Remove(p);
                 int r = p.ExitCode;
                 p.Close();
                 return r;
             }
             else {
                 Debug.LogErrorFormat("process({0} {1}) failed.", fileName, args);
+                // Clean up dictionary entry on failure
+                s_ProcessOutputContexts.Remove(p);
                 return -1;
             }
         }
@@ -917,37 +924,44 @@ public sealed class GmRootScript : MonoBehaviour
         }
     }
 
-    private static void OnOutputDataReceived(object sender, System.Diagnostics.DataReceivedEventArgs e, StringBuilder output, Encoding srcEncoding)
+    private static void OnOutputDataReceivedStatic(object sender, System.Diagnostics.DataReceivedEventArgs e)
     {
         var p = sender as System.Diagnostics.Process;
         if (p.StartInfo.RedirectStandardOutput && null != e.Data) {
-            if (null != output) {
-                string str = e.Data;
-                if (srcEncoding != Encoding.UTF8) {
-                    var bytes = srcEncoding.GetBytes(str);
-                    bytes = Encoding.Convert(srcEncoding, Encoding.UTF8, bytes);
-                    str = Encoding.UTF8.GetString(bytes);
-                }
-                output.AppendLine(str);
+            if (s_ProcessOutputContexts.TryGetValue(p, out var ctx) && null != ctx.Output) {
+                AppendDataToBuffer(ctx.Output, e.Data, ctx.Encoding);
             }
         }
     }
 
-    private static void OnErrorDataReceived(object sender, System.Diagnostics.DataReceivedEventArgs e, StringBuilder error, Encoding srcEncoding)
+    private static void OnErrorDataReceivedStatic(object sender, System.Diagnostics.DataReceivedEventArgs e)
     {
         var p = sender as System.Diagnostics.Process;
         if (p.StartInfo.RedirectStandardError && null != e.Data) {
-            if (null != error) {
-                string str = e.Data;
-                if (srcEncoding != Encoding.UTF8) {
-                    var bytes = srcEncoding.GetBytes(str);
-                    bytes = Encoding.Convert(srcEncoding, Encoding.UTF8, bytes);
-                    str = Encoding.UTF8.GetString(bytes);
-                }
-                error.AppendLine(str);
+            if (s_ProcessOutputContexts.TryGetValue(p, out var ctx) && null != ctx.Error) {
+                AppendDataToBuffer(ctx.Error, e.Data, ctx.Encoding);
             }
         }
     }
+
+    private static void AppendDataToBuffer(StringBuilder buffer, string str, Encoding srcEncoding)
+    {
+        if (srcEncoding != Encoding.UTF8) {
+            var bytes = srcEncoding.GetBytes(str);
+            bytes = Encoding.Convert(srcEncoding, Encoding.UTF8, bytes);
+            str = Encoding.UTF8.GetString(bytes);
+        }
+        buffer.AppendLine(str);
+    }
+
+    private sealed class ProcessOutputContext
+    {
+        public StringBuilder Output;
+        public StringBuilder Error;
+        public Encoding Encoding;
+    }
+
+    private static Dictionary<System.Diagnostics.Process, ProcessOutputContext> s_ProcessOutputContexts = new Dictionary<System.Diagnostics.Process, ProcessOutputContext>();
 
     private static GameObject s_GameObj = null;
     private static Queue<string> s_CommandQueue = new Queue<string>();
@@ -988,6 +1002,12 @@ public sealed class JavaTask : IDisposable
         task.Start();
         return task;
     }
+    public static JavaTask Run(Action<object> action, object state)
+    {
+        JavaTask task = new JavaTask(action, state);
+        task.Start();
+        return task;
+    }
     public void Dispose()
     {
         if (null != m_Thread) {
@@ -999,9 +1019,20 @@ public sealed class JavaTask : IDisposable
     {
         m_Action = action;
     }
+    private JavaTask(Action<object> actionWithState, object state)
+    {
+        m_ActionWithState = actionWithState;
+        m_State = state;
+    }
     private void Start()
     {
-        AndroidJavaRunnable runnable = new AndroidJavaRunnable(Working);
+        AndroidJavaRunnable runnable;
+        if (null != m_Action) {
+            runnable = new AndroidJavaRunnable(Working);
+        }
+        else {
+            runnable = new AndroidJavaRunnable(WorkingWithState);
+        }
         m_Thread = new AndroidJavaObject("java.lang.Thread", runnable);
         m_Thread.Call("start");
     }
@@ -1016,8 +1047,21 @@ public sealed class JavaTask : IDisposable
             IsCompleted = true;
         }
     }
+    private void WorkingWithState()
+    {
+        try {
+            m_ActionWithState(m_State);
+        }
+        catch {
+        }
+        finally {
+            IsCompleted = true;
+        }
+    }
 
     private Action m_Action;
+    private Action<object> m_ActionWithState;
+    private object m_State;
     private AndroidJavaObject m_Thread;
 }
 
