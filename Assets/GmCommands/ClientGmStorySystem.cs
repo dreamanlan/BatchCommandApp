@@ -5,22 +5,22 @@ using StoryScript.DslExpression;
 
 namespace GmCommands
 {
-    public delegate void RegisterGmCommandsAndFunctionsDelegation(DslCalculator calc);
+    public delegate void RegisterGmCommandsAndFunctionsDelegation(DslCalculatorApiRegistry registry);
     public sealed class ClientGmStorySystem
     {
         public RegisterGmCommandsAndFunctionsDelegation OnRegisterGmCommandsAndFunctions;
         public void Init()
         {
             try {
-                var calc = DslCalculatorHost.NewCalculator();
-                GmExpressionRegistrar.RegisterGmExpressions(calc);
+                var registry = DslCalculatorHost.GetSharedApiRegistry();
+                GmExpressionRegistrar.RegisterGmExpressions(registry);
 
                 if (null != OnRegisterGmCommandsAndFunctions) {
-                    OnRegisterGmCommandsAndFunctions(calc);
+                    OnRegisterGmCommandsAndFunctions(registry);
                 }
 
                 //failback to call startup api
-                calc.OnLoadFailback = this.OnLoadFailback;
+                StoryInstance.OnLoadFailback = this.OnLoadFailback;
             }
             catch (Exception ex) {
                 LogSystem.Error("exception:{0}\n{1}", ex.Message, ex.StackTrace);
