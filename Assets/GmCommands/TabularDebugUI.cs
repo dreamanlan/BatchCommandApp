@@ -118,10 +118,8 @@ public class TabularDebugUI
 
                     AddUiControl(id + "|Text", label);
                 }
-                button.onClick.AddListener(() => {
-                    CallLoadUi(uiInfo.Value);
-                    CallShowUi();
-                });
+                var handler = new IndexButtonHandler(this, uiInfo.Value);
+                button.onClick.AddListener(handler.OnClick);
 
                 AddUiControl(id, button);
             }
@@ -409,7 +407,10 @@ public class TabularDebugUI
         var toggle = toggleObj.GetComponent<UnityEngine.UI.Toggle>();
         var labelObj = toggleObj.transform.Find("Label");
         if (null != labelObj) {
-            var label = labelObj.GetComponent<Text>();
+            var label = labelObj.GetComponent<TMP_Text>();
+            if (label == null) {
+                label = labelObj.gameObject.AddComponent<TMP_Text>();
+            }
             label.text = caption;
 
             AddUiControl(id + "|Label", label);
@@ -515,7 +516,7 @@ public class TabularDebugUI
             if (null != delegation)
                 return (UnityAction)delegation;
             else
-                return () => { mi.Invoke(ApiObject, null); };
+                return new ReflectionInvoker0(mi, ApiObject).Invoke;
         }
         else {
             mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
@@ -524,7 +525,7 @@ public class TabularDebugUI
                 if (null != delegation)
                     return (UnityAction)delegation;
                 else
-                    return () => { mi.Invoke(null, null); };
+                    return new ReflectionInvoker0(mi, null).Invoke;
             }
         }
         return null;
@@ -538,7 +539,7 @@ public class TabularDebugUI
             if (null != delegation)
                 return (UnityAction<T>)delegation;
             else
-                return (T val) => { mi.Invoke(ApiObject, new object[] { val }); };
+                return new ReflectionInvoker1<T>(mi, ApiObject).Invoke;
         }
         else {
             mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
@@ -547,10 +548,59 @@ public class TabularDebugUI
                 if (null != delegation)
                     return (UnityAction<T>)delegation;
                 else
-                    return (T val) => { mi.Invoke(null, new object[] { val }); };
+                    return new ReflectionInvoker1<T>(mi, null).Invoke;
             }
         }
         return null;
+    }
+
+    private sealed class IndexButtonHandler
+    {
+        private readonly TabularDebugUI m_Owner;
+        private readonly string m_UiRes;
+
+        public IndexButtonHandler(TabularDebugUI owner, string uiRes)
+        {
+            m_Owner = owner;
+            m_UiRes = uiRes;
+        }
+        public void OnClick()
+        {
+            m_Owner.CallLoadUi(m_UiRes);
+            m_Owner.CallShowUi();
+        }
+    }
+    private sealed class ReflectionInvoker0
+    {
+        private readonly System.Reflection.MethodInfo m_Method;
+        private readonly object m_Target;
+
+        public ReflectionInvoker0(System.Reflection.MethodInfo method, object target)
+        {
+            m_Method = method;
+            m_Target = target;
+        }
+        public void Invoke()
+        {
+            m_Method.Invoke(m_Target, null);
+        }
+    }
+    private sealed class ReflectionInvoker1<T>
+    {
+        private readonly System.Reflection.MethodInfo m_Method;
+        private readonly object m_Target;
+        private readonly object[] m_Args = new object[1];
+
+        public ReflectionInvoker1(System.Reflection.MethodInfo method, object target)
+        {
+            m_Method = method;
+            m_Target = target;
+        }
+        public void Invoke(T val)
+        {
+            m_Args[0] = val;
+            m_Method.Invoke(m_Target, m_Args);
+        }
     }
 
     private List<KeyValuePair<string, string>> m_DebugUis;
