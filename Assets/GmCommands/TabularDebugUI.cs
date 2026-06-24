@@ -265,7 +265,7 @@ public class TabularDebugUI
             var rowStr = cd.GetParamId(1);
             var colStr = cd.GetParamId(2);
             var method = cd.GetParamId(3);
-            bool hasDef = fd.GetParamNum() > 4;
+            bool hasDef = cd.GetParamNum() > 4;
             var selStr = hasDef ? cd.GetParamId(4) : string.Empty;
             if (int.TryParse(rowStr, out var row) && int.TryParse(colStr, out var col)) {
                 var dropdown = AddDropdown(id, row, col, method);
@@ -315,7 +315,7 @@ public class TabularDebugUI
                         pid = ResolveId(pid);
                         var pcap = pfd.GetParamId(1);
                         var method = pfd.GetParamId(2);
-                        bool hasDef = fd.GetParamNum() > 3;
+                        bool hasDef = pfd.GetParamNum() > 3;
                         var pchecked = hasDef ? pfd.GetParamId(3) : string.Empty;
                         AddToToggleGroup(group, pid, row, col++, pcap, method, hasDef, pchecked == "true" || pchecked == "True");
                     }
