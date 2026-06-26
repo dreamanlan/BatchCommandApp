@@ -407,9 +407,9 @@ public class TabularDebugUI
         var toggle = toggleObj.GetComponent<UnityEngine.UI.Toggle>();
         var labelObj = toggleObj.transform.Find("Label");
         if (null != labelObj) {
-            var label = labelObj.GetComponent<TMP_Text>();
+            var label = labelObj.GetComponent<TMPro.TMP_Text>();
             if (label == null) {
-                label = labelObj.gameObject.AddComponent<TMP_Text>();
+                label = labelObj.gameObject.AddComponent<TMPro.TMP_Text>();
             }
             label.text = caption;
 
