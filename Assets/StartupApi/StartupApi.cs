@@ -135,8 +135,15 @@ public sealed partial class StartupApi
             var delegation = System.Delegate.CreateDelegate(typeof(StartupScript.ApiDelegation), this, mi, false);
             if (null != delegation)
                 return (StartupScript.ApiDelegation)delegation;
-            else
-                return (BoxedValueList args) => { object o = mi.Invoke(this, new object[] { args }); return BoxedValue.FromObject(o); };
+            else {
+                StartupScript.ApiDelegation d;
+                if (!m_ApiCache.TryGetValue(method, out d)) {
+                    var invoker = new ApiInvoker(mi, this);
+                    d = new StartupScript.ApiDelegation(invoker.Invoke);
+                    m_ApiCache[method] = d;
+                }
+                return d;
+            }
         }
         else {
             mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
@@ -144,8 +151,15 @@ public sealed partial class StartupApi
                 var delegation = System.Delegate.CreateDelegate(typeof(StartupScript.ApiDelegation), mi, false);
                 if (null != delegation)
                     return (StartupScript.ApiDelegation)delegation;
-                else
-                    return (BoxedValueList args) => { object o = mi.Invoke(null, new object[] { args }); return BoxedValue.FromObject(o); };
+                else {
+                    StartupScript.ApiDelegation d;
+                    if (!m_StaticApiCache.TryGetValue(method, out d)) {
+                        var invoker = new ApiInvoker(mi, null);
+                        d = new StartupScript.ApiDelegation(invoker.Invoke);
+                        m_StaticApiCache[method] = d;
+                    }
+                    return d;
+                }
             }
         }
         return null;
@@ -1223,6 +1237,8 @@ public sealed partial class StartupApi
     private HashSet<int> m_ScriptableStartups = new HashSet<int>();
 
     private Dictionary<string, Regex> m_Regexes = new Dictionary<string, Regex>();
+    private Dictionary<string, StartupScript.ApiDelegation> m_ApiCache = new Dictionary<string, StartupScript.ApiDelegation>();
+    private Dictionary<string, StartupScript.ApiDelegation> m_StaticApiCache = new Dictionary<string, StartupScript.ApiDelegation>();
 
     partial void RegisterStartup_0();
     partial void RegisterStartup_1();
@@ -1243,4 +1259,24 @@ public sealed partial class StartupApi
         }
     }
     private static StartupApi s_Instance = null;
+
+    private sealed class ApiInvoker
+    {
+        private System.Reflection.MethodInfo m_Method;
+        private object m_Target;
+        private object[] m_ArgBuf = new object[1];
+
+        public ApiInvoker(System.Reflection.MethodInfo method, object target)
+        {
+            m_Method = method;
+            m_Target = target;
+        }
+
+        public BoxedValue Invoke(BoxedValueList args)
+        {
+            m_ArgBuf[0] = args;
+            object o = m_Method.Invoke(m_Target, m_ArgBuf);
+            return BoxedValue.FromObject(o);
+        }
+    }
 }
