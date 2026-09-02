@@ -263,7 +263,13 @@ public sealed class GmRootScript : MonoBehaviour
 
     public static SortedList<string, string> StoryDocs
     {
-        get { return GetGmRootScript().m_StoryDocs; }
+        get {
+            var gmScp = GetGmRootScript();
+            if (null == gmScp) {
+                return null;
+            }
+            return GetGmRootScript().m_StoryDocs;
+        }
     }
     public static GameObject GameObj
     {
@@ -293,7 +299,12 @@ public sealed class GmRootScript : MonoBehaviour
             }
         }
         if (null != s_GameObj) {
-            GetGmRootScript().TryInitGmRoot();
+            var gmScp = GetGmRootScript();
+            if (null == gmScp) {
+                LogSystem.Error("[GmScript] GmScript object is missing GmRootScript component");
+                return;
+            }
+            gmScp.TryInitGmRoot();
         }
     }
     public static void OnDebugConsoleShow()
@@ -309,21 +320,33 @@ public sealed class GmRootScript : MonoBehaviour
     public static void ListenClipboard(int interval)
     {
         if (null != s_GameObj) {
-            GetGmRootScript().SetClipboardInterval(interval);
+            var gmScp = GetGmRootScript();
+            if (null == gmScp) {
+                return;
+            }
+            gmScp.SetClipboardInterval(interval);
         }
     }
     public static void ListenAndroid()
     {
         if (null != s_GameObj) {
-            GetGmRootScript().InitAndroidReceiver();
+            var gmScp = GetGmRootScript();
+            if (null == gmScp) {
+                return;
+            }
+            gmScp.InitAndroidReceiver();
         }
     }
     public static void ListenSocket(int port)
     {
         if (null != s_GameObj) {
             s_SocketServerPort = port;
-            GetGmRootScript().DeinitSocketServer();
-            GetGmRootScript().InitSocketServer();
+            var gmScp = GetGmRootScript();
+            if (null == gmScp) {
+                return;
+            }
+            gmScp.DeinitSocketServer();
+            gmScp.InitSocketServer();
         }
     }
     public static void SendCommand(string cmd)
@@ -393,6 +416,9 @@ public sealed class GmRootScript : MonoBehaviour
     {
         var obj = s_GameObj;
         Debug.Assert(null != obj);
+        if (null == obj) {
+            return null;
+        }
         var scp = obj.GetComponent<GmRootScript>();
         return scp;
     }
