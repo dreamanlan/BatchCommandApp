@@ -86,10 +86,17 @@ public class Main : MonoBehaviour
         var mi = t.GetMethod(method, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
         if (null != mi) {
             var delegation = System.Delegate.CreateDelegate(typeof(StartupScript.ApiDelegation), mi, false);
+            StartupScript.ApiDelegation api = null;
             if (null != delegation)
-                return (StartupScript.ApiDelegation)delegation;
-            else
-                return (BoxedValueList args) => { object o = mi.Invoke(null, new object[] { args }); return BoxedValue.FromObject(o); };
+                api = (StartupScript.ApiDelegation)delegation;
+            else {
+                if (!s_ApiCache.TryGetValue(method, out api)) {
+                    var invoker = new StartupApi.ApiInvoker(mi, null);
+                    api = new StartupScript.ApiDelegation(invoker.Invoke);
+                    s_ApiCache[method] = api;
+                }
+            }
+            return api;
         }
         return null;
     }
@@ -296,6 +303,7 @@ public class Main : MonoBehaviour
 
     private static Main s_Instance = null;
     private static char[] s_WhiteChars = new char[] { ' ', '\t' };
+    private static readonly Dictionary<string, StartupScript.ApiDelegation> s_ApiCache = new Dictionary<string, StartupScript.ApiDelegation>();
 }
 
 namespace StoryApi

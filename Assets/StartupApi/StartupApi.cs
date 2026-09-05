@@ -165,6 +165,30 @@ public sealed partial class StartupApi
         return null;
     }
 
+    // reusable reflection invoker for api delegates: holds the MethodInfo and target,
+    // reuses a static argument array so steady-state calls are allocation free
+    // (except boxing inside MethodInfo.Invoke itself)
+    public sealed class ApiInvoker
+    {
+        public ApiInvoker(System.Reflection.MethodInfo method, object target)
+        {
+            m_Method = method;
+            m_Target = target;
+        }
+        public BoxedValue Invoke(BoxedValueList args)
+        {
+            // per-invoker argument buffer: allocation free on steady-state calls and
+            // safe against reentrancy between different api invokers
+            m_Args[0] = args;
+            object o = m_Method.Invoke(m_Target, m_Args);
+            m_Args[0] = null;
+            return BoxedValue.FromObject(o);
+        }
+        private readonly System.Reflection.MethodInfo m_Method;
+        private readonly object m_Target;
+        private readonly object[] m_Args = new object[1];
+    }
+
     //startup apis
     private BoxedValue device_name(BoxedValueList list)
     {
@@ -1259,24 +1283,4 @@ public sealed partial class StartupApi
         }
     }
     private static StartupApi s_Instance = null;
-
-    private sealed class ApiInvoker
-    {
-        private System.Reflection.MethodInfo m_Method;
-        private object m_Target;
-        private object[] m_ArgBuf = new object[1];
-
-        public ApiInvoker(System.Reflection.MethodInfo method, object target)
-        {
-            m_Method = method;
-            m_Target = target;
-        }
-
-        public BoxedValue Invoke(BoxedValueList args)
-        {
-            m_ArgBuf[0] = args;
-            object o = m_Method.Invoke(m_Target, m_ArgBuf);
-            return BoxedValue.FromObject(o);
-        }
-    }
 }
