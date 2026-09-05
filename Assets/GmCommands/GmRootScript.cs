@@ -261,8 +261,7 @@ public sealed class GmRootScript : MonoBehaviour
     public static DebugConsoleShowHideDelegation OnConsoleShow;
     public static DebugConsoleShowHideDelegation OnConsoleHide;
 
-    public static SortedList<string, string> StoryDocs
-    {
+    public static SortedList<string, string> StoryDocs {
         get {
             var gmScp = GetGmRootScript();
             if (null == gmScp) {
@@ -271,8 +270,7 @@ public sealed class GmRootScript : MonoBehaviour
             return GetGmRootScript().m_StoryDocs;
         }
     }
-    public static GameObject GameObj
-    {
+    public static GameObject GameObj {
         get {
             return s_GameObj;
         }
@@ -707,17 +705,14 @@ public sealed class GmRootScript : MonoBehaviour
         }
     }
 
-    internal static bool UseJavaTask
-    {
+    internal static bool UseJavaTask {
         get { return s_UseJavaTask; }
         set { s_UseJavaTask = value; }
     }
-    internal static List<Task> Tasks
-    {
+    internal static List<Task> Tasks {
         get { return s_Tasks; }
     }
-    internal static List<JavaTask> JavaTasks
-    {
+    internal static List<JavaTask> JavaTasks {
         get { return s_JavaTasks; }
     }
     internal static void CleanupCompletedTasks()

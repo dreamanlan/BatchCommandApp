@@ -25,6 +25,52 @@ public static partial class StoryScriptUtility
         }
         return null;
     }
+    public static T TryInstallComponent<T>(GameObject prefab) where T : Component
+    {
+        if (null == prefab) {
+            return null;
+        }
+        UnityEngine.Debug.Assert(!prefab.activeSelf);
+
+        // idempotent: reuse an existing component instead of adding a duplicate,
+        // so calling TryInstall twice never yields two instances
+        var compObj = prefab.GetComponent<T>();
+        if (null == compObj) {
+            // prefab root is inactive, so Awake/OnEnable/Start have not run yet
+            compObj = prefab.AddComponent<T>();
+        }
+        return compObj;
+    }
+    public static Dictionary<string, Transform> CollectChildrenByName(Transform root)
+    {
+        var map = new Dictionary<string, Transform>();
+        if (null == root) {
+            return map;
+        }
+        // GetComponentsInChildren<Transform>(true) also reaches inactive children
+        var children = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < children.Length; ++i) {
+            var t = children[i];
+            if (t == root) {
+                continue;
+            }
+            // on name conflict keep the shallowest node; on equal depth keep the
+            // first visited, so the result does not depend on unique names
+            if (map.TryGetValue(t.name, out var exist) && GetTransformDepth(t) >= GetTransformDepth(exist)) {
+                continue;
+            }
+            map[t.name] = t;
+        }
+        return map;
+    }
+    private static int GetTransformDepth(Transform t)
+    {
+        int depth = 0;
+        for (var p = t.parent; p != null; p = p.parent) {
+            ++depth;
+        }
+        return depth;
+    }
     public static bool IsPathMatch(UnityEngine.Transform tr, IList<string> names)
     {
         int ix = names.Count - 1;

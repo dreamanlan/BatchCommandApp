@@ -116,4 +116,38 @@ public class UiHandler : MonoBehaviour
         {
             KeyValuePair.Create(c_TestUI, c_TestUI),
         });
+
+    public static UiHandler TryInstall(GameObject prefab)
+    {
+        // null check, inactive assert and idempotent install are handled by the utility
+        var uiHandler = StoryScriptUtility.TryInstallComponent<UiHandler>(prefab);
+        if (null == uiHandler) {
+            return null;
+        }
+
+        // collect child transforms by name (shallowest wins on conflicts),
+        // including inactive ones
+        var map = StoryScriptUtility.CollectChildrenByName(prefab.transform);
+
+        uiHandler.LabelTemplate = TryFindTemplate(map, "TextTmpl");
+        uiHandler.InputTemplate = TryFindTemplate(map, "InputTmpl");
+        uiHandler.ButtonTemplate = TryFindTemplate(map, "ButtonTmpl");
+        uiHandler.DropDownTemplate = TryFindTemplate(map, "DropdownTmpl");
+        uiHandler.ToggleTemplate = TryFindTemplate(map, "ToggleTmpl");
+        uiHandler.ToggleGroupTemplate = TryFindTemplate(map, "ToggleGroupTmpl");
+        uiHandler.SliderTemplate = TryFindTemplate(map, "SliderTmpl");
+
+        // missing templates are tolerated (fields stay null), but log once
+        // to expose unexpected prefab structure changes early
+        if (null == uiHandler.LabelTemplate || null == uiHandler.InputTemplate || null == uiHandler.ButtonTemplate
+            || null == uiHandler.DropDownTemplate || null == uiHandler.ToggleTemplate
+            || null == uiHandler.ToggleGroupTemplate || null == uiHandler.SliderTemplate) {
+            UnityEngine.Debug.LogWarning("UiHandler.TryInstall: some templates missing under " + prefab.name);
+        }
+        return uiHandler;
+    }
+    private static GameObject TryFindTemplate(Dictionary<string, Transform> map, string name)
+    {
+        return map.TryGetValue(name, out var t) ? t.gameObject : null;
+    }
 }

@@ -14,7 +14,7 @@ public class Main : MonoBehaviour
 {
     void Awake()
     {
-		StartupScript.InitLogger();
+        StartupScript.InitLogger();
     }
     void Start()
     {
@@ -98,7 +98,7 @@ public class Main : MonoBehaviour
     {
 #if UNITY_ANDROID || UNITY_EDITOR || UNITY_STANDALONE
         bool needRun = false;
-        for(int i = 0; i < StartupApi.c_max_startup_cfgs; ++i) {
+        for (int i = 0; i < StartupApi.c_max_startup_cfgs; ++i) {
             string file = Path.Combine(StartupScript.ScriptPath, string.Format("startup{0}.dsl", i));
             if (File.Exists(file)) {
                 if (!needRun) {
@@ -128,6 +128,7 @@ public class Main : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(gmtxt)) {
             GmRootScript.TryInit();
+            TryFixGM();
             GameObject obj = GmRootScript.GameObj;
             if (null != obj) {
                 DebugConsole.Execute(gmtxt);
@@ -141,6 +142,7 @@ public class Main : MonoBehaviour
             string file = Path.Combine(path, "initgm.txt");
             if (File.Exists(file)) {
                 GmRootScript.TryInit();
+                TryFixGM();
                 GameObject obj = GmRootScript.GameObj;
                 if (null != obj) {
                     //DebugConsole.Execute will reset the dsl, so the commands must be concatenated into one command
@@ -167,15 +169,65 @@ public class Main : MonoBehaviour
             else {
 #if UNITY_EDITOR
                 GmRootScript.TryInit();
+                TryFixGM();
 #elif UNITY_STANDALONE
 #if DEVELOPMENT_BUILD
             GmRootScript.TryInit();
+            TryFixGM();
 #endif
 #elif UNITY_ANDROID
 #if DEVELOPMENT_BUILD
             GmRootScript.TryInit();
+            TryFixGM();
 #endif
 #endif
+            }
+        }
+    }
+    private static void TryFixGM()
+    {
+        var gmObj = GmRootScript.GameObj;
+        if (null != gmObj) {
+            var uiHandler = gmObj.GetComponent<UiHandler>();
+            var debugConsole = gmObj.GetComponent<DebugConsole>();
+            var gmScp = gmObj.GetComponent<GmRootScript>();
+            if (null == uiHandler || null == debugConsole || null == gmScp) {
+                // some components are missing: gmObj may carry missing-script placeholders,
+                // clean them up before reinstalling
+#if UNITY_EDITOR
+                if (UnityEditor.GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(gmObj) > 0) {
+                    UnityEditor.GameObjectUtility.RemoveMonoBehavioursWithMissingScript(gmObj);
+                    Debug.Log("TryFixGM: removed missing scripts on " + gmObj.name);
+                }
+#else
+                // no runtime api to remove missing scripts; count and log for diagnosis
+                var comps = gmObj.GetComponents<Component>();
+                int missingCount = 0;
+                for (int i = 0; i < comps.Length; ++i) {
+                    if (null == comps[i]) {
+                        ++missingCount;
+                    }
+                }
+                if (missingCount > 0) {
+                    Debug.LogWarning("TryFixGM: " + missingCount + " missing scripts on " + gmObj.name + " (cannot remove at runtime)");
+                }
+#endif
+            }
+            gmObj.SetActive(false);
+            if (null == uiHandler) {
+                uiHandler = UiHandler.TryInstall(gmObj);
+            }
+            if (null == debugConsole) {
+                debugConsole = StoryScriptUtility.TryInstallComponent<DebugConsole>(gmObj);
+            }
+            if (null == gmScp) {
+                gmScp = StoryScriptUtility.TryInstallComponent<GmRootScript>(gmObj);
+            }
+            if (null == uiHandler || null == debugConsole || null == gmScp) {
+                // Fix failed.
+            }
+            else {
+                gmObj.SetActive(true);
             }
         }
     }
@@ -228,7 +280,7 @@ public class Main : MonoBehaviour
         if (null == s_Instance)
             return null;
         var vargs = StartupScript.Calculator.NewCalculatorValueList();
-        foreach(var arg in args) {
+        foreach (var arg in args) {
             vargs.Add(BoxedValue.FromObject(arg));
         }
         var r = StartupScript.Calculator.Calc(func, vargs);
