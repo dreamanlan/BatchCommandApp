@@ -137,6 +137,10 @@ public class UiHandler : MonoBehaviour
         uiHandler.ToggleGroupTemplate = TryFindTemplate(map, "ToggleGroupTmpl");
         uiHandler.SliderTemplate = TryFindTemplate(map, "SliderTmpl");
 
+        // bind the two navigation buttons on the prefab
+        TryBindButtonClick(map, "HideBtn", uiHandler.HideUi);
+        TryBindButtonClick(map, "IndexUI", uiHandler.LoadAndShowIndexUi);
+
         // missing templates are tolerated (fields stay null), but log once
         // to expose unexpected prefab structure changes early
         if (null == uiHandler.LabelTemplate || null == uiHandler.InputTemplate || null == uiHandler.ButtonTemplate
@@ -149,5 +153,19 @@ public class UiHandler : MonoBehaviour
     private static GameObject TryFindTemplate(Dictionary<string, Transform> map, string name)
     {
         return map.TryGetValue(name, out var t) ? t.gameObject : null;
+    }
+    private static void TryBindButtonClick(Dictionary<string, Transform> map, string name, UnityAction handler)
+    {
+        if (map.TryGetValue(name, out var t)) {
+            var button = t.GetComponent<Button>();
+            if (null != button) {
+                // remove runtime listeners first, so repeated TryInstall calls never
+                // stack duplicate handlers (persistent listeners are not affected)
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(handler);
+                return;
+            }
+        }
+        UnityEngine.Debug.LogWarning("UiHandler.TryInstall: button " + name + " not found");
     }
 }

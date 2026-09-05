@@ -212,22 +212,28 @@ public class Main : MonoBehaviour
                     Debug.LogWarning("TryFixGM: " + missingCount + " missing scripts on " + gmObj.name + " (cannot remove at runtime)");
                 }
 #endif
-            }
-            gmObj.SetActive(false);
-            if (null == uiHandler) {
-                uiHandler = UiHandler.TryInstall(gmObj);
-            }
-            if (null == debugConsole) {
-                debugConsole = StoryScriptUtility.TryInstallComponent<DebugConsole>(gmObj);
-            }
-            if (null == gmScp) {
-                gmScp = StoryScriptUtility.TryInstallComponent<GmRootScript>(gmObj);
-            }
-            if (null == uiHandler || null == debugConsole || null == gmScp) {
-                // Fix failed.
-            }
-            else {
-                gmObj.SetActive(true);
+                gmObj.SetActive(false);
+                if (null == uiHandler)
+                {
+                    uiHandler = UiHandler.TryInstall(gmObj);
+                }
+                if (null == debugConsole)
+                {
+                    debugConsole = StoryScriptUtility.TryInstallComponent<DebugConsole>(gmObj);
+                }
+                if (null == gmScp)
+                {
+                    gmScp = StoryScriptUtility.TryInstallComponent<GmRootScript>(gmObj);
+                }
+                if (null == uiHandler || null == debugConsole || null == gmScp)
+                {
+                    // Fix failed.
+                }
+                else
+                {
+                    gmObj.SetActive(true);
+                    GmRootScript.TryInit();
+                }
             }
         }
     }
