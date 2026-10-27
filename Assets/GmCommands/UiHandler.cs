@@ -47,6 +47,10 @@ public class UiHandler : MonoBehaviour
         //The UI of the current experiment is loaded here. Only one is the current one.
         LoadUi(c_TestUI);
     }
+    private void OnDestroy()
+    {
+        ReleaseSkinSprites();
+    }
     public void ShowUi()
     {
         m_DebugUi.ShowRootUi();
@@ -457,11 +461,36 @@ public class UiHandler : MonoBehaviour
     private static Sprite s_CheckmarkSkin;
     private static Sprite s_ArrowSkin;
 
+    // the cached skin textures/sprites use HideFlags.HideAndDontSave and are
+    // never unloaded with the scene, so release them explicitly when the gm
+    // object goes away; the lazy getters above recreate them on demand
+    private static void ReleaseSkinSprites()
+    {
+        DestroySkinSprite(ref s_StdSkin);
+        DestroySkinSprite(ref s_BackgroundSkin);
+        DestroySkinSprite(ref s_InputSkin);
+        DestroySkinSprite(ref s_MaskSkin);
+        DestroySkinSprite(ref s_KnobSkin);
+        DestroySkinSprite(ref s_CheckmarkSkin);
+        DestroySkinSprite(ref s_ArrowSkin);
+    }
+    private static void DestroySkinSprite(ref Sprite sprite)
+    {
+        if (null != sprite) {
+            var tex = sprite.texture;
+            StoryScriptUtility.DestroyObject(sprite);
+            if (null != tex) {
+                StoryScriptUtility.DestroyObject(tex);
+            }
+            sprite = null;
+        }
+    }
+
     // like UISprite.psd: bright rounded border over a nearly solid fill
     private static Sprite GetStdSkin()
     {
         if (null == s_StdSkin) {
-            s_StdSkin = CreateRoundedSkin(1.0f, 0.88f);
+            s_StdSkin = CreateSkinSprite(StdSkinShape, new Vector4(6.0f, 6.0f, 6.0f, 6.0f));
         }
         return s_StdSkin;
     }
@@ -469,7 +498,7 @@ public class UiHandler : MonoBehaviour
     private static Sprite GetBackgroundSkin()
     {
         if (null == s_BackgroundSkin) {
-            s_BackgroundSkin = CreateRoundedSkin(1.0f, 1.0f);
+            s_BackgroundSkin = CreateSkinSprite(BackgroundSkinShape, new Vector4(6.0f, 6.0f, 6.0f, 6.0f));
         }
         return s_BackgroundSkin;
     }
@@ -477,7 +506,7 @@ public class UiHandler : MonoBehaviour
     private static Sprite GetInputSkin()
     {
         if (null == s_InputSkin) {
-            s_InputSkin = CreateRoundedSkin(1.0f, 0.25f);
+            s_InputSkin = CreateSkinSprite(InputSkinShape, new Vector4(6.0f, 6.0f, 6.0f, 6.0f));
         }
         return s_InputSkin;
     }
@@ -485,7 +514,7 @@ public class UiHandler : MonoBehaviour
     private static Sprite GetMaskSkin()
     {
         if (null == s_MaskSkin) {
-            s_MaskSkin = CreateSkinSprite((x, y, size) => 1.0f, Vector4.zero);
+            s_MaskSkin = CreateSkinSprite(MaskSkinShape, Vector4.zero);
         }
         return s_MaskSkin;
     }
@@ -493,12 +522,7 @@ public class UiHandler : MonoBehaviour
     private static Sprite GetKnobSkin()
     {
         if (null == s_KnobSkin) {
-            s_KnobSkin = CreateSkinSprite((x, y, size) => {
-                float dx = x - size * 0.5f;
-                float dy = y - size * 0.5f;
-                float d = Mathf.Sqrt(dx * dx + dy * dy) - (size * 0.5f - 2.0f);
-                return Mathf.Clamp(0.5f - d, 0.0f, 1.0f);
-            }, Vector4.zero);
+            s_KnobSkin = CreateSkinSprite(KnobSkinShape, Vector4.zero);
         }
         return s_KnobSkin;
     }
@@ -507,12 +531,7 @@ public class UiHandler : MonoBehaviour
     private static Sprite GetCheckmarkSkin()
     {
         if (null == s_CheckmarkSkin) {
-            s_CheckmarkSkin = CreateSkinSprite((x, y, size) => {
-                float d = Mathf.Min(
-                    SegmentDistance(x, y, size * 0.25f, size * 0.40f, size * 0.42f, size * 0.22f),
-                    SegmentDistance(x, y, size * 0.42f, size * 0.22f, size * 0.76f, size * 0.62f));
-                return Mathf.Clamp(3.2f - d, 0.0f, 1.0f);
-            }, Vector4.zero);
+            s_CheckmarkSkin = CreateSkinSprite(CheckmarkSkinShape, Vector4.zero);
         }
         return s_CheckmarkSkin;
     }
@@ -521,41 +540,73 @@ public class UiHandler : MonoBehaviour
     private static Sprite GetArrowSkin()
     {
         if (null == s_ArrowSkin) {
-            s_ArrowSkin = CreateSkinSprite((x, y, size) => {
-                float apex = size * 0.30f;
-                float top = size * 0.70f;
-                if (y < apex - 0.5f || y > top + 0.5f) {
-                    return 0.0f;
-                }
-                float t = Mathf.Clamp01((y - apex) / (top - apex));
-                float halfW = size * 0.26f * t;
-                float d = Mathf.Abs(x - size * 0.5f) - halfW;
-                return Mathf.Clamp(0.5f - d, 0.0f, 1.0f);
-            }, Vector4.zero);
+            s_ArrowSkin = CreateSkinSprite(ArrowSkinShape, Vector4.zero);
         }
         return s_ArrowSkin;
+    }
+    // shape functions passed to CreateSkinSprite as named methods
+    // (project rule: no anonymous functions in code files)
+    private static float StdSkinShape(float x, float y, float size)
+    {
+        return RoundedRectShape(x, y, size, 1.0f, 0.88f);
+    }
+    private static float BackgroundSkinShape(float x, float y, float size)
+    {
+        return RoundedRectShape(x, y, size, 1.0f, 1.0f);
+    }
+    private static float InputSkinShape(float x, float y, float size)
+    {
+        return RoundedRectShape(x, y, size, 1.0f, 0.25f);
+    }
+    private static float MaskSkinShape(float x, float y, float size)
+    {
+        return 1.0f;
+    }
+    private static float KnobSkinShape(float x, float y, float size)
+    {
+        float dx = x - size * 0.5f;
+        float dy = y - size * 0.5f;
+        float d = Mathf.Sqrt(dx * dx + dy * dy) - (size * 0.5f - 2.0f);
+        return Mathf.Clamp(0.5f - d, 0.0f, 1.0f);
+    }
+    private static float CheckmarkSkinShape(float x, float y, float size)
+    {
+        float d = Mathf.Min(
+            SegmentDistance(x, y, size * 0.25f, size * 0.40f, size * 0.42f, size * 0.22f),
+            SegmentDistance(x, y, size * 0.42f, size * 0.22f, size * 0.76f, size * 0.62f));
+        return Mathf.Clamp(3.2f - d, 0.0f, 1.0f);
+    }
+    private static float ArrowSkinShape(float x, float y, float size)
+    {
+        float apex = size * 0.30f;
+        float top = size * 0.70f;
+        if (y < apex - 0.5f || y > top + 0.5f) {
+            return 0.0f;
+        }
+        float t = Mathf.Clamp01((y - apex) / (top - apex));
+        float halfW = size * 0.26f * t;
+        float d = Mathf.Abs(x - size * 0.5f) - halfW;
+        return Mathf.Clamp(0.5f - d, 0.0f, 1.0f);
     }
     // rounded rect with a bright border, sliced with the corners kept intact
     // (small radius: a large one makes little controls like the 20px toggle
     // checkbox read as a circle instead of a box)
-    private static Sprite CreateRoundedSkin(float borderAlpha, float fillAlpha)
+    private static float RoundedRectShape(float x, float y, float size, float borderAlpha, float fillAlpha)
     {
-        return CreateSkinSprite((x, y, size) => {
-            float c = size * 0.5f;
-            float radius = size * 0.19f;
-            const float border = 2.0f;
-            float qx = Mathf.Abs(x - c) - (c - 1.0f - radius);
-            float qy = Mathf.Abs(y - c) - (c - 1.0f - radius);
-            float ax = Mathf.Max(qx, 0.0f);
-            float ay = Mathf.Max(qy, 0.0f);
-            float dist = Mathf.Sqrt(ax * ax + ay * ay) + Mathf.Min(Mathf.Max(qx, qy), 0.0f) - radius;
-            float cover = Mathf.Clamp(0.5f - dist, 0.0f, 1.0f);
-            if (cover <= 0.0f) {
-                return 0.0f;
-            }
-            float alpha = (-dist) < border ? borderAlpha : fillAlpha;
-            return cover * alpha;
-        }, new Vector4(6.0f, 6.0f, 6.0f, 6.0f));
+        float c = size * 0.5f;
+        float radius = size * 0.19f;
+        const float border = 2.0f;
+        float qx = Mathf.Abs(x - c) - (c - 1.0f - radius);
+        float qy = Mathf.Abs(y - c) - (c - 1.0f - radius);
+        float ax = Mathf.Max(qx, 0.0f);
+        float ay = Mathf.Max(qy, 0.0f);
+        float dist = Mathf.Sqrt(ax * ax + ay * ay) + Mathf.Min(Mathf.Max(qx, qy), 0.0f) - radius;
+        float cover = Mathf.Clamp(0.5f - dist, 0.0f, 1.0f);
+        if (cover <= 0.0f) {
+            return 0.0f;
+        }
+        float alpha = (-dist) < border ? borderAlpha : fillAlpha;
+        return cover * alpha;
     }
     // rasterize a coverage function (0..1 per pixel) into a white sprite
     private static Sprite CreateSkinSprite(System.Func<float, float, float, float> shape, Vector4 border)

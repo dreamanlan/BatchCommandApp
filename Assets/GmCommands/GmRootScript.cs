@@ -290,7 +290,9 @@ public sealed class GmRootScript : MonoBehaviour
             var prefab = LoadRes("GmScript");
             if (prefab == null) {
                 LogSystem.Error("[GmScript] GmScript.prefab load failed");
-                var gobj = new GameObject("GmScript");
+                // fallback: create a bare object; TryInit below picks it up
+                // via GameObject.Find("GmScript")
+                new GameObject("GmScript");
             }
             else {
                 var gobj = GameObject.Instantiate<GameObject>(prefab);
