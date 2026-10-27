@@ -221,11 +221,7 @@ public sealed class GmRootScript : MonoBehaviour
                 ClientGmStorySystem.Instance.StartStory("main");
             }
             else {
-                string basePath = Application.persistentDataPath;
-                if (Application.platform == RuntimePlatform.Android) {
-                    basePath = "/data/local/tmp";
-                }
-                var path = Path.Combine(basePath, m_LocalGmFile);
+                var path = Path.Combine(ScriptPath, m_LocalGmFile);
                 if (File.Exists(path)) {
                     ClientGmStorySystem.Instance.Reset();
                     ClientGmStorySystem.Instance.LoadStory(path);
@@ -261,7 +257,19 @@ public sealed class GmRootScript : MonoBehaviour
     public static DebugConsoleShowHideDelegation OnConsoleShow;
     public static DebugConsoleShowHideDelegation OnConsoleHide;
 
-    public static SortedList<string, string> StoryDocs {
+    public static string ScriptPath
+    {
+        get {
+            if (Application.platform == RuntimePlatform.Android) {
+                return "/data/local/tmp/";
+            }
+            else {
+                return Application.persistentDataPath + "/";
+            }
+        }
+    }
+    public static SortedList<string, string> StoryDocs
+    {
         get {
             var gmScp = GetGmRootScript();
             if (null == gmScp) {
@@ -270,7 +278,8 @@ public sealed class GmRootScript : MonoBehaviour
             return GetGmRootScript().m_StoryDocs;
         }
     }
-    public static GameObject GameObj {
+    public static GameObject GameObj
+    {
         get {
             return s_GameObj;
         }
@@ -281,10 +290,12 @@ public sealed class GmRootScript : MonoBehaviour
             var prefab = LoadRes("GmScript");
             if (prefab == null) {
                 LogSystem.Error("[GmScript] GmScript.prefab load failed");
-                return;
+                var gobj = new GameObject("GmScript");
             }
-            var gobj = GameObject.Instantiate<GameObject>(prefab);
-            gobj.name = "GmScript";
+            else {
+                var gobj = GameObject.Instantiate<GameObject>(prefab);
+                gobj.name = "GmScript";
+            }
             TryInit();
         }
     }
@@ -295,14 +306,18 @@ public sealed class GmRootScript : MonoBehaviour
             if (null != s_GameObj) {
                 GameObject.DontDestroyOnLoad(s_GameObj);
             }
+            else {
+                s_GameObj = new GameObject("GmScript");
+                GameObject.DontDestroyOnLoad(s_GameObj);
+            }
         }
         if (null != s_GameObj) {
-            var gmScp = GetGmRootScript();
-            if (null == gmScp) {
+            var gmRootScript = GetGmRootScript();
+            if (null == gmRootScript) {
                 LogSystem.Error("[GmScript] GmScript object is missing GmRootScript component");
                 return;
             }
-            gmScp.TryInitGmRoot();
+            gmRootScript.TryInitGmRoot();
         }
     }
     public static void OnDebugConsoleShow()
@@ -705,14 +720,17 @@ public sealed class GmRootScript : MonoBehaviour
         }
     }
 
-    internal static bool UseJavaTask {
+    internal static bool UseJavaTask
+    {
         get { return s_UseJavaTask; }
         set { s_UseJavaTask = value; }
     }
-    internal static List<Task> Tasks {
+    internal static List<Task> Tasks
+    {
         get { return s_Tasks; }
     }
-    internal static List<JavaTask> JavaTasks {
+    internal static List<JavaTask> JavaTasks
+    {
         get { return s_JavaTasks; }
     }
     internal static void CleanupCompletedTasks()

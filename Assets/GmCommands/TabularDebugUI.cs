@@ -37,27 +37,38 @@ public class TabularDebugUI
     public void Init()
     {
         m_RootUi = GameObject.Find("RootPanel");
+        if (IsNullObject(m_RootUi)) {
+            return;
+        }
         InitUiCells();
         HideRootUi();
     }
     public void ShowRootUi()
     {
+        if (IsNullObject(m_RootUi)) {
+            return;
+        }
         m_RootUi.SetActive(true);
     }
     public void HideRootUi()
     {
+        if (IsNullObject(m_RootUi)) {
+            return;
+        }
         m_RootUi.SetActive(false);
     }
-    public void LoadUi(TextAsset ta)
+    public void LoadUi(string name, string text)
     {
+        if (IsNullObject(m_RootUi)) {
+            return;
+        }
         ClearCells();
         UiLoaded = false;
         UiInited = false;
 
-        if (null != ta) {
-            string txt = ta.text;
+        if (!string.IsNullOrEmpty(text)) {
             Dsl.DslFile file = new Dsl.DslFile();
-            if (file.LoadFromString(txt, LogSystem.Log)) {
+            if (file.LoadFromString(text, LogSystem.Log)) {
                 foreach (var info in file.DslInfos) {
                     string type = info.GetId();
                     if (type == "label") {
@@ -84,7 +95,7 @@ public class TabularDebugUI
                 }
             }
 
-            CurUiRes = ta.name;
+            CurUiRes = name;
             UiLoaded = true;
             CallInitUi(CurUiRes);
             UiInited = true;
@@ -92,6 +103,9 @@ public class TabularDebugUI
     }
     public void LoadAndShowIndexUi()
     {
+        if (IsNullObject(m_RootUi)) {
+            return;
+        }
         const string c_IndexUiRes = "index";
         const int c_NumPerRow = c_CellColNum - 2;
         const int c_StartRow = 1;
@@ -132,6 +146,9 @@ public class TabularDebugUI
     }
     public void CheckTmpFont()
     {
+        if (IsNullObject(m_RootUi)) {
+            return;
+        }
         if (!m_Font) {
             var comps = GameObject.FindObjectsOfType<TMPro.TextMeshProUGUI>(true);
             foreach (var comp in comps) {
@@ -405,16 +422,7 @@ public class TabularDebugUI
     {
         var toggleObj = AddToCell(ToggleTemplate, id, row, col);
         var toggle = toggleObj.GetComponent<UnityEngine.UI.Toggle>();
-        var labelObj = toggleObj.transform.Find("Label");
-        if (null != labelObj) {
-            var label = labelObj.GetComponent<Text>();
-            if (label == null) {
-                label = labelObj.gameObject.AddComponent<Text>();
-            }
-            label.text = caption;
-
-            AddUiControl(id + "|Label", label);
-        }
+        SetToggleLabel(toggleObj.transform, id, caption);
         if (hasDef) {
             toggle.isOn = isChecked;
         }
@@ -438,13 +446,7 @@ public class TabularDebugUI
     {
         var toggleObj = AddToCell(ToggleTemplate, id, row, col);
         var toggle = toggleObj.GetComponent<UnityEngine.UI.Toggle>();
-        var labelObj = toggleObj.transform.Find("Label");
-        if (null != labelObj) {
-            var label = labelObj.GetComponent<Text>();
-            label.text = caption;
-
-            AddUiControl(id + "|Label", label);
-        }
+        SetToggleLabel(toggleObj.transform, id, caption);
         if (hasDef) {
             toggle.isOn = isChecked;
         }
@@ -455,6 +457,29 @@ public class TabularDebugUI
         }
 
         AddUiControl(id, toggle);
+    }
+    // the rebuilt hierarchy carries a TMP label, while the prefab label is a
+    // legacy ugui Text; both are supported so neither path loses the caption
+    private void SetToggleLabel(Transform toggleObj, string id, string caption)
+    {
+        var labelObj = toggleObj.Find("Label");
+        if (null == labelObj) {
+            return;
+        }
+        var tmp = labelObj.GetComponent<TMPro.TextMeshProUGUI>();
+        if (null != tmp) {
+            tmp.text = caption;
+
+            AddUiControl(id + "|Label", tmp);
+            return;
+        }
+        var label = labelObj.GetComponent<Text>();
+        if (null == label) {
+            label = labelObj.gameObject.AddComponent<Text>();
+        }
+        label.text = caption;
+
+        AddUiControl(id + "|Label", label);
     }
     private void AddSlider(string id, int row, int col, string method, float minVal, float maxVal, bool hasDef, float defVal)
     {
@@ -613,4 +638,9 @@ public class TabularDebugUI
     private const string c_AutoIdKeyword = "@auto";
     private const int c_CellRowNum = 20;
     private const int c_CellColNum = 6;
+
+    public static bool IsNullObject(Object obj)
+    {
+        return null == obj;
+    }
 }
