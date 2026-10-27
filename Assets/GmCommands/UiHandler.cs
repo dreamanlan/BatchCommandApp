@@ -213,6 +213,13 @@ public class UiHandler : MonoBehaviour
         var canvasRt = CreateChild(c_CanvasNode, root.transform, zero, zero, zero, zero, zero, uiLayer);
         var canvas = canvasRt.gameObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        // stay above every game window canvas (the ui framework assigns them
+        // incrementally from 1), but BELOW the TMP dropdown popup/blocker
+        // canvases (hardcoded 30000/29999 in TMP_Dropdown): if the gm canvas
+        // sat above them, the expanded list would render and raycast behind
+        // the gm panel and the blocker could never win a click, so an open
+        // dropdown would never close
+        canvas.sortingOrder = 29998;
         // mirrors the prefab's m_AdditionalShaderChannelsFlag value (27)
         canvas.additionalShaderChannels = (AdditionalCanvasShaderChannels)c_CanvasShaderChannels;
         var scaler = canvasRt.gameObject.AddComponent<CanvasScaler>();
@@ -319,7 +326,7 @@ public class UiHandler : MonoBehaviour
         scrollRect.verticalScrollbar = scrollbarComp;
         scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
         scrollRect.verticalScrollbarSpacing = -3f;
-        var dropdown = dropdownTmpl.gameObject.AddComponent<TMPro.TMP_Dropdown>();
+        var dropdown = dropdownTmpl.gameObject.AddComponent<GmDropdown>();
         dropdown.targetGraphic = dropdownImg;
         dropdown.captionText = dropdownLabelTmp;
         dropdown.itemText = itemLabelTmp;
@@ -394,6 +401,7 @@ public class UiHandler : MonoBehaviour
         img.sprite = sprite;
         img.type = sliced ? Image.Type.Sliced : Image.Type.Simple;
         img.color = color;
+        img.raycastTarget = true;
         return img;
     }
     private static Image AddImage(RectTransform rt, Color color)
@@ -423,6 +431,16 @@ public class UiHandler : MonoBehaviour
         var button = rt.gameObject.AddComponent<Button>();
         button.targetGraphic = img;
         AddFillChildTmpText(rt, "Text (TMP)", caption, new Color(1f, 0.95554936f, 0f, 1f), rt.gameObject.layer);
+    }
+
+    private sealed class GmDropdown : TMPro.TMP_Dropdown
+    {
+        protected override GameObject CreateBlocker(Canvas rootCanvas)
+        {
+            var blocker = base.CreateBlocker(rootCanvas);
+            blocker.GetComponent<Image>().raycastTarget = true;
+            return blocker;
+        }
     }
 
     // ---- procedural ui skin sprites ---------------------------------------
