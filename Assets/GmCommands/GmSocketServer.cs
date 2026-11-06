@@ -11,23 +11,23 @@ using StoryScript;
 //   {"id":1,"cmd":"exec","code":"getposition(findobj(\"Main Camera\"))"}
 //   <- {"id":1,"ok":true,"result":"...","elapsedMs":1,"logs":[...]}
 // Plain text lines are still accepted (executed as DebugConsole commands).
-internal sealed class GmSocketServer
+public sealed class GmSocketServer
 {
-    internal GmSocketServer(int port)
+    public GmSocketServer(int port)
     {
         m_Port = port;
     }
 
-    internal int Port
+    public int Port
     {
         get { return m_Port; }
     }
-    internal bool IsRunning
+    public bool IsRunning
     {
         get { return m_Running; }
     }
 
-    internal bool Start()
+    public bool Start()
     {
         if (m_Running) {
             return true;
@@ -52,7 +52,7 @@ internal sealed class GmSocketServer
         return true;
     }
 
-    internal void Stop()
+    public void Stop()
     {
         if (!m_Running) {
             return;

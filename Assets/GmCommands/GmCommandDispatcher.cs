@@ -5,44 +5,44 @@ using System.Threading;
 using UnityEngine;
 
 // One GM request: created on a socket thread, executed on the main thread, then signalled back.
-internal sealed class GmCommandRequest
+public sealed class GmCommandRequest
 {
-    internal object Id;
-    internal string Command = string.Empty;
-    internal string Code = string.Empty;
-    internal int TimeoutMs;
-    internal long Since = -1;
-    internal int Count = 200;
-    internal string Filter = string.Empty;
+    public object Id;
+    public string Command = string.Empty;
+    public string Code = string.Empty;
+    public int TimeoutMs;
+    public long Since = -1;
+    public int Count = 200;
+    public string Filter = string.Empty;
 
-    internal readonly ManualResetEventSlim Done = new ManualResetEventSlim(false);
+    public readonly ManualResetEventSlim Done = new ManualResetEventSlim(false);
 
-    internal bool Ok = true;
-    internal string Result = string.Empty;
-    internal Dictionary<string, object> ResultObject;
-    internal string Error = string.Empty;
-    internal long ElapsedMs;
-    internal List<Dictionary<string, object>> Logs;
-    internal long NextLogIndex = -1;
+    public bool Ok = true;
+    public string Result = string.Empty;
+    public Dictionary<string, object> ResultObject;
+    public string Error = string.Empty;
+    public long ElapsedMs;
+    public List<Dictionary<string, object>> Logs;
+    public long NextLogIndex = -1;
 }
 
 // Dispatcher: socket thread enqueues -> main thread Pump executes -> reply.
 // Pump is driven by GmRootScript.Update at runtime and by EditorApplication.update in the editor.
-internal static class GmCommandDispatcher
+public static class GmCommandDispatcher
 {
-    internal const int c_DefaultTimeout = 15000;
-    internal const int c_MaxQueuedRequests = 256;
-    internal const int c_MaxRequestsPerPump = 8;
-    internal const int c_MaxLogsPerResponse = 200;
+    public const int c_DefaultTimeout = 15000;
+    public const int c_MaxQueuedRequests = 256;
+    public const int c_MaxRequestsPerPump = 8;
+    public const int c_MaxLogsPerResponse = 200;
 
     // The delegates below are always invoked on the main thread; registered by GmCommandApi.EnsureInit / the editor listener.
-    internal static Func<string, string> DslExecutor;
-    internal static Func<string, string> ConsoleExecutor;
-    internal static Func<string, string> EditorExecutor;
-    internal static Func<Dictionary<string, object>> InfoProvider;
+    public static Func<string, string> DslExecutor;
+    public static Func<string, string> ConsoleExecutor;
+    public static Func<string, string> EditorExecutor;
+    public static Func<Dictionary<string, object>> InfoProvider;
 
     // Callable from any thread; returns one line of JSON (no trailing newline).
-    internal static string HandleLine(string line)
+    public static string HandleLine(string line)
     {
         if (string.IsNullOrEmpty(line)) {
             return ErrorResponse(null, "empty request");
@@ -102,7 +102,7 @@ internal static class GmCommandDispatcher
     }
 
     // Called on the main thread, once per frame.
-    internal static void Pump()
+    public static void Pump()
     {
         for (int i = 0; i < c_MaxRequestsPerPump; ++i) {
             GmCommandRequest req;
@@ -116,7 +116,7 @@ internal static class GmCommandDispatcher
         }
     }
 
-    internal static int PendingCount
+    public static int PendingCount
     {
         get {
             lock (s_Lock) {
@@ -240,11 +240,11 @@ internal static class GmCommandDispatcher
 }
 
 // Log ring buffer: pollable through the logs command, also attached to exec/console replies.
-internal static class GmLogBuffer
+public static class GmLogBuffer
 {
-    internal const int c_MaxEntries = 2000;
+    public const int c_MaxEntries = 2000;
 
-    internal static void Install()
+    public static void Install()
     {
         if (s_Installed) {
             return;
@@ -252,7 +252,7 @@ internal static class GmLogBuffer
         s_Installed = true;
         Application.logMessageReceived += OnLogReceived;
     }
-    internal static void Uninstall()
+    public static void Uninstall()
     {
         if (!s_Installed) {
             return;
@@ -260,7 +260,7 @@ internal static class GmLogBuffer
         s_Installed = false;
         Application.logMessageReceived -= OnLogReceived;
     }
-    internal static long CurrentIndex
+    public static long CurrentIndex
     {
         get {
             lock (s_Lock) {
@@ -268,13 +268,13 @@ internal static class GmLogBuffer
             }
         }
     }
-    internal static void Clear()
+    public static void Clear()
     {
         lock (s_Lock) {
             s_Entries.Clear();
         }
     }
-    internal static List<Dictionary<string, object>> Collect(long since, int count, string filter, out long next)
+    public static List<Dictionary<string, object>> Collect(long since, int count, string filter, out long next)
     {
         if (count <= 0) {
             count = 200;
@@ -353,9 +353,9 @@ internal static class GmLogBuffer
 
     private sealed class Entry
     {
-        internal long Seq;
-        internal string Level = "I";
-        internal string Message = string.Empty;
+        public long Seq;
+        public string Level = "I";
+        public string Message = string.Empty;
     }
 
     private static readonly List<Entry> s_Entries = new List<Entry>();

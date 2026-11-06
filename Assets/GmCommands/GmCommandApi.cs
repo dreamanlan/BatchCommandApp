@@ -6,9 +6,9 @@ using StoryScript;
 using StoryScript.DslExpression;
 
 // DSL evaluation: wrap into script{ ... }, run synchronously and return the last statement value.
-internal static class GmDslEval
+public static class GmDslEval
 {
-    internal static string Eval(DslCalculator calc, string code, BoxedValue obj, BoxedValue item)
+    public static string Eval(DslCalculator calc, string code, BoxedValue obj, BoxedValue item)
     {
         if (null == calc) {
             throw new ArgumentNullException("calc");
@@ -40,7 +40,7 @@ internal static class GmDslEval
         var r = calc.Calc("main", obj, item);
         return ToText(r);
     }
-    internal static string ToText(BoxedValue val)
+    public static string ToText(BoxedValue val)
     {
         if (val.IsNullObject) {
             return "null";
@@ -51,9 +51,9 @@ internal static class GmDslEval
 }
 
 // Command entry points shared by runtime and editor (always run on the main thread).
-internal static class GmCommandApi
+public static class GmCommandApi
 {
-    internal static void EnsureInit()
+    public static void EnsureInit()
     {
         if (s_Inited) {
             return;
@@ -75,7 +75,7 @@ internal static class GmCommandApi
     }
 
     // GM DSL evaluation against the shared registry (all GM commands/functions live there).
-    internal static string ExecDsl(string code)
+    public static string ExecDsl(string code)
     {
         var calc = new DslCalculator();
         calc.ApiRegistry = DslCalculatorHost.GetSharedApiRegistry();
@@ -84,7 +84,7 @@ internal static class GmCommandApi
     }
 
     // DebugConsole command; in edit mode there is no DebugConsole instance, so fall back to DSL evaluation.
-    internal static string ExecConsole(string cmd)
+    public static string ExecConsole(string cmd)
     {
         if (DebugConsole.HasInstance) {
             var r = DebugConsole.ExecuteForResult(cmd);
@@ -93,7 +93,7 @@ internal static class GmCommandApi
         return ExecDsl(cmd);
     }
 
-    internal static Dictionary<string, object> BuildInfo()
+    public static Dictionary<string, object> BuildInfo()
     {
         var d = new Dictionary<string, object>();
         d["mode"] = Application.isEditor ? (Application.isPlaying ? "editor-play" : "editor") : "player";

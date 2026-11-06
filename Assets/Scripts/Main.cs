@@ -27,7 +27,6 @@ public class Main : MonoBehaviour
         StartCoroutine(Loop());
 
         StartupScript.TryInit();
-        UnityEditorApi.Register(StartupScript.Calculator);
         StartupScript.Calculator.Register("setclipboard", "setclipboard(str) api", new ExpressionFactoryHelper<SetClipboardExp>());
         StartupScript.Calculator.Register("getclipboard", "getclipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
 
