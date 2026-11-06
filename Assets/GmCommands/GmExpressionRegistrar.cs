@@ -254,9 +254,9 @@ namespace GmCommands
             registry.Register("getscalex", "getscalex(obj_or_path) function", new ExpressionFactoryHelper<GmCommands.GetScaleXFunction>());
             registry.Register("getscaley", "getscaley(obj_or_path) function", new ExpressionFactoryHelper<GmCommands.GetScaleYFunction>());
             registry.Register("getscalez", "getscalez(obj_or_path) function", new ExpressionFactoryHelper<GmCommands.GetScaleZFunction>());
-            registry.Register("position", "position(x,y,z) function", new ExpressionFactoryHelper<GmCommands.Vector3Exp>());
-            registry.Register("rotation", "rotation(x,y,z) function", new ExpressionFactoryHelper<GmCommands.Vector3Exp>());
-            registry.Register("scale", "scale(x,y,z) function", new ExpressionFactoryHelper<GmCommands.Vector3Exp>());
+            registry.Register("position", "position(x,y,z) function", new ExpressionFactoryHelper<GmCommands.Vector3Function>());
+            registry.Register("rotation", "rotation(x,y,z) function", new ExpressionFactoryHelper<GmCommands.Vector3Function>());
+            registry.Register("scale", "scale(x,y,z) function", new ExpressionFactoryHelper<GmCommands.Vector3Function>());
             registry.Register("deg2rad", "deg2rad(deg) function", new ExpressionFactoryHelper<GmCommands.Deg2RadFunction>());
             registry.Register("rad2deg", "rad2deg(rad) function", new ExpressionFactoryHelper<GmCommands.Rad2DegFunction>());
             registry.Register("getfilename", "getfilename(path) function", new ExpressionFactoryHelper<GmCommands.GetFileNameFunction>());
