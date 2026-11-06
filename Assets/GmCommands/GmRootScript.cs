@@ -56,6 +56,8 @@ public sealed class GmRootScript : MonoBehaviour
             if (null != m_AndroidReceiver || m_SocketServerInited) {
                 HandleCommand();
             }
+            // Execute requests coming from the socket / editor channel on the main thread.
+            GmCommandDispatcher.Pump();
             ClientGmStorySystem.Instance.Tick();
             if (GmCommands.ProfilerForGM.IsStarted()) {
                 GmCommands.ProfilerForGM.Update();

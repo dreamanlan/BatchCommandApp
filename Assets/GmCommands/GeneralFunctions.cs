@@ -932,7 +932,7 @@ namespace GmCommands
             return 1.0f;
         }
     }
-    internal sealed class Vector3Exp : SimpleExpressionBase
+    internal sealed class Vector3Function : SimpleExpressionBase
     {
         protected override BoxedValue OnCalc(IList<BoxedValue> operands)
         {

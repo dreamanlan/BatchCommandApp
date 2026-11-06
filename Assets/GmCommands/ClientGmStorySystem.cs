@@ -11,12 +11,19 @@ namespace GmCommands
         public RegisterGmCommandsAndFunctionsDelegation OnRegisterGmCommandsAndFunctions;
         public void Init()
         {
+            if (m_Inited) {
+                // The editor may initialize first (project-side delegate not set yet); apply it later on demand.
+                RegisterExtraCommands();
+                return;
+            }
+            m_Inited = true;
             try {
                 var registry = DslCalculatorHost.GetSharedApiRegistry();
                 GmExpressionRegistrar.RegisterGmExpressions(registry);
 
                 if (null != OnRegisterGmCommandsAndFunctions) {
                     OnRegisterGmCommandsAndFunctions(registry);
+                    m_RegisteredHandler = OnRegisterGmCommandsAndFunctions;
                 }
 
                 //failback to call startup api
@@ -24,6 +31,20 @@ namespace GmCommands
             }
             catch (Exception ex) {
                 LogSystem.Error("exception:{0}\n{1}", ex.Message, ex.StackTrace);
+            }
+        }
+        private void RegisterExtraCommands()
+        {
+            var handler = OnRegisterGmCommandsAndFunctions;
+            if (null == handler || handler == m_RegisteredHandler) {
+                return;
+            }
+            m_RegisteredHandler = handler;
+            try {
+                handler(DslCalculatorHost.GetSharedApiRegistry());
+            }
+            catch (Exception ex) {
+                LogSystem.Error("register extra gm commands exception:{0}\n{1}", ex.Message, ex.StackTrace);
             }
         }
         private bool OnLoadFailback(Dsl.ISyntaxComponent comp, DslCalculator calculator, out IExpression expression)
@@ -240,6 +261,8 @@ namespace GmCommands
         private Dictionary<string, StoryInstance> m_StoryInstancePool = new Dictionary<string, StoryInstance>();
 
         private StoryConfigManager m_ConfigManager = StoryConfigManager.NewInstance();
+        private bool m_Inited;
+        private RegisterGmCommandsAndFunctionsDelegation m_RegisteredHandler;
 
         public static ClientGmStorySystem Instance
         {

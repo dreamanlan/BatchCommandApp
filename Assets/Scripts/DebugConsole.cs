@@ -978,12 +978,12 @@ public class DebugConsole : MonoBehaviour
         m_CmdTable.Remove(commandString.ToLower());
     }
 
-    private void EvalInputString(string inputString)
+    private object EvalInputString(string inputString)
     {
         inputString = inputString.Trim();
         if (string.IsNullOrEmpty(inputString)) {
             LogMessage(Message.Input(string.Empty));
-            return;
+            return null;
         }
         m_History.Add(inputString);
 
@@ -1012,14 +1012,18 @@ public class DebugConsole : MonoBehaviour
             input.Add(inputString);
         }
         if (m_CmdTable.ContainsKey(cmd)) {
-            Log(m_CmdTable[cmd](input.ToArray()), MessageType.OUTPUT);
+            var r = m_CmdTable[cmd](input.ToArray());
+            Log(r, MessageType.OUTPUT);
+            return r;
         }
         else {
             input.Clear();
             input.Add("cmd");
             input.Add(inputString);
-            Log(m_CmdTable["cmd"](input.ToArray()), MessageType.OUTPUT);
+            var r = m_CmdTable["cmd"](input.ToArray());
+            Log(r, MessageType.OUTPUT);
             //LogMessage(Message.Output(string.Format("*** Unknown Command: {0} ***", cmd)));
+            return r;
         }
     }
 
@@ -1162,6 +1166,23 @@ public class DebugConsole : MonoBehaviour
     public static void Execute(string commandString)
     {
         s_Instance?.EvalInputString(commandString);
+    }
+    /// <summary>
+    /// Executes a command and returns the value produced by the command handler (used by socket-like channels).
+    /// Returns null when there is no DebugConsole instance.
+    /// </summary>
+    public static object ExecuteForResult(string commandString)
+    {
+        var inst = s_Instance;
+        if (null == inst)
+        {
+            return null;
+        }
+        return inst.EvalInputString(commandString);
+    }
+    public static bool HasInstance
+    {
+        get { return null != s_Instance; }
     }
     /// <summary>
     /// Registers a debug command that is "fired" when the specified command string is entered.
