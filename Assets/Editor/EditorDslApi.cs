@@ -1630,6 +1630,34 @@ namespace StoryScript.DslExpression
         private List<IExpression> m_Args = new List<IExpression>();
     }
 #endif
+#if UNITY_EDITOR
+    // Play mode control for the GM socket / MCP editor channel. Entering Play triggers a
+    // domain reload that tears down the socket server, so the state change is deferred to
+    // the next editor update: the RPC returns normally before the reload happens.
+    internal class EditorPlayExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            bool play = true;
+            if (operands.Count >= 1)
+                play = operands[0].GetBool();
+            bool target = play;
+            bool current = UnityEditor.EditorApplication.isPlaying;
+            if (current != target)
+            {
+                UnityEditor.EditorApplication.delayCall += () => { UnityEditor.EditorApplication.isPlaying = target; };
+            }
+            return BoxedValue.FromBool(current);
+        }
+    }
+    internal class EditorIsPlayingExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            return BoxedValue.FromBool(UnityEditor.EditorApplication.isPlaying);
+        }
+    }
+#endif
     public sealed class EditorDslApi
     {
         public static void Register(DslCalculator calculator)
@@ -1682,6 +1710,10 @@ namespace StoryScript.DslExpression
             calculator.Register("displaydialog", "displaydialog(title,msg,ok[,cancel[,alt]]) api", new ExpressionFactoryHelper<DisplayDialogExp>());
             calculator.Register("hascmdarg", "hascmdarg(name) api, return (bool,string)", new ExpressionFactoryHelper<HasCmdArgExp>());
             calculator.Register("strlen", "strlen(str) api", new ExpressionFactoryHelper<StrLenExp>());
+#if UNITY_EDITOR
+            calculator.Register("editor_play", "editor_play(play) - enter/exit Play mode on the next editor update; returns the state before the change", new ExpressionFactoryHelper<EditorPlayExp>());
+            calculator.Register("editor_isplaying", "editor_isplaying() - current Play mode state", new ExpressionFactoryHelper<EditorIsPlayingExp>());
+#endif
 #if USE_GM_STORY
             calculator.Register("storyvar", "storyvar(name,val) or storyvar(name) api", new ExpressionFactoryHelper<StoryVarExp>());
             calculator.Register("callstory", "callstory(msgId...) or callstory(apiOrMsgId(...)) api", new ExpressionFactoryHelper<CallStoryExp>());
