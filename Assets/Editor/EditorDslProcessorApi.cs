@@ -26,7 +26,7 @@ internal enum ProfilerViewType
     RawHierarchy
 }
 
-public static class ResourceEditUtility
+public static class EditorDslProcessorUtility
 {
     public delegate void RegisterApiDelegation(DslCalculator calc);
     public static RegisterApiDelegation OnRegisterApi;
@@ -452,130 +452,130 @@ public static class ResourceEditUtility
     {
         calc.OnLog = msg => { UnityEngine.Debug.LogError(msg); };
         calc.NewApiRegistry();
-        calc.Register("callscript", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CallScriptExp>());
-        calc.Register("setredirect", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetRedirectExp>());
-        calc.Register("newitem", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.NewItemExp>());
-        calc.Register("setextraobject", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetExtraObjectExp>());
-        calc.Register("getextraobject", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetExtraObjectExp>());
-        calc.Register("calcextraobjectfieldcount", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CalcExtraObjectFieldCountExp>());
-        calc.Register("newextralist", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.NewExtraListExp>());
-        calc.Register("extralistadd", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.ExtraListAddExp>());
-        calc.Register("extralistclear", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.ExtraListClearExp>());
-        calc.Register("getreferenceassets", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetReferenceAssetsExp>());
-        calc.Register("getreferencebyassets", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetReferenceByAssetsExp>());
-        calc.Register("calcrefcount", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CalcRefCountExp>());
-        calc.Register("calcrefbycount", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CalcRefByCountExp>());
-        calc.Register("findasset", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FindAssetExp>());
-        calc.Register("selectframe", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SelectFrameExp>());
-        calc.Register("filtercpusample", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FilterCpuSampleExp>());
-        calc.Register("filtergpusample", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FilterGpuSampleExp>());
-        calc.Register("selectsample", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SelectSampleExp>());
-        calc.Register("selectpropertypath", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SelectPropertyPathExp>());
-        calc.Register("setmarkerfilter", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetMarkerFilterExp>());
-        calc.Register("loadidaprosymbols", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.LoadIdaproSymbolsExp>());
-        calc.Register("loadxcodesymbols", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.LoadXcodeSymbolsExp>());
-        calc.Register("loadbuglyandroidsymbols", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.LoadBuglyAndroidSymbolsExp>());
-        calc.Register("loadbuglyiossymbols", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.LoadBuglyIosSymbolsExp>());
-        calc.Register("converttorelativeaddrs", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.ConvertToRelativeAddrsExp>());
-        calc.Register("mapbuglyandroidsymbols", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.MapBuglyAndroidSymbolsExp>());
-        calc.Register("mapbuglyiossymbols", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.MapBuglyIosSymbolsExp>());
-        calc.Register("grep", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GrepExp>());
-        calc.Register("subst", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SubstExp>());
-        calc.Register("setclipboard", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetClipboardExp>());
-        calc.Register("getclipboard", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetClipboardExp>());
-        calc.Register("selectobject", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SelectObjectExp>());
-        calc.Register("selectprojectobject", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SelectProjectObjectExp>());
-        calc.Register("selectsceneobject", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SelectSceneObjectExp>());
-        calc.Register("saveandreimport", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SaveAndReimportExp>());
-        calc.Register("setdirty", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetDirtyExp>());
-        calc.Register("getdefaulttexturesetting", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetDefaultTextureSettingExp>());
-        calc.Register("gettexturesetting", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetTextureSettingExp>());
-        calc.Register("settexturesetting", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetTextureSettingExp>());
-        calc.Register("textureisnotastc", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.TextureIsNotAstcExp>());
-        calc.Register("isastctexture", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.IsAstcTextureExp>());
-        calc.Register("setastctexture", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetAstcTextureExp>());
-        calc.Register("issceneastctexture", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.IsSceneAstcTextureExp>());
-        calc.Register("setsceneastctexture", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetSceneAstcTextureExp>());
-        calc.Register("istexturenoalphasource", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.IsTextureNoAlphaSourceExp>());
-        calc.Register("doestexturehavealpha", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.DoesTextureHaveAlphaExp>());
-        calc.Register("correctnonealphatexture", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CorrectNoneAlphaTextureExp>());
-        calc.Register("setnonealphatexture", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetNoneAlphaTextureExp>());
-        calc.Register("gettexturecompression", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetTextureCompressionExp>());
-        calc.Register("settexturecompression", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetTextureCompressionExp>());
-        calc.Register("gettexturestorage", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetTextureStorageMemorySizeExp>());
-        calc.Register("gettexturememory", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetTextureRuntimeMemorySizeExp>());
-        calc.Register("getruntimememory", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetRuntimeMemorySizeExp>());
-        calc.Register("setmaxboundingbox", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetMaxBoundingBoxExp>());
-        calc.Register("resetboundingbox", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.ResetBoundingBoxExp>());
-        calc.Register("mergeboundingbox", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.MergeBoundingBoxExp>());
-        calc.Register("getboundingbox", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetBoundingBoxExp>());
-        calc.Register("addorupdateboundingbox", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.AddOrUpdateBoundingBoxExp>());
-        calc.Register("getmeshcompression", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetMeshCompressionExp>());
-        calc.Register("setmeshcompression", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetMeshCompressionExp>());
-        calc.Register("setmeshimportexternalmaterials", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetMeshImportExternalMaterialsExp>());
-        calc.Register("setmeshimportinprefabmaterials", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetMeshImportInPrefabMaterialsExp>());
-        calc.Register("closemeshanimationifnoanimation", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CloseMeshAnimationIfNoAnimationExp>());
-        calc.Register("singlemeshinfo", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SingleMeshInfoExp>());
-        calc.Register("collectmeshes", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CollectMeshesExp>());
-        calc.Register("collectmeshinfo", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CollectMeshInfoExp>());
-        calc.Register("collectanimatorcontrollerinfo", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CollectAnimatorControllerInfoExp>());
-        calc.Register("collectprefabinfo", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CollectPrefabInfoExp>());
-        calc.Register("getanimationclipinfo", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetAnimationClipInfoExp>());
-        calc.Register("getanimationcompression", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetAnimationCompressionExp>());
-        calc.Register("setanimationcompression", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetAnimationCompressionExp>());
-        calc.Register("getanimationtype", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetAnimationTypeExp>());
-        calc.Register("setanimationtype", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetAnimationTypeExp>());
-        calc.Register("setextraexposedtransformpaths", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetExtraExposedTransformPathsExp>());
-        calc.Register("clearanimationscalecurve", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.ClearAnimationScaleCurveExp>());
-        calc.Register("getaudiosetting", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetAudioSettingExp>());
-        calc.Register("setaudiosetting", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.SetAudioSettingExp>());
-        calc.Register("calcmeshvertexcomponentcount", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CalcMeshVertexComponentCountExp>());
-        calc.Register("calcmeshtexratio", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CalcMeshTexRatioExp>());
-        calc.Register("calcassetmd5", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CalcAssetMd5Exp>());
-        calc.Register("calcassetsize", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CalcAssetSizeExp>());
-        calc.Register("deleteasset", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.DeleteAssetExp>());
-        calc.Register("getshaderutil", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetShaderUtilExp>());
-        calc.Register("getshaderpropertycount", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetShaderPropertyCountExp>());
-        calc.Register("getshaderpropertynames", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetShaderPropertyNamesExp>());
-        calc.Register("removeyamlleafproperties", "removeyamlleafproperties(asset_path,property1,property2,...)", new ExpressionFactoryHelper<ResourceEditApi.RemoveYamlLeafPropertiesExp>());
-        calc.Register("checkyaml", "checkyaml(asset_path[,int_start,int_count,bool_partial_conflict])", new ExpressionFactoryHelper<ResourceEditApi.CheckYamlExp>());
-        calc.Register("ispathtoolong", "ispathtoolong(asset_path)", new ExpressionFactoryHelper<ResourceEditApi.IsPathTooLongExp>());
-        calc.Register("findrowindex", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FindRowIndexExp>());
-        calc.Register("findrowindexes", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FindRowIndexesExp>());
-        calc.Register("findcellindex", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FindCellIndexExp>());
-        calc.Register("findcellindexes", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FindCellIndexesExp>());
-        calc.Register("getcellvalue", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetCellValueExp>());
-        calc.Register("getcellstring", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetCellStringExp>());
-        calc.Register("getcellnumeric", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.GetCellNumericExp>());
-        calc.Register("rowtoline", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.RowToLineExp>());
-        calc.Register("tabletohashtable", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.TableToHashtableExp>());
-        calc.Register("findrowfromhashtable", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FindRowFromHashtableExp>());
-        calc.Register("loadmanagedheaps", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.LoadManagedHeapsExp>());
-        calc.Register("findmanagedheaps", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FindManagedHeapsExp>());
-        calc.Register("matchmanagedheaps", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.MatchManagedHeapsExp>());
-        calc.Register("calcmatchedmanagedheapsdiff", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CalcMatchedManagedHeapsDiffExp>());
-        calc.Register("loadmaps", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.LoadMapsExp>());
-        calc.Register("findmaps", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FindMapsExp>());
-        calc.Register("matchmaps", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.MatchMapsExp>());
-        calc.Register("calcmatchedmapsdiff", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CalcMatchedMapsDiffExp>());
-        calc.Register("loadsmaps", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.LoadSmapsExp>());
-        calc.Register("findsmaps", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FindSmapsExp>());
-        calc.Register("matchsmaps", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.MatchSmapsExp>());
-        calc.Register("calcmatchedsmapsdiff", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.CalcMatchedSmapsDiffExp>());
-        calc.Register("loadaddrs", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.LoadAddrsExp>());
-        calc.Register("escapeurl", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.EscapeUrlExp>());
-        calc.Register("unescapeurl", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.UnEscapeUrlExp>());
-        calc.Register("parseurlargs", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.ParseUrlArgsExp>());
-        calc.Register("parsebuglyinfo", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.ParseBuglyInfoExp>());
-        calc.Register("inthashcontains", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.IntHashContainsExp>());
-        calc.Register("uinthashcontains", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.UintHashContainsExp>());
-        calc.Register("longhashcontains", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.LongHashContainsExp>());
-        calc.Register("ulonghashcontains", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.UlongHashContainsExp>());
-        calc.Register("floathashcontains", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.FloatHashContainsExp>());
-        calc.Register("doublehashcontains", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.DoubleHashContainsExp>());
-        calc.Register("stringhashcontains", string.Empty, new ExpressionFactoryHelper<ResourceEditApi.StringHashContainsExp>());
+        calc.Register("callscript", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CallScriptExp>());
+        calc.Register("setredirect", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetRedirectExp>());
+        calc.Register("newitem", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.NewItemExp>());
+        calc.Register("setextraobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetExtraObjectExp>());
+        calc.Register("getextraobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetExtraObjectExp>());
+        calc.Register("calcextraobjectfieldcount", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcExtraObjectFieldCountExp>());
+        calc.Register("newextralist", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.NewExtraListExp>());
+        calc.Register("extralistadd", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ExtraListAddExp>());
+        calc.Register("extralistclear", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ExtraListClearExp>());
+        calc.Register("getreferenceassets", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetReferenceAssetsExp>());
+        calc.Register("getreferencebyassets", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetReferenceByAssetsExp>());
+        calc.Register("calcrefcount", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcRefCountExp>());
+        calc.Register("calcrefbycount", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcRefByCountExp>());
+        calc.Register("findasset", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindAssetExp>());
+        calc.Register("selectframe", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectFrameExp>());
+        calc.Register("filtercpusample", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FilterCpuSampleExp>());
+        calc.Register("filtergpusample", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FilterGpuSampleExp>());
+        calc.Register("selectsample", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectSampleExp>());
+        calc.Register("selectpropertypath", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectPropertyPathExp>());
+        calc.Register("setmarkerfilter", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMarkerFilterExp>());
+        calc.Register("loadidaprosymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadIdaproSymbolsExp>());
+        calc.Register("loadxcodesymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadXcodeSymbolsExp>());
+        calc.Register("loadbuglyandroidsymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadBuglyAndroidSymbolsExp>());
+        calc.Register("loadbuglyiossymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadBuglyIosSymbolsExp>());
+        calc.Register("converttorelativeaddrs", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ConvertToRelativeAddrsExp>());
+        calc.Register("mapbuglyandroidsymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MapBuglyAndroidSymbolsExp>());
+        calc.Register("mapbuglyiossymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MapBuglyIosSymbolsExp>());
+        calc.Register("grep", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GrepExp>());
+        calc.Register("subst", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SubstExp>());
+        calc.Register("setclipboard", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetClipboardExp>());
+        calc.Register("getclipboard", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetClipboardExp>());
+        calc.Register("selectobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectObjectExp>());
+        calc.Register("selectprojectobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectProjectObjectExp>());
+        calc.Register("selectsceneobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectSceneObjectExp>());
+        calc.Register("saveandreimport", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SaveAndReimportExp>());
+        calc.Register("setdirty", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetDirtyExp>());
+        calc.Register("getdefaulttexturesetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetDefaultTextureSettingExp>());
+        calc.Register("gettexturesetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureSettingExp>());
+        calc.Register("settexturesetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetTextureSettingExp>());
+        calc.Register("textureisnotastc", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.TextureIsNotAstcExp>());
+        calc.Register("isastctexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IsAstcTextureExp>());
+        calc.Register("setastctexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAstcTextureExp>());
+        calc.Register("issceneastctexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IsSceneAstcTextureExp>());
+        calc.Register("setsceneastctexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetSceneAstcTextureExp>());
+        calc.Register("istexturenoalphasource", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IsTextureNoAlphaSourceExp>());
+        calc.Register("doestexturehavealpha", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.DoesTextureHaveAlphaExp>());
+        calc.Register("correctnonealphatexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CorrectNoneAlphaTextureExp>());
+        calc.Register("setnonealphatexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetNoneAlphaTextureExp>());
+        calc.Register("gettexturecompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureCompressionExp>());
+        calc.Register("settexturecompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetTextureCompressionExp>());
+        calc.Register("gettexturestorage", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureStorageMemorySizeExp>());
+        calc.Register("gettexturememory", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureRuntimeMemorySizeExp>());
+        calc.Register("getruntimememory", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetRuntimeMemorySizeExp>());
+        calc.Register("setmaxboundingbox", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMaxBoundingBoxExp>());
+        calc.Register("resetboundingbox", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ResetBoundingBoxExp>());
+        calc.Register("mergeboundingbox", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MergeBoundingBoxExp>());
+        calc.Register("getboundingbox", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetBoundingBoxExp>());
+        calc.Register("addorupdateboundingbox", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.AddOrUpdateBoundingBoxExp>());
+        calc.Register("getmeshcompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetMeshCompressionExp>());
+        calc.Register("setmeshcompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMeshCompressionExp>());
+        calc.Register("setmeshimportexternalmaterials", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMeshImportExternalMaterialsExp>());
+        calc.Register("setmeshimportinprefabmaterials", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMeshImportInPrefabMaterialsExp>());
+        calc.Register("closemeshanimationifnoanimation", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CloseMeshAnimationIfNoAnimationExp>());
+        calc.Register("singlemeshinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SingleMeshInfoExp>());
+        calc.Register("collectmeshes", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectMeshesExp>());
+        calc.Register("collectmeshinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectMeshInfoExp>());
+        calc.Register("collectanimatorcontrollerinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectAnimatorControllerInfoExp>());
+        calc.Register("collectprefabinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectPrefabInfoExp>());
+        calc.Register("getanimationclipinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAnimationClipInfoExp>());
+        calc.Register("getanimationcompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAnimationCompressionExp>());
+        calc.Register("setanimationcompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAnimationCompressionExp>());
+        calc.Register("getanimationtype", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAnimationTypeExp>());
+        calc.Register("setanimationtype", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAnimationTypeExp>());
+        calc.Register("setextraexposedtransformpaths", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetExtraExposedTransformPathsExp>());
+        calc.Register("clearanimationscalecurve", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ClearAnimationScaleCurveExp>());
+        calc.Register("getaudiosetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAudioSettingExp>());
+        calc.Register("setaudiosetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAudioSettingExp>());
+        calc.Register("calcmeshvertexcomponentcount", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMeshVertexComponentCountExp>());
+        calc.Register("calcmeshtexratio", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMeshTexRatioExp>());
+        calc.Register("calcassetmd5", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcAssetMd5Exp>());
+        calc.Register("calcassetsize", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcAssetSizeExp>());
+        calc.Register("deleteasset", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.DeleteAssetExp>());
+        calc.Register("getshaderutil", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetShaderUtilExp>());
+        calc.Register("getshaderpropertycount", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetShaderPropertyCountExp>());
+        calc.Register("getshaderpropertynames", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetShaderPropertyNamesExp>());
+        calc.Register("removeyamlleafproperties", "removeyamlleafproperties(asset_path,property1,property2,...)", new ExpressionFactoryHelper<EditorDslProcessorApi.RemoveYamlLeafPropertiesExp>());
+        calc.Register("checkyaml", "checkyaml(asset_path[,int_start,int_count,bool_partial_conflict])", new ExpressionFactoryHelper<EditorDslProcessorApi.CheckYamlExp>());
+        calc.Register("ispathtoolong", "ispathtoolong(asset_path)", new ExpressionFactoryHelper<EditorDslProcessorApi.IsPathTooLongExp>());
+        calc.Register("findrowindex", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindRowIndexExp>());
+        calc.Register("findrowindexes", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindRowIndexesExp>());
+        calc.Register("findcellindex", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindCellIndexExp>());
+        calc.Register("findcellindexes", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindCellIndexesExp>());
+        calc.Register("getcellvalue", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetCellValueExp>());
+        calc.Register("getcellstring", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetCellStringExp>());
+        calc.Register("getcellnumeric", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetCellNumericExp>());
+        calc.Register("rowtoline", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.RowToLineExp>());
+        calc.Register("tabletohashtable", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.TableToHashtableExp>());
+        calc.Register("findrowfromhashtable", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindRowFromHashtableExp>());
+        calc.Register("loadmanagedheaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadManagedHeapsExp>());
+        calc.Register("findmanagedheaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindManagedHeapsExp>());
+        calc.Register("matchmanagedheaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MatchManagedHeapsExp>());
+        calc.Register("calcmatchedmanagedheapsdiff", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMatchedManagedHeapsDiffExp>());
+        calc.Register("loadmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadMapsExp>());
+        calc.Register("findmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindMapsExp>());
+        calc.Register("matchmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MatchMapsExp>());
+        calc.Register("calcmatchedmapsdiff", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMatchedMapsDiffExp>());
+        calc.Register("loadsmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadSmapsExp>());
+        calc.Register("findsmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindSmapsExp>());
+        calc.Register("matchsmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MatchSmapsExp>());
+        calc.Register("calcmatchedsmapsdiff", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMatchedSmapsDiffExp>());
+        calc.Register("loadaddrs", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadAddrsExp>());
+        calc.Register("escapeurl", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.EscapeUrlExp>());
+        calc.Register("unescapeurl", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.UnEscapeUrlExp>());
+        calc.Register("parseurlargs", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ParseUrlArgsExp>());
+        calc.Register("parsebuglyinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ParseBuglyInfoExp>());
+        calc.Register("inthashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IntHashContainsExp>());
+        calc.Register("uinthashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.UintHashContainsExp>());
+        calc.Register("longhashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LongHashContainsExp>());
+        calc.Register("ulonghashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.UlongHashContainsExp>());
+        calc.Register("floathashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FloatHashContainsExp>());
+        calc.Register("doublehashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.DoubleHashContainsExp>());
+        calc.Register("stringhashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.StringHashContainsExp>());
 
-        UnityEditorApi.Register(calc);
+        EditorDslApi.Register(calc);
         if (null != OnRegisterApi) {
             OnRegisterApi(calc);
         }
@@ -1380,7 +1380,7 @@ public static class ResourceEditUtility
 }
 
 #region API
-namespace ResourceEditApi
+namespace EditorDslProcessorApi
 {
     internal class MeshInfo
     {
@@ -1592,12 +1592,12 @@ namespace ResourceEditApi
             if (operands.Count >= 1) {
                 var proc = operands[0].AsString;
                 if (null != proc) {
-                    var args = ResourceProcessor.Instance.NewCalculatorValueList();
+                    var args = EditorDslProcessor.Instance.NewCalculatorValueList();
                     for (int i = 1; i < operands.Count; ++i) {
                         args.Add(operands[i]);
                     }
-                    r = ResourceProcessor.Instance.CallScript(Calculator, proc, args);
-                    ResourceProcessor.Instance.RecycleCalculatorValueList(args);
+                    r = EditorDslProcessor.Instance.CallScript(Calculator, proc, args);
+                    EditorDslProcessor.Instance.RecycleCalculatorValueList(args);
                 }
             }
             return r;
@@ -1632,9 +1632,9 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var results = Calculator.GetVariable("results").As<List<ResourceEditUtility.ItemInfo>>();
+                var results = Calculator.GetVariable("results").As<List<EditorDslProcessorUtility.ItemInfo>>();
                 if (null != results) {
-                    var item = new ResourceEditUtility.ItemInfo();
+                    var item = new EditorDslProcessorUtility.ItemInfo();
                     item.PrepareShowInfo();
                     results.Add(item);
                     r = BoxedValue.FromObject(item);
@@ -1649,7 +1649,7 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var item = operands[0].As<ResourceEditUtility.ItemInfo>();
+                var item = operands[0].As<EditorDslProcessorUtility.ItemInfo>();
                 r = operands[1];
                 item.ExtraObject = r;
             }
@@ -1662,7 +1662,7 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var item = operands[0].As<ResourceEditUtility.ItemInfo>();
+                var item = operands[0].As<EditorDslProcessorUtility.ItemInfo>();
                 r = item.ExtraObject;
             }
             return r;
@@ -1680,8 +1680,8 @@ namespace ResourceEditApi
                     HashSet<string> hash = new HashSet<string>();
                     foreach (var item in items) {
                         IList<string> fields;
-                        var itemInfo = item as ResourceEditUtility.ItemInfo;
-                        var groupInfo = item as ResourceEditUtility.GroupInfo;
+                        var itemInfo = item as EditorDslProcessorUtility.ItemInfo;
+                        var groupInfo = item as EditorDslProcessorUtility.GroupInfo;
                         if (null != itemInfo) {
                             fields = itemInfo.ExtraObject.As<IList<string>>();
                         }
@@ -1876,7 +1876,7 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var sceneDeps = Calculator.GetVariable("scenedeps").As<ResourceEditUtility.SceneDepInfo>();
+                var sceneDeps = Calculator.GetVariable("scenedeps").As<EditorDslProcessorUtility.SceneDepInfo>();
                 var asset = operands[0].AsString;
                 var type = operands[1].AsString;
                 var assetPath = string.Empty;
@@ -1899,11 +1899,11 @@ namespace ResourceEditApi
                         if (string.Compare(name, fileName, true) == 0) {
                             assetPath = temp;
                             handled = true;
-                            bool result = ResourceEditUtility.FindSceneObject(asset, type, ref assetPath, ref scenePath, ref sceneObj);
+                            bool result = EditorDslProcessorUtility.FindSceneObject(asset, type, ref assetPath, ref scenePath, ref sceneObj);
                         }
                     }
                     if (!handled) {
-                        bool result = ResourceEditUtility.FindSceneObject(asset, type, ref assetPath, ref scenePath, ref sceneObj);
+                        bool result = EditorDslProcessorUtility.FindSceneObject(asset, type, ref assetPath, ref scenePath, ref sceneObj);
                         if (result) {
                         }
                         else if (type == "Texture2D") {
@@ -2008,9 +2008,9 @@ namespace ResourceEditApi
         {
             bool r = false;
             if (operands.Count >= 3) {
-                var frame = operands[0].As<ResourceEditUtility.InstrumentInfo>();
-                var record = operands[1].As<ResourceEditUtility.InstrumentRecord>();
-                var tinfo = operands[2].As<ResourceEditUtility.InstrumentThreadInfo>();
+                var frame = operands[0].As<EditorDslProcessorUtility.InstrumentInfo>();
+                var record = operands[1].As<EditorDslProcessorUtility.InstrumentRecord>();
+                var tinfo = operands[2].As<EditorDslProcessorUtility.InstrumentThreadInfo>();
                 var w = EditorWindow.GetWindow<ProfilerWindow>();
                 w.Show(true);
                 w.Focus();
@@ -2091,7 +2091,7 @@ namespace ResourceEditApi
                 var file = operands[0].AsString;
                 if (!string.IsNullOrEmpty(file)) {
                     var fileName = Path.GetFileName(file);
-                    var symbols = new List<ResourceEditUtility.SymbolInfo>();
+                    var symbols = new List<EditorDslProcessorUtility.SymbolInfo>();
                     using (var sr = new StreamReader(file)) {
                         int curCt = 0;
                         int totalCt = 500000;
@@ -2104,13 +2104,13 @@ namespace ResourceEditApi
                                 ulong v;
                                 ulong.TryParse(addr, System.Globalization.NumberStyles.AllowHexSpecifier, null, out v);
                                 if (name.IndexOf("loc_") != 0 && name.IndexOf("off_") != 0 && name.IndexOf("dword_") != 0) {
-                                    symbols.Add(new ResourceEditUtility.SymbolInfo { Addr = v, Name = name });
+                                    symbols.Add(new EditorDslProcessorUtility.SymbolInfo { Addr = v, Name = name });
                                 }
                             }
                             ++curCt;
                             if (curCt > totalCt)
                                 totalCt += 10000;
-                            if (curCt % 1000 == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("load symbols from " + fileName, curCt, totalCt)) {
+                            if (curCt % 1000 == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("load symbols from " + fileName, curCt, totalCt)) {
                                 break;
                             }
                         }
@@ -2132,7 +2132,7 @@ namespace ResourceEditApi
                 var file = operands[0].AsString;
                 if (!string.IsNullOrEmpty(file)) {
                     var fileName = Path.GetFileName(file);
-                    var symbols = new List<ResourceEditUtility.SymbolInfo>();
+                    var symbols = new List<EditorDslProcessorUtility.SymbolInfo>();
                     var sections = new List<ulong[]>();
                     using (var sr = new StreamReader(file)) {
                         int curCt = 0;
@@ -2159,14 +2159,14 @@ namespace ResourceEditApi
                                     ulong.TryParse(size, System.Globalization.NumberStyles.AllowHexSpecifier, null, out s);
                                     if (s > 0x10 && name.IndexOf("_g_") != 0 && name.IndexOf("_s_") != 0 && name.IndexOf("literal string: ") != 0) {
                                         var b = FindBaseAddr(sections, v);
-                                        symbols.Add(new ResourceEditUtility.SymbolInfo { Addr = v - b, Name = name });
+                                        symbols.Add(new EditorDslProcessorUtility.SymbolInfo { Addr = v - b, Name = name });
                                     }
                                 }
                             }
                             ++curCt;
                             if (curCt > totalCt)
                                 totalCt += 10000;
-                            if (curCt % 1000 == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("load symbols from " + fileName, curCt, totalCt)) {
+                            if (curCt % 1000 == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("load symbols from " + fileName, curCt, totalCt)) {
                                 break;
                             }
                         }
@@ -2210,30 +2210,30 @@ namespace ResourceEditApi
                 var file = operands[0].AsString;
                 if (!string.IsNullOrEmpty(file)) {
                     var fileName = Path.GetFileName(file);
-                    var symbols = new List<ResourceEditUtility.SymbolInfo>();
+                    var symbols = new List<EditorDslProcessorUtility.SymbolInfo>();
                     using (var fs = new FileStream(file, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite)) {
                         using (var br = new BinaryReader(fs)) {
                             long fileLength = br.BaseStream.Length;
                             if (fileLength > sizeof(int) * 4) {
-                                ResourceEditUtility.StifHeader header = new ResourceEditUtility.StifHeader();
+                                EditorDslProcessorUtility.StifHeader header = new EditorDslProcessorUtility.StifHeader();
                                 header.Tag1 = br.ReadInt32();
                                 header.Tag2 = br.ReadInt32();
                                 header.Tag3 = br.ReadInt32();
-                                header.Count = ResourceEditUtility.StifSymbolInfo.ReverseEndian(br.ReadInt32());
+                                header.Count = EditorDslProcessorUtility.StifSymbolInfo.ReverseEndian(br.ReadInt32());
 
                                 int curCt = 0;
                                 int totalCt = header.Count;
-                                var stifSyms = new List<ResourceEditUtility.StifSymbolInfo>();
+                                var stifSyms = new List<EditorDslProcessorUtility.StifSymbolInfo>();
                                 if (fileLength > sizeof(int) * 4 + sizeof(int) * 3 * totalCt) {
                                     for (int i = 0; i < totalCt; ++i) {
-                                        var stifSym = new ResourceEditUtility.StifSymbolInfo();
-                                        stifSym.Begin = ResourceEditUtility.StifSymbolInfo.ReverseEndian(br.ReadInt32());
-                                        stifSym.End = ResourceEditUtility.StifSymbolInfo.ReverseEndian(br.ReadInt32());
-                                        stifSym.NameOffset = ResourceEditUtility.StifSymbolInfo.ReverseEndian(br.ReadInt32());
+                                        var stifSym = new EditorDslProcessorUtility.StifSymbolInfo();
+                                        stifSym.Begin = EditorDslProcessorUtility.StifSymbolInfo.ReverseEndian(br.ReadInt32());
+                                        stifSym.End = EditorDslProcessorUtility.StifSymbolInfo.ReverseEndian(br.ReadInt32());
+                                        stifSym.NameOffset = EditorDslProcessorUtility.StifSymbolInfo.ReverseEndian(br.ReadInt32());
                                         stifSyms.Add(stifSym);
 
                                         ++curCt;
-                                        if (curCt % 1000 == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("load symbols from " + fileName, curCt, totalCt)) {
+                                        if (curCt % 1000 == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("load symbols from " + fileName, curCt, totalCt)) {
                                             break;
                                         }
                                     }
@@ -2248,14 +2248,14 @@ namespace ResourceEditApi
                                         }
                                         else {
                                             var str = Encoding.ASCII.GetString(s_NameBuffer, 0, i);
-                                            var sym = new ResourceEditUtility.SymbolInfo { Addr = (ulong)stifSym.Begin, Name = str };
+                                            var sym = new EditorDslProcessorUtility.SymbolInfo { Addr = (ulong)stifSym.Begin, Name = str };
                                             symbols.Add(sym);
                                             break;
                                         }
                                     }
 
                                     ++curCt;
-                                    if (curCt % 1000 == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("load symbols name from " + fileName, curCt, totalCt)) {
+                                    if (curCt % 1000 == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("load symbols name from " + fileName, curCt, totalCt)) {
                                         break;
                                     }
                                 }
@@ -2282,7 +2282,7 @@ namespace ResourceEditApi
                 var file = operands[0].AsString;
                 if (!string.IsNullOrEmpty(file)) {
                     var fileName = Path.GetFileName(file);
-                    var symbols = new List<ResourceEditUtility.SymbolInfo>();
+                    var symbols = new List<EditorDslProcessorUtility.SymbolInfo>();
                     using (var sr = new StreamReader(file)) {
                         int curCt = 0;
                         int totalCt = 10000000;
@@ -2294,12 +2294,12 @@ namespace ResourceEditApi
                                 var name = m.Groups[2].Value;
                                 ulong v;
                                 ulong.TryParse(addr, System.Globalization.NumberStyles.AllowHexSpecifier, null, out v);
-                                symbols.Add(new ResourceEditUtility.SymbolInfo { Addr = v, Name = name });
+                                symbols.Add(new EditorDslProcessorUtility.SymbolInfo { Addr = v, Name = name });
                             }
                             ++curCt;
                             if (curCt > totalCt)
                                 totalCt += 10000;
-                            if (curCt % 1000 == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("load symbols from " + fileName, curCt, totalCt)) {
+                            if (curCt % 1000 == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("load symbols from " + fileName, curCt, totalCt)) {
                                 break;
                             }
                         }
@@ -2341,7 +2341,7 @@ namespace ResourceEditApi
                                 }
                             }
                         }
-                        if (ResourceProcessor.Instance.DisplayCancelableProgressBar("convert addr ...", ix, ct)) {
+                        if (EditorDslProcessor.Instance.DisplayCancelableProgressBar("convert addr ...", ix, ct)) {
                             break;
                         }
                     }
@@ -2360,7 +2360,7 @@ namespace ResourceEditApi
             var r = BoxedValue.NullObject;
             if (operands.Count >= 3) {
                 var lines = operands[0].As<IList<string>>();
-                var symbols = operands[1].As<IList<ResourceEditUtility.SymbolInfo>>();
+                var symbols = operands[1].As<IList<EditorDslProcessorUtility.SymbolInfo>>();
                 var key = operands[2].AsString;
                 var prefix = string.Empty;
                 if (operands.Count >= 4) {
@@ -2415,7 +2415,7 @@ namespace ResourceEditApi
                                 }
                             }
                         }
-                        if (ResourceProcessor.Instance.DisplayCancelableProgressBar("map symbols ...", ix, ct)) {
+                        if (EditorDslProcessor.Instance.DisplayCancelableProgressBar("map symbols ...", ix, ct)) {
                             break;
                         }
                     }
@@ -2436,7 +2436,7 @@ namespace ResourceEditApi
             var r = BoxedValue.NullObject;
             if (operands.Count >= 3) {
                 var lines = operands[0].As<IList<string>>();
-                var symbols = operands[1].As<IList<ResourceEditUtility.SymbolInfo>>();
+                var symbols = operands[1].As<IList<EditorDslProcessorUtility.SymbolInfo>>();
                 var key = operands[2].AsString;
                 var prefix = string.Empty;
                 if (operands.Count >= 4) {
@@ -2480,7 +2480,7 @@ namespace ResourceEditApi
                                 }
                             }
                         }
-                        if (ResourceProcessor.Instance.DisplayCancelableProgressBar("map symbols ...", ix, ct)) {
+                        if (EditorDslProcessor.Instance.DisplayCancelableProgressBar("map symbols ...", ix, ct)) {
                             break;
                         }
                     }
@@ -2524,7 +2524,7 @@ namespace ResourceEditApi
                         else {
                             outLines.Add(lineStr);
                         }
-                        if (i % delta == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("grep ...", i, ct)) {
+                        if (i % delta == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("grep ...", i, ct)) {
                             break;
                         }
                     }
@@ -2563,7 +2563,7 @@ namespace ResourceEditApi
                         string lineStr = lines[i];
                         lineStr = regex.Replace(lineStr, subst, count);
                         outLines.Add(lineStr);
-                        if (i % delta == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("subst ...", i, ct)) {
+                        if (i % delta == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("subst ...", i, ct)) {
                             break;
                         }
                     }
@@ -2605,7 +2605,7 @@ namespace ResourceEditApi
             if (operands.Count >= 1) {
                 var obj = operands[0].As<UnityEngine.Object>();
                 if (null != obj) {
-                    ResourceEditUtility.SelectObject(obj);
+                    EditorDslProcessorUtility.SelectObject(obj);
                     r = true;
                 }
             }
@@ -2620,7 +2620,7 @@ namespace ResourceEditApi
             if (operands.Count >= 1) {
                 var path = operands[0].AsString;
                 if (!string.IsNullOrEmpty(path)) {
-                    ResourceEditUtility.SelectProjectObject(path);
+                    EditorDslProcessorUtility.SelectProjectObject(path);
                     r = true;
                 }
             }
@@ -2635,7 +2635,7 @@ namespace ResourceEditApi
             if (operands.Count >= 1) {
                 var path = operands[0].AsString;
                 if (!string.IsNullOrEmpty(path)) {
-                    ResourceEditUtility.SelectSceneObject(path);
+                    EditorDslProcessorUtility.SelectSceneObject(path);
                     r = true;
                 }
             }
@@ -2649,9 +2649,9 @@ namespace ResourceEditApi
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
                 var importer = Calculator.GetVariable("importer").As<AssetImporter>();
-                if (null != importer && ResourceEditUtility.EnableSaveAndReimport) {
+                if (null != importer && EditorDslProcessorUtility.EnableSaveAndReimport) {
                     //importer.SaveAndReimport();
-                    //ResourceProcessor::Process会统一执行StartAssetEditing/StopAssetEditing
+                    //EditorDslProcessor::Process会统一执行StartAssetEditing/StopAssetEditing
                     AssetDatabase.ImportAsset(importer.assetPath);
                 }
             }
@@ -3981,7 +3981,7 @@ namespace ResourceEditApi
                         var name = operands[i].AsString;
                         if (!string.IsNullOrEmpty(name)) {
                             if (name == "*") {
-                                var boneListPath = ResourceEditUtility.AssetPathToPath("Assets/StreamingAssets/BoneList.txt");
+                                var boneListPath = EditorDslProcessorUtility.AssetPathToPath("Assets/StreamingAssets/BoneList.txt");
                                 var lines = File.ReadAllLines(boneListPath);
                                 foreach (var line in lines) {
                                     AddBonePath(paths, obj.transform, line.Trim());
@@ -3999,7 +3999,7 @@ namespace ResourceEditApi
         }
         private static void AddBonePath(List<string> paths, Transform root, string name)
         {
-            var t = ResourceEditUtility.FindChildRecursive(root, name);
+            var t = EditorDslProcessorUtility.FindChildRecursive(root, name);
             if (null != t) {
                 var path = CalcPath(t);
                 paths.Add(path);
@@ -4272,7 +4272,7 @@ namespace ResourceEditApi
             if (operands.Count >= 1) {
                 var file = operands[0].AsString;
                 if (null != file) {
-                    file = ResourceEditUtility.AssetPathToPath(file);
+                    file = EditorDslProcessorUtility.AssetPathToPath(file);
                     byte[] buffer = File.ReadAllBytes(file);
                     MD5 mD = MD5.Create();
                     byte[] array = mD.ComputeHash(buffer);
@@ -4294,7 +4294,7 @@ namespace ResourceEditApi
             if (operands.Count >= 1) {
                 var file = operands[0].AsString;
                 if (null != file) {
-                    file = ResourceEditUtility.AssetPathToPath(file);
+                    file = EditorDslProcessorUtility.AssetPathToPath(file);
                     var fileInfo = new FileInfo(file);
                     r = fileInfo.Length;
                 }
@@ -4389,7 +4389,7 @@ namespace ResourceEditApi
                 for (int ix = 1; ix < operands.Count; ++ix) {
                     properties.Add(operands[ix].GetString());
                 }
-                string full_path = ResourceEditUtility.AssetPathToPath(path);
+                string full_path = EditorDslProcessorUtility.AssetPathToPath(path);
                 if (File.Exists(full_path)) {
                     if (full_path.Length >= 260) {
                         full_path = "\\\\?\\" + full_path;
@@ -4454,7 +4454,7 @@ namespace ResourceEditApi
                 if (operands.Count >= 4) {
                     partialConflict = operands[3].GetBool();
                 }
-                string full_path = ResourceEditUtility.AssetPathToPath(path);
+                string full_path = EditorDslProcessorUtility.AssetPathToPath(path);
                 if (File.Exists(full_path)) {
                     if (full_path.Length >= 260) {
                         full_path = "\\\\?\\" + full_path;
@@ -4501,7 +4501,7 @@ namespace ResourceEditApi
         {
             if (operands.Count >= 1) {
                 string path = operands[0].GetString();
-                string full_path = ResourceEditUtility.AssetPathToPath(path);
+                string full_path = EditorDslProcessorUtility.AssetPathToPath(path);
                 if (full_path.Length >= 260) {
                     return BoxedValue.FromBool(true);
                 }
@@ -4530,7 +4530,7 @@ namespace ResourceEditApi
                             var ix = pair.Key;
                             var val = pair.Value;
                             var cell = row.GetCell(ix);
-                            if (val != ResourceEditUtility.CellToString(cell).Trim()) {
+                            if (val != EditorDslProcessorUtility.CellToString(cell).Trim()) {
                                 find = false;
                                 break;
                             }
@@ -4542,7 +4542,7 @@ namespace ResourceEditApi
                     }
                 }
                 else {
-                    var tb = operands[0].As<ResourceEditUtility.DataTable>();
+                    var tb = operands[0].As<EditorDslProcessorUtility.DataTable>();
                     if (null != tb) {
                         for (int i = 0; i < tb.RowCount; ++i) {
                             var trow = tb.GetRow(i);
@@ -4576,7 +4576,7 @@ namespace ResourceEditApi
                 var dict = new Dictionary<int, Regex>();
                 for (int ix = 1; ix < operands.Count - 1; ix += 2) {
                     var index = operands[ix].GetInt();
-                    var val = ResourceEditUtility.GetRegex(operands[ix + 1].ToString());
+                    var val = EditorDslProcessorUtility.GetRegex(operands[ix + 1].ToString());
                     dict.Add(index, val);
                 }
                 if (null != sheet) {
@@ -4587,7 +4587,7 @@ namespace ResourceEditApi
                             var ix = pair.Key;
                             var val = pair.Value;
                             var cell = row.GetCell(ix);
-                            if (val.IsMatch(ResourceEditUtility.CellToString(cell).Trim())) {
+                            if (val.IsMatch(EditorDslProcessorUtility.CellToString(cell).Trim())) {
                                 find = false;
                                 break;
                             }
@@ -4598,7 +4598,7 @@ namespace ResourceEditApi
                     }
                 }
                 else {
-                    var tb = operands[0].As<ResourceEditUtility.DataTable>();
+                    var tb = operands[0].As<EditorDslProcessorUtility.DataTable>();
                     if (null != tb) {
                         for (int i = 0; i < tb.RowCount; ++i) {
                             var trow = tb.GetRow(i);
@@ -4633,14 +4633,14 @@ namespace ResourceEditApi
                     if (null != row) {
                         for (int i = row.FirstCellNum; i <= row.LastCellNum; ++i) {
                             var cell = row.GetCell(i);
-                            if (null != cell && ResourceEditUtility.CellToString(cell).Trim() == name) {
+                            if (null != cell && EditorDslProcessorUtility.CellToString(cell).Trim() == name) {
                                 r = i;
                                 break;
                             }
                         }
                     }
                     else {
-                        var trow = operands[0].As<ResourceEditUtility.DataRow>();
+                        var trow = operands[0].As<EditorDslProcessorUtility.DataRow>();
                         if (null != trow) {
                             for (int i = 0; i < trow.CellCount; ++i) {
                                 var val = trow.GetCell(i);
@@ -4689,7 +4689,7 @@ namespace ResourceEditApi
                         int curIx = 0;
                         for (int i = row.FirstCellNum; i <= row.LastCellNum; ++i) {
                             var cell = row.GetCell(i);
-                            if (null != cell && ResourceEditUtility.CellToString(cell).Trim() == names[curIx] && IsValidColumn(i, markChars, markRows)) {
+                            if (null != cell && EditorDslProcessorUtility.CellToString(cell).Trim() == names[curIx] && IsValidColumn(i, markChars, markRows)) {
                                 r.Add(i);
                                 ++curIx;
                                 if (curIx >= names.Count)
@@ -4698,7 +4698,7 @@ namespace ResourceEditApi
                         }
                     }
                     else {
-                        var trow = operands[0].As<ResourceEditUtility.DataRow>();
+                        var trow = operands[0].As<EditorDslProcessorUtility.DataRow>();
                         if (null != trow) {
                             r = new List<int>();
                             int curIx = 0;
@@ -4726,7 +4726,7 @@ namespace ResourceEditApi
                         }
                     }
                     else {
-                        var trow = operands[0].As<ResourceEditUtility.DataRow>();
+                        var trow = operands[0].As<EditorDslProcessorUtility.DataRow>();
                         if (null != trow) {
                             r = new List<int>();
                             for (int i = 0; i < trow.CellCount; ++i) {
@@ -4750,7 +4750,7 @@ namespace ResourceEditApi
                     var row = markRows[i];
                     if (i < markChars.Length) {
                         var cell = row.GetCell(ix);
-                        var v = ResourceEditUtility.CellToString(cell).Trim();
+                        var v = EditorDslProcessorUtility.CellToString(cell).Trim();
                         if (v.Length == 1 && v[0] == markChars[i]) {
                             r = true;
                         }
@@ -4808,7 +4808,7 @@ namespace ResourceEditApi
                         }
                     }
                     else {
-                        var trow = operands[0].As<ResourceEditUtility.DataRow>();
+                        var trow = operands[0].As<EditorDslProcessorUtility.DataRow>();
                         if (null != trow) {
                             r = trow.GetCell(ix);
                         }
@@ -4829,10 +4829,10 @@ namespace ResourceEditApi
                 if (ix >= 0) {
                     if (null != row) {
                         var cell = row.GetCell(ix);
-                        r = ResourceEditUtility.CellToString(cell);
+                        r = EditorDslProcessorUtility.CellToString(cell);
                     }
                     else {
-                        var trow = operands[0].As<ResourceEditUtility.DataRow>();
+                        var trow = operands[0].As<EditorDslProcessorUtility.DataRow>();
                         if (null != trow) {
                             r = trow.GetCell(ix);
                         }
@@ -4853,10 +4853,10 @@ namespace ResourceEditApi
                 if (ix >= 0) {
                     if (null != row) {
                         var cell = row.GetCell(ix);
-                        r = ResourceEditUtility.CellToNumeric(cell);
+                        r = EditorDslProcessorUtility.CellToNumeric(cell);
                     }
                     else {
-                        var trow = operands[0].As<ResourceEditUtility.DataRow>();
+                        var trow = operands[0].As<EditorDslProcessorUtility.DataRow>();
                         if (null != trow) {
                             var v = trow.GetCell(ix);
                             double.TryParse(v, out r);
@@ -4895,7 +4895,7 @@ namespace ResourceEditApi
                             cols = new string[row.LastCellNum - row.FirstCellNum + 1 - skipCols];
                             for (int ix = row.FirstCellNum + skipCols; ix <= row.LastCellNum; ++ix) {
                                 var cell = row.GetCell(ix);
-                                cols[ix - row.FirstCellNum - skipCols] = ResourceEditUtility.CellToString(cell);
+                                cols[ix - row.FirstCellNum - skipCols] = EditorDslProcessorUtility.CellToString(cell);
                             }
                             r = string.Join(",", cols);
                         }
@@ -4905,13 +4905,13 @@ namespace ResourceEditApi
                         int i = 0;
                         foreach (var ix in colIndexes) {
                             var cell = row.GetCell(ix);
-                            cols[i++] = ResourceEditUtility.CellToString(cell);
+                            cols[i++] = EditorDslProcessorUtility.CellToString(cell);
                         }
                         r = string.Join(",", cols);
                     }
                 }
                 else {
-                    var trow = operands[0].As<ResourceEditUtility.DataRow>();
+                    var trow = operands[0].As<EditorDslProcessorUtility.DataRow>();
                     if (null != trow) {
                         r = trow.GetLine(skipCols, colIndexes);
                     }
@@ -4943,7 +4943,7 @@ namespace ResourceEditApi
                             var row = sheet.GetRow(i);
                             foreach (var ix in colIndexes) {
                                 var cell = row.GetCell(ix);
-                                var key = ResourceEditUtility.CellToString(cell);
+                                var key = EditorDslProcessorUtility.CellToString(cell);
                                 object tempObj;
                                 Dictionary<string, object> temp2 = null;
                                 if (!temp.TryGetValue(key, out tempObj)) {
@@ -4960,7 +4960,7 @@ namespace ResourceEditApi
                         r = BoxedValue.FromObject(dict);
                     }
                     else {
-                        var table = operands[0].As<ResourceEditUtility.DataTable>();
+                        var table = operands[0].As<EditorDslProcessorUtility.DataTable>();
                         if (null != table) {
                             var dict = new Dictionary<string, object>();
                             for (int i = skipRows; i < table.RowCount; ++i) {
@@ -5037,10 +5037,10 @@ namespace ResourceEditApi
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
                 var file = operands[0].AsString;
-                var list = new List<ResourceEditUtility.SectionInfo>();
+                var list = new List<EditorDslProcessorUtility.SectionInfo>();
                 var lines = File.ReadAllLines(file);
                 foreach (var line in lines) {
-                    var mapsInfo = new ResourceEditUtility.SectionInfo();
+                    var mapsInfo = new EditorDslProcessorUtility.SectionInfo();
                     var fields = line.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                     if (fields[0] == "Managed") {
                         ulong size = ulong.Parse(fields[1]);
@@ -5074,7 +5074,7 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var list = operands[0].As<List<ResourceEditUtility.SectionInfo>>();
+                var list = operands[0].As<List<EditorDslProcessorUtility.SectionInfo>>();
                 var addr = operands[1].GetULong();
                 if (null != list && addr > 0) {
                     var low = 0;
@@ -5103,8 +5103,8 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var list1 = operands[0].As<List<ResourceEditUtility.SectionInfo>>();
-                var list2 = operands[1].As<List<ResourceEditUtility.SectionInfo>>();
+                var list1 = operands[0].As<List<EditorDslProcessorUtility.SectionInfo>>();
+                var list2 = operands[1].As<List<EditorDslProcessorUtility.SectionInfo>>();
                 if (null != list1 && null != list2) {
                     int ct = list1.Count + list2.Count;
                     int delta = 1;
@@ -5118,43 +5118,43 @@ namespace ResourceEditApi
                         delta = 1;
                     int left = -1;
                     int right = -1;
-                    ResourceEditUtility.SectionInfo leftInfo = null;
-                    ResourceEditUtility.SectionInfo rightInfo = null;
+                    EditorDslProcessorUtility.SectionInfo leftInfo = null;
+                    EditorDslProcessorUtility.SectionInfo rightInfo = null;
                     MoveNext(list1, ref left, ref leftInfo);
                     MoveNext(list2, ref right, ref rightInfo);
-                    var list = new List<ResourceEditUtility.SectionInfo[]>();
+                    var list = new List<EditorDslProcessorUtility.SectionInfo[]>();
                     while (null != leftInfo || null != rightInfo) {
                         if (null == leftInfo) {
-                            list.Add(new ResourceEditUtility.SectionInfo[] { null, rightInfo });
+                            list.Add(new EditorDslProcessorUtility.SectionInfo[] { null, rightInfo });
                             MoveNext(list2, ref right, ref rightInfo);
                         }
                         else if (null == rightInfo) {
-                            list.Add(new ResourceEditUtility.SectionInfo[] { leftInfo, null });
+                            list.Add(new EditorDslProcessorUtility.SectionInfo[] { leftInfo, null });
                             MoveNext(list1, ref left, ref leftInfo);
                         }
                         else {
                             if (leftInfo.vm_start == rightInfo.vm_start && leftInfo.vm_end == rightInfo.vm_end) {//完全重叠
-                                list.Add(new ResourceEditUtility.SectionInfo[] { leftInfo, rightInfo });
+                                list.Add(new EditorDslProcessorUtility.SectionInfo[] { leftInfo, rightInfo });
                                 MoveNext(list1, ref left, ref leftInfo);
                                 MoveNext(list2, ref right, ref rightInfo);
                             }
                             else if (leftInfo.vm_end <= rightInfo.vm_start) {//左上、右下无重叠
-                                list.Add(new ResourceEditUtility.SectionInfo[] { leftInfo, null });
+                                list.Add(new EditorDslProcessorUtility.SectionInfo[] { leftInfo, null });
                                 MoveNext(list1, ref left, ref leftInfo);
                             }
                             else if (leftInfo.vm_start >= rightInfo.vm_end) {//左下、右上无重叠
-                                list.Add(new ResourceEditUtility.SectionInfo[] { null, rightInfo });
+                                list.Add(new EditorDslProcessorUtility.SectionInfo[] { null, rightInfo });
                                 MoveNext(list2, ref right, ref rightInfo);
                             }
                             else {//交叉
-                                list.Add(new ResourceEditUtility.SectionInfo[] { leftInfo, null });
+                                list.Add(new EditorDslProcessorUtility.SectionInfo[] { leftInfo, null });
                                 MoveNext(list1, ref left, ref leftInfo);
-                                list.Add(new ResourceEditUtility.SectionInfo[] { null, rightInfo });
+                                list.Add(new EditorDslProcessorUtility.SectionInfo[] { null, rightInfo });
                                 MoveNext(list2, ref right, ref rightInfo);
                             }
                         }
                         int ix = left + right;
-                        if (ix % delta == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("match managed heaps ...", ix, ct)) {
+                        if (ix % delta == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("match managed heaps ...", ix, ct)) {
                             break;
                         }
                     }
@@ -5164,7 +5164,7 @@ namespace ResourceEditApi
             EditorUtility.ClearProgressBar();
             return r;
         }
-        private void MoveNext(List<ResourceEditUtility.SectionInfo> list, ref int index, ref ResourceEditUtility.SectionInfo info)
+        private void MoveNext(List<EditorDslProcessorUtility.SectionInfo> list, ref int index, ref EditorDslProcessorUtility.SectionInfo info)
         {
             if (index < list.Count - 1) {
                 ++index;
@@ -5181,7 +5181,7 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var list = operands[0].As<List<ResourceEditUtility.SectionInfo[]>>();
+                var list = operands[0].As<List<EditorDslProcessorUtility.SectionInfo[]>>();
                 int index = operands[1].GetInt();
                 if (null != list && index >= 0) {
                     int ct = list.Count;
@@ -5194,7 +5194,7 @@ namespace ResourceEditApi
                         delta = 10;
                     else
                         delta = 1;
-                    var results = new List<ResourceEditUtility.SectionInfo>();
+                    var results = new List<EditorDslProcessorUtility.SectionInfo>();
                     for (int i = 0; i < ct; ++i) {
                         var infos = list[i];
                         if (index < infos.Length) {
@@ -5212,7 +5212,7 @@ namespace ResourceEditApi
                                 }
                             }
                         }
-                        if (i % delta == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("calc matched managed heaps diff ...", i, ct)) {
+                        if (i % delta == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("calc matched managed heaps diff ...", i, ct)) {
                             break;
                         }
                     }
@@ -5222,7 +5222,7 @@ namespace ResourceEditApi
             EditorUtility.ClearProgressBar();
             return r;
         }
-        private void MoveNext(List<ResourceEditUtility.SectionInfo> list, ref int index, ref ResourceEditUtility.SectionInfo info)
+        private void MoveNext(List<EditorDslProcessorUtility.SectionInfo> list, ref int index, ref EditorDslProcessorUtility.SectionInfo info)
         {
             if (index < list.Count - 1) {
                 ++index;
@@ -5240,10 +5240,10 @@ namespace ResourceEditApi
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
                 var file = operands[0].AsString;
-                var list = new List<ResourceEditUtility.MapsInfo>();
+                var list = new List<EditorDslProcessorUtility.MapsInfo>();
                 var lines = File.ReadAllLines(file);
                 foreach (var line in lines) {
-                    var mapsInfo = new ResourceEditUtility.MapsInfo();
+                    var mapsInfo = new EditorDslProcessorUtility.MapsInfo();
                     var fields = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                     var se = fields[0].Split('-');
                     ulong start = ulong.Parse(se[0], System.Globalization.NumberStyles.AllowHexSpecifier);
@@ -5295,7 +5295,7 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var list = operands[0].As<List<ResourceEditUtility.MapsInfo>>();
+                var list = operands[0].As<List<EditorDslProcessorUtility.MapsInfo>>();
                 var addr = operands[1].GetULong();
                 if (null != list && addr > 0) {
                     var low = 0;
@@ -5324,8 +5324,8 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var list1 = operands[0].As<List<ResourceEditUtility.MapsInfo>>();
-                var list2 = operands[1].As<List<ResourceEditUtility.MapsInfo>>();
+                var list1 = operands[0].As<List<EditorDslProcessorUtility.MapsInfo>>();
+                var list2 = operands[1].As<List<EditorDslProcessorUtility.MapsInfo>>();
                 if (null != list1 && null != list2) {
                     int ct = list1.Count + list2.Count;
                     int delta = 1;
@@ -5339,43 +5339,43 @@ namespace ResourceEditApi
                         delta = 1;
                     int left = -1;
                     int right = -1;
-                    ResourceEditUtility.MapsInfo leftInfo = null;
-                    ResourceEditUtility.MapsInfo rightInfo = null;
+                    EditorDslProcessorUtility.MapsInfo leftInfo = null;
+                    EditorDslProcessorUtility.MapsInfo rightInfo = null;
                     MoveNext(list1, ref left, ref leftInfo);
                     MoveNext(list2, ref right, ref rightInfo);
-                    var list = new List<ResourceEditUtility.MapsInfo[]>();
+                    var list = new List<EditorDslProcessorUtility.MapsInfo[]>();
                     while (null != leftInfo || null != rightInfo) {
                         if (null == leftInfo) {
-                            list.Add(new ResourceEditUtility.MapsInfo[] { null, rightInfo });
+                            list.Add(new EditorDslProcessorUtility.MapsInfo[] { null, rightInfo });
                             MoveNext(list2, ref right, ref rightInfo);
                         }
                         else if (null == rightInfo) {
-                            list.Add(new ResourceEditUtility.MapsInfo[] { leftInfo, null });
+                            list.Add(new EditorDslProcessorUtility.MapsInfo[] { leftInfo, null });
                             MoveNext(list1, ref left, ref leftInfo);
                         }
                         else {
                             if (leftInfo.vm_start == rightInfo.vm_start && leftInfo.vm_end == rightInfo.vm_end) {//完全重叠
-                                list.Add(new ResourceEditUtility.MapsInfo[] { leftInfo, rightInfo });
+                                list.Add(new EditorDslProcessorUtility.MapsInfo[] { leftInfo, rightInfo });
                                 MoveNext(list1, ref left, ref leftInfo);
                                 MoveNext(list2, ref right, ref rightInfo);
                             }
                             else if (leftInfo.vm_end <= rightInfo.vm_start) {//左上、右下无重叠
-                                list.Add(new ResourceEditUtility.MapsInfo[] { leftInfo, null });
+                                list.Add(new EditorDslProcessorUtility.MapsInfo[] { leftInfo, null });
                                 MoveNext(list1, ref left, ref leftInfo);
                             }
                             else if (leftInfo.vm_start >= rightInfo.vm_end) {//左下、右上无重叠
-                                list.Add(new ResourceEditUtility.MapsInfo[] { null, rightInfo });
+                                list.Add(new EditorDslProcessorUtility.MapsInfo[] { null, rightInfo });
                                 MoveNext(list2, ref right, ref rightInfo);
                             }
                             else {//交叉
-                                list.Add(new ResourceEditUtility.MapsInfo[] { leftInfo, null });
+                                list.Add(new EditorDslProcessorUtility.MapsInfo[] { leftInfo, null });
                                 MoveNext(list1, ref left, ref leftInfo);
-                                list.Add(new ResourceEditUtility.MapsInfo[] { null, rightInfo });
+                                list.Add(new EditorDslProcessorUtility.MapsInfo[] { null, rightInfo });
                                 MoveNext(list2, ref right, ref rightInfo);
                             }
                         }
                         int ix = left + right;
-                        if (ix % delta == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("match maps ...", ix, ct)) {
+                        if (ix % delta == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("match maps ...", ix, ct)) {
                             break;
                         }
                     }
@@ -5385,7 +5385,7 @@ namespace ResourceEditApi
             EditorUtility.ClearProgressBar();
             return r;
         }
-        private void MoveNext(List<ResourceEditUtility.MapsInfo> list, ref int index, ref ResourceEditUtility.MapsInfo info)
+        private void MoveNext(List<EditorDslProcessorUtility.MapsInfo> list, ref int index, ref EditorDslProcessorUtility.MapsInfo info)
         {
             if (index < list.Count - 1) {
                 ++index;
@@ -5402,7 +5402,7 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var list = operands[0].As<List<ResourceEditUtility.MapsInfo[]>>();
+                var list = operands[0].As<List<EditorDslProcessorUtility.MapsInfo[]>>();
                 int index = operands[1].GetInt();
                 if (null != list && index >= 0) {
                     int ct = list.Count;
@@ -5415,7 +5415,7 @@ namespace ResourceEditApi
                         delta = 10;
                     else
                         delta = 1;
-                    var results = new List<ResourceEditUtility.MapsInfo>();
+                    var results = new List<EditorDslProcessorUtility.MapsInfo>();
                     for (int i = 0; i < ct; ++i) {
                         var infos = list[i];
                         if (index < infos.Length) {
@@ -5433,7 +5433,7 @@ namespace ResourceEditApi
                                 }
                             }
                         }
-                        if (i % delta == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("calc matched maps diff ...", i, ct)) {
+                        if (i % delta == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("calc matched maps diff ...", i, ct)) {
                             break;
                         }
                     }
@@ -5443,7 +5443,7 @@ namespace ResourceEditApi
             EditorUtility.ClearProgressBar();
             return r;
         }
-        private void MoveNext(List<ResourceEditUtility.MapsInfo> list, ref int index, ref ResourceEditUtility.MapsInfo info)
+        private void MoveNext(List<EditorDslProcessorUtility.MapsInfo> list, ref int index, ref EditorDslProcessorUtility.MapsInfo info)
         {
             if (index < list.Count - 1) {
                 ++index;
@@ -5461,11 +5461,11 @@ namespace ResourceEditApi
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
                 var file = operands[0].AsString;
-                var list = new List<ResourceEditUtility.SmapsInfo>();
-                ResourceEditUtility.SmapsInfo curInfo = null;
+                var list = new List<EditorDslProcessorUtility.SmapsInfo>();
+                EditorDslProcessorUtility.SmapsInfo curInfo = null;
                 var lines = File.ReadAllLines(file);
                 foreach (var line in lines) {
-                    var mapsInfo = new ResourceEditUtility.SmapsInfo();
+                    var mapsInfo = new EditorDslProcessorUtility.SmapsInfo();
                     var fields = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                     if (fields[0].IndexOf('-') > 0) {
                         var se = fields[0].Split('-');
@@ -5558,7 +5558,7 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var list = operands[0].As<List<ResourceEditUtility.SmapsInfo>>();
+                var list = operands[0].As<List<EditorDslProcessorUtility.SmapsInfo>>();
                 var addr = operands[1].GetULong();
                 if (null != list && addr > 0) {
                     var low = 0;
@@ -5587,8 +5587,8 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var list1 = operands[0].As<List<ResourceEditUtility.SmapsInfo>>();
-                var list2 = operands[1].As<List<ResourceEditUtility.SmapsInfo>>();
+                var list1 = operands[0].As<List<EditorDslProcessorUtility.SmapsInfo>>();
+                var list2 = operands[1].As<List<EditorDslProcessorUtility.SmapsInfo>>();
                 if (null != list1 && null != list2) {
                     int ct = list1.Count + list2.Count;
                     int delta = 1;
@@ -5602,43 +5602,43 @@ namespace ResourceEditApi
                         delta = 1;
                     int left = -1;
                     int right = -1;
-                    ResourceEditUtility.SmapsInfo leftInfo = null;
-                    ResourceEditUtility.SmapsInfo rightInfo = null;
+                    EditorDslProcessorUtility.SmapsInfo leftInfo = null;
+                    EditorDslProcessorUtility.SmapsInfo rightInfo = null;
                     MoveNext(list1, ref left, ref leftInfo);
                     MoveNext(list2, ref right, ref rightInfo);
-                    var list = new List<ResourceEditUtility.SmapsInfo[]>();
+                    var list = new List<EditorDslProcessorUtility.SmapsInfo[]>();
                     while (null != leftInfo || null != rightInfo) {
                         if (null == leftInfo) {
-                            list.Add(new ResourceEditUtility.SmapsInfo[] { null, rightInfo });
+                            list.Add(new EditorDslProcessorUtility.SmapsInfo[] { null, rightInfo });
                             MoveNext(list2, ref right, ref rightInfo);
                         }
                         else if (null == rightInfo) {
-                            list.Add(new ResourceEditUtility.SmapsInfo[] { leftInfo, null });
+                            list.Add(new EditorDslProcessorUtility.SmapsInfo[] { leftInfo, null });
                             MoveNext(list1, ref left, ref leftInfo);
                         }
                         else {
                             if (leftInfo.vm_start == rightInfo.vm_start && leftInfo.vm_end == rightInfo.vm_end) {//完全重叠
-                                list.Add(new ResourceEditUtility.SmapsInfo[] { leftInfo, rightInfo });
+                                list.Add(new EditorDslProcessorUtility.SmapsInfo[] { leftInfo, rightInfo });
                                 MoveNext(list1, ref left, ref leftInfo);
                                 MoveNext(list2, ref right, ref rightInfo);
                             }
                             else if (leftInfo.vm_end <= rightInfo.vm_start) {//左上、右下无重叠
-                                list.Add(new ResourceEditUtility.SmapsInfo[] { leftInfo, null });
+                                list.Add(new EditorDslProcessorUtility.SmapsInfo[] { leftInfo, null });
                                 MoveNext(list1, ref left, ref leftInfo);
                             }
                             else if (leftInfo.vm_start >= rightInfo.vm_end) {//左下、右上无重叠
-                                list.Add(new ResourceEditUtility.SmapsInfo[] { null, rightInfo });
+                                list.Add(new EditorDslProcessorUtility.SmapsInfo[] { null, rightInfo });
                                 MoveNext(list2, ref right, ref rightInfo);
                             }
                             else {//交叉
-                                list.Add(new ResourceEditUtility.SmapsInfo[] { leftInfo, null });
+                                list.Add(new EditorDslProcessorUtility.SmapsInfo[] { leftInfo, null });
                                 MoveNext(list1, ref left, ref leftInfo);
-                                list.Add(new ResourceEditUtility.SmapsInfo[] { null, rightInfo });
+                                list.Add(new EditorDslProcessorUtility.SmapsInfo[] { null, rightInfo });
                                 MoveNext(list2, ref right, ref rightInfo);
                             }
                         }
                         int ix = left + right;
-                        if (ix % delta == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("match maps ...", ix, ct)) {
+                        if (ix % delta == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("match maps ...", ix, ct)) {
                             break;
                         }
                     }
@@ -5648,7 +5648,7 @@ namespace ResourceEditApi
             EditorUtility.ClearProgressBar();
             return r;
         }
-        private void MoveNext(List<ResourceEditUtility.SmapsInfo> list, ref int index, ref ResourceEditUtility.SmapsInfo info)
+        private void MoveNext(List<EditorDslProcessorUtility.SmapsInfo> list, ref int index, ref EditorDslProcessorUtility.SmapsInfo info)
         {
             if (index < list.Count - 1) {
                 ++index;
@@ -5665,7 +5665,7 @@ namespace ResourceEditApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var list = operands[0].As<List<ResourceEditUtility.SmapsInfo[]>>();
+                var list = operands[0].As<List<EditorDslProcessorUtility.SmapsInfo[]>>();
                 int index = operands[1].GetInt();
                 if (null != list && index >= 0) {
                     int ct = list.Count;
@@ -5678,7 +5678,7 @@ namespace ResourceEditApi
                         delta = 10;
                     else
                         delta = 1;
-                    var results = new List<ResourceEditUtility.SmapsInfo>();
+                    var results = new List<EditorDslProcessorUtility.SmapsInfo>();
                     for (int i = 0; i < ct; ++i) {
                         var infos = list[i];
                         if (index < infos.Length) {
@@ -5696,7 +5696,7 @@ namespace ResourceEditApi
                                 }
                             }
                         }
-                        if (i % delta == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("calc matched smaps diff ...", i, ct)) {
+                        if (i % delta == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("calc matched smaps diff ...", i, ct)) {
                             break;
                         }
                     }
@@ -5706,7 +5706,7 @@ namespace ResourceEditApi
             EditorUtility.ClearProgressBar();
             return r;
         }
-        private void MoveNext(List<ResourceEditUtility.MapsInfo> list, ref int index, ref ResourceEditUtility.MapsInfo info)
+        private void MoveNext(List<EditorDslProcessorUtility.MapsInfo> list, ref int index, ref EditorDslProcessorUtility.MapsInfo info)
         {
             if (index < list.Count - 1) {
                 ++index;
@@ -5759,7 +5759,7 @@ namespace ResourceEditApi
                     if (ulong.TryParse(addrStr, System.Globalization.NumberStyles.AllowHexSpecifier, null, out addr)) {
                         list.Add(addr);
                     }
-                    if (ix % delta == 0 && ResourceProcessor.Instance.DisplayCancelableProgressBar("load addrs ...", ix, ct)) {
+                    if (ix % delta == 0 && EditorDslProcessor.Instance.DisplayCancelableProgressBar("load addrs ...", ix, ct)) {
                         break;
                     }
                 }

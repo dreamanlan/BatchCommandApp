@@ -7,15 +7,16 @@ using StoryScript.DslExpression;
 // GM listener for edit mode: same protocol as runtime, commands executed from EditorApplication.update.
 // Default port 39528 (runtime uses 39527, so both can be used at the same time in Play mode).
 [InitializeOnLoad]
-internal static class GmEditorSocketServer
+internal static class EditorGmSocketServer
 {
     internal const int c_DefaultPort = 39528;
     private const string c_AutoStartKey = "UCRayTracing.GmSocket.EditorAutoStart";
     private const string c_PortKey = "UCRayTracing.GmSocket.EditorPort";
 
-    static GmEditorSocketServer()
+    static EditorGmSocketServer()
     {
-        // exec uses the shared registry (GM commands), edit uses the editor DSL (resource/editor APIs).
+        // The editor listener serves editor DSL only. Runtime GM commands live on the
+        // runtime channel and are deliberately not merged into the editor calculator.
         GmCommandDispatcher.EditorExecutor = ExecEditor;
         EditorApplication.delayCall -= OnEditorReady;
         EditorApplication.delayCall += OnEditorReady;
@@ -78,45 +79,28 @@ internal static class GmEditorSocketServer
         Debug.Log("[GmSocket] editor listener stopped.");
     }
 
-    // Editor DSL evaluation: resource-processing APIs + editor APIs + GM commands.
+    // Editor DSL evaluation: editor/resource APIs only. Runtime GM commands are NOT
+    // registered here -- the editor channel must not be able to run runtime APIs, and
+    // merging the shared registry just duplicated factories into an editor-only table.
+    // A dedicated script name is used so a socket call never overwrites the 
+    // script loaded by editor_startup.dsl / the resource command window.
     internal static string ExecEditor(string code)
     {
-        return GmDslEval.Eval(EditorCalculator, code, BoxedValue.NullObject, BoxedValue.NullObject);
+        return GmDslEval.Eval(EditorCalculator, code, BoxedValue.NullObject, BoxedValue.NullObject, c_EditorScriptName);
     }
+
+    private const string c_EditorScriptName = "__gm_socket_edit__";
 
     private static DslCalculator EditorCalculator
     {
         get {
-            if (null == s_EditorCalculator) {
-                // Make sure the shared registry already holds the GM commands before merging.
-                GmCommandApi.EnsureInit();
-                var calc = new DslCalculator();
-                ResourceEditUtility.InitCalculator(calc);
-                MergeSharedApis(calc);
-                s_EditorCalculator = calc;
-            }
-            return s_EditorCalculator;
-        }
-    }
-    private static void MergeSharedApis(DslCalculator calc)
-    {
-        try {
-            var shared = DslCalculatorHost.GetSharedApiRegistry();
-            int merged = 0;
-            foreach (var pair in shared.ApiDocs) {
-                if (!shared.TryGetFactory(pair.Key, out var factory)) {
-                    continue;
-                }
-                if (calc.ApiRegistry.TryGetFactory(pair.Key, out var existing)) {
-                    continue;
-                }
-                calc.Register(pair.Key, pair.Value, factory);
-                ++merged;
-            }
-            Debug.Log(string.Format("[GmSocket] merged {0} shared api into editor calculator.", merged));
-        }
-        catch (Exception ex) {
-            Debug.LogWarning("[GmSocket] merge shared api failed: " + ex.Message);
+            // Share the very same calculator used by the editor command window and by
+            // editor_startup.dsl (EditorGmCommandWindow.RunOnEditorStartup), so global
+            // variables/functions are visible to both. GetCommandCalculator() already
+            // calls InitCalculator (editor APIs + EditorDslApi + project OnRegisterApi)
+            // and is a lazy singleton that EditorGmCommandWindow may reset, so always fetch
+            // it fresh instead of caching the instance.
+            return EditorDslProcessorUtility.GetCommandCalculator();
         }
     }
     private static void Pump()
@@ -148,5 +132,4 @@ internal static class GmEditorSocketServer
     }
 
     private static GmSocketServer s_Server;
-    private static DslCalculator s_EditorCalculator;
 }

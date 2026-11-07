@@ -8,7 +8,9 @@ using StoryScript.DslExpression;
 // DSL evaluation: wrap into script{ ... }, run synchronously and return the last statement value.
 public static class GmDslEval
 {
-    public static string Eval(DslCalculator calc, string code, BoxedValue obj, BoxedValue item)
+    // scriptName lets callers that share a calculator avoid overwriting each other's
+    // loaded "main" script (e.g. the GM socket edit channel vs the resource command window).
+    public static string Eval(DslCalculator calc, string code, BoxedValue obj, BoxedValue item, string scriptName = "main")
     {
         if (null == calc) {
             throw new ArgumentNullException("calc");
@@ -36,8 +38,8 @@ public static class GmDslEval
         if (null == func) {
             throw new Exception("dsl info is not a function call");
         }
-        calc.LoadDsl("main", new string[] { "$obj", "$item" }, func);
-        var r = calc.Calc("main", obj, item);
+        calc.LoadDsl(scriptName, new string[] { "$obj", "$item" }, func);
+        var r = calc.Calc(scriptName, obj, item);
         return ToText(r);
     }
     public static string ToText(BoxedValue val)
@@ -53,14 +55,28 @@ public static class GmDslEval
 // Command entry points shared by runtime and editor (always run on the main thread).
 public static class GmCommandApi
 {
-    public static void EnsureInit()
+    // Needed by every channel, including the editor listener (ping / logs / clearlogs).
+    // Deliberately does NOT touch the GM command registry or the story runtime.
+    public static void EnsureCommonInit()
     {
-        if (s_Inited) {
+        if (s_CommonInited) {
             return;
         }
-        s_Inited = true;
+        s_CommonInited = true;
 
         GmLogBuffer.Install();
+        GmCommandDispatcher.InfoProvider = BuildInfo;
+    }
+
+    // Full init for the runtime channel only (exec / console). The editor channel must
+    // not pull in the GM command set or the story runtime just to answer an edit request.
+    public static void EnsureInit()
+    {
+        EnsureCommonInit();
+        if (s_RuntimeInited) {
+            return;
+        }
+        s_RuntimeInited = true;
 
         try {
             GmCommands.ClientGmStorySystem.Instance.Init();
@@ -71,19 +87,40 @@ public static class GmCommandApi
 
         GmCommandDispatcher.DslExecutor = ExecDsl;
         GmCommandDispatcher.ConsoleExecutor = ExecConsole;
-        GmCommandDispatcher.InfoProvider = BuildInfo;
+    }
+
+    // The GM socket "exec" channel keeps one calculator across requests so global
+    // variables/functions defined by an earlier call survive into the next one.
+    // It deliberately does NOT reuse the story-based GM script runtime: stories run
+    // across ticks and have no synchronous return value, which is exactly what exec
+    // needs. Both still share the same API registry, so every GM command/function is
+    // available on both sides.
+    private static DslCalculator s_ExecCalculator;
+    public static DslCalculator ExecCalculator
+    {
+        get
+        {
+            if (null == s_ExecCalculator) {
+                var calc = new DslCalculator();
+                calc.ApiRegistry = DslCalculatorHost.GetSharedApiRegistry();
+                calc.OnLog = msg => { Debug.LogWarning("[GmSocket] " + msg); };
+                s_ExecCalculator = calc;
+            }
+            return s_ExecCalculator;
+        }
     }
 
     // GM DSL evaluation against the shared registry (all GM commands/functions live there).
     public static string ExecDsl(string code)
     {
-        var calc = new DslCalculator();
-        calc.ApiRegistry = DslCalculatorHost.GetSharedApiRegistry();
-        calc.OnLog = msg => { Debug.LogWarning("[GmSocket] " + msg); };
-        return GmDslEval.Eval(calc, code, BoxedValue.NullObject, BoxedValue.NullObject);
+        return GmDslEval.Eval(ExecCalculator, code, BoxedValue.NullObject, BoxedValue.NullObject);
     }
 
-    // DebugConsole command; in edit mode there is no DebugConsole instance, so fall back to DSL evaluation.
+    // DebugConsole channel. This is the one MCP should use to reach the GM story script
+    // runtime: commands like "gm <dsl>" / "command <dsl>" are forwarded by DebugConsole
+    // to GmRootScript.OnExecCommand -> ClientGmStorySystem.StartStory. Those run
+    // asynchronously across ticks and report through logs rather than a return value.
+    // In edit mode there is no DebugConsole instance, so fall back to synchronous DSL eval.
     public static string ExecConsole(string cmd)
     {
         if (DebugConsole.HasInstance) {
@@ -122,5 +159,6 @@ public static class GmCommandApi
         return d;
     }
 
-    private static bool s_Inited;
+    private static bool s_CommonInited;
+    private static bool s_RuntimeInited;
 }

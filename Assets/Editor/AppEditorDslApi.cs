@@ -20,13 +20,13 @@ using System.Linq;
 using StoryScript;
 using StoryScript.DslExpression;
 
-public sealed class AppEditorApi
+public sealed class AppEditorDslApi
 {
     [InitializeOnLoadMethod]
     public static void RunOnEditorStartup()
     {
-        ResourceEditUtility.OnRegisterApi = Register;
-        ResourceCommandWindow.RunOnEditorStartup();
+        EditorDslProcessorUtility.OnRegisterApi = Register;
+        EditorGmCommandWindow.RunOnEditorStartup();
     }
     private static void Register(DslCalculator calc)
     {

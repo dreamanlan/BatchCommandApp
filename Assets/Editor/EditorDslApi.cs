@@ -1630,7 +1630,7 @@ namespace StoryScript.DslExpression
         private List<IExpression> m_Args = new List<IExpression>();
     }
 #endif
-    public sealed class UnityEditorApi
+    public sealed class EditorDslApi
     {
         public static void Register(DslCalculator calculator)
         {

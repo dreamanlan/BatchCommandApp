@@ -35,7 +35,10 @@ public static class GmCommandDispatcher
     public const int c_MaxRequestsPerPump = 8;
     public const int c_MaxLogsPerResponse = 200;
 
-    // The delegates below are always invoked on the main thread; registered by GmCommandApi.EnsureInit / the editor listener.
+    // The delegates below are always invoked on the main thread.
+    // DslExecutor / ConsoleExecutor are registered by GmCommandApi.EnsureInit (runtime only),
+    // EditorExecutor by the editor listener's [InitializeOnLoad] ctor,
+    // InfoProvider by GmCommandApi.EnsureCommonInit (all channels).
     public static Func<string, string> DslExecutor;
     public static Func<string, string> ConsoleExecutor;
     public static Func<string, string> EditorExecutor;
@@ -130,7 +133,14 @@ public static class GmCommandDispatcher
         var sw = Stopwatch.StartNew();
         long logStart = GmLogBuffer.CurrentIndex;
         try {
-            GmCommandApi.EnsureInit();
+            // Only exec/console need the GM command registry and the story runtime.
+            // Editor-channel requests (edit/ping/logs) must stay on the common init.
+            if (req.Command == "exec" || req.Command == "console") {
+                GmCommandApi.EnsureInit();
+            }
+            else {
+                GmCommandApi.EnsureCommonInit();
+            }
             switch (req.Command) {
                 case "ping":
                     req.ResultObject = null != InfoProvider ? InfoProvider() : new Dictionary<string, object>();
