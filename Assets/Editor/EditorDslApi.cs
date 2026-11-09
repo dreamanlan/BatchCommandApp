@@ -1657,6 +1657,871 @@ namespace StoryScript.DslExpression
             return BoxedValue.FromBool(UnityEditor.EditorApplication.isPlaying);
         }
     }
+
+    // ---------- Generic SceneView camera control for automated tests ----------
+    // Unity-editor-only and project-agnostic: drives the active SceneView via pivot /
+    // rotation / size. Play-mode camera control lives in the project side (GmCommands.cs)
+    // because it must know about the project's runtime camera controller.
+    internal static class SceneCamUtil
+    {
+        public static string Fmt(UnityEngine.Vector3 v)
+        {
+            return string.Format("({0:F2},{1:F2},{2:F2})", v.x, v.y, v.z);
+        }
+        public static float F(IList<BoxedValue> o, int i, float def)
+        {
+            return o.Count > i ? o[i].GetFloat() : def;
+        }
+        public static bool GetPose(out UnityEngine.Vector3 pos, out UnityEngine.Vector3 euler, out string source)
+        {
+            pos = UnityEngine.Vector3.zero;
+            euler = UnityEngine.Vector3.zero;
+            source = "none";
+            var sv = UnityEditor.SceneView.lastActiveSceneView;
+            if (sv == null) { source = "no active SceneView"; return false; }
+            source = "SceneView.pivot/rotation";
+            pos = sv.pivot;
+            euler = sv.rotation.eulerAngles;
+            return true;
+        }
+        public static string Apply(UnityEngine.Vector3 pos, UnityEngine.Vector3 euler)
+        {
+            var sv = UnityEditor.SceneView.lastActiveSceneView;
+            if (sv == null) return "ERROR: no active SceneView";
+            sv.pivot = pos;
+            sv.rotation = UnityEngine.Quaternion.Euler(euler);
+            sv.Repaint();
+            return string.Format("edit:SceneView pivot={0} rotationEuler={1}", Fmt(pos), Fmt(euler));
+        }
+
+        private static bool s_SweepOn;
+        private static double s_Last;
+        private static float s_Speed, s_Radius, s_Angle;
+        private static UnityEngine.Vector3 s_Center, s_BaseEuler;
+
+        public static string Sweep(bool enable, float speed, float radius, UnityEngine.Vector3 center)
+        {
+            UnityEditor.EditorApplication.update -= SweepTick;
+            s_SweepOn = false;
+            if (!enable) return "scene_cam_sweep: stopped";
+            UnityEngine.Vector3 pos, euler;
+            string src;
+            if (!GetPose(out pos, out euler, out src)) return "ERROR: " + src;
+            s_Speed = speed;
+            s_Radius = radius;
+            s_Center = center;
+            s_BaseEuler = euler;
+            s_Angle = 0f;
+            s_Last = UnityEditor.EditorApplication.timeSinceStartup;
+            s_SweepOn = true;
+            UnityEditor.EditorApplication.update += SweepTick;
+            return string.Format("scene_cam_sweep: ON speed={0:F1}deg/s radius={1:F1} center={2}",
+                speed, radius, Fmt(center));
+        }
+
+        private static void SweepTick()
+        {
+            if (!s_SweepOn) { UnityEditor.EditorApplication.update -= SweepTick; return; }
+            double now = UnityEditor.EditorApplication.timeSinceStartup;
+            float dt = (float)(now - s_Last);
+            s_Last = now;
+            if (dt <= 0f || dt > 1f) dt = 1f / 60f;
+            s_Angle += s_Speed * dt;
+            if (s_Angle > 360f) s_Angle -= 360f;
+            UnityEngine.Vector3 pos, euler;
+            string src;
+            if (!GetPose(out pos, out euler, out src)) return;
+            if (s_Radius > 0f)
+            {
+                float a = s_Angle * UnityEngine.Mathf.Deg2Rad;
+                var target = new UnityEngine.Vector3(
+                    s_Center.x + UnityEngine.Mathf.Sin(a) * s_Radius,
+                    pos.y,
+                    s_Center.z + UnityEngine.Mathf.Cos(a) * s_Radius);
+                var look = s_Center - target;
+                var rot = look.sqrMagnitude > 0.0001f
+                    ? UnityEngine.Quaternion.LookRotation(look.normalized, UnityEngine.Vector3.up)
+                    : UnityEngine.Quaternion.Euler(s_BaseEuler);
+                Apply(target, rot.eulerAngles);
+            }
+            else
+            {
+                Apply(pos, new UnityEngine.Vector3(s_BaseEuler.x,
+                    s_BaseEuler.y + s_Angle, s_BaseEuler.z));
+            }
+        }
+    }
+
+    internal class SceneCamInfoExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var sb = new StringBuilder();
+            var sv = UnityEditor.SceneView.lastActiveSceneView;
+            sb.AppendLine("mode=" + (UnityEditor.EditorApplication.isPlaying ? "play (use cam_* runtime APIs)" : "edit"));
+            sb.AppendLine("sceneView=" + (sv == null ? "NONE" :
+                "active size=" + sv.size.ToString("F2") + " orthographic=" + sv.orthographic));
+            UnityEngine.Vector3 pos, euler;
+            string src;
+            if (SceneCamUtil.GetPose(out pos, out euler, out src))
+                sb.AppendLine(string.Format("pose({0}) pivot={1} rotationEuler={2}",
+                    src, SceneCamUtil.Fmt(pos), SceneCamUtil.Fmt(euler)));
+            else
+                sb.AppendLine("pose=UNAVAILABLE (" + src + ")");
+            return BoxedValue.FromString(sb.ToString());
+        }
+    }
+
+    internal class SceneCamSetExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 3) return BoxedValue.FromString("ERROR: scene_cam_set(x,y,z[,pitch,yaw,roll])");
+            var pos = new UnityEngine.Vector3(SceneCamUtil.F(operands, 0, 0),
+                SceneCamUtil.F(operands, 1, 0), SceneCamUtil.F(operands, 2, 0));
+            UnityEngine.Vector3 curPos, curEuler;
+            string src;
+            SceneCamUtil.GetPose(out curPos, out curEuler, out src);
+            var euler = new UnityEngine.Vector3(SceneCamUtil.F(operands, 3, curEuler.x),
+                SceneCamUtil.F(operands, 4, curEuler.y), SceneCamUtil.F(operands, 5, curEuler.z));
+            return BoxedValue.FromString(SceneCamUtil.Apply(pos, euler));
+        }
+    }
+
+    internal class SceneCamMoveExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 3) return BoxedValue.FromString("ERROR: scene_cam_move(dx,dy,dz[,local])");
+            var d = new UnityEngine.Vector3(SceneCamUtil.F(operands, 0, 0),
+                SceneCamUtil.F(operands, 1, 0), SceneCamUtil.F(operands, 2, 0));
+            bool local = operands.Count > 3 && operands[3].GetBool();
+            UnityEngine.Vector3 pos, euler;
+            string src;
+            if (!SceneCamUtil.GetPose(out pos, out euler, out src)) return BoxedValue.FromString("ERROR: " + src);
+            if (local) d = UnityEngine.Quaternion.Euler(euler) * d;
+            return BoxedValue.FromString(SceneCamUtil.Apply(pos + d, euler));
+        }
+    }
+
+    internal class SceneCamLookExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 3) return BoxedValue.FromString("ERROR: scene_cam_look(x,y,z)");
+            var target = new UnityEngine.Vector3(SceneCamUtil.F(operands, 0, 0),
+                SceneCamUtil.F(operands, 1, 0), SceneCamUtil.F(operands, 2, 0));
+            UnityEngine.Vector3 pos, euler;
+            string src;
+            if (!SceneCamUtil.GetPose(out pos, out euler, out src)) return BoxedValue.FromString("ERROR: " + src);
+            var dir = target - pos;
+            if (dir.sqrMagnitude < 0.0001f) return BoxedValue.FromString("ERROR: target == camera position");
+            return BoxedValue.FromString(SceneCamUtil.Apply(pos,
+                UnityEngine.Quaternion.LookRotation(dir.normalized, UnityEngine.Vector3.up).eulerAngles));
+        }
+    }
+
+    internal class SceneCamSweepExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            bool enable = operands.Count < 1 || operands[0].GetBool();
+            var center = new UnityEngine.Vector3(SceneCamUtil.F(operands, 3, 0),
+                SceneCamUtil.F(operands, 4, 0), SceneCamUtil.F(operands, 5, 0));
+            return BoxedValue.FromString(SceneCamUtil.Sweep(enable,
+                SceneCamUtil.F(operands, 1, 12f), SceneCamUtil.F(operands, 2, 0f), center));
+        }
+    }
+
+    // Generic edit-mode scene inspection / loading. Leaving Play mode restores a
+    // Temp/__Backupscenes/0.backup scene; being able to reopen the real project scene
+    // from the DSL keeps automated runs from silently testing the wrong content.
+    internal class SceneInfoExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var sb = new StringBuilder();
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene();
+            sb.AppendLine(string.Format("active='{0}' path='{1}' loaded={2} dirty={3}",
+                scene.name, scene.path, scene.isLoaded, scene.isDirty));
+            sb.AppendLine("playing=" + UnityEditor.EditorApplication.isPlaying);
+            int n = UnityEditor.SceneManagement.EditorSceneManager.sceneCount;
+            for (int i = 0; i < n; ++i)
+            {
+                var s = UnityEditor.SceneManagement.EditorSceneManager.GetSceneAt(i);
+                sb.AppendLine(string.Format("  [{0}] '{1}' path='{2}'", i, s.name, s.path));
+            }
+            return BoxedValue.FromString(sb.ToString());
+        }
+    }
+
+    internal class SceneOpenExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 1)
+                return BoxedValue.FromString("ERROR: scene_open(asset_path[,single])");
+            string path = operands[0].GetString();
+            if (string.IsNullOrEmpty(path))
+                return BoxedValue.FromString("ERROR: empty scene path");
+            if (UnityEditor.EditorApplication.isPlaying)
+                return BoxedValue.FromString("ERROR: exit Play mode before opening a scene");
+            if (System.IO.File.Exists(path) == false)
+                return BoxedValue.FromString("ERROR: scene file not found: " + path);
+            bool single = operands.Count < 2 || operands[1].GetBool();
+            var mode = single
+                ? UnityEditor.SceneManagement.OpenSceneMode.Single
+                : UnityEditor.SceneManagement.OpenSceneMode.Additive;
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(path, mode);
+            return BoxedValue.FromString(string.Format("scene_open: '{0}' path='{1}' mode={2} roots={3}",
+                scene.name, scene.path, mode, scene.rootCount));
+        }
+    }
+
+    // ---------- Generic editor window activation + SceneView/Game camera sync ----------
+    internal static class EditorWindowCamUtil
+    {
+        public static System.Type EditorType(string shortName)
+        {
+            var asm = typeof(UnityEditor.EditorWindow).Assembly;
+            return asm.GetType("UnityEditor." + shortName, false, true);
+        }
+
+        // Resolve the window type for a friendly name. GameView / SceneView / InspectorWindow
+        // are internal in UnityEditor, so this uses reflection by name (no project types).
+        public static System.Type ResolveWindowType(string name, out string resolved)
+        {
+            resolved = name;
+            switch (name.ToLowerInvariant())
+            {
+                case "game": resolved = "GameView"; break;
+                case "scene": resolved = "SceneView"; break;
+                case "inspector": resolved = "InspectorWindow"; break;
+                case "project": resolved = "ProjectBrowser"; break;
+                case "hierarchy": resolved = "SceneHierarchyWindow"; break;
+                case "console": resolved = "ConsoleWindow"; break;
+                case "profiler": resolved = "ProfilerWindow"; break;
+                default: break;
+            }
+            return EditorType(resolved);
+        }
+
+        public static UnityEngine.Camera FindGameCamera(out string source)
+        {
+            source = "none";
+            var cam = UnityEngine.Camera.main;
+            if (cam != null) { source = "Camera.main"; return cam; }
+            foreach (var c in UnityEngine.Camera.allCameras)
+            {
+                if (c != null && c.cameraType == UnityEngine.CameraType.Game && c.isActiveAndEnabled)
+                {
+                    source = "allCameras:" + c.name;
+                    return c;
+                }
+            }
+            var go = UnityEngine.GameObject.Find("Camera");
+            if (go != null)
+            {
+                var c2 = go.GetComponent<UnityEngine.Camera>();
+                if (c2 != null) { source = "GameObject.Find('Camera')"; return c2; }
+            }
+            // Edit mode fallback: a scene camera may be disabled, so scan the scene too.
+            foreach (var c in UnityEngine.Object.FindObjectsByType<UnityEngine.Camera>(
+                UnityEngine.FindObjectsInactive.Include, UnityEngine.FindObjectsSortMode.None))
+            {
+                if (c != null && c.cameraType == UnityEngine.CameraType.Game)
+                {
+                    source = "scene:" + c.name;
+                    return c;
+                }
+            }
+            return null;
+        }
+
+        public static string Fmt(UnityEngine.Vector3 v)
+        {
+            return string.Format("({0:F2},{1:F2},{2:F2})", v.x, v.y, v.z);
+        }
+
+        // SceneView keeps (pivot, rotation, size), while its actual camera sits at
+        // pivot + rotation * (0,0,-cameraDistance). Deriving from sv.camera.transform is
+        // unreliable before the view has rendered (it can still be (0,0,0)); this uses the
+        // public cameraDistance property and is the exact inverse of LookAt.
+        public static UnityEngine.Vector3 SceneViewCameraPose(UnityEditor.SceneView sv)
+        {
+            return sv.pivot + sv.rotation * new UnityEngine.Vector3(0, 0, -sv.cameraDistance);
+        }
+
+        // In play mode the runtime camera may be owned by a project-side controller whose
+        // Update() overwrites transform. If that controller exposes the Automation API
+        // (ApplyPose/ReadPose), call it by reflection so the sync is not immediately undone.
+        // This stays generic: no reference to any project type.
+        static System.Reflection.MethodInfo FindApplyPose(UnityEngine.Camera cam, out object target)
+        {
+            target = null;
+            if (cam == null) return null;
+            foreach (var mb in cam.GetComponents<UnityEngine.MonoBehaviour>())
+            {
+                if (mb == null) continue;
+                var m = mb.GetType().GetMethod("ApplyPose",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public,
+                    null, new[] { typeof(UnityEngine.Vector3), typeof(UnityEngine.Vector3) }, null);
+                if (m != null) { target = mb; return m; }
+            }
+            return null;
+        }
+
+        public static string SetGamePose(UnityEngine.Vector3 pos, UnityEngine.Vector3 euler, out UnityEngine.Camera cam)
+        {
+            string source;
+            cam = FindGameCamera(out source);
+            if (cam == null) return "ERROR: no game camera (" + source + ")";
+            // Only a live (play-mode) controller should receive ApplyPose; in edit mode
+            // its CameraState is uninitialized and the plain transform is authoritative.
+            if (UnityEditor.EditorApplication.isPlaying)
+            {
+                object ctrl;
+                var apply = FindApplyPose(cam, out ctrl);
+                if (apply != null)
+                {
+                    apply.Invoke(ctrl, new object[] { pos, euler });
+                    return string.Format("game camera '{0}' via controller.ApplyPose pos={1} euler={2}",
+                        cam.name, Fmt(pos), Fmt(euler));
+                }
+            }
+            cam.transform.position = pos;
+            cam.transform.eulerAngles = euler;
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(cam.gameObject.scene);
+            return string.Format("game camera '{0}' transform pos={1} euler={2} (edit mode, scene marked dirty)",
+                cam.name, Fmt(pos), Fmt(euler));
+        }
+
+        public static string ReadGamePose(out UnityEngine.Vector3 pos, out UnityEngine.Vector3 euler, out UnityEngine.Camera cam)
+        {
+            string source;
+            cam = FindGameCamera(out source);
+            pos = UnityEngine.Vector3.zero;
+            euler = UnityEngine.Vector3.zero;
+            if (cam == null) return "ERROR: no game camera (" + source + ")";
+            // In play mode the controller's target state is authoritative (transform may
+            // lag behind due to interpolation). In EDIT mode the controller is not enabled,
+            // so its CameraState has never been initialized from the transform and still
+            // holds (0,0,0)/(0,0,0); always read transform there.
+            if (UnityEditor.EditorApplication.isPlaying && cam.GetComponent<UnityEngine.MonoBehaviour>() != null)
+            {
+                foreach (var mb in cam.GetComponents<UnityEngine.MonoBehaviour>())
+                {
+                    if (mb == null || !mb.enabled) continue;
+                    var read = mb.GetType().GetMethod("ReadPose",
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+                    if (read == null) continue;
+                    var pars = read.GetParameters();
+                    if (pars.Length != 2) continue;
+                    var args = new object[] { UnityEngine.Vector3.zero, UnityEngine.Vector3.zero };
+                    read.Invoke(mb, args);
+                    pos = (UnityEngine.Vector3)args[0];
+                    euler = (UnityEngine.Vector3)args[1];
+                    return "controller.ReadPose on " + cam.name;
+                }
+            }
+            pos = cam.transform.position;
+            euler = cam.transform.eulerAngles;
+            return "transform on " + cam.name + " (" + source + ")";
+        }
+    }
+
+    internal class WindowInfoExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var sb = new StringBuilder();
+            var focused = UnityEditor.EditorWindow.focusedWindow;
+            sb.AppendLine("focused=" + (focused == null ? "NONE" : focused.GetType().FullName + " '" + focused.titleContent.text + "'"));
+            var mouseOver = UnityEditor.EditorWindow.mouseOverWindow;
+            sb.AppendLine("mouseOver=" + (mouseOver == null ? "NONE" : mouseOver.GetType().FullName));
+            sb.AppendLine("playing=" + UnityEditor.EditorApplication.isPlaying);
+            foreach (var w in UnityEngine.Resources.FindObjectsOfTypeAll<UnityEditor.EditorWindow>())
+            {
+                if (w == null) continue;
+                sb.AppendLine("  " + w.GetType().FullName + " '" + w.titleContent.text + "'");
+            }
+            return BoxedValue.FromString(sb.ToString());
+        }
+    }
+
+    internal class WindowFocusExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 1)
+                return BoxedValue.FromString("ERROR: window_focus(name) - game/scene/inspector/project/hierarchy/console/profiler or a UnityEditor window type name");
+            string name = operands[0].GetString();
+            string resolved;
+            var type = EditorWindowCamUtil.ResolveWindowType(name, out resolved);
+            if (type == null)
+                return BoxedValue.FromString("ERROR: unknown window type 'UnityEditor." + resolved + "'");
+            var win = UnityEditor.EditorWindow.GetWindow(type);
+            if (win == null)
+                return BoxedValue.FromString("ERROR: GetWindow failed for " + type.FullName);
+            win.Focus();
+            win.Repaint();
+            return BoxedValue.FromString(string.Format("window_focus: '{0}' -> {1} focused={2}",
+                name, type.FullName, UnityEditor.EditorWindow.focusedWindow == win));
+        }
+    }
+
+    internal class CamSyncInfoExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var sb = new StringBuilder();
+            var sv = UnityEditor.SceneView.lastActiveSceneView;
+            sb.AppendLine("playing=" + UnityEditor.EditorApplication.isPlaying);
+            if (sv == null)
+                sb.AppendLine("sceneView=NONE");
+            else
+                sb.AppendLine(string.Format("sceneView pivot={0} rotationEuler={1} size={2:F2}",
+                    EditorWindowCamUtil.Fmt(sv.pivot), EditorWindowCamUtil.Fmt(sv.rotation.eulerAngles), sv.size));
+            UnityEngine.Vector3 pos, euler;
+            UnityEngine.Camera cam;
+            string how = EditorWindowCamUtil.ReadGamePose(out pos, out euler, out cam);
+            sb.AppendLine(cam == null ? "gameCamera=NONE (" + how + ")"
+                : string.Format("gameCamera '{0}' pos={1} euler={2} via {3}",
+                    cam.name, EditorWindowCamUtil.Fmt(pos), EditorWindowCamUtil.Fmt(euler), how));
+            if (sv != null)
+            {
+                var sp = EditorWindowCamUtil.SceneViewCameraPose(sv);
+                sb.AppendLine(string.Format("sceneCam computed pos={0} euler={1} (from pivot/rotation/size)",
+                    EditorWindowCamUtil.Fmt(sp), EditorWindowCamUtil.Fmt(sv.rotation.eulerAngles)));
+                if (sv.camera != null)
+                    sb.AppendLine(string.Format("sceneCam raw transform pos={0} euler={1}",
+                        EditorWindowCamUtil.Fmt(sv.camera.transform.position),
+                        EditorWindowCamUtil.Fmt(sv.camera.transform.eulerAngles)));
+            }
+            return BoxedValue.FromString(sb.ToString());
+        }
+    }
+
+    // SceneView <- Game camera. SceneView's pose is (pivot, rotation, size): the actual
+    // camera sits behind the pivot. Keep the pivot in front of the game camera by the
+    // current view size, and copy its rotation, so both look at the same thing.
+    internal class SceneCamFromGameExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var sv = UnityEditor.SceneView.lastActiveSceneView;
+            if (sv == null) return BoxedValue.FromString("ERROR: no active SceneView");
+            UnityEngine.Vector3 pos, euler;
+            UnityEngine.Camera cam;
+            string how = EditorWindowCamUtil.ReadGamePose(out pos, out euler, out cam);
+            if (cam == null) return BoxedValue.FromString("ERROR: " + how);
+            var rot = UnityEngine.Quaternion.Euler(euler);
+            float size = sv.size;
+            // Put the pivot in front of the game camera by the SceneView's own camera
+            // distance, so the SceneView camera lands exactly at `pos`.
+            // Set pivot/rotation/size DIRECTLY: LookAt() writes the animated target while
+            // the pivot getter returns the current value, so the sync would lag a frame
+            // (or several) and report the stale pose.
+            var pivot = pos + rot * UnityEngine.Vector3.forward * sv.cameraDistance;
+            sv.pivot = pivot;
+            sv.rotation = rot;
+            sv.size = size;
+            sv.Repaint();
+            return BoxedValue.FromString(string.Format("scene_cam_from_game: source={0} game pos={1} euler={2} -> pivot={3} size={4:F2}",
+                how, EditorWindowCamUtil.Fmt(pos), EditorWindowCamUtil.Fmt(euler),
+                EditorWindowCamUtil.Fmt(sv.pivot), sv.size));
+        }
+    }
+
+    // Game camera <- SceneView. Use the SceneView camera's actual transform so the game
+    // camera lands exactly where the editor view currently is.
+    internal class GameCamFromSceneExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var sv = UnityEditor.SceneView.lastActiveSceneView;
+            if (sv == null) return BoxedValue.FromString("ERROR: no active SceneView");
+            var pos = EditorWindowCamUtil.SceneViewCameraPose(sv);
+            var euler = sv.rotation.eulerAngles;
+            UnityEngine.Camera cam;
+            string result = EditorWindowCamUtil.SetGamePose(pos, euler, out cam);
+            return BoxedValue.FromString("game_cam_from_scene: " + result);
+        }
+    }
+
+    // ---------- Focus BOTH views on a named scene object ----------
+    internal static class CamFocusUtil
+    {
+        public static UnityEngine.GameObject Find(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return null;
+            var go = UnityEngine.GameObject.Find(name);
+            if (go != null) return go;
+            // GameObject.Find only sees active objects and needs a full path for children.
+            // Fall back to a name match over all transforms (including inactive).
+            foreach (var t in UnityEngine.Object.FindObjectsByType<UnityEngine.Transform>(
+                UnityEngine.FindObjectsInactive.Include, UnityEngine.FindObjectsSortMode.None))
+            {
+                if (t != null && t.name == name) return t.gameObject;
+            }
+            return null;
+        }
+
+        public static UnityEngine.Bounds BoundsOf(UnityEngine.GameObject go, out int rendererCount)
+        {
+            rendererCount = 0;
+            UnityEngine.Bounds b = new UnityEngine.Bounds();
+            bool has = false;
+            foreach (var r in go.GetComponentsInChildren<UnityEngine.Renderer>(true))
+            {
+                if (r == null) continue;
+                if (!has) { b = r.bounds; has = true; }
+                else b.Encapsulate(r.bounds);
+                ++rendererCount;
+            }
+            if (!has)
+                b = new UnityEngine.Bounds(go.transform.position, UnityEngine.Vector3.one);
+            return b;
+        }
+
+        public static string Focus(string name, float padding, bool sceneOnly, out string report)
+        {
+            var sb = new StringBuilder();
+            var go = Find(name);
+            if (go == null)
+            {
+                report = "ERROR: object '" + name + "' not found in the open scene";
+                return report;
+            }
+            int n;
+            var bounds = BoundsOf(go, out n);
+            sb.AppendLine(string.Format("target='{0}' path={1} renderers={2} center={3} size={4}",
+                go.name, PathOf(go.transform), n, EditorWindowCamUtil.Fmt(bounds.center),
+                EditorWindowCamUtil.Fmt(bounds.size)));
+
+            var sv = UnityEditor.SceneView.lastActiveSceneView;
+            if (sv != null)
+            {
+                // Frame() accounts for the SceneView's FOV/aspect and picks the right size.
+                var padded = new UnityEngine.Bounds(bounds.center, bounds.size * (padding > 0 ? padding : 1.2f));
+                sv.Frame(padded, true);
+                sv.Repaint();
+                sb.AppendLine(string.Format("sceneView: pivot={0} euler={1} size={2:F2}",
+                    EditorWindowCamUtil.Fmt(sv.pivot), EditorWindowCamUtil.Fmt(sv.rotation.eulerAngles), sv.size));
+            }
+            else sb.AppendLine("sceneView: NONE");
+
+            if (!sceneOnly)
+            {
+                if (sv == null)
+                    sb.AppendLine("gameCamera: skipped (no SceneView to derive pose from)");
+                else
+                {
+                    UnityEngine.Camera cam;
+                    string r = EditorWindowCamUtil.SetGamePose(
+                        EditorWindowCamUtil.SceneViewCameraPose(sv), sv.rotation.eulerAngles, out cam);
+                    sb.AppendLine("gameCamera: " + r);
+                }
+            }
+            else sb.AppendLine("gameCamera: untouched (sceneOnly=true)");
+            report = sb.ToString();
+            return report;
+        }
+
+        public static string PathOf(UnityEngine.Transform t)
+        {
+            var parts = new List<string>();
+            while (t != null) { parts.Add(t.name); t = t.parent; }
+            parts.Reverse();
+            return string.Join("/", parts.ToArray());
+        }
+    }
+
+    internal class CamFocusInfoExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 1) return BoxedValue.FromString("ERROR: cam_focus_info(object_name)");
+            var go = CamFocusUtil.Find(operands[0].GetString());
+            if (go == null) return BoxedValue.FromString("ERROR: object '" + operands[0].GetString() + "' not found");
+            int n;
+            var b = CamFocusUtil.BoundsOf(go, out n);
+            return BoxedValue.FromString(string.Format(
+                "target='{0}' path={1} renderers={2} center={3} size={4} active={5}",
+                go.name, CamFocusUtil.PathOf(go.transform), n,
+                EditorWindowCamUtil.Fmt(b.center), EditorWindowCamUtil.Fmt(b.size), go.activeInHierarchy));
+        }
+    }
+
+    internal class CamFocusObjectExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 1)
+                return BoxedValue.FromString("ERROR: cam_focus_object(object_name[,padding,sceneOnly])");
+            float padding = operands.Count > 1 ? operands[1].GetFloat() : 1.2f;
+            bool sceneOnly = operands.Count > 2 && operands[2].GetBool();
+            string report;
+            CamFocusUtil.Focus(operands[0].GetString(), padding, sceneOnly, out report);
+            return BoxedValue.FromString(report);
+        }
+    }
+
+    // Report the APIs registered on the CURRENT interpreter, mirroring BatchCommand's
+    // HelpAllExp (BatchScript.ApiDocs => Calculator.ApiDocs). AbstractExpression exposes a
+    // protected `Calculator` property, so no reflection and no shared/global registry is
+    // needed - and, unlike DslCalculatorHost.GetSharedApiRegistry(), this is guaranteed to
+    // be the exact calculator that is executing this call (the editor channel builds its
+    // own registry via NewApiRegistry()).
+    // api_list(pattern, ...) - regex search over all api docs, like helpall().
+    internal class ApiListExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var regexes = new List<System.Text.RegularExpressions.Regex>();
+            foreach (var op in operands)
+            {
+                string pattern = op.ToString();
+                if (!string.IsNullOrEmpty(pattern))
+                    regexes.Add(new System.Text.RegularExpressions.Regex(pattern,
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase));
+            }
+            var docs = Calculator.ApiDocs;
+            var sb = new StringBuilder();
+            int total = docs == null ? 0 : docs.Count;
+            int shown = 0;
+            sb.AppendLine(string.Format("api_list: channel=editor source=Calculator.ApiDocs total={0} patterns={1}",
+                total, regexes.Count));
+            if (docs != null)
+            {
+                foreach (var pair in docs)
+                {
+                    bool match = regexes.Count == 0;
+                    string info = string.Format("{0}: {1}", pair.Key, pair.Value);
+                    foreach (var regex in regexes)
+                    {
+                        if (regex.IsMatch(info)) { match = true; break; }
+                    }
+                    if (match)
+                    {
+                        sb.AppendLine(info);
+                        ++shown;
+                    }
+                }
+            }
+            sb.AppendLine("shown=" + shown);
+            return BoxedValue.FromString(sb.ToString());
+        }
+    }
+
+    // ===========================================================================
+    // Editor-channel component add/remove.
+    //
+    // The runtime GM registry already has addcomponent/removecomponent
+    // (ClientGmStorySystem.cs / GeneralCommands.cs), but those call GameObject.AddComponent
+    // and Object.Destroy directly: no Undo, no dry run, and they are unavailable on the
+    // editor channel (which has its own calculator). Editing scene objects needs reversible
+    // changes, so these editor-side versions use Undo.AddComponent /
+    // Undo.DestroyObjectImmediate and default to a dry run.
+    // ===========================================================================
+    internal static class EditorComponentUtil
+    {
+        // Kept local so this generic package layer does not depend on the project-specific
+        // ray-tracing diagnostics helper (RtMaterialUtil lives in UCEditorDslApi.cs).
+        public static string PathOf(UnityEngine.Transform t)
+        {
+            var parts = new List<string>();
+            while (t != null) { parts.Add(t.name); t = t.parent; }
+            parts.Reverse();
+            return string.Join("/", parts.ToArray());
+        }
+
+        public static System.Type ResolveType(BoxedValue op, out string label)
+        {
+            label = "";
+            try
+            {
+                var o = op.ObjectVal;
+                var t = o as System.Type;
+                if (t != null) { label = t.FullName; return t; }
+            }
+            catch (System.Exception) { }
+            string name = "";
+            try { name = op.ToString(); } catch (System.Exception) { }
+            if (string.IsNullOrEmpty(name)) return null;
+            label = name;
+
+            // Try the name as given first (handles fully qualified names such as
+            // "UnityEngine.BoxCollider" without prepending a namespace twice), then the
+            // common short-name assemblies, then a full AppDomain scan for project/package
+            // and editor types.
+            var direct = System.Type.GetType(name);
+            if (direct != null) return direct;
+            foreach (var asmName in new[] { "UnityEngine", "UnityEngine.UI", "UnityEngine.CoreModule",
+                                            "Assembly-CSharp", "Assembly-CSharp-Editor" })
+            {
+                var t = System.Type.GetType(name + ", " + asmName);
+                if (t != null) return t;
+                if (!name.Contains("."))
+                {
+                    t = System.Type.GetType((asmName.StartsWith("UnityEngine.UI") ? "UnityEngine.UI." : "UnityEngine.") + name + ", " + asmName);
+                    if (t != null) return t;
+                }
+            }
+            foreach (var a in System.AppDomain.CurrentDomain.GetAssemblies())
+            {
+                System.Type[] types;
+                try { types = a.GetTypes(); } catch (System.Reflection.ReflectionTypeLoadException e) { types = e.Types; }
+                catch (System.Exception) { continue; }
+                if (types == null) continue;
+                foreach (var t in types)
+                {
+                    if (t == null) continue;
+                    if (t.FullName == name || t.Name == name) return t;
+                }
+            }
+            return null;
+        }
+
+        public static UnityEngine.GameObject ResolveGameObject(BoxedValue op, out string path)
+        {
+            path = "";
+            try
+            {
+                var o = op.ObjectVal;
+                var go = o as UnityEngine.GameObject;
+                if (go != null) { path = EditorComponentUtil.PathOf(go.transform); return go; }
+                var comp = o as UnityEngine.Component;
+                if (comp != null) { path = EditorComponentUtil.PathOf(comp.transform); return comp.gameObject; }
+            }
+            catch (System.Exception) { }
+            string s = "";
+            try { s = op.ToString(); } catch (System.Exception) { }
+            if (string.IsNullOrEmpty(s)) return null;
+            var found = UnityEngine.GameObject.Find(s);
+            if (found != null) { path = EditorComponentUtil.PathOf(found.transform); return found; }
+            // GameObject.Find misses inactive objects and children addressed by name only.
+            foreach (var t in UnityEngine.Object.FindObjectsByType<UnityEngine.Transform>(
+                UnityEngine.FindObjectsInactive.Include, UnityEngine.FindObjectsSortMode.None))
+            {
+                if (t == null) continue;
+                string p = EditorComponentUtil.PathOf(t);
+                if (t.name == s || p == s || p.EndsWith("/" + s, System.StringComparison.Ordinal))
+                { path = p; return t.gameObject; }
+            }
+            return null;
+        }
+
+        public static string ListComponents(UnityEngine.GameObject go)
+        {
+            var sb = new StringBuilder();
+            var comps = go.GetComponents<UnityEngine.Component>();
+            sb.AppendLine(string.Format("components on '{0}': {1}", EditorComponentUtil.PathOf(go.transform), comps.Length));
+            for (int i = 0; i < comps.Length; ++i)
+            {
+                var c = comps[i];
+                sb.AppendLine(string.Format("  [{0}] {1} enabled={2}", i,
+                    c == null ? "<missing script>" : c.GetType().FullName,
+                    c == null ? "n/a" : (c is UnityEngine.Behaviour ? ((UnityEngine.Behaviour)c).enabled.ToString() : "n/a")));
+            }
+            return sb.ToString();
+        }
+
+        public static string Add(BoxedValue objOp, BoxedValue typeOp, bool dryRun)
+        {
+            string path;
+            var go = ResolveGameObject(objOp, out path);
+            if (go == null) return "ERROR: GameObject not found";
+            string typeLabel;
+            var t = ResolveType(typeOp, out typeLabel);
+            if (t == null) return "ERROR: type not found: " + typeLabel;
+            if (!typeof(UnityEngine.Component).IsAssignableFrom(t))
+                return "ERROR: '" + t.FullName + "' is not a UnityEngine.Component";
+            var sb = new StringBuilder();
+            sb.AppendLine(string.Format("addcomponent: '{0}' type='{1}' dryRun={2}", path, t.FullName, dryRun));
+            var existing = go.GetComponents(t);
+            sb.AppendLine("  existing instances of this type: " + existing.Length);
+            if (dryRun)
+            {
+                sb.AppendLine(ListComponents(go));
+                return sb.ToString() + "  (DRY RUN - nothing written; pass dryRun=false to apply)";
+            }
+            var comp = UnityEditor.Undo.AddComponent(go, t);
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(go.scene);
+            sb.AppendLine(comp == null ? "  FAILED to add component" : "  ADDED " + comp.GetType().FullName + " (Undo-recorded, NOT saved)");
+            return sb.ToString();
+        }
+
+        public static string Remove(BoxedValue objOp, BoxedValue typeOp, bool dryRun, bool all)
+        {
+            string path;
+            var go = ResolveGameObject(objOp, out path);
+            if (go == null) return "ERROR: GameObject not found";
+            string typeLabel;
+            var t = ResolveType(typeOp, out typeLabel);
+            if (t == null) return "ERROR: type not found: " + typeLabel;
+            var comps = go.GetComponents(t);
+            var sb = new StringBuilder();
+            sb.AppendLine(string.Format("removecomponent: '{0}' type='{1}' matches={2} all={3} dryRun={4}",
+                path, t.FullName, comps.Length, all, dryRun));
+            if (comps.Length == 0) return sb.ToString() + "  nothing to remove";
+            // Transform is not removable; guard against destroying the object's core.
+            var targets = new List<UnityEngine.Component>();
+            foreach (var c in comps)
+            {
+                if (c == null || c is UnityEngine.Transform) continue;
+                targets.Add(c);
+                if (!all) break;
+            }
+            sb.AppendLine(ListComponents(go));
+            if (dryRun)
+                return sb.ToString() + string.Format("  would remove {0} component(s) (DRY RUN - nothing written)", targets.Count);
+            foreach (var c in targets)
+            {
+                sb.AppendLine("  REMOVED " + c.GetType().FullName);
+                UnityEditor.Undo.DestroyObjectImmediate(c);
+            }
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(go.scene);
+            sb.AppendLine("  Undo-recorded; NOT saved to assets");
+            return sb.ToString();
+        }
+    }
+
+    internal class EditorListComponentsExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 1) return BoxedValue.FromString("ERROR: listcomponents(obj_or_path)");
+            string path;
+            var go = EditorComponentUtil.ResolveGameObject(operands[0], out path);
+            if (go == null) return BoxedValue.FromString("ERROR: GameObject not found");
+            return BoxedValue.FromString(EditorComponentUtil.ListComponents(go));
+        }
+    }
+
+    internal class EditorAddComponentExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 2)
+                return BoxedValue.FromString("ERROR: addcomponent(obj_or_path,type_or_str[,dryRun])");
+            bool dry = operands.Count < 3 || operands[2].GetBool();
+            return BoxedValue.FromString(EditorComponentUtil.Add(operands[0], operands[1], dry));
+        }
+    }
+
+    internal class EditorRemoveComponentExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 2)
+                return BoxedValue.FromString("ERROR: removecomponent(obj_or_path,type_or_str[,dryRun,all])");
+            bool dry = operands.Count < 3 || operands[2].GetBool();
+            bool all = operands.Count > 3 && operands[3].GetBool();
+            return BoxedValue.FromString(EditorComponentUtil.Remove(operands[0], operands[1], dry, all));
+        }
+    }
+
 #endif
     public sealed class EditorDslApi
     {
@@ -1713,6 +2578,24 @@ namespace StoryScript.DslExpression
 #if UNITY_EDITOR
             calculator.Register("editor_play", "editor_play(play) - enter/exit Play mode on the next editor update; returns the state before the change", new ExpressionFactoryHelper<EditorPlayExp>());
             calculator.Register("editor_isplaying", "editor_isplaying() - current Play mode state", new ExpressionFactoryHelper<EditorIsPlayingExp>());
+            calculator.Register("scene_cam_info", "scene_cam_info() - generic edit-mode SceneView camera pose/size (read-only)", new ExpressionFactoryHelper<SceneCamInfoExp>());
+            calculator.Register("scene_cam_set", "scene_cam_set(x,y,z[,pitch,yaw,roll]) - set SceneView pivot/rotation", new ExpressionFactoryHelper<SceneCamSetExp>());
+            calculator.Register("scene_cam_move", "scene_cam_move(dx,dy,dz[,local]) - translate SceneView pivot", new ExpressionFactoryHelper<SceneCamMoveExp>());
+            calculator.Register("scene_cam_look", "scene_cam_look(x,y,z) - aim SceneView at a world point", new ExpressionFactoryHelper<SceneCamLookExp>());
+            calculator.Register("scene_cam_sweep", "scene_cam_sweep(enable[,degPerSec,radius,cx,cy,cz]) - continuous non-blocking SceneView sweep", new ExpressionFactoryHelper<SceneCamSweepExp>());
+            calculator.Register("scene_info", "scene_info() - report active/open scenes and Play state (read-only)", new ExpressionFactoryHelper<SceneInfoExp>());
+            calculator.Register("scene_open", "scene_open(asset_path[,single]) - open a scene asset in edit mode; refuses while playing", new ExpressionFactoryHelper<SceneOpenExp>());
+            calculator.Register("window_info", "window_info() - list open editor windows and the focused window (read-only)", new ExpressionFactoryHelper<WindowInfoExp>());
+            calculator.Register("window_focus", "window_focus(name) - activate game/scene/inspector/project/hierarchy/console/profiler or a UnityEditor window type", new ExpressionFactoryHelper<WindowFocusExp>());
+            calculator.Register("cam_sync_info", "cam_sync_info() - report SceneView and game-camera poses side by side (read-only)", new ExpressionFactoryHelper<CamSyncInfoExp>());
+            calculator.Register("scene_cam_from_game", "scene_cam_from_game() - align SceneView to the game camera", new ExpressionFactoryHelper<SceneCamFromGameExp>());
+            calculator.Register("game_cam_from_scene", "game_cam_from_scene() - align game camera to the SceneView (uses controller.ApplyPose in play mode)", new ExpressionFactoryHelper<GameCamFromSceneExp>());
+            calculator.Register("cam_focus_info", "cam_focus_info(object_name) - report a scene object's path and renderer bounds (read-only)", new ExpressionFactoryHelper<CamFocusInfoExp>());
+            calculator.Register("cam_focus_object", "cam_focus_object(object_name[,padding,sceneOnly]) - frame an object in SceneView and align the game camera to the same view", new ExpressionFactoryHelper<CamFocusObjectExp>());
+            calculator.Register("api_list", "api_list([regex,...]) - regex search over all APIs/docs registered on the current editor interpreter (like helpall)", new ExpressionFactoryHelper<ApiListExp>());
+            calculator.Register("listcomponents", "listcomponents(obj_or_path) - list components on a scene GameObject, including inactive objects (read-only)", new ExpressionFactoryHelper<EditorListComponentsExp>());
+            calculator.Register("addcomponent", "addcomponent(obj_or_path,type_or_str[,dryRun]) - add a component in edit mode; defaults to DRY RUN, uses Undo.AddComponent, never saves the scene", new ExpressionFactoryHelper<EditorAddComponentExp>());
+            calculator.Register("removecomponent", "removecomponent(obj_or_path,type_or_str[,dryRun,all]) - remove component(s) in edit mode; defaults to DRY RUN, uses Undo.DestroyObjectImmediate, never saves the scene", new ExpressionFactoryHelper<EditorRemoveComponentExp>());
 #endif
 #if USE_GM_STORY
             calculator.Register("storyvar", "storyvar(name,val) or storyvar(name) api", new ExpressionFactoryHelper<StoryVarExp>());

@@ -265,6 +265,13 @@ namespace GmCommands
             registry.Register("combinepath", "combinepath(path1,path2) function", new ExpressionFactoryHelper<GmCommands.CombinePathFunction>());
             registry.Register("getstreamingassets", "getstreamingassets() function", new ExpressionFactoryHelper<GmCommands.GetStreamingAssetsFunction>());
             registry.Register("getpersistentpath", "getpersistentpath() function", new ExpressionFactoryHelper<GmCommands.GetPersistentPathFunction>());
+            registry.Register("api_list", "api_list([regex,...]) - regex search over all APIs/docs registered on the current runtime interpreter (like helpall)", new ExpressionFactoryHelper<GmCommands.ApiListCommand>());
+            registry.Register("cam_info", "cam_info() - runtime camera pose, fov and SimpleCameraController state (read-only)", new ExpressionFactoryHelper<CamInfoCommand>());
+            registry.Register("cam_set", "cam_set(x,y,z[,pitch,yaw,roll]) - absolute runtime camera pose", new ExpressionFactoryHelper<CamSetCommand>());
+            registry.Register("cam_move", "cam_move(dx,dy,dz[,local]) - relative runtime camera translation", new ExpressionFactoryHelper<CamMoveCommand>());
+            registry.Register("cam_look", "cam_look(x,y,z) - aim runtime camera at a world point", new ExpressionFactoryHelper<CamLookCommand>());
+            registry.Register("cam_control", "cam_control(enable) - enable/disable SimpleCameraController; OnEnable re-syncs state from transform", new ExpressionFactoryHelper<CamControlCommand>());
+            registry.Register("cam_sweep", "cam_sweep(enable[,degPerSec,radius,cx,cy,cz]) - continuous non-blocking runtime camera sweep", new ExpressionFactoryHelper<CamSweepCommand>());
         }
     }
 }

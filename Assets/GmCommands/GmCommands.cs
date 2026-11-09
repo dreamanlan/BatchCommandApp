@@ -3554,4 +3554,217 @@ namespace GmCommands
         }
     }
 
+    // List APIs registered on the CURRENT interpreter (same pattern as BatchCommand's
+    // HelpAllExp: BatchScript.ApiDocs => Calculator.ApiDocs). AbstractExpression exposes a
+    // protected `Calculator`, so no reflection, no captured static registry and no
+    // GetSharedApiRegistry() fallback is needed - this is exactly the calculator running
+    // the call, including APIs registered dynamically by scripts.
+    // api_list(pattern, ...) - regex search over all api docs, like helpall().
+    internal sealed class ApiListCommand : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var regexes = new List<System.Text.RegularExpressions.Regex>();
+            foreach (var op in operands)
+            {
+                string pattern = op.ToString();
+                if (!string.IsNullOrEmpty(pattern))
+                    regexes.Add(new System.Text.RegularExpressions.Regex(pattern,
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase));
+            }
+            var docs = Calculator.ApiDocs;
+            var sb = new StringBuilder();
+            int total = docs == null ? 0 : docs.Count;
+            int shown = 0;
+            sb.AppendLine(string.Format("api_list: channel=runtime source=Calculator.ApiDocs total={0} patterns={1}",
+                total, regexes.Count));
+            if (docs != null)
+            {
+                foreach (var pair in docs)
+                {
+                    bool match = regexes.Count == 0;
+                    string info = string.Format("{0}: {1}", pair.Key, pair.Value);
+                    foreach (var regex in regexes)
+                    {
+                        if (regex.IsMatch(info)) { match = true; break; }
+                    }
+                    if (match)
+                    {
+                        sb.AppendLine(info);
+                        ++shown;
+                    }
+                }
+            }
+            sb.AppendLine("shown=" + shown);
+            return BoxedValue.FromString(sb.ToString());
+        }
+    }
+
+    // ---------- Runtime camera DSL commands (thin wrappers) ----------
+    // The camera is driven by the project's SimpleCameraController: its Update() owns the
+    // transform and rebuilds it from an internal CameraState every frame. All commands here
+    // only parse DSL operands and call the controller's public Automation API. There is no
+    // second camera implementation and no transform write from this side.
+    internal static class CamCommandsUtil
+    {
+        public static UnityTemplateProjects.SimpleCameraController FindController(out string source)
+        {
+            source = "none";
+            var ctrl = UnityEngine.Object.FindFirstObjectByType<UnityTemplateProjects.SimpleCameraController>();
+            if (ctrl != null)
+            {
+                source = ctrl.gameObject.name;
+                return ctrl;
+            }
+            // Fall back to locating the camera, then its controller component.
+            Camera cam = Camera.main;
+            if (cam == null)
+            {
+                foreach (Camera c in Camera.allCameras)
+                {
+                    if (c != null && c.cameraType == CameraType.Game && c.isActiveAndEnabled)
+                    {
+                        cam = c;
+                        break;
+                    }
+                }
+            }
+            if (cam == null)
+            {
+                GameObject go = GameObject.Find("Camera");
+                if (go != null) cam = go.GetComponent<Camera>();
+            }
+            if (cam == null) return null;
+            source = cam.name;
+            return cam.GetComponent<UnityTemplateProjects.SimpleCameraController>();
+        }
+
+        public static string Fmt(Vector3 v)
+        {
+            return string.Format("({0:F2},{1:F2},{2:F2})", v.x, v.y, v.z);
+        }
+        public static float F(IList<BoxedValue> o, int i, float def)
+        {
+            return o.Count > i ? o[i].GetFloat() : def;
+        }
+        public static string Status(UnityTemplateProjects.SimpleCameraController ctrl, string source)
+        {
+            Vector3 pos, euler;
+            ctrl.ReadPose(out pos, out euler);
+            return string.Format("controller={0} pos={1} euler={2} sweeping={3}",
+                source, Fmt(pos), Fmt(euler), ctrl.IsSweeping);
+        }
+    }
+
+    internal sealed class CamInfoCommand : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            var sb = new StringBuilder();
+            string src;
+            var ctrl = CamCommandsUtil.FindController(out src);
+            sb.AppendLine("mode=play source=" + src);
+            if (ctrl == null)
+            {
+                sb.AppendLine("ERROR: SimpleCameraController not found; runtime camera commands unavailable");
+                return BoxedValue.FromString(sb.ToString());
+            }
+            var cam = ctrl.GetComponent<Camera>();
+            if (cam != null)
+                sb.AppendLine(string.Format("fov={0:F1} near={1:F2} far={2:F1} cameraType={3}",
+                    cam.fieldOfView, cam.nearClipPlane, cam.farClipPlane, cam.cameraType));
+            sb.AppendLine("enabled=" + ctrl.enabled);
+            sb.AppendLine(CamCommandsUtil.Status(ctrl, src));
+            return BoxedValue.FromString(sb.ToString());
+        }
+    }
+
+    internal sealed class CamSetCommand : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 3) return BoxedValue.FromString("ERROR: cam_set(x,y,z[,pitch,yaw,roll])");
+            string src;
+            var ctrl = CamCommandsUtil.FindController(out src);
+            if (ctrl == null) return BoxedValue.FromString("ERROR: SimpleCameraController not found");
+            Vector3 curPos, curEuler;
+            ctrl.ReadPose(out curPos, out curEuler);
+            var pos = new Vector3(CamCommandsUtil.F(operands, 0, 0),
+                CamCommandsUtil.F(operands, 1, 0), CamCommandsUtil.F(operands, 2, 0));
+            var euler = new Vector3(CamCommandsUtil.F(operands, 3, curEuler.x),
+                CamCommandsUtil.F(operands, 4, curEuler.y), CamCommandsUtil.F(operands, 5, curEuler.z));
+            ctrl.ApplyPose(pos, euler);
+            return BoxedValue.FromString("cam_set: " + CamCommandsUtil.Status(ctrl, src));
+        }
+    }
+
+    internal sealed class CamMoveCommand : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 3) return BoxedValue.FromString("ERROR: cam_move(dx,dy,dz[,local])");
+            string src;
+            var ctrl = CamCommandsUtil.FindController(out src);
+            if (ctrl == null) return BoxedValue.FromString("ERROR: SimpleCameraController not found");
+            var d = new Vector3(CamCommandsUtil.F(operands, 0, 0),
+                CamCommandsUtil.F(operands, 1, 0), CamCommandsUtil.F(operands, 2, 0));
+            bool local = operands.Count > 3 && operands[3].GetBool();
+            ctrl.MoveBy(d, local);
+            return BoxedValue.FromString("cam_move: " + CamCommandsUtil.Status(ctrl, src));
+        }
+    }
+
+    internal sealed class CamLookCommand : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            if (operands.Count < 3) return BoxedValue.FromString("ERROR: cam_look(x,y,z)");
+            string src;
+            var ctrl = CamCommandsUtil.FindController(out src);
+            if (ctrl == null) return BoxedValue.FromString("ERROR: SimpleCameraController not found");
+            var target = new Vector3(CamCommandsUtil.F(operands, 0, 0),
+                CamCommandsUtil.F(operands, 1, 0), CamCommandsUtil.F(operands, 2, 0));
+            Vector3 pos, euler;
+            ctrl.ReadPose(out pos, out euler);
+            if ((target - pos).sqrMagnitude < 0.0001f)
+                return BoxedValue.FromString("ERROR: target == camera position");
+            ctrl.AimAt(target);
+            return BoxedValue.FromString("cam_look: " + CamCommandsUtil.Status(ctrl, src));
+        }
+    }
+
+    internal sealed class CamControlCommand : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            bool enable = operands.Count < 1 || operands[0].GetBool();
+            string src;
+            var ctrl = CamCommandsUtil.FindController(out src);
+            if (ctrl == null) return BoxedValue.FromString("ERROR: SimpleCameraController not found");
+            ctrl.enabled = enable;
+            ctrl.SetSweep(false, 0f, 0f, Vector3.zero);
+            return BoxedValue.FromString(string.Format("cam_control: enabled={0} on {1} (sweep stopped)", enable, src));
+        }
+    }
+
+    internal sealed class CamSweepCommand : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            bool enable = operands.Count < 1 || operands[0].GetBool();
+            string src;
+            var ctrl = CamCommandsUtil.FindController(out src);
+            if (ctrl == null) return BoxedValue.FromString("ERROR: SimpleCameraController not found");
+            var center = new Vector3(CamCommandsUtil.F(operands, 3, 0),
+                CamCommandsUtil.F(operands, 4, 0), CamCommandsUtil.F(operands, 5, 0));
+            float speed = CamCommandsUtil.F(operands, 1, 12f);
+            float radius = CamCommandsUtil.F(operands, 2, 0f);
+            if (enable) ctrl.enabled = true;
+            ctrl.SetSweep(enable, speed, radius, center);
+            return BoxedValue.FromString(enable
+                ? string.Format("cam_sweep: ON speed={0:F1}deg/s radius={1:F1} center={2} on {3}",
+                    speed, radius, CamCommandsUtil.Fmt(center), src)
+                : "cam_sweep: stopped");
+        }
+    }
 }

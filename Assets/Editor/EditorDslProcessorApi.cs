@@ -487,6 +487,7 @@ public static class EditorDslProcessorUtility
         calc.Register("selectprojectobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectProjectObjectExp>());
         calc.Register("selectsceneobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectSceneObjectExp>());
         calc.Register("saveandreimport", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SaveAndReimportExp>());
+        calc.Register("asset_refresh", "asset_refresh([asset_path]) - reimport one asset (ForceUpdate) or refresh the whole AssetDatabase; use after editing .mat/.shader YAML externally", new ExpressionFactoryHelper<EditorDslProcessorApi.AssetRefreshExp>());
         calc.Register("setdirty", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetDirtyExp>());
         calc.Register("getdefaulttexturesetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetDefaultTextureSettingExp>());
         calc.Register("gettexturesetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureSettingExp>());
@@ -2640,6 +2641,26 @@ namespace EditorDslProcessorApi
                 }
             }
             return r;
+        }
+    }
+    // Refresh asset(s) after an external .mat/.shader YAML edit. ImportAsset(path, ForceUpdate)
+    // reimports only the named asset; with no path it does a full AssetDatabase.Refresh().
+    // This belongs in the resource-processing layer (asset/AssetDatabase APIs), not in
+    // EditorDslApi.cs which holds generic editor APIs such as scene operations.
+    internal class AssetRefreshExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        {
+            string path = operands.Count > 0 ? operands[0].ToString() : "";
+            if (string.IsNullOrEmpty(path))
+            {
+                AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+                return BoxedValue.FromString("asset_refresh: AssetDatabase.Refresh(ForceUpdate) done");
+            }
+            if (!System.IO.File.Exists(path))
+                return BoxedValue.FromString("ERROR: asset file not found: " + path);
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            return BoxedValue.FromString("asset_refresh: ImportAsset(ForceUpdate) " + path);
         }
     }
     internal class SaveAndReimportExp : SimpleExpressionBase

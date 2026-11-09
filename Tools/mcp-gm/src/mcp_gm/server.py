@@ -26,6 +26,22 @@ Interpreters (Unity side, all shared with the existing systems):
                        "gm <dsl>" / "command <dsl>" go through GmRootScript into the
                        story-based GM script runtime there.
 
+Discovering DSL APIs (IMPORTANT - the two channels have different registries):
+  unity_editor_exec('api_list("regex")', target='editor')   editor interpreter registry
+  unity_exec('api_list("regex")', target='runtime')         runtime interpreter registry
+api_list() reads the CURRENT interpreter's live registry and takes zero or more REGEX
+patterns (like helpall), matched case-insensitively against "name: doc"; any hit includes
+the row. Examples:
+    api_list()                       every API (incl. built-in operators)
+    api_list("window_")              substring-style regex
+    api_list("^scene_", "cam_")      multiple patterns, OR semantics
+    api_list("(?i)focus.*object")    full regex syntax
+It returns `source=Calculator.ApiDocs total=N patterns=M`, the matched `name: doc` lines,
+and `shown=K`. Prefer it over help() / '/?': help() is runtime-only (returns 0 on the
+editor channel) and unity_console('/?') is rejected there.
+All DSL calls need a LIVE GM socket. If the editor is closed, run unity_start first;
+then use api_list() to confirm an API is actually registered before calling it.
+
 Editor lifecycle tools (local process management, no GM socket involved):
   unity_start       -> launch the Unity Editor with this project (-projectPath).
   unity_stop        -> terminate the running Unity Editor.
@@ -62,7 +78,10 @@ _IS_MAC = sys.platform == "darwin"
 _MTL_VARS = ("MTL_DEBUG_LAYER", "MTL_SHADER_VALIDATION", "MTL_SHADER_VALIDATION_REPORT_TO_STDERR")
 _DIAG_VAR = "UNITY_METALRT_DIAG"
 
-mcp = FastMCP("unity-gm")
+# Expose the module docstring as MCP server instructions so clients always receive the
+# channel rules and the api_list() discovery workflow up front, instead of only seeing
+# them when they happen to inspect a tool description.
+mcp = FastMCP("unity-gm", instructions=__doc__)
 
 
 def _run(cmd: str, timeout_ms: int = 15000, target: str | None = None, **kwargs) -> dict:
@@ -97,7 +116,10 @@ def unity_exec(code: str, timeout_ms: int = 15000, target: str | None = None) ->
     Common functions: findobj(name,type) / searchobjs(name_key,type) / getposition(obj_or_path)
                       getcomponent / getcomponents / matgetfloat(mat,key) / screenwidth() / iseditor()
     Commands (log only, no return value): logobjs(name_key,type) / logcomps(...) / setmat(...) / setactive(...)
-    For APIs you do not know, call help() or run '/? keyword' through unity_console first.
+    To discover APIs, call unity_exec('api_list("regex")', target='runtime') - it reads
+    the LIVE interpreter registry (zero or more regex patterns, e.g. api_list("^cam_");
+    see the module instructions for full syntax). help() also works here (runtime channel
+    only), but '/?' via unity_console is limited. A live GM socket is required.
 
     RUNTIME CHANNEL ONLY (rejected on the editor channel; switch with target='runtime').
     Uses a persistent DslCalculator that shares the GM command/function API registry with
@@ -118,6 +140,13 @@ def unity_editor_exec(code: str, timeout_ms: int = 30000, target: str | None = N
     code can use editor-side APIs such as check_pipeline_assets(), check_pipeline_asset_guid(),
     gettexturesetting(path), grep(...), subst(...). Calls from a built player return
     ok=false (there is no editor executor).
+
+    To discover APIs, call unity_editor_exec('api_list("regex")', target='editor') - it
+    reads the LIVE editor interpreter registry (zero or more regex patterns, e.g.
+    api_list("^scene_cam_"); see the module instructions for full syntax).
+    NOTE: help() and unity_console('/?') do NOT work on this channel - help() is
+    runtime-only (returns 0) and the console command is rejected here. A live GM socket
+    is required.
 
     EDITOR CHANNEL ONLY. Uses the same DslCalculator instance as the editor command window
     and editor_startup.dsl, so global variables/functions are shared. Only editor/resource
@@ -687,6 +716,7 @@ def unity_editor_log(lines: int = 80, filter: str = "", path: str | None = None)
                 "count": len(tail), "total_matches": len(text), "lines": tail}
     except OSError as exc:
         return {"ok": False, "error": str(exc), "path": str(log)}
+
 
 
 def main() -> None:
