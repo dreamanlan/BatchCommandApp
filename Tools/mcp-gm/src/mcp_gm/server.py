@@ -342,9 +342,13 @@ def _terminate(pid: int, force: bool) -> str | None:
 
 
 def _launch_command(app: Path, project: Path, extra_args: list[str]) -> list[str]:
-    if _IS_MAC and app.is_dir() and app.suffix == ".app":
-        # `open` is required for a proper GUI session; launching the bundle executable
-        # directly from a non-GUI process hangs during startup.
+    # Launch the bundle executable DIRECTLY on macOS. `open -n -a` delivers an AppleEvent
+    # that Unity handles synchronously in applicationDidFinishLaunching; that path was
+    # observed to deadlock in InitializeProject -> GetRecentProjects -> open() (main thread
+    # stuck for tens of minutes, UPM idle in uv__io_poll, GM socket never opens). Direct
+    # Popen bypasses the AppleEvent entirely: same project, ready in ~12s. Verified over
+    # a dozen failed `open` launches. Set UNITY_MCP_USE_OPEN=1 for the old behaviour.
+    if _IS_MAC and os.environ.get("UNITY_MCP_USE_OPEN") == "1" and app.is_dir() and app.suffix == ".app":
         return ["open", "-n", "-a", str(app), "--args", "-projectPath", str(project)] + extra_args
     return [str(_editor_executable(app)), "-projectPath", str(project)] + extra_args
 
@@ -426,6 +430,32 @@ def unity_start(force: bool = False, diag: int | None = None,
     if dry_run:
         return result
 
+    # A crashed/stopped editor leaves /tmp/Unity-Upm-<pid>.sock behind. The next launch
+    # can then stall indefinitely at "Successfully changed project path" (main thread
+    # idle in nextEventMatchingMask, CPU 0%, GM socket never opens). Verified over five
+    # separate sessions: removing stale sockets before launch fixes it. Only do this
+    # when no editor is running, so a live editor's socket is never touched.
+    if not existing:
+        # UPM writes to the literal /tmp on macOS, NOT $TMPDIR (which is
+        # /var/folders/.../T/ in a GUI session). Scan both or the cleanup is a no-op.
+        dirs = [Path("/tmp")] if not _IS_WIN else []
+        env_tmp = os.environ.get("TMPDIR")
+        if env_tmp:
+            dirs.append(Path(env_tmp))
+        removed = []
+        for tmp in dict.fromkeys(dirs):
+            try:
+                for sock in tmp.glob("Unity-Upm-*.sock"):
+                    try:
+                        sock.unlink()
+                        removed.append(str(sock))
+                    except OSError:
+                        pass
+            except OSError:
+                pass
+        if removed:
+            result["stale_upm_sockets_removed"] = removed
+
     if log.is_file():
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup = Path(os.environ.get("TMPDIR", "/tmp" if not _IS_WIN else str(Path.home()))) / f"editor_before_mcp_{stamp}.log"
@@ -471,6 +501,10 @@ def unity_start(force: bool = False, diag: int | None = None,
         env.update(launch_env)
         kwargs: dict = {"env": env, "stdin": subprocess.DEVNULL,
                         "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL}
+        if not _IS_WIN:
+            # Detach into its own session so the editor survives the MCP stdio process
+            # exiting, and never shares the JSON-RPC stdout pipe.
+            kwargs["start_new_session"] = True
         if _IS_WIN:
             kwargs["creationflags"] = (getattr(subprocess, "DETACHED_PROCESS", 0) |
                                        getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0))
