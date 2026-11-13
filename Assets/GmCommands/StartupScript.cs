@@ -18,7 +18,7 @@ internal class StartupApiExp : SimpleExpressionBase
             LogSystem.Error("Can't find method '{0}'", method);
         }
     }
-    protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+    protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
     {
         var list = StartupScript.NewArgList();
         foreach (var operand in operands) {
@@ -101,7 +101,7 @@ public static class StartupScript
         if (!s_Inited) {
             s_Calculator = new DslCalculator();
             s_Calculator.NewApiRegistry();
-            s_Calculator.OnLog = LogSystem.Log;
+            s_CodeStructure.OnLog = LogSystem.Log;
             s_Calculator.OnLoadFailback = OnLoadFailback;
             s_Inited = true;
         }
@@ -493,7 +493,7 @@ public static class StartupScript
         }
 #endif
     }
-    internal static DslCalculator Calculator
+    internal static DslCalculator calculator
     {
         get { return s_Calculator; }
     }
@@ -539,7 +539,7 @@ public static class StartupScript
     {
         s_BoxedValueListPool.Recycle(args);
     }
-    private static bool OnLoadFailback(ISyntaxComponent comp, DslCalculator calculator, out IExpression expression)
+    private static bool OnLoadFailback(ISyntaxComponent comp, DslCalculatorCodeStructure code, out IExpression expression)
     {
         bool ret = false;
         expression = null;
@@ -552,7 +552,7 @@ public static class StartupScript
                 string fn = callData.GetId();
                 if (ExistsApi(fn)) {
                     var exp = new StartupApiExp(fn);
-                    if (exp.Load(funcData, calculator)) {
+                    if (exp.Load(funcData, code)) {
                         expression = exp;
                         ret = true;
                     }

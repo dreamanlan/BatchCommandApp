@@ -27,8 +27,8 @@ public class Main : MonoBehaviour
         StartCoroutine(Loop());
 
         StartupScript.TryInit();
-        StartupScript.Calculator.Register("setclipboard", "setclipboard(str) api", new ExpressionFactoryHelper<SetClipboardExp>());
-        StartupScript.Calculator.Register("getclipboard", "getclipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
+        StartupScript.calculator.Register("setclipboard", "setclipboard(str) api", new ExpressionFactoryHelper<SetClipboardExp>());
+        StartupScript.calculator.Register("getclipboard", "getclipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
 
         RunStartup(true);
     }
@@ -246,7 +246,7 @@ public class Main : MonoBehaviour
 
     public static SortedList<string, string> GetApiDocs()
     {
-        return StartupScript.Calculator.ApiDocs;
+        return StartupScript.calculator.ApiDocs;
     }
     public static void LoadScript(string file)
     {
@@ -254,7 +254,7 @@ public class Main : MonoBehaviour
         if (!System.IO.Path.IsPathRooted(file)) {
             file = System.IO.Path.Combine(basePath, file);
         }
-        StartupScript.Calculator.LoadDsl(file);
+        StartupScript.calculator.LoadDsl(file);
     }
     public static BoxedValue EvalAndRun(string code)
     {
@@ -274,29 +274,29 @@ public class Main : MonoBehaviour
     {
         BoxedValue r = BoxedValue.EmptyString;
         List<IExpression> exps = new List<IExpression>();
-        StartupScript.Calculator.LoadDsl(expressions, exps);
-        r = StartupScript.Calculator.CalcInCurrentContext(exps);
+        StartupScript.calculator.LoadDsl(expressions, exps);
+        r = StartupScript.calculator.CalcInCurrentContext(exps);
         return r;
     }
     public static void EvalAsFunc(string name, Dsl.FunctionData func, IList<string> argNames)
     {
         Debug.Assert(null != func);
-        StartupScript.Calculator.LoadDsl(name, argNames, func);
+        StartupScript.calculator.LoadDsl(name, argNames, func);
     }
     public static bool TryGetApiFactory(string name, out IExpressionFactory factory)
     {
-        return StartupScript.Calculator.ApiRegistry.TryGetFactory(name, out factory);
+        return StartupScript.CodeStructure.ApiRegistry.TryGetFactory(name, out factory);
     }
     public static object Call(string func, params object[] args)
     {
         if (null == s_Instance)
             return null;
-        var vargs = StartupScript.Calculator.NewCalculatorValueList();
+        var vargs = StartupScript.calculator.NewCalculatorValueList();
         foreach (var arg in args) {
             vargs.Add(BoxedValue.FromObject(arg));
         }
-        var r = StartupScript.Calculator.Calc(func, vargs);
-        StartupScript.Calculator.RecycleCalculatorValueList(vargs);
+        var r = StartupScript.calculator.Calc(func, vargs);
+        StartupScript.calculator.RecycleCalculatorValueList(vargs);
         return r.GetObject();
     }
 
@@ -564,7 +564,7 @@ namespace ExpressionAPI
 
     internal sealed class CopyPdfExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count >= 3) {
                 string file = operands[0].GetString();
@@ -609,7 +609,7 @@ namespace ExpressionAPI
     }
     internal sealed class ShowMemoryExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string info = string.Format("pss:{0} n:{1} g:{2} u:{3} j:{4} c:{5} t:{6} s:{7} vss:{8}", MemoryInfo.GetAppMemory(), MemoryInfo.GetNativeMemory(), MemoryInfo.GetGraphicsMemory(), MemoryInfo.GetUnknownMemory(), MemoryInfo.GetJavaMemory(), MemoryInfo.GetCodeMemory(), MemoryInfo.GetStackMemory(), MemoryInfo.GetSystemMemory(), MemoryInfo.GetVssMemory());
             Debug.LogFormat("{0}", info);
@@ -618,7 +618,7 @@ namespace ExpressionAPI
     }
     internal sealed class JavaClassExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count >= 1) {
                 var p1 = operands[0];
@@ -636,7 +636,7 @@ namespace ExpressionAPI
     }
     internal sealed class JavaObjectExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count > 0) {
                 var obj = operands[0].As<AndroidJavaClass>();
@@ -659,7 +659,7 @@ namespace ExpressionAPI
     }
     internal sealed class JavaProxyExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count >= 2) {
                 var _class = operands[0].GetString();
@@ -671,7 +671,7 @@ namespace ExpressionAPI
     }
     internal sealed class ObjectcClassExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count >= 1) {
                 var str = operands[0].GetString();
@@ -682,7 +682,7 @@ namespace ExpressionAPI
     }
     internal sealed class ObjectcObjectExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count >= 1) {
                 int objId = operands[0].GetInt();
@@ -693,70 +693,70 @@ namespace ExpressionAPI
     }
     internal sealed class GetPssExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return MemoryInfo.GetAppMemory();
         }
     }
     internal sealed class GetVssExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return MemoryInfo.GetVssMemory();
         }
     }
     internal sealed class GetNativeExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return MemoryInfo.GetNativeMemory();
         }
     }
     internal sealed class GetGraphicsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return MemoryInfo.GetGraphicsMemory();
         }
     }
     internal sealed class GetUnknownExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return MemoryInfo.GetUnknownMemory();
         }
     }
     internal sealed class GetJavaExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return MemoryInfo.GetJavaMemory();
         }
     }
     internal sealed class GetCodeExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return MemoryInfo.GetCodeMemory();
         }
     }
     internal sealed class GetStackExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return MemoryInfo.GetStackMemory();
         }
     }
     internal sealed class GetSystemExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return MemoryInfo.GetSystemMemory();
         }
     }
     internal sealed class GetActivityExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
             return BoxedValue.FromObject(new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"));
@@ -767,7 +767,7 @@ namespace ExpressionAPI
     }
     internal sealed class GetIntentExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
 #if UNITY_ANDROID
             var act = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
@@ -780,7 +780,7 @@ namespace ExpressionAPI
 
     internal sealed class SetClipboardExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -806,7 +806,7 @@ namespace ExpressionAPI
     }
     internal sealed class GetClipboardExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
 #if UNITY_EDITOR

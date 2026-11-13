@@ -1587,7 +1587,7 @@ namespace EditorDslProcessorApi
     }
     internal class CallScriptExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -1597,7 +1597,7 @@ namespace EditorDslProcessorApi
                     for (int i = 1; i < operands.Count; ++i) {
                         args.Add(operands[i]);
                     }
-                    r = EditorDslProcessor.Instance.CallScript(Calculator, proc, args);
+                    r = EditorDslProcessor.Instance.CallScript(calculator, proc, args);
                     EditorDslProcessor.Instance.RecycleCalculatorValueList(args);
                 }
             }
@@ -1606,7 +1606,7 @@ namespace EditorDslProcessorApi
     }
     internal class SetRedirectExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -1620,8 +1620,8 @@ namespace EditorDslProcessorApi
                             args.Add(key, val);
                         }
                     }
-                    Calculator.SetGlobalVariable("redirectdsl", BoxedValue.FromObject(dsl));
-                    Calculator.SetGlobalVariable("redirectargs", BoxedValue.FromObject(args));
+                    calculator.SetGlobalVariable("redirectdsl", BoxedValue.FromObject(dsl));
+                    calculator.SetGlobalVariable("redirectargs", BoxedValue.FromObject(args));
                 }
             }
             return r;
@@ -1629,11 +1629,11 @@ namespace EditorDslProcessorApi
     }
     internal class NewItemExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var results = Calculator.GetVariable("results").As<List<EditorDslProcessorUtility.ItemInfo>>();
+                var results = calculator.GetVariable("results").As<List<EditorDslProcessorUtility.ItemInfo>>();
                 if (null != results) {
                     var item = new EditorDslProcessorUtility.ItemInfo();
                     item.PrepareShowInfo();
@@ -1646,7 +1646,7 @@ namespace EditorDslProcessorApi
     }
     internal class SetExtraObjectExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -1659,7 +1659,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetExtraObjectExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -1671,7 +1671,7 @@ namespace EditorDslProcessorApi
     }
     internal class CalcExtraObjectFieldCountExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -1706,13 +1706,13 @@ namespace EditorDslProcessorApi
     }
     internal class NewExtraListExp : AbstractExpression
     {
-        protected override BoxedValue DoCalc()
+        protected override BoxedValue DoCalc(DslCalculator calculator)
         {
             var r = BoxedValue.NullObject;
             var list = new List<KeyValuePair<string, BoxedValue>>();
             for (int i = 0; i < m_Expressions.Count - 1; i += 2) {
-                var key = m_Expressions[i].Calc().AsString;
-                var val = m_Expressions[i + 1].Calc();
+                var key = m_Expressions[i].Calc(calculator).AsString;
+                var val = m_Expressions[i + 1].Calc(calculator);
                 if (null != key) {
                     list.Add(new KeyValuePair<string, BoxedValue>(key, val));
                 }
@@ -1732,9 +1732,9 @@ namespace EditorDslProcessorApi
                 for (int i = 0; i < funcData.GetParamNum(); ++i) {
                     Dsl.FunctionData callData = funcData.GetParam(i) as Dsl.FunctionData;
                     if (null != callData && callData.GetParamNum() == 2) {
-                        var expKey = Calculator.Load(callData.GetParam(0));
+                        var expKey = CodeStructure.Load(callData.GetParam(0));
                         m_Expressions.Add(expKey);
-                        var expVal = Calculator.Load(callData.GetParam(1));
+                        var expVal = CodeStructure.Load(callData.GetParam(1));
                         m_Expressions.Add(expVal);
                     }
                 }
@@ -1746,9 +1746,9 @@ namespace EditorDslProcessorApi
             for (int i = 0; i < callData.GetParamNum(); ++i) {
                 Dsl.FunctionData paramCallData = callData.GetParam(i) as Dsl.FunctionData;
                 if (null != paramCallData && paramCallData.GetParamNum() == 2) {
-                    var expKey = Calculator.Load(paramCallData.GetParam(0));
+                    var expKey = CodeStructure.Load(paramCallData.GetParam(0));
                     m_Expressions.Add(expKey);
-                    var expVal = Calculator.Load(paramCallData.GetParam(1));
+                    var expVal = CodeStructure.Load(paramCallData.GetParam(1));
                     m_Expressions.Add(expVal);
                 }
             }
@@ -1759,7 +1759,7 @@ namespace EditorDslProcessorApi
     }
     internal class ExtraListAddExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 3) {
@@ -1775,7 +1775,7 @@ namespace EditorDslProcessorApi
     }
     internal class ExtraListClearExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -1789,11 +1789,11 @@ namespace EditorDslProcessorApi
     }
     internal class GetReferenceAssetsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var dict = Calculator.GetVariable("refdict").As<Dictionary<string, HashSet<string>>>();
+                var dict = calculator.GetVariable("refdict").As<Dictionary<string, HashSet<string>>>();
                 var path = operands[0].AsString;
                 if (null != dict && !string.IsNullOrEmpty(path)) {
                     HashSet<string> refbyset;
@@ -1810,11 +1810,11 @@ namespace EditorDslProcessorApi
     }
     internal class GetReferenceByAssetsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var dict = Calculator.GetVariable("refbydict").As<Dictionary<string, HashSet<string>>>();
+                var dict = calculator.GetVariable("refbydict").As<Dictionary<string, HashSet<string>>>();
                 var path = operands[0].AsString;
                 if (null != dict && !string.IsNullOrEmpty(path)) {
                     HashSet<string> refbyset;
@@ -1831,11 +1831,11 @@ namespace EditorDslProcessorApi
     }
     internal class CalcRefCountExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var refDict = Calculator.GetVariable("refdict").As<Dictionary<string, HashSet<string>>>();
+                var refDict = calculator.GetVariable("refdict").As<Dictionary<string, HashSet<string>>>();
                 var file = operands[0].AsString;
                 if (null != file) {
                     HashSet<string> hash;
@@ -1852,11 +1852,11 @@ namespace EditorDslProcessorApi
     }
     internal class CalcRefByCountExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var refByDict = Calculator.GetVariable("refbydict").As<Dictionary<string, HashSet<string>>>();
+                var refByDict = calculator.GetVariable("refbydict").As<Dictionary<string, HashSet<string>>>();
                 var file = operands[0].AsString;
                 if (null != file) {
                     HashSet<string> hash;
@@ -1873,11 +1873,11 @@ namespace EditorDslProcessorApi
     }
     internal class FindAssetExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var sceneDeps = Calculator.GetVariable("scenedeps").As<EditorDslProcessorUtility.SceneDepInfo>();
+                var sceneDeps = calculator.GetVariable("scenedeps").As<EditorDslProcessorUtility.SceneDepInfo>();
                 var asset = operands[0].AsString;
                 var type = operands[1].AsString;
                 var assetPath = string.Empty;
@@ -1949,7 +1949,7 @@ namespace EditorDslProcessorApi
     }
     internal class SelectFrameExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 1) {
@@ -1965,7 +1965,7 @@ namespace EditorDslProcessorApi
     }
     internal class FilterCpuSampleExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 1) {
@@ -1987,7 +1987,7 @@ namespace EditorDslProcessorApi
     }
     internal class FilterGpuSampleExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 1) {
@@ -2005,7 +2005,7 @@ namespace EditorDslProcessorApi
     }
     internal class SelectSampleExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 3) {
@@ -2053,7 +2053,7 @@ namespace EditorDslProcessorApi
     }
     internal class SelectPropertyPathExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 1) {
@@ -2069,7 +2069,7 @@ namespace EditorDslProcessorApi
     }
     internal class SetMarkerFilterExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 1) {
@@ -2085,7 +2085,7 @@ namespace EditorDslProcessorApi
     }
     internal class LoadIdaproSymbolsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -2126,7 +2126,7 @@ namespace EditorDslProcessorApi
     }
     internal class LoadXcodeSymbolsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -2204,7 +2204,7 @@ namespace EditorDslProcessorApi
     }
     internal class LoadBuglyAndroidSymbolsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -2276,7 +2276,7 @@ namespace EditorDslProcessorApi
     }
     internal class LoadBuglyIosSymbolsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -2315,7 +2315,7 @@ namespace EditorDslProcessorApi
     }
     internal class ConvertToRelativeAddrsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 3) {
@@ -2356,7 +2356,7 @@ namespace EditorDslProcessorApi
     }
     internal class MapBuglyAndroidSymbolsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 3) {
@@ -2432,7 +2432,7 @@ namespace EditorDslProcessorApi
     }
     internal class MapBuglyIosSymbolsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 3) {
@@ -2495,7 +2495,7 @@ namespace EditorDslProcessorApi
     }
     internal class GrepExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -2538,7 +2538,7 @@ namespace EditorDslProcessorApi
     }
     internal class SubstExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 3) {
@@ -2577,7 +2577,7 @@ namespace EditorDslProcessorApi
     }
     internal class SetClipboardExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -2592,7 +2592,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetClipboardExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string r = GUIUtility.systemCopyBuffer;
             return r;
@@ -2600,7 +2600,7 @@ namespace EditorDslProcessorApi
     }
     internal class SelectObjectExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 1) {
@@ -2615,7 +2615,7 @@ namespace EditorDslProcessorApi
     }
     internal class SelectProjectObjectExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 1) {
@@ -2630,7 +2630,7 @@ namespace EditorDslProcessorApi
     }
     internal class SelectSceneObjectExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 1) {
@@ -2649,7 +2649,7 @@ namespace EditorDslProcessorApi
     // EditorDslApi.cs which holds generic editor APIs such as scene operations.
     internal class AssetRefreshExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string path = operands.Count > 0 ? operands[0].ToString() : "";
             if (string.IsNullOrEmpty(path))
@@ -2665,11 +2665,11 @@ namespace EditorDslProcessorApi
     }
     internal class SaveAndReimportExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<AssetImporter>();
+                var importer = calculator.GetVariable("importer").As<AssetImporter>();
                 if (null != importer && EditorDslProcessorUtility.EnableSaveAndReimport) {
                     //importer.SaveAndReimport();
                     //EditorDslProcessor::Process会统一执行StartAssetEditing/StopAssetEditing
@@ -2681,7 +2681,7 @@ namespace EditorDslProcessorApi
     }
     internal class SetDirtyExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -2695,11 +2695,11 @@ namespace EditorDslProcessorApi
     }
     internal class GetDefaultTextureSettingExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 if (null != importer) {
                     r = BoxedValue.FromObject(importer.GetDefaultPlatformTextureSettings());
                 }
@@ -2709,11 +2709,11 @@ namespace EditorDslProcessorApi
     }
     internal class GetTextureSettingExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 var platform = operands[0].AsString;
                 if (null != importer) {
                     r = BoxedValue.FromObject(importer.GetPlatformTextureSettings(platform));
@@ -2724,11 +2724,11 @@ namespace EditorDslProcessorApi
     }
     internal class SetTextureSettingExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 var setting = operands[0].As<TextureImporterPlatformSettings>();
                 if (null != importer && null != setting) {
                     importer.SetPlatformTextureSettings(setting);
@@ -2740,11 +2740,11 @@ namespace EditorDslProcessorApi
     }
     internal class TextureIsNotAstcExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             int r = 0;
             if (operands.Count >= 1) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 var setting = operands[0].As<TextureImporterPlatformSettings>();
                 if (null != importer && null != setting) {
                     bool ret = true;
@@ -2768,11 +2768,11 @@ namespace EditorDslProcessorApi
     }
     internal class IsAstcTextureExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             int r = 0;
             if (operands.Count >= 1) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 var setting = operands[0].As<TextureImporterPlatformSettings>();
                 var sizeNoAlpha = 8;
                 var sizeAlpha = 8;
@@ -2840,11 +2840,11 @@ namespace EditorDslProcessorApi
     }
     internal class SetAstcTextureExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 var setting = operands[0].As<TextureImporterPlatformSettings>();
                 var sizeNoAlpha = 8;
                 var sizeAlpha = 8;
@@ -2917,11 +2917,11 @@ namespace EditorDslProcessorApi
     }
     internal class IsSceneAstcTextureExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             int r = 0;
             if (operands.Count >= 1) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 var setting = operands[0].As<TextureImporterPlatformSettings>();
                 var sizeNoAlpha = 8;
                 var sizeAlpha = 8;
@@ -2985,11 +2985,11 @@ namespace EditorDslProcessorApi
     }
     internal class SetSceneAstcTextureExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 var setting = operands[0].As<TextureImporterPlatformSettings>();
                 var sizeNoAlpha = 8;
                 var sizeAlpha = 8;
@@ -3057,11 +3057,11 @@ namespace EditorDslProcessorApi
     }
     internal class IsTextureNoAlphaSourceExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 if (null != importer) {
                     r = importer.alphaSource == TextureImporterAlphaSource.None;
                 }
@@ -3071,11 +3071,11 @@ namespace EditorDslProcessorApi
     }
     internal class DoesTextureHaveAlphaExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 if (null != importer) {
                     r = importer.DoesSourceTextureHaveAlpha();
                 }
@@ -3085,11 +3085,11 @@ namespace EditorDslProcessorApi
     }
     internal class CorrectNoneAlphaTextureExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 if (null != importer && !importer.DoesSourceTextureHaveAlpha()) {
                     importer.alphaSource = TextureImporterAlphaSource.None;
                     r = true;
@@ -3100,11 +3100,11 @@ namespace EditorDslProcessorApi
     }
     internal class SetNoneAlphaTextureExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<TextureImporter>();
+                var importer = calculator.GetVariable("importer").As<TextureImporter>();
                 if (null != importer) {
                     importer.alphaSource = TextureImporterAlphaSource.None;
                     r = true;
@@ -3115,7 +3115,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetTextureCompressionExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -3142,7 +3142,7 @@ namespace EditorDslProcessorApi
     }
     internal class SetTextureCompressionExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -3165,7 +3165,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetTextureStorageMemorySizeExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             long r = 0;
             if (operands.Count >= 1) {
@@ -3198,7 +3198,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetTextureRuntimeMemorySizeExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             long r = 0;
             if (operands.Count >= 1) {
@@ -3223,7 +3223,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetRuntimeMemorySizeExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             long r = 0;
             if (operands.Count >= 1) {
@@ -3237,7 +3237,7 @@ namespace EditorDslProcessorApi
     }
     internal class SetMaxBoundingBoxExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 6) {
@@ -3255,7 +3255,7 @@ namespace EditorDslProcessorApi
     }
     internal class ResetBoundingBoxExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             GetBoundingBoxExp.s_NeedReset = true;
             return BoxedValue.FromBool(true);
@@ -3263,7 +3263,7 @@ namespace EditorDslProcessorApi
     }
     internal class MergeBoundingBoxExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             Bounds retBounds = new Bounds();
@@ -3298,7 +3298,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetBoundingBoxExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (s_NeedReset) {
                 return BoxedValue.FromObject(new[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f });
@@ -3314,7 +3314,7 @@ namespace EditorDslProcessorApi
     }
     internal class AddOrUpdateBoundingBoxExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = !GetBoundingBoxExp.s_NeedReset;
             var strName = "WorldBoundingBox";
@@ -3374,11 +3374,11 @@ namespace EditorDslProcessorApi
     }
     internal class GetMeshCompressionExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<ModelImporter>();
+                var importer = calculator.GetVariable("importer").As<ModelImporter>();
                 if (null != importer) {
                     switch (importer.meshCompression) {
                         case ModelImporterMeshCompression.Off:
@@ -3401,11 +3401,11 @@ namespace EditorDslProcessorApi
     }
     internal class SetMeshCompressionExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var importer = Calculator.GetVariable("importer").As<ModelImporter>();
+                var importer = calculator.GetVariable("importer").As<ModelImporter>();
                 var type = operands[0].AsString;
                 if (null != importer && null != type) {
                     r = type;
@@ -3424,11 +3424,11 @@ namespace EditorDslProcessorApi
     }
     internal class SetMeshImportExternalMaterialsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<ModelImporter>();
+                var importer = calculator.GetVariable("importer").As<ModelImporter>();
                 if (null != importer) {
                     r = true;
                     importer.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
@@ -3442,11 +3442,11 @@ namespace EditorDslProcessorApi
     }
     internal class SetMeshImportInPrefabMaterialsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<ModelImporter>();
+                var importer = calculator.GetVariable("importer").As<ModelImporter>();
                 if (null != importer) {
                     r = true;
                     importer.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
@@ -3458,11 +3458,11 @@ namespace EditorDslProcessorApi
     }
     internal class CloseMeshAnimationIfNoAnimationExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<ModelImporter>();
+                var importer = calculator.GetVariable("importer").As<ModelImporter>();
                 if (null != importer) {
                     if (importer.importedTakeInfos.Length <= 0 && importer.defaultClipAnimations.Length <= 0 && importer.clipAnimations.Length <= 0) {
                         importer.animationType = ModelImporterAnimationType.None;
@@ -3474,7 +3474,7 @@ namespace EditorDslProcessorApi
     }
     internal class SingleMeshInfoExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -3516,7 +3516,7 @@ namespace EditorDslProcessorApi
             Particle = 2,
             All = 3,
         }
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count >= 1) {
                 var obj0 = operands[0].As<GameObject>();
@@ -3581,7 +3581,7 @@ namespace EditorDslProcessorApi
     }
     internal class CollectMeshInfoExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -3679,7 +3679,7 @@ namespace EditorDslProcessorApi
     }
     internal class CollectAnimatorControllerInfoExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -3740,7 +3740,7 @@ namespace EditorDslProcessorApi
     }
     internal class CollectPrefabInfoExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -3845,11 +3845,11 @@ namespace EditorDslProcessorApi
     }
     internal class GetAnimationClipInfoExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                string assetPath = Calculator.GetVariable("assetpath").AsString;
+                string assetPath = calculator.GetVariable("assetpath").AsString;
                 if (!string.IsNullOrEmpty(assetPath)) {
                     var obj = AssetDatabase.LoadMainAssetAtPath(assetPath);
                     if (null != obj) {
@@ -3890,11 +3890,11 @@ namespace EditorDslProcessorApi
     }
     internal class GetAnimationCompressionExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<ModelImporter>();
+                var importer = calculator.GetVariable("importer").As<ModelImporter>();
                 if (null != importer) {
                     switch (importer.animationCompression) {
                         case ModelImporterAnimationCompression.Off:
@@ -3917,11 +3917,11 @@ namespace EditorDslProcessorApi
     }
     internal class SetAnimationCompressionExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var importer = Calculator.GetVariable("importer").As<ModelImporter>();
+                var importer = calculator.GetVariable("importer").As<ModelImporter>();
                 var type = operands[0].AsString;
                 if (null != importer && null != type) {
                     r = type;
@@ -3940,11 +3940,11 @@ namespace EditorDslProcessorApi
     }
     internal class GetAnimationTypeExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var importer = Calculator.GetVariable("importer").As<ModelImporter>();
+                var importer = calculator.GetVariable("importer").As<ModelImporter>();
                 if (null != importer) {
                     switch (importer.animationType) {
                         case ModelImporterAnimationType.None:
@@ -3967,11 +3967,11 @@ namespace EditorDslProcessorApi
     }
     internal class SetAnimationTypeExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var importer = Calculator.GetVariable("importer").As<ModelImporter>();
+                var importer = calculator.GetVariable("importer").As<ModelImporter>();
                 var type = operands[0].AsString;
                 if (null != importer && null != type) {
                     r = type;
@@ -3990,11 +3990,11 @@ namespace EditorDslProcessorApi
     }
     internal class SetExtraExposedTransformPathsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var importer = Calculator.GetVariable("importer").As<ModelImporter>();
+                var importer = calculator.GetVariable("importer").As<ModelImporter>();
                 var obj = operands[0].As<UnityEngine.GameObject>();
                 if (null != importer && null != obj) {
                     List<string> paths = new List<string>();
@@ -4040,11 +4040,11 @@ namespace EditorDslProcessorApi
     }
     internal class ClearAnimationScaleCurveExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var path = Calculator.GetVariable("assetpath").AsString;
+                var path = calculator.GetVariable("assetpath").AsString;
                 if (null != path) {
                     GameObject obj = AssetDatabase.LoadMainAssetAtPath(path) as GameObject;
                     bool modified = false;
@@ -4068,11 +4068,11 @@ namespace EditorDslProcessorApi
     }
     internal class GetAudioSettingExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var importer = Calculator.GetVariable("importer").As<AudioImporter>();
+                var importer = calculator.GetVariable("importer").As<AudioImporter>();
                 var platform = operands[0].AsString;
                 if (null != importer) {
                     r = BoxedValue.FromObject(importer.GetOverrideSampleSettings(platform));
@@ -4083,11 +4083,11 @@ namespace EditorDslProcessorApi
     }
     internal class SetAudioSettingExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var importer = Calculator.GetVariable("importer").As<AudioImporter>();
+                var importer = calculator.GetVariable("importer").As<AudioImporter>();
                 var platform = operands[0].AsString;
                 var setting = (AudioImporterSampleSettings)operands[1].GetObject();
                 if (null != importer) {
@@ -4100,7 +4100,7 @@ namespace EditorDslProcessorApi
     }
     internal class CalcMeshVertexComponentCountExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count >= 1) {
                 var obj0 = operands[0].As<GameObject>();
@@ -4193,7 +4193,7 @@ namespace EditorDslProcessorApi
     }
     internal class CalcMeshTexRatioExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             object ret = new object[] { string.Empty, 0 };
             if (operands.Count >= 1) {
@@ -4287,7 +4287,7 @@ namespace EditorDslProcessorApi
     }
     internal class CalcAssetMd5Exp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -4309,7 +4309,7 @@ namespace EditorDslProcessorApi
     }
     internal class CalcAssetSizeExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -4325,7 +4325,7 @@ namespace EditorDslProcessorApi
     }
     internal class DeleteAssetExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -4339,7 +4339,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetShaderUtilExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = typeof(ShaderUtil);
             return r;
@@ -4347,7 +4347,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetShaderPropertyCountExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -4375,7 +4375,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetShaderPropertyNamesExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -4402,7 +4402,7 @@ namespace EditorDslProcessorApi
     }
     internal class RemoveYamlLeafPropertiesExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count >= 2) {
                 string path = operands[0].GetString();
@@ -4459,7 +4459,7 @@ namespace EditorDslProcessorApi
     }
     internal class CheckYamlExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count >= 1) {
                 string path = operands[0].GetString();
@@ -4518,7 +4518,7 @@ namespace EditorDslProcessorApi
     }
     internal class IsPathTooLongExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count >= 1) {
                 string path = operands[0].GetString();
@@ -4532,7 +4532,7 @@ namespace EditorDslProcessorApi
     }
     internal class FindRowIndexExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             int r = -1;
             if (operands.Count >= 3) {
@@ -4589,7 +4589,7 @@ namespace EditorDslProcessorApi
     }
     internal class FindRowIndexesExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var list = new List<int>();
             if (operands.Count >= 3) {
@@ -4644,7 +4644,7 @@ namespace EditorDslProcessorApi
     }
     internal class FindCellIndexExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             int r = -1;
             if (operands.Count >= 2) {
@@ -4679,7 +4679,7 @@ namespace EditorDslProcessorApi
     }
     internal class FindCellIndexesExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             IList<int> r = null;
             if (operands.Count >= 2) {
@@ -4783,7 +4783,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetCellValueExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -4841,7 +4841,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetCellStringExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string r = string.Empty;
             if (operands.Count >= 2) {
@@ -4865,7 +4865,7 @@ namespace EditorDslProcessorApi
     }
     internal class GetCellNumericExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             double r = 0.0;
             if (operands.Count >= 2) {
@@ -4890,7 +4890,7 @@ namespace EditorDslProcessorApi
     }
     internal class RowToLineExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string r = string.Empty;
             if (operands.Count >= 1) {
@@ -4943,7 +4943,7 @@ namespace EditorDslProcessorApi
     }
     internal class TableToHashtableExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 3) {
@@ -5012,7 +5012,7 @@ namespace EditorDslProcessorApi
     }
     internal class FindRowFromHashtableExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -5053,7 +5053,7 @@ namespace EditorDslProcessorApi
     }
     internal class LoadManagedHeapsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -5091,7 +5091,7 @@ namespace EditorDslProcessorApi
     }
     internal class FindManagedHeapsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -5120,7 +5120,7 @@ namespace EditorDslProcessorApi
     }
     internal class MatchManagedHeapsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -5198,7 +5198,7 @@ namespace EditorDslProcessorApi
     }
     internal class CalcMatchedManagedHeapsDiffExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -5256,7 +5256,7 @@ namespace EditorDslProcessorApi
     }
     internal class LoadMapsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -5312,7 +5312,7 @@ namespace EditorDslProcessorApi
     }
     internal class FindMapsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -5341,7 +5341,7 @@ namespace EditorDslProcessorApi
     }
     internal class MatchMapsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -5419,7 +5419,7 @@ namespace EditorDslProcessorApi
     }
     internal class CalcMatchedMapsDiffExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -5477,7 +5477,7 @@ namespace EditorDslProcessorApi
     }
     internal class LoadSmapsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -5575,7 +5575,7 @@ namespace EditorDslProcessorApi
     }
     internal class FindSmapsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -5604,7 +5604,7 @@ namespace EditorDslProcessorApi
     }
     internal class MatchSmapsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -5682,7 +5682,7 @@ namespace EditorDslProcessorApi
     }
     internal class CalcMatchedSmapsDiffExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
@@ -5740,7 +5740,7 @@ namespace EditorDslProcessorApi
     }
     internal class LoadAddrsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -5793,7 +5793,7 @@ namespace EditorDslProcessorApi
     }
     internal class EscapeUrlExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -5821,7 +5821,7 @@ namespace EditorDslProcessorApi
     }
     internal class UnEscapeUrlExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -5850,7 +5850,7 @@ namespace EditorDslProcessorApi
     }
     internal class ParseUrlArgsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -5921,7 +5921,7 @@ namespace EditorDslProcessorApi
     }
     internal class ParseBuglyInfoExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
@@ -5956,7 +5956,7 @@ namespace EditorDslProcessorApi
     }
     internal class IntHashContainsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 2) {
@@ -5972,7 +5972,7 @@ namespace EditorDslProcessorApi
     }
     internal class UintHashContainsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 2) {
@@ -5988,7 +5988,7 @@ namespace EditorDslProcessorApi
     }
     internal class LongHashContainsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 2) {
@@ -6004,7 +6004,7 @@ namespace EditorDslProcessorApi
     }
     internal class UlongHashContainsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 2) {
@@ -6020,7 +6020,7 @@ namespace EditorDslProcessorApi
     }
     internal class FloatHashContainsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 2) {
@@ -6036,7 +6036,7 @@ namespace EditorDslProcessorApi
     }
     internal class DoubleHashContainsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 2) {
@@ -6052,7 +6052,7 @@ namespace EditorDslProcessorApi
     }
     internal class StringHashContainsExp : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             bool r = false;
             if (operands.Count >= 2) {

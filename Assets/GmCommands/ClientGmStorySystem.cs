@@ -47,7 +47,7 @@ namespace GmCommands
                 LogSystem.Error("register extra gm commands exception:{0}\n{1}", ex.Message, ex.StackTrace);
             }
         }
-        private bool OnLoadFailback(Dsl.ISyntaxComponent comp, DslCalculator calculator, out IExpression expression)
+        private bool OnLoadFailback(Dsl.ISyntaxComponent comp, DslCalculatorCodeStructure code, out IExpression expression)
         {
             bool ret = false;
             expression = null;
@@ -60,7 +60,7 @@ namespace GmCommands
                     string fn = callData.GetId();
                     if (StartupScript.ExistsApi(fn)) {
                         var exp = new StartupApiExp(fn);
-                        if (exp.Load(funcData, calculator)) {
+                        if (exp.Load(funcData, code)) {
                             expression = exp;
                             ret = true;
                         }
@@ -76,14 +76,14 @@ namespace GmCommands
                         if (null != type) {
                             var exp = new TypeHolderFunction();
                             exp.SetType(type);
-                            exp.Load(valData, calculator);
+                            exp.Load(valData, code);
                             expression = exp;
                             ret = true;
                         }
                         else if (StoryScriptUtility.IsNamespace(typeName, out var id)) {
                             var exp = new NamespaceHolderFunction();
                             exp.SetNamespace(typeName);
-                            exp.Load(valData, calculator);
+                            exp.Load(valData, code);
                             expression = exp;
                             ret = true;
                         }
@@ -279,7 +279,7 @@ namespace GmCommands
         {
             m_Type = type;
         }
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return BoxedValue.FromObject(m_Type);
         }
@@ -332,7 +332,7 @@ namespace GmCommands
         {
             m_NamespaceObj = BoxedValue.FromObject(new NamespaceObject(ns));
         }
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return BoxedValue.FromObject(m_NamespaceObj);
         }

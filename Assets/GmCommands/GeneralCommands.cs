@@ -12,7 +12,7 @@ namespace GmCommands
     /// </summary>
     internal class SendMessageCommand : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count < 2) {
                 throw new Exception("Expected: sendmessage(objname,msg,...)");
@@ -38,7 +38,7 @@ namespace GmCommands
     /// </summary>
     internal class SendMessageWithTagCommand : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count > 1) {
                 string objtag = operands[0].AsString;
@@ -64,7 +64,7 @@ namespace GmCommands
     /// </summary>
     internal class SendMessageWithGameObjectCommand : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count > 1) {
                 var objVal = operands[0];
@@ -110,16 +110,16 @@ namespace GmCommands
     internal sealed class CreateGameObjectCommand : AbstractExpression
     {
         public override bool IsAsync { get { return true; } }
-        protected override BoxedValue DoCalc()
+        protected override BoxedValue DoCalc(DslCalculator calculator)
         {
-            var name = m_Name.Calc().ToString();
-            var prefab = m_Prefab.Calc().ToString();
+            var name = m_Name.Calc(calculator).ToString();
+            var prefab = m_Prefab.Calc(calculator).ToString();
             var uo = UnityEngine.Resources.Load(prefab);
             var obj = UnityEngine.GameObject.Instantiate(uo) as UnityEngine.GameObject;
             if (null != obj) {
                 if (null != m_DisableComponents) {
                     foreach (var dc in m_DisableComponents) {
-                        string disable = dc.Calc().ToString();
+                        string disable = dc.Calc(calculator).ToString();
                         var type = StoryScriptUtility.GetType(disable);
                         if (null != type) {
                             var comps = obj.GetComponentsInChildren(type);
@@ -132,7 +132,7 @@ namespace GmCommands
                 }
                 if (null != m_RemoveComponents) {
                     foreach (var rc in m_RemoveComponents) {
-                        string remove = rc.Calc().ToString();
+                        string remove = rc.Calc(calculator).ToString();
                         var type = StoryScriptUtility.GetType(remove);
                         if (null != type) {
                             var comps = obj.GetComponentsInChildren(type);
@@ -144,7 +144,7 @@ namespace GmCommands
                 }
                 obj.name = name;
                 if (m_HaveParent) {
-                    var parentVal = m_Parent.Calc();
+                    var parentVal = m_Parent.Calc(calculator);
                     string path = parentVal.IsString ? parentVal.StringVal : null;
                     if (null != path) {
                         var pobj = UnityEngine.GameObject.Find(path);
@@ -160,23 +160,23 @@ namespace GmCommands
                     }
                 }
                 if (null != m_Position) {
-                    var v = m_Position.Calc();
+                    var v = m_Position.Calc(calculator);
                     var pos = (UnityEngine.Vector3)v.GetObject();
                     obj.transform.localPosition = pos;
                 }
                 if (null != m_Rotation) {
-                    var v = m_Rotation.Calc();
+                    var v = m_Rotation.Calc(calculator);
                     var rot = (UnityEngine.Vector3)v.GetObject();
                     obj.transform.localEulerAngles = rot;
                 }
                 if (null != m_Scale) {
-                    var v = m_Scale.Calc();
+                    var v = m_Scale.Calc(calculator);
                     var scl = (UnityEngine.Vector3)v.GetObject();
                     obj.transform.localScale = scl;
                 }
                 if (m_HaveObj) {
-                    string varName = m_ObjVarName.Calc().ToString();
-                    var storyInst = Calculator.GetFuncContext<StoryInstance>();
+                    string varName = m_ObjVarName.Calc(calculator).ToString();
+                    var storyInst = calculator.GetFuncContext<StoryInstance>();
                     if (null != storyInst) {
                         storyInst.SetVariable(varName, obj);
                     }
@@ -194,11 +194,11 @@ namespace GmCommands
             if (null != callData && callData.HaveParam()) {
                 int num = callData.GetParamNum();
                 if (num > 1) {
-                    m_Name = Calculator.Load(callData.GetParam(0));
-                    m_Prefab = Calculator.Load(callData.GetParam(1));
+                    m_Name = CodeStructure.Load(callData.GetParam(0));
+                    m_Prefab = CodeStructure.Load(callData.GetParam(1));
                     if (num > 2) {
                         m_HaveParent = true;
-                        m_Parent = Calculator.Load(callData.GetParam(2));
+                        m_Parent = CodeStructure.Load(callData.GetParam(2));
                     }
                 }
             }
@@ -240,7 +240,7 @@ namespace GmCommands
         private void LoadVarName(Dsl.FunctionData callData)
         {
             if (callData.GetId() == "obj" && callData.GetParamNum() == 1) {
-                m_ObjVarName = Calculator.Load(callData.GetParam(0));
+                m_ObjVarName = CodeStructure.Load(callData.GetParam(0));
                 m_HaveObj = true;
             }
         }
@@ -250,34 +250,34 @@ namespace GmCommands
             int num = callData.GetParamNum();
             if (id == "position") {
                 if (num == 3)
-                    m_Position = Calculator.Load(callData);
+                    m_Position = CodeStructure.Load(callData);
                 else if (num > 0)
-                    m_Position = Calculator.Load(callData.GetParam(0));
+                    m_Position = CodeStructure.Load(callData.GetParam(0));
             }
             else if (id == "rotation") {
                 if (num == 3)
-                    m_Rotation = Calculator.Load(callData);
+                    m_Rotation = CodeStructure.Load(callData);
                 else if (num > 0)
-                    m_Rotation = Calculator.Load(callData.GetParam(0));
+                    m_Rotation = CodeStructure.Load(callData.GetParam(0));
             }
             else if (id == "scale") {
                 if (num == 3)
-                    m_Scale = Calculator.Load(callData);
+                    m_Scale = CodeStructure.Load(callData);
                 else if (num > 0)
-                    m_Scale = Calculator.Load(callData.GetParam(0));
+                    m_Scale = CodeStructure.Load(callData.GetParam(0));
             }
             else if (id == "disable") {
                 if (m_DisableComponents == null)
                     m_DisableComponents = new List<IExpression>();
                 for (int i = 0; i < callData.GetParamNum(); ++i) {
-                    m_DisableComponents.Add(Calculator.Load(callData.GetParam(i)));
+                    m_DisableComponents.Add(CodeStructure.Load(callData.GetParam(i)));
                 }
             }
             else if (id == "remove") {
                 if (m_RemoveComponents == null)
                     m_RemoveComponents = new List<IExpression>();
                 for (int i = 0; i < callData.GetParamNum(); ++i) {
-                    m_RemoveComponents.Add(Calculator.Load(callData.GetParam(i)));
+                    m_RemoveComponents.Add(CodeStructure.Load(callData.GetParam(i)));
                 }
             }
         }
@@ -304,28 +304,28 @@ namespace GmCommands
     /// </summary>
     internal sealed class SetTransformCommand : AbstractExpression
     {
-        protected override BoxedValue DoCalc()
+        protected override BoxedValue DoCalc(DslCalculator calculator)
         {
-            var objVal = m_ObjPath.Calc();
-            int local0OrWorld1 = m_LocalOrWorld.Calc().GetInt();
+            var objVal = m_ObjPath.Calc(calculator);
+            int local0OrWorld1 = m_LocalOrWorld.Calc(calculator).GetInt();
             UnityEngine.GameObject obj = objVal.IsString ? UnityEngine.GameObject.Find(objVal.StringVal) : objVal.ObjectVal as UnityEngine.GameObject;
             if (null == obj) return BoxedValue.NullObject;
             if (null != m_Position) {
-                var v = m_Position.Calc().As<Vector3Obj>().Value;
+                var v = m_Position.Calc(calculator).As<Vector3Obj>().Value;
                 if (0 == local0OrWorld1)
                     obj.transform.localPosition = v;
                 else
                     obj.transform.position = v;
             }
             if (null != m_Rotation) {
-                var v = m_Rotation.Calc().As<Vector3Obj>().Value;
+                var v = m_Rotation.Calc(calculator).As<Vector3Obj>().Value;
                 if (0 == local0OrWorld1)
                     obj.transform.localEulerAngles = v;
                 else
                     obj.transform.eulerAngles = v;
             }
             if (null != m_Scale) {
-                var v = m_Scale.Calc().As<Vector3Obj>().Value;
+                var v = m_Scale.Calc(calculator).As<Vector3Obj>().Value;
                 obj.transform.localScale = v;
             }
             return BoxedValue.NullObject;
@@ -336,8 +336,8 @@ namespace GmCommands
             if (funcData.IsHighOrder)
                 callData = funcData.LowerOrderFunction;
             if (null != callData && callData.GetParamNum() > 1) {
-                m_ObjPath = Calculator.Load(callData.GetParam(0));
-                m_LocalOrWorld = Calculator.Load(callData.GetParam(1));
+                m_ObjPath = CodeStructure.Load(callData.GetParam(0));
+                m_LocalOrWorld = CodeStructure.Load(callData.GetParam(1));
             }
             if (funcData.HaveStatement()) {
                 for (int i = 0; i < funcData.GetParamNum(); ++i) {
@@ -355,21 +355,21 @@ namespace GmCommands
             int num = callData.GetParamNum();
             if (id == "position") {
                 if (num == 3)
-                    m_Position = Calculator.Load(callData);
+                    m_Position = CodeStructure.Load(callData);
                 else if (num > 0)
-                    m_Position = Calculator.Load(callData.GetParam(0));
+                    m_Position = CodeStructure.Load(callData.GetParam(0));
             }
             else if (id == "rotation") {
                 if (num == 3)
-                    m_Rotation = Calculator.Load(callData);
+                    m_Rotation = CodeStructure.Load(callData);
                 else if (num > 0)
-                    m_Rotation = Calculator.Load(callData.GetParam(0));
+                    m_Rotation = CodeStructure.Load(callData.GetParam(0));
             }
             else if (id == "scale") {
                 if (num == 3)
-                    m_Scale = Calculator.Load(callData);
+                    m_Scale = CodeStructure.Load(callData);
                 else if (num > 0)
-                    m_Scale = Calculator.Load(callData.GetParam(0));
+                    m_Scale = CodeStructure.Load(callData.GetParam(0));
             }
         }
         private IExpression m_ObjPath;
@@ -387,28 +387,28 @@ namespace GmCommands
     /// </summary>
     internal sealed class AddTransformCommand : AbstractExpression
     {
-        protected override BoxedValue DoCalc()
+        protected override BoxedValue DoCalc(DslCalculator calculator)
         {
-            var objVal = m_ObjPath.Calc();
-            int local0OrWorld1 = m_LocalOrWorld.Calc().GetInt();
+            var objVal = m_ObjPath.Calc(calculator);
+            int local0OrWorld1 = m_LocalOrWorld.Calc(calculator).GetInt();
             UnityEngine.GameObject obj = objVal.IsString ? UnityEngine.GameObject.Find(objVal.StringVal) : objVal.ObjectVal as UnityEngine.GameObject;
             if (null == obj) return BoxedValue.NullObject;
             if (null != m_Position) {
-                var v = m_Position.Calc().As<Vector3Obj>().Value;
+                var v = m_Position.Calc(calculator).As<Vector3Obj>().Value;
                 if (0 == local0OrWorld1)
                     obj.transform.localPosition += v;
                 else
                     obj.transform.position += v;
             }
             if (null != m_Rotation) {
-                var v = m_Rotation.Calc().As<Vector3Obj>().Value;
+                var v = m_Rotation.Calc(calculator).As<Vector3Obj>().Value;
                 if (0 == local0OrWorld1)
                     obj.transform.localEulerAngles += v;
                 else
                     obj.transform.eulerAngles += v;
             }
             if (null != m_Scale) {
-                var v = m_Scale.Calc().As<Vector3Obj>().Value;
+                var v = m_Scale.Calc(calculator).As<Vector3Obj>().Value;
                 obj.transform.localScale += v;
             }
             return BoxedValue.NullObject;
@@ -419,8 +419,8 @@ namespace GmCommands
             if (funcData.IsHighOrder)
                 callData = funcData.LowerOrderFunction;
             if (null != callData && callData.GetParamNum() > 1) {
-                m_ObjPath = Calculator.Load(callData.GetParam(0));
-                m_LocalOrWorld = Calculator.Load(callData.GetParam(1));
+                m_ObjPath = CodeStructure.Load(callData.GetParam(0));
+                m_LocalOrWorld = CodeStructure.Load(callData.GetParam(1));
             }
             if (funcData.HaveStatement()) {
                 for (int i = 0; i < funcData.GetParamNum(); ++i) {
@@ -438,21 +438,21 @@ namespace GmCommands
             int num = callData.GetParamNum();
             if (id == "position") {
                 if (num == 3)
-                    m_Position = Calculator.Load(callData);
+                    m_Position = CodeStructure.Load(callData);
                 else if (num > 0)
-                    m_Position = Calculator.Load(callData.GetParam(0));
+                    m_Position = CodeStructure.Load(callData.GetParam(0));
             }
             else if (id == "rotation") {
                 if (num == 3)
-                    m_Rotation = Calculator.Load(callData);
+                    m_Rotation = CodeStructure.Load(callData);
                 else if (num > 0)
-                    m_Rotation = Calculator.Load(callData.GetParam(0));
+                    m_Rotation = CodeStructure.Load(callData.GetParam(0));
             }
             else if (id == "scale") {
                 if (num == 3)
-                    m_Scale = Calculator.Load(callData);
+                    m_Scale = CodeStructure.Load(callData);
                 else if (num > 0)
-                    m_Scale = Calculator.Load(callData.GetParam(0));
+                    m_Scale = CodeStructure.Load(callData.GetParam(0));
             }
         }
         private IExpression m_ObjPath;
@@ -466,7 +466,7 @@ namespace GmCommands
     /// </summary>
     internal class DestroyGameObjectCommand : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var pathVal = operands[0];
             string path = pathVal.IsString ? pathVal.StringVal : null;
@@ -491,7 +491,7 @@ namespace GmCommands
     /// </summary>
     internal sealed class SetParentCommand : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count < 2)
                 return BoxedValue.NullObject;
@@ -523,7 +523,7 @@ namespace GmCommands
     /// </summary>
     internal sealed class SetActiveCommand : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count < 2)
                 return BoxedValue.NullObject;
@@ -547,7 +547,7 @@ namespace GmCommands
     /// </summary>
     internal sealed class SetVisibleCommand : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count < 2)
                 return BoxedValue.NullObject;
@@ -576,10 +576,10 @@ namespace GmCommands
     /// </summary>
     internal sealed class AddComponentCommand : AbstractExpression
     {
-        protected override BoxedValue DoCalc()
+        protected override BoxedValue DoCalc(DslCalculator calculator)
         {
-            var objPathVal = m_ObjPath.Calc();
-            var componentType = m_ComponentType.Calc();
+            var objPathVal = m_ObjPath.Calc(calculator);
+            var componentType = m_ComponentType.Calc(calculator);
             UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
             if (null == obj) {
                 string objPath = objPathVal.IsString ? objPathVal.StringVal : null;
@@ -600,8 +600,8 @@ namespace GmCommands
                 component = obj.AddComponent(t);
             }
             if (m_HaveObj && null != component) {
-                string varName = m_ObjVarName.Calc().ToString();
-                var storyInst = Calculator.GetFuncContext<StoryInstance>();
+                string varName = m_ObjVarName.Calc(calculator).ToString();
+                var storyInst = calculator.GetFuncContext<StoryInstance>();
                 if (null != storyInst) {
                     storyInst.SetVariable(varName, component);
                 }
@@ -614,8 +614,8 @@ namespace GmCommands
             if (funcData.IsHighOrder)
                 callData = funcData.LowerOrderFunction;
             if (null != callData && callData.GetParamNum() > 1) {
-                m_ObjPath = Calculator.Load(callData.GetParam(0));
-                m_ComponentType = Calculator.Load(callData.GetParam(1));
+                m_ObjPath = CodeStructure.Load(callData.GetParam(0));
+                m_ComponentType = CodeStructure.Load(callData.GetParam(1));
             }
             if (funcData.HaveStatement()) {
                 for (int i = 0; i < funcData.GetParamNum(); ++i) {
@@ -642,7 +642,7 @@ namespace GmCommands
         private void LoadVarName(Dsl.FunctionData callData)
         {
             if (callData.GetId() == "obj" && callData.GetParamNum() == 1) {
-                m_ObjVarName = Calculator.Load(callData.GetParam(0));
+                m_ObjVarName = CodeStructure.Load(callData.GetParam(0));
                 m_HaveObj = true;
             }
         }
@@ -656,7 +656,7 @@ namespace GmCommands
     /// </summary>
     internal class RemoveComponentCommand : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count > 1) {
                 var objPathVal = operands[0];
@@ -702,7 +702,7 @@ namespace GmCommands
     /// </summary>
     internal class OpenUrlCommand : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count > 0) {
                 string url = operands[0].AsString;
@@ -717,7 +717,7 @@ namespace GmCommands
     /// </summary>
     internal class QuitCommand : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             UnityEngine.Application.Quit();
             return BoxedValue.NullObject;
@@ -728,7 +728,7 @@ namespace GmCommands
     /// </summary>
     internal class GameObjectAnimationCommand : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count > 1) {
                 var o = operands[0];
@@ -773,9 +773,9 @@ namespace GmCommands
     /// </summary>
     internal sealed class GameObjectAnimationParamCommand : AbstractExpression
     {
-        protected override BoxedValue DoCalc()
+        protected override BoxedValue DoCalc(DslCalculator calculator)
         {
-            var o = m_ObjPath.Calc();
+            var o = m_ObjPath.Calc(calculator);
             UnityEngine.GameObject obj = o.IsString ? UnityEngine.GameObject.Find(o.StringVal) : o.ObjectVal as UnityEngine.GameObject;
             if (null == obj) return BoxedValue.NullObject;
             UnityEngine.Animator animator = obj.GetComponentInChildren<UnityEngine.Animator>();
@@ -783,8 +783,8 @@ namespace GmCommands
             for (int i = 0; i < m_Params.Count; ++i) {
                 var param = m_Params[i];
                 string type = param.Type;
-                string key = param.Key.Calc().ToString();
-                var val = param.Value.Calc();
+                string key = param.Key.Calc(calculator).ToString();
+                var val = param.Value.Calc(calculator);
                 if (type == "int") {
                     animator.SetInteger(key, val.GetInt());
                 }
@@ -812,7 +812,7 @@ namespace GmCommands
             if (funcData.IsHighOrder)
                 callData = funcData.LowerOrderFunction;
             if (null != callData && callData.GetParamNum() >= 1) {
-                m_ObjPath = Calculator.Load(callData.GetParam(0));
+                m_ObjPath = CodeStructure.Load(callData.GetParam(0));
             }
             if (funcData.HaveStatement()) {
                 for (int i = 0; i < funcData.GetParamNum(); ++i) {
@@ -822,8 +822,8 @@ namespace GmCommands
                         string id = stCall.GetId();
                         ParamInfo param = new ParamInfo();
                         param.Type = id;
-                        param.Key = Calculator.Load(stCall.GetParam(0));
-                        param.Value = Calculator.Load(stCall.GetParam(1));
+                        param.Key = CodeStructure.Load(stCall.GetParam(0));
+                        param.Value = CodeStructure.Load(stCall.GetParam(1));
                         m_Params.Add(param);
                     }
                 }
@@ -852,9 +852,9 @@ namespace GmCommands
     /// </summary>
     internal sealed class LoadScriptCommand : AbstractExpression
     {
-        protected override BoxedValue DoCalc()
+        protected override BoxedValue DoCalc(DslCalculator calculator)
         {
-            string f = null != m_FileOrId ? m_FileOrId.Calc().ToString() : string.Empty;
+            string f = null != m_FileOrId ? m_FileOrId.Calc(calculator).ToString() : string.Empty;
             if (m_ArgNum == 1) {
                 if (string.IsNullOrEmpty(m_Name)) {
                     Main.LoadScript(f);
@@ -889,7 +889,7 @@ namespace GmCommands
                     }
                 }
                 else {
-                    m_FileOrId = Calculator.Load(p0);
+                    m_FileOrId = CodeStructure.Load(p0);
                     if (m_ArgNum > 1) {
                         m_FuncCall = callData.GetParam(1) as Dsl.FunctionData;
                         if (null != m_FuncCall) {
@@ -916,18 +916,18 @@ namespace GmCommands
     /// </summary>
     internal sealed class CallScriptCommand : AbstractExpression
     {
-        protected override BoxedValue DoCalc()
+        protected override BoxedValue DoCalc(DslCalculator calculator)
         {
             if (null != m_Api) {
-                return m_Api.Calc();
+                return m_Api.Calc(calculator);
             }
             else {
                 string func = m_FuncName;
                 if (string.IsNullOrEmpty(m_FuncName))
-                    func = null != m_Func ? m_Func.Calc().ToString() : string.Empty;
+                    func = null != m_Func ? m_Func.Calc(calculator).ToString() : string.Empty;
                 ArrayList arglist = new ArrayList();
                 for (int i = 0; i < m_Args.Count; ++i) {
-                    arglist.Add(m_Args[i].Calc().GetObject());
+                    arglist.Add(m_Args[i].Calc(calculator).GetObject());
                 }
                 object[] args = arglist.ToArray();
                 return BoxedValue.FromObject(Main.Call(func, args));
@@ -943,19 +943,19 @@ namespace GmCommands
                     var f = func.GetId();
                     if (Main.TryGetApiFactory(f, out var factory)) {
                         m_Api = factory.Create();
-                        m_Api.Load(p0, Calculator);
+                        m_Api.Load(p0, CodeStructure);
                     }
                     else {
                         m_FuncName = f;
                         for (int i = 0; i < func.GetParamNum(); ++i) {
-                            m_Args.Add(Calculator.Load(func.GetParam(i)));
+                            m_Args.Add(CodeStructure.Load(func.GetParam(i)));
                         }
                     }
                 }
                 else {
-                    m_Func = Calculator.Load(p0);
+                    m_Func = CodeStructure.Load(p0);
                     for (int i = 1; i < callData.GetParamNum(); ++i) {
-                        m_Args.Add(Calculator.Load(callData.GetParam(i)));
+                        m_Args.Add(CodeStructure.Load(callData.GetParam(i)));
                     }
                 }
             }
@@ -975,10 +975,10 @@ namespace GmCommands
     /// </summary>
     internal sealed class EvalScriptCommand : AbstractExpression
     {
-        protected override BoxedValue DoCalc()
+        protected override BoxedValue DoCalc(DslCalculator calculator)
         {
             if (m_IsString)
-                return Main.EvalAndRun(m_Code.Calc().ToString());
+                return Main.EvalAndRun(m_Code.Calc(calculator).ToString());
             else
                 return Main.EvalAndRun(m_Exps);
         }
@@ -989,7 +989,7 @@ namespace GmCommands
                 var vd = callData.GetParam(0) as Dsl.ValueData;
                 if (null != vd && vd.IsString()) {
                     m_IsString = true;
-                    m_Code = Calculator.Load(vd);
+                    m_Code = CodeStructure.Load(vd);
                 }
                 else {
                     m_IsString = false;

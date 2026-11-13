@@ -10,28 +10,28 @@ namespace GmCommands
 {
     internal sealed class GetTimeFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return UnityEngine.Time.time;
         }
     }
     internal sealed class GetTimeScaleFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return UnityEngine.Time.timeScale;
         }
     }
     internal sealed class GetTimeSinceStartupValue : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return UnityEngine.Time.realtimeSinceStartup;
         }
     }
     internal sealed class IsActiveFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var o = operands[0];
             string objPath = o.IsString ? o.StringVal : null;
@@ -53,7 +53,7 @@ namespace GmCommands
     }
     internal sealed class IsReallyActiveFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var o = operands[0];
             string objPath = o.IsString ? o.StringVal : null;
@@ -75,7 +75,7 @@ namespace GmCommands
     }
     internal sealed class IsVisibleFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var o = operands[0];
             string objPath = o.IsString ? o.StringVal : null;
@@ -99,7 +99,7 @@ namespace GmCommands
     }
     internal sealed class GetComponentFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPath = operands[0];
             var componentType = operands[1];
@@ -136,7 +136,7 @@ namespace GmCommands
     }
     internal sealed class GetComponentInParentFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPath = operands[0];
             var componentType = operands[1];
@@ -177,7 +177,7 @@ namespace GmCommands
     }
     internal sealed class GetComponentInChildrenFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPath = operands[0];
             var componentType = operands[1];
@@ -218,7 +218,7 @@ namespace GmCommands
     }
     internal sealed class GetComponentsFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPath = operands[0];
             var componentType = operands[1];
@@ -266,7 +266,7 @@ namespace GmCommands
     }
     internal sealed class GetComponentsInParentFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPath = operands[0];
             var componentType = operands[1];
@@ -315,7 +315,7 @@ namespace GmCommands
     }
     internal sealed class GetComponentsInChildrenFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPath = operands[0];
             var componentType = operands[1];
@@ -373,7 +373,7 @@ namespace GmCommands
                 if (null != callData && callData.HaveParam()) {
                     int num = callData.GetParamNum();
                     if (num > 0) {
-                        m_ObjPath = Calculator.Load(callData.GetParam(0));
+                        m_ObjPath = CodeStructure.Load(callData.GetParam(0));
                     }
                 }
                 if (funcData.HaveStatement()) {
@@ -383,12 +383,12 @@ namespace GmCommands
                             string id = cd.GetId();
                             if (id == "disable") {
                                 for (int j = 0; j < cd.GetParamNum(); ++j) {
-                                    m_DisableComponents.Add(Calculator.Load(cd.GetParam(j)));
+                                    m_DisableComponents.Add(CodeStructure.Load(cd.GetParam(j)));
                                 }
                             }
                             else if (id == "remove") {
                                 for (int j = 0; j < cd.GetParamNum(); ++j) {
-                                    m_RemoveComponents.Add(Calculator.Load(cd.GetParam(j)));
+                                    m_RemoveComponents.Add(CodeStructure.Load(cd.GetParam(j)));
                                 }
                             }
                         }
@@ -397,18 +397,18 @@ namespace GmCommands
                 return true;
             }
 
-            protected override BoxedValue DoCalc()
+            protected override BoxedValue DoCalc(DslCalculator calculator)
             {
 
-            var o = m_ObjPath.Calc();
+            var o = m_ObjPath.Calc(calculator);
             string objPath = o.IsString ? o.StringVal : null;
             StrList disables = new StrList();
             for (int i = 0; i < m_DisableComponents.Count; ++i) {
-                disables.Add(m_DisableComponents[i].Calc().ToString());
+                disables.Add(m_DisableComponents[i].Calc(calculator).ToString());
             }
             StrList removes = new StrList();
             for (int i = 0; i < m_RemoveComponents.Count; ++i) {
-                removes.Add(m_RemoveComponents[i].Calc().ToString());
+                removes.Add(m_RemoveComponents[i].Calc(calculator).ToString());
             }
             UnityEngine.GameObject obj = null;
             if (null != objPath) {
@@ -452,7 +452,7 @@ namespace GmCommands
     }
     internal sealed class GetParentFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var o = operands[0];
             string objPath = o.IsString ? o.StringVal : null;
@@ -480,7 +480,7 @@ namespace GmCommands
     }
     internal sealed class GetChildFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var o = operands[0];
             string childPath = operands[1].AsString;
@@ -513,7 +513,7 @@ namespace GmCommands
     }
     internal sealed class GetUnityTypeFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string typeName = operands[0].AsString;
             if (null != typeName) {
@@ -530,7 +530,7 @@ namespace GmCommands
     }
     internal sealed class GetUnityUiTypeFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string typeName = operands[0].AsString;
             if (null != typeName) {
@@ -547,7 +547,7 @@ namespace GmCommands
     }
     internal sealed class GetUserTypeFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string typeName = operands[0].AsString;
             if (null != typeName) {
@@ -562,7 +562,7 @@ namespace GmCommands
     }
     internal sealed class GetPositionFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             int local0OrWorld1 = operands.Count > 1 ? operands[1].GetInt() : 0;
@@ -595,7 +595,7 @@ namespace GmCommands
     }
     internal sealed class GetPositionXFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             int local0OrWorld1 = operands.Count > 1 ? operands[1].GetInt() : 0;
@@ -628,7 +628,7 @@ namespace GmCommands
     }
     internal sealed class GetPositionYFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             int local0OrWorld1 = operands.Count > 1 ? operands[1].GetInt() : 0;
@@ -661,7 +661,7 @@ namespace GmCommands
     }
     internal sealed class GetPositionZFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             int local0OrWorld1 = operands.Count > 1 ? operands[1].GetInt() : 0;
@@ -694,7 +694,7 @@ namespace GmCommands
     }
     internal sealed class GetRotationFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             int local0OrWorld1 = operands.Count > 1 ? operands[1].GetInt() : 0;
@@ -727,7 +727,7 @@ namespace GmCommands
     }
     internal sealed class GetRotationXFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             int local0OrWorld1 = operands.Count > 1 ? operands[1].GetInt() : 0;
@@ -760,7 +760,7 @@ namespace GmCommands
     }
     internal sealed class GetRotationYFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             int local0OrWorld1 = operands.Count > 1 ? operands[1].GetInt() : 0;
@@ -793,7 +793,7 @@ namespace GmCommands
     }
     internal sealed class GetRotationZFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             int local0OrWorld1 = operands.Count > 1 ? operands[1].GetInt() : 0;
@@ -826,7 +826,7 @@ namespace GmCommands
     }
     internal sealed class GetScaleFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
@@ -853,7 +853,7 @@ namespace GmCommands
     }
     internal sealed class GetScaleXFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
@@ -880,7 +880,7 @@ namespace GmCommands
     }
     internal sealed class GetScaleYFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
@@ -907,7 +907,7 @@ namespace GmCommands
     }
     internal sealed class GetScaleZFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             var objPathVal = operands[0];
             UnityEngine.GameObject obj = objPathVal.IsObject ? objPathVal.ObjectVal as UnityEngine.GameObject : null;
@@ -934,7 +934,7 @@ namespace GmCommands
     }
     internal sealed class Vector3Function : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             if (operands.Count < 3)
                 throw new Exception("Expected: vector3(x, y, z)");
@@ -948,7 +948,7 @@ namespace GmCommands
     }
     internal sealed class Deg2RadFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             float degree = operands[0].GetFloat();
             return degree * MathF.PI / 180.0f;
@@ -956,7 +956,7 @@ namespace GmCommands
     }
     internal sealed class Rad2DegFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             float radian = operands[0].GetFloat();
             return radian * 180.0f / MathF.PI;
@@ -964,7 +964,7 @@ namespace GmCommands
     }
     internal sealed class GetFileNameFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string path = operands[0].AsString;
             return Path.GetFileName(path);
@@ -972,7 +972,7 @@ namespace GmCommands
     }
     internal sealed class GetDirectoryNameFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string path = operands[0].AsString;
             return Path.GetDirectoryName(path);
@@ -980,7 +980,7 @@ namespace GmCommands
     }
     internal sealed class GetExtensionFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string path = operands[0].AsString;
             return Path.GetExtension(path);
@@ -988,7 +988,7 @@ namespace GmCommands
     }
     internal sealed class CombinePathFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             string path1 = operands[0].AsString;
             string path2 = operands[1].AsString;
@@ -997,14 +997,14 @@ namespace GmCommands
     }
     internal sealed class GetStreamingAssetsFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return UnityEngine.Application.streamingAssetsPath;
         }
     }
     internal sealed class GetPersistentPathFunction : SimpleExpressionBase
     {
-        protected override BoxedValue OnCalc(IList<BoxedValue> operands)
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
         {
             return UnityEngine.Application.persistentDataPath;
         }
