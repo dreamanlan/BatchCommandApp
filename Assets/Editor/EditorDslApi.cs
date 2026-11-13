@@ -2268,10 +2268,10 @@ namespace StoryScript.DslExpression
     }
 
     // Report the APIs registered on the CURRENT interpreter, mirroring BatchCommand's
-    // HelpAllExp (BatchScript.ApiDocs => calculator.ApiDocs). AbstractExpression exposes a
-    // protected `calculator` property, so no reflection and no shared/global registry is
+    // HelpAllExp (BatchScript.ApiDocs => Calculator.ApiDocs). AbstractExpression exposes a
+    // protected `Calculator` property, so no reflection and no shared/global registry is
     // needed - and, unlike DslCalculatorHost.GetSharedApiRegistry(), this is guaranteed to
-    // be the exact calculator that is executing this call (the editor channel builds its
+    // be the exact Calculator that is executing this call (the editor channel builds its
     // own registry via NewApiRegistry()).
     // api_list(pattern, ...) - regex search over all api docs, like helpall().
     internal class ApiListExp : SimpleExpressionBase
@@ -2290,7 +2290,7 @@ namespace StoryScript.DslExpression
             var sb = new StringBuilder();
             int total = docs == null ? 0 : docs.Count;
             int shown = 0;
-            sb.AppendLine(string.Format("api_list: channel=editor source=calculator.ApiDocs total={0} patterns={1}",
+            sb.AppendLine(string.Format("api_list: channel=editor source=Calculator.ApiDocs total={0} patterns={1}",
                 total, regexes.Count));
             if (docs != null)
             {
@@ -2320,7 +2320,7 @@ namespace StoryScript.DslExpression
     // The runtime GM registry already has addcomponent/removecomponent
     // (ClientGmStorySystem.cs / GeneralCommands.cs), but those call GameObject.AddComponent
     // and Object.Destroy directly: no Undo, no dry run, and they are unavailable on the
-    // editor channel (which has its own calculator). Editing scene objects needs reversible
+    // editor channel (which has its own Calculator). Editing scene objects needs reversible
     // changes, so these editor-side versions use Undo.AddComponent /
     // Undo.DestroyObjectImmediate and default to a dry run.
     // ===========================================================================

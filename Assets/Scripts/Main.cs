@@ -27,8 +27,8 @@ public class Main : MonoBehaviour
         StartCoroutine(Loop());
 
         StartupScript.TryInit();
-        StartupScript.calculator.Register("setclipboard", "setclipboard(str) api", new ExpressionFactoryHelper<SetClipboardExp>());
-        StartupScript.calculator.Register("getclipboard", "getclipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
+        StartupScript.Calculator.Register("setclipboard", "setclipboard(str) api", new ExpressionFactoryHelper<SetClipboardExp>());
+        StartupScript.Calculator.Register("getclipboard", "getclipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
 
         RunStartup(true);
     }
@@ -246,7 +246,7 @@ public class Main : MonoBehaviour
 
     public static SortedList<string, string> GetApiDocs()
     {
-        return StartupScript.calculator.ApiDocs;
+        return StartupScript.Calculator.ApiDocs;
     }
     public static void LoadScript(string file)
     {
@@ -254,7 +254,7 @@ public class Main : MonoBehaviour
         if (!System.IO.Path.IsPathRooted(file)) {
             file = System.IO.Path.Combine(basePath, file);
         }
-        StartupScript.calculator.LoadDsl(file);
+        StartupScript.Calculator.LoadDsl(file);
     }
     public static BoxedValue EvalAndRun(string code)
     {
@@ -274,29 +274,29 @@ public class Main : MonoBehaviour
     {
         BoxedValue r = BoxedValue.EmptyString;
         List<IExpression> exps = new List<IExpression>();
-        StartupScript.calculator.LoadDsl(expressions, exps);
-        r = StartupScript.calculator.CalcInCurrentContext(exps);
+        StartupScript.Calculator.LoadDsl(expressions, exps);
+        r = StartupScript.Calculator.CalcInCurrentContext(exps);
         return r;
     }
     public static void EvalAsFunc(string name, Dsl.FunctionData func, IList<string> argNames)
     {
         Debug.Assert(null != func);
-        StartupScript.calculator.LoadDsl(name, argNames, func);
+        StartupScript.Calculator.LoadDsl(name, argNames, func);
     }
     public static bool TryGetApiFactory(string name, out IExpressionFactory factory)
     {
-        return StartupScript.CodeStructure.ApiRegistry.TryGetFactory(name, out factory);
+        return StartupScript.Calculator.CodeStructure.ApiRegistry.TryGetFactory(name, out factory);
     }
     public static object Call(string func, params object[] args)
     {
         if (null == s_Instance)
             return null;
-        var vargs = StartupScript.calculator.NewCalculatorValueList();
+        var vargs = StartupScript.Calculator.NewCalculatorValueList();
         foreach (var arg in args) {
             vargs.Add(BoxedValue.FromObject(arg));
         }
-        var r = StartupScript.calculator.Calc(func, vargs);
-        StartupScript.calculator.RecycleCalculatorValueList(vargs);
+        var r = StartupScript.Calculator.Calc(func, vargs);
+        StartupScript.Calculator.RecycleCalculatorValueList(vargs);
         return r.GetObject();
     }
 

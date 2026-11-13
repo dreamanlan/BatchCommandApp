@@ -16,7 +16,7 @@ internal static class EditorGmSocketServer
     static EditorGmSocketServer()
     {
         // The editor listener serves editor DSL only. Runtime GM commands live on the
-        // runtime channel and are deliberately not merged into the editor calculator.
+        // runtime channel and are deliberately not merged into the editor Calculator.
         GmCommandDispatcher.EditorExecutor = ExecEditor;
         EditorApplication.delayCall -= OnEditorReady;
         EditorApplication.delayCall += OnEditorReady;
@@ -94,7 +94,7 @@ internal static class EditorGmSocketServer
     private static DslCalculator EditorCalculator
     {
         get {
-            // Share the very same calculator used by the editor command window and by
+            // Share the very same Calculator used by the editor command window and by
             // editor_startup.dsl (EditorGmCommandWindow.RunOnEditorStartup), so global
             // variables/functions are visible to both. GetCommandCalculator() already
             // calls InitCalculator (editor APIs + EditorDslApi + project OnRegisterApi)

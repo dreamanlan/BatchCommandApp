@@ -101,7 +101,7 @@ public static class StartupScript
         if (!s_Inited) {
             s_Calculator = new DslCalculator();
             s_Calculator.NewApiRegistry();
-            s_CodeStructure.OnLog = LogSystem.Log;
+            s_Calculator.CodeStructure.OnLog = LogSystem.Log;
             s_Calculator.OnLoadFailback = OnLoadFailback;
             s_Inited = true;
         }
@@ -493,7 +493,7 @@ public static class StartupScript
         }
 #endif
     }
-    internal static DslCalculator calculator
+    internal static DslCalculator Calculator
     {
         get { return s_Calculator; }
     }

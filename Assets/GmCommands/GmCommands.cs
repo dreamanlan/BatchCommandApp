@@ -3555,9 +3555,9 @@ namespace GmCommands
     }
 
     // List APIs registered on the CURRENT interpreter (same pattern as BatchCommand's
-    // HelpAllExp: BatchScript.ApiDocs => calculator.ApiDocs). AbstractExpression exposes a
-    // protected `calculator`, so no reflection, no captured static registry and no
-    // GetSharedApiRegistry() fallback is needed - this is exactly the calculator running
+    // HelpAllExp: BatchScript.ApiDocs => Calculator.ApiDocs). AbstractExpression exposes a
+    // protected `Calculator`, so no reflection, no captured static registry and no
+    // GetSharedApiRegistry() fallback is needed - this is exactly the Calculator running
     // the call, including APIs registered dynamically by scripts.
     // api_list(pattern, ...) - regex search over all api docs, like helpall().
     internal sealed class ApiListCommand : SimpleExpressionBase
@@ -3576,7 +3576,7 @@ namespace GmCommands
             var sb = new StringBuilder();
             int total = docs == null ? 0 : docs.Count;
             int shown = 0;
-            sb.AppendLine(string.Format("api_list: channel=runtime source=calculator.ApiDocs total={0} patterns={1}",
+            sb.AppendLine(string.Format("api_list: channel=runtime source=Calculator.ApiDocs total={0} patterns={1}",
                 total, regexes.Count));
             if (docs != null)
             {
