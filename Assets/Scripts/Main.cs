@@ -256,10 +256,6 @@ public class Main : MonoBehaviour
         }
     }
 
-    public static SortedList<string, string> GetApiDocs()
-    {
-        return StartupScript.Calculator.ApiDocs;
-    }
     public static void LoadScript(string file)
     {
         var basePath = Application.persistentDataPath;
