@@ -1,6 +1,6 @@
 """TCP bridge to the Unity GM channel (newline-delimited JSON, one request -> one reply).
 
-Unity side: Packages/morefun.durer/Runtime/GmCommands/GmSocketServer.cs
+Unity side: Packages/myself.gmscript/Runtime/GmCommands/GmSocketServer.cs
   {"id":1,"cmd":"exec","code":"getposition(...)","timeout":15000}
   <- {"id":1,"ok":true,"result":"...","elapsedMs":3,"logs":[{"i":1,"lv":"W","m":"..."}]}
 """

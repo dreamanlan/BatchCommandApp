@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 
 [UnityEngine.Scripting.Preserve]
-public sealed partial class StartupApi
+public sealed partial class AppStartupApi
 {
     public delegate GradeEnum GetGradeDelegation();
     public delegate void DoSettingDelegation(GradeEnum grade);
@@ -52,7 +52,8 @@ public sealed partial class StartupApi
         var sb = new StringBuilder();
         sb.AppendLine("compiled startups:");
         foreach(var id in m_CompiledStartups) {
-            sb.AppendLine("\t{0}", id);
+            sb.AppendFormat("\t{0}", id);
+            sb.AppendLine();
         }
         Debug.LogFormat("{0}", sb.ToString());
     }
@@ -1273,14 +1274,14 @@ public sealed partial class StartupApi
     partial void RegisterStartup_6();
     partial void RegisterStartup_7();
 
-    public static StartupApi Instance
+    public static AppStartupApi Instance
     {
         get {
             if (null == s_Instance) {
-                s_Instance = new StartupApi();
+                s_Instance = new AppStartupApi();
             }
             return s_Instance;
         }
     }
-    private static StartupApi s_Instance = null;
+    private static AppStartupApi s_Instance = null;
 }

@@ -1657,6 +1657,64 @@ namespace StoryScript.DslExpression
             return BoxedValue.FromBool(UnityEditor.EditorApplication.isPlaying);
         }
     }
+    internal class EditorPlayNowExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
+        {
+            bool current = UnityEditor.EditorApplication.isPlaying;
+            if (!current)
+                UnityEditor.EditorApplication.isPlaying = true;
+            return BoxedValue.FromBool(current);
+        }
+    }
+    internal class EditorStopNowExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
+        {
+            bool current = UnityEditor.EditorApplication.isPlaying;
+            if (current)
+                UnityEditor.EditorApplication.isPlaying = false;
+            return BoxedValue.FromBool(current);
+        }
+    }
+    internal class GfxFormatProbeExp : SimpleExpressionBase
+    {
+        protected override BoxedValue OnCalc(DslCalculator calculator, IList<BoxedValue> operands)
+        {
+            var b10 = UnityEngine.Experimental.Rendering.GraphicsFormat.B10G11R11_UFloatPack32;
+            var rgba16f = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_SFloat;
+            var loadStore = UnityEngine.Experimental.Rendering.FormatUsage.LoadStore;
+            var render = UnityEngine.Experimental.Rendering.FormatUsage.Render;
+            var sb = new StringBuilder();
+            sb.AppendLine("device=" + SystemInfo.graphicsDeviceType);
+            sb.AppendLine("defaultHDR=" + SystemInfo.GetGraphicsFormat(UnityEngine.Experimental.Rendering.DefaultFormat.HDR));
+            sb.AppendLine("defaultLDR=" + SystemInfo.GetGraphicsFormat(UnityEngine.Experimental.Rendering.DefaultFormat.LDR));
+            sb.AppendLine("B10G11R11 Render=" + SystemInfo.IsFormatSupported(b10, render));
+            sb.AppendLine("B10G11R11 LoadStore=" + SystemInfo.IsFormatSupported(b10, loadStore));
+            sb.AppendLine("RGBA16F Render=" + SystemInfo.IsFormatSupported(rgba16f, render));
+            sb.AppendLine("RGBA16F LoadStore=" + SystemInfo.IsFormatSupported(rgba16f, loadStore));
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()) {
+                var t = asm.GetType("UnityEngine.Rendering.Universal.UniversalRenderPipeline");
+                if (t == null) continue;
+                foreach (var name in new string[] { "s_hdrFormat", "s_defaultFormat" }) {
+                    var fi = t.GetField(name, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                    sb.AppendLine(name + "=" + (fi == null ? "missing" : fi.GetValue(null).ToString()));
+                }
+                var fr = t.GetField("s_defaultResc", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                if (fr != null && fr.GetValue(null) is RenderTextureDescriptor rd)
+                    sb.AppendLine("s_defaultResc fmt=" + rd.graphicsFormat + " rw=" + rd.enableRandomWrite);
+                break;
+            }
+            int n = 0;
+            foreach (var rt in Resources.FindObjectsOfTypeAll<RenderTexture>()) {
+                if (rt.graphicsFormat != b10) continue;
+                sb.AppendLine("rt name=" + rt.name + " rw=" + rt.enableRandomWrite + " size=" + rt.width + "x" + rt.height);
+                if (++n >= 20) break;
+            }
+            sb.AppendLine("B10G11R11 RT count=" + n);
+            return BoxedValue.FromString(sb.ToString());
+        }
+    }
 
     // ---------- Generic SceneView camera control for automated tests ----------
     // Unity-editor-only and project-agnostic: drives the active SceneView via pivot /
@@ -2578,6 +2636,9 @@ namespace StoryScript.DslExpression
 #if UNITY_EDITOR
             calculator.Register("editor_play", "editor_play(play) - enter/exit Play mode on the next editor update; returns the state before the change", new ExpressionFactoryHelper<EditorPlayExp>());
             calculator.Register("editor_isplaying", "editor_isplaying() - current Play mode state", new ExpressionFactoryHelper<EditorIsPlayingExp>());
+            calculator.Register("gfx_format_probe", "gfx_format_probe() - report graphics format capabilities, URP HDR format and B10G11R11 render textures", new ExpressionFactoryHelper<GfxFormatProbeExp>());
+            calculator.Register("editor_play_now", "editor_play_now() - enter Play mode immediately without delayCall; returns previous state", new ExpressionFactoryHelper<EditorPlayNowExp>());
+            calculator.Register("editor_stop_now", "editor_stop_now() - exit Play mode immediately without delayCall; returns previous state", new ExpressionFactoryHelper<EditorStopNowExp>());
             calculator.Register("scene_cam_info", "scene_cam_info() - generic edit-mode SceneView camera pose/size (read-only)", new ExpressionFactoryHelper<SceneCamInfoExp>());
             calculator.Register("scene_cam_set", "scene_cam_set(x,y,z[,pitch,yaw,roll]) - set SceneView pivot/rotation", new ExpressionFactoryHelper<SceneCamSetExp>());
             calculator.Register("scene_cam_move", "scene_cam_move(dx,dy,dz[,local]) - translate SceneView pivot", new ExpressionFactoryHelper<SceneCamMoveExp>());

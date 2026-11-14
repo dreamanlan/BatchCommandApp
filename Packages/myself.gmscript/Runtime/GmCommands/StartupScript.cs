@@ -42,7 +42,7 @@ internal class StartupApiExp : SimpleExpressionBase
 public static class StartupScript
 {
     public delegate BoxedValue ApiDelegation(BoxedValueList args);
-    public delegate bool ExistsApiDelegation(string method);
+    public delegate bool ExistsApiDelegation(string method, out string className);
     public delegate bool GetApiDelegation(string method, out StartupScript.ApiDelegation api);
 
     public static ExistsApiDelegation OnExistsApi;
@@ -493,21 +493,18 @@ public static class StartupScript
         }
 #endif
     }
-    internal static DslCalculator Calculator
+    public static DslCalculator Calculator
     {
         get { return s_Calculator; }
     }
     internal static bool ExistsApi(string method)
     {
         if (null != OnExistsApi) {
-            if (OnExistsApi(method)) {
+            if (OnExistsApi(method, out var cn)) {
                 return true;
             }
         }
         if (StartupApi.Instance.ExistsApi(method)) {
-            return true;
-        }
-        if (Main.ExistsApi(method)) {
             return true;
         }
         return false;
@@ -522,10 +519,6 @@ public static class StartupScript
             return true;
         }
         api = StartupApi.Instance.GetApi(method);
-        if (null != api) {
-            return true;
-        }
-        api = Main.GetApi(method);
         if (null != api) {
             return true;
         }
@@ -711,8 +704,8 @@ public static class StartupScript
             if (StartupApi.Instance.ExistsApi(id)) {
                 funcName = id + "_impl";
             }
-            else if (Main.ExistsApi(id)) {
-                funcName = "Main." + id + "_impl";
+            else if (null != OnExistsApi && OnExistsApi(id, out var className)) {
+                funcName = className + "." + id + "_impl";
             }
             else {
                 funcName = "_dsl_" + id;

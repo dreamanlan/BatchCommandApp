@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Collections;
@@ -364,42 +364,41 @@ namespace GmCommands
     }
     internal sealed class GetGameObjectFunction : AbstractExpression
     {
-            protected override bool Load(Dsl.FunctionData funcData)
-            {
-                Dsl.FunctionData callData = funcData;
-                if (funcData.IsHighOrder) {
-                    callData = funcData.LowerOrderFunction;
+        protected override bool Load(Dsl.FunctionData funcData)
+        {
+            Dsl.FunctionData callData = funcData;
+            if (funcData.IsHighOrder) {
+                callData = funcData.LowerOrderFunction;
+            }
+            if (null != callData && callData.HaveParam()) {
+                int num = callData.GetParamNum();
+                if (num > 0) {
+                    m_ObjPath = CodeStructure.Load(callData.GetParam(0));
                 }
-                if (null != callData && callData.HaveParam()) {
-                    int num = callData.GetParamNum();
-                    if (num > 0) {
-                        m_ObjPath = CodeStructure.Load(callData.GetParam(0));
-                    }
-                }
-                if (funcData.HaveStatement()) {
-                    for (int i = 0; i < funcData.GetParamNum(); ++i) {
-                        var cd = funcData.GetParam(i) as Dsl.FunctionData;
-                        if (null != cd) {
-                            string id = cd.GetId();
-                            if (id == "disable") {
-                                for (int j = 0; j < cd.GetParamNum(); ++j) {
-                                    m_DisableComponents.Add(CodeStructure.Load(cd.GetParam(j)));
-                                }
+            }
+            if (funcData.HaveStatement()) {
+                for (int i = 0; i < funcData.GetParamNum(); ++i) {
+                    var cd = funcData.GetParam(i) as Dsl.FunctionData;
+                    if (null != cd) {
+                        string id = cd.GetId();
+                        if (id == "disable") {
+                            for (int j = 0; j < cd.GetParamNum(); ++j) {
+                                m_DisableComponents.Add(CodeStructure.Load(cd.GetParam(j)));
                             }
-                            else if (id == "remove") {
-                                for (int j = 0; j < cd.GetParamNum(); ++j) {
-                                    m_RemoveComponents.Add(CodeStructure.Load(cd.GetParam(j)));
-                                }
+                        }
+                        else if (id == "remove") {
+                            for (int j = 0; j < cd.GetParamNum(); ++j) {
+                                m_RemoveComponents.Add(CodeStructure.Load(cd.GetParam(j)));
                             }
                         }
                     }
                 }
-                return true;
             }
+            return true;
+        }
 
-            protected override BoxedValue DoCalc(DslCalculator calculator)
-            {
-
+        protected override BoxedValue DoCalc(DslCalculator calculator)
+        {
             var o = m_ObjPath.Calc(calculator);
             string objPath = o.IsString ? o.StringVal : null;
             StrList disables = new StrList();

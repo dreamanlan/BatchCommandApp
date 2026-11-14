@@ -1,4 +1,4 @@
-//#define EMBED_ONGUI
+﻿//#define EMBED_ONGUI
 
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
 #define MOBILE
@@ -794,7 +794,7 @@ public class DebugConsole : MonoBehaviour
 
             output.AppendLine(":: Script API List ::");
 
-            foreach(var pair in Main.GetApiDocs()) {
+            foreach(var pair in StartupScript.Calculator.ApiDocs) {
                 if (pair.Key.Contains(filter) || pair.Value.Contains(filter)) {
                     output.Append("[");
                     output.Append(pair.Key);
