@@ -275,22 +275,30 @@ class GmConnectionManager:
         threading.Thread(target=self._monitor_loop, daemon=True, name="mcp-gm-monitor").start()
 
     def _serve(self) -> None:
-        srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         host, port = mcp_host(), mcp_port()
-        try:
-            srv.bind((host, port))
-            srv.listen(32)
-        except OSError as exc:
-            with self._lock:
-                self._listener_error = str(exc)
-            print(f"[mcp-gm] cannot listen on {host}:{port}: {exc}", file=sys.stderr, flush=True)
+        srv = None
+        while True:
+            srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
-                srv.close()
-            except OSError:
-                pass
-            return
-        print(f"[mcp-gm] listening for Unity connections on {host}:{port}",
-              file=sys.stderr, flush=True)
+                srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                srv.bind((host, port))
+                srv.listen(32)
+                with self._lock:
+                    self._listener_error = None
+                print(f"[mcp-gm] listening for Unity connections on {host}:{port}",
+                      file=sys.stderr, flush=True)
+                break
+            except OSError as exc:
+                with self._lock:
+                    self._listener_error = str(exc)
+                print(f"[mcp-gm] cannot listen on {host}:{port}: {exc}; retrying in 2s",
+                      file=sys.stderr, flush=True)
+                try:
+                    srv.close()
+                except OSError:
+                    pass
+                srv = None
+                time.sleep(2.0)
         while True:
             try:
                 conn, addr = srv.accept()
