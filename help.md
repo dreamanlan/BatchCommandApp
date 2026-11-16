@@ -53,7 +53,7 @@
 
 2. 安卓profiler版本默认启动会监听adb命令，release版本需要先输入
 ```
-setdebug(1);listenandroid();
+set_debug(1);listen_android();
 ```
 后才开始监听
 
@@ -80,7 +80,7 @@ adb shell am broadcast -a com.unity3d.command -e cmd 'open'
 
 7. 剪贴板监听默认未开启，需要输入
 ```
-setdebug(1);listenclipboard(100);
+set_debug(1);listen_clipboard(100);
 ```
 后开启以每100ms一次的频率监听
 
@@ -143,9 +143,9 @@ adb shell am startservice -a com.unity3d.clipboard -e pkgcmd '包名:命令串'
 
 5. 较4进一步，如果命令的参数是函数调用，不能是复合语句样式的函数与运算表达式，命令也可以写成命令行的形式
 	```
-	log(deviceinfo())
+	log(device_info())
 	<=>
-	log deviceinfo()
+	log device_info()
 	----------------------------------
 	log(1+2)
 	则不能写成命令行样式
@@ -185,7 +185,7 @@ adb shell am startservice -a com.unity3d.clipboard -e pkgcmd '包名:命令串'
 	```
 	比如我们要每秒执行一次某个命令，一共执行3600次，如下：
 	```
-	loop(3600){log("loop {0}",$$);logprofiler();wait(1000);};
+	loop(3600){log("loop {0}",$$);log_profiler();wait(1000);};
 	```
 	- looplist命令，用来遍历一个IList，循环体内可以使用\$\$来访问当前遍历的元素
 	```
@@ -267,8 +267,8 @@ utod(val);
 		};
 		onmessage("start")
 		{
-			localmessage("proc1");
-			localmessage("proc2");
+			local_message("proc1");
+			local_message("proc2");
 		};
 		onmessage("proc1")
 		{
@@ -301,7 +301,7 @@ utod(val);
 	{
 		onmessage("start")
 		{
-			localmessage("proc",123);
+			local_message("proc",123);
 		};
 		onmessage("proc")args($lv)
 		{
@@ -323,7 +323,7 @@ utod(val);
 		onmessage("start")
 		{
 			loop(3600){
-				logprofiler();
+				log_profiler();
 				wait(1000);
 			};
 		};
@@ -346,9 +346,9 @@ utod(val);
 
 6. 有一个命令propset与一个函数propget，提供了跨脚本的名称<=>值的映射，这个其实与全局变量共用一个map，不过这里直接使用字符串作为key，也能用在多次命令输入间传递数据
 ```
-	propset(name, val);
-	propget(name);
-	propget(name, defval);
+	prop_set(name, val);
+	prop_get(name);
+	prop_get(name, defval);
 ```
 
 ## 六、启动脚本
@@ -357,18 +357,18 @@ utod(val);
 
 	- 安卓系统启动时会检查/data/local/tmp目录下是否有initgm.txt的文本文件（不是安卓系统检查Application.persistentDataPath目录下是否有initgm.txt），如果有则把initgm.txt的每一行当作一行GM脚本或DebugConsole命令进行处理，这些命令作为一个命令列表执行，所以中间执行的命令应该不能是执行命令或GM脚本的命令（因为会重置GM脚本解释器），我们可以在这个文件里配置要加载执行的GM脚本文件，然后后续就交给GM脚本文件处理了，比如下面的内容就是启动时打开调试开关（会影响GM脚本的日志输出），然后根据apk来决定加载执行不同的GM脚本文件
 	```
-		setdebug(1);
-		if(isandroid()){listenandroid();};
-		if(!isandroid()){listenclipboard(100);};
-		if(appid()=='DefaultCompany.Test'){cmd('scp init.dsl');};
-		if(appid()!='DefaultCompany.Test'){cmd('scp init0.dsl');};
+		set_debug(1);
+		if(is_android()){listen_android();};
+		if(!is_android()){listen_clipboard(100);};
+		if(app_id()=='DefaultCompany.Test'){cmd('scp init.dsl');};
+		if(app_id()!='DefaultCompany.Test'){cmd('scp init0.dsl');};
 	```
 
 	- 对于不需要使用GM脚本文件的情形，initgm.txt里一般配置监听adb命令或剪贴板方便后续输入命令
 	```
-		setdebug(1);
-		if(isandroid()){listenandroid();};
-		if(!isandroid()){listenclipboard(100);};
+		set_debug(1);
+		if(is_android()){listen_android();};
+		if(!is_android()){listen_clipboard(100);};
 	```
 
 2. 启动时设置脚本配置
@@ -392,9 +392,9 @@ utod(val);
 		{
 			initgm
 			{:
-				setdebug(1);
-				if(isandroid()){listenandroid();};
-				if(!isandroid()){listenclipboard(100);};
+				set_debug(1);
+				if(is_android()){listen_android();};
+				if(!is_android()){listen_clipboard(100);};
 			:};
 			init
 			{
@@ -561,20 +561,20 @@ utod(val);
 6. 调试UI主要来自测试工程，不一定都能与游戏功能相适应，这取决于具体调试UI的开发，一般不适应的是游戏场景里缺少相关的结点（所以调试UI在开发时也要尽量考虑通用性）
 7. 目前有3个GM命令用于调试UI的加载与显隐
 ```
-	loadui("UI资源");
-	showui();
-	hideui();
+	load_ui("UI资源");
+	show_ui();
+	hide_ui();
 ```
 8. 调试UI的资源就是一个DSL文本文件，目前放在Assets/Resources目录下
 9. GM脚本的启动脚本以及调试UI的Canvas的prefab也在这个目录下：GmScript.prefab
 10.  在安卓手机上，我们可以直接输GM命令来加载显示隐藏调试UI，也可以通过adb命令来操作
 ```
 显示当前加载的调试ui：
-	adb shell am broadcast -a com.unity3d.command -e cmd 'showui()'
+	adb shell am broadcast -a com.unity3d.command -e cmd 'show_ui()'
 隐藏调试ui:
-	adb shell am broadcast -a com.unity3d.command -e cmd 'hideui()'
-加载调试ui（调试UI的资源文件名不包含空格时，可以不加引号，这个是在loadui API实现时专门支持的写法）:
-	adb shell am broadcast -a com.unity3d.command -e cmd 'loadui(TestUI)'
+	adb shell am broadcast -a com.unity3d.command -e cmd 'hide_ui()'
+加载调试ui（调试UI的资源文件名不包含空格时，可以不加引号，这个是在load_ui API实现时专门支持的写法）:
+	adb shell am broadcast -a com.unity3d.command -e cmd 'load_ui(TestUI)'
 ```
 ## 八、源码位置
 
@@ -632,34 +632,34 @@ Assets\StartupApi\StartupApi.cs //启动时设置脚本的api与分级设置逻�
 ```
 - 全局key/value写命令，这些数据只要不执行clearglobals命令或DebugConsole的resetdsl命令就一直存在
 ```
-= [propset]:propset(name, val) command
+= [prop_set]:prop_set(name, val) command
 ```
 - 全局key/value读函数
 ```
-= [propget]:propget(name[,defval]) function
+= [prop_get]:prop_get(name[,defval]) function
 ```
 - ~~应该不会用到的命令，请勿使用~~
 ```
-= [clearglobals]:clearglobals() command
-= [clearmessage]:clearmessage(msgid1,msgid2,...) command
-= [clearnamespacedmessage]:clearnamespacedmessage(msgid1,msgid2,...) command
+= [clear_globals]:clear_globals() command
+= [clear_message]:clear_message(msgid1,msgid2,...) command
+= [clear_namespaced_message]:clear_namespaced_message(msgid1,msgid2,...) command
 
-= [localconcurrentmessage]:localconcurrentmessage(msgid,arg1,arg2,...) command
-= [localconcurrentnamespacedmessage]:localconcurrentnamespacedmessage(msgid,arg1,arg2,...) command
-= [localmessage]:localmessage(msgid,arg1,arg2,...) command
-= [localnamespacedmessage]:localnamespacedmessage(msgid,arg1,arg2,...) command
+= [local_concurrent_message]:local_concurrent_message(msgid,arg1,arg2,...) command
+= [local_concurrent_namespaced_message]:local_concurrent_namespaced_message(msgid,arg1,arg2,...) command
+= [local_message]:local_message(msgid,arg1,arg2,...) command
+= [local_namespaced_message]:local_namespaced_message(msgid,arg1,arg2,...) command
 
-= [resumelocalmessagehandler]:resumelocalmessagehandler(msgid1,msgid2,...) command
-= [resumelocalnamespacedmessagehandler]:resumelocalnamespacedmessagehandler(msgid1,msgid2,...) command
+= [resume_local_message_handler]:resume_local_message_handler(msgid1,msgid2,...) command
+= [resume_local_namespaced_message_handler]:resume_local_namespaced_message_handler(msgid1,msgid2,...) command
 
 = [suspend]:suspend command
-= [suspendlocalmessagehandler]:suspendlocalmessagehandler(msgid1,msgid2,...) command
-= [suspendlocalnamespacedmessagehandler]:suspendlocalnamespacedmessagehandler(msgid1,msgid2,...) command
+= [suspend_local_message_handler]:suspend_local_message_handler(msgid1,msgid2,...) command
+= [suspend_local_namespaced_message_handler]:suspend_local_namespaced_message_handler(msgid1,msgid2,...) command
 
-= [waitlocalmessage]:waitlocalmessage(msgid1,msgid2,...)[set(var,val)timeoutset(timeout,var,val)] command
-= [waitlocalmessagehandler]:waitlocalmessagehandler(msgid1,msgid2,...)[set(var,val)timeoutset(timeout,var,val)] command
-= [waitlocalnamespacedmessage]:waitlocalnamespacedmessage(msgid1,msgid2,...)[set(var,val)timeoutset(timeout,var,val)] command
-= [waitlocalnamespacedmessagehandler]:waitlocalnamespacedmessagehandler(msgid1,msgid2,...)[set(var,val)timeoutset(timeout,var,val)] command
+= [wait_local_message]:wait_local_message(msgid1,msgid2,...)[set(var,val)timeoutset(timeout,var,val)] command
+= [wait_local_message_handler]:wait_local_message_handler(msgid1,msgid2,...)[set(var,val)timeoutset(timeout,var,val)] command
+= [wait_local_namespaced_message]:wait_local_namespaced_message(msgid1,msgid2,...)[set(var,val)timeoutset(timeout,var,val)] command
+= [wait_local_namespaced_message_handler]:wait_local_namespaced_message_handler(msgid1,msgid2,...)[set(var,val)timeoutset(timeout,var,val)] command
 
 = [pause]:pause command
 = [terminate]:terminate command
@@ -674,8 +674,8 @@ Assets\StartupApi\StartupApi.cs //启动时设置脚本的api与分级设置逻�
 = [countcommand]:countcommand(level) function
 = [counthandlercommand]:counthandlercommand() function
 = [namespace]:namespace() function
-= [storyid]:storyid() function
-= [messageid]:messageid() function
+= [story_id]:story_id() function
+= [message_id]:message_id() function
 
 = [getcmdsubst]:getcmdsubst(id) function
 = [getfuncsubst]:getfuncsubst(id) function
@@ -763,20 +763,20 @@ c#类型转换语义下的类型转换
 ```
 - 反射工具函数，主要用于类型变换或根据字符串获取Type对象
 ```
-= [changetype]:changetype(obj,type_obj_or_str) function，类似Convert.ChangeType，另外考虑了BoxedValue与object继承情形的转型
-= [gettype]:gettype(type_name_str) function，Type.GetType(typeName)
-= [getunitytype]:getunitytype(type_str) function，Type.GetType($"UnityEngine.{typeName},UnityEngine")
-= [getunityuitype]:getunityuitype(type_str) function，Type.GetType($"UnityEngine.UI.{typeName},UnityEngine.UI")
-= [getusertype]:getusertype(type_str) function，Type.GetType($"{typeName},Assembly-CSharp")
+= [change_type]:change_type(obj,type_obj_or_str) function，类似Convert.ChangeType，另外考虑了BoxedValue与object继承情形的转型
+= [get_type]:get_type(type_name_str) function，Type.GetType(typeName)
+= [get_unity_type]:get_unity_type(type_str) function，Type.GetType($"UnityEngine.{typeName},UnityEngine")
+= [get_unity_ui_type]:get_unity_ui_type(type_str) function，Type.GetType($"UnityEngine.UI.{typeName},UnityEngine.UI")
+= [get_user_type]:get_user_type(type_str) function，Type.GetType($"{typeName},Assembly-CSharp")
 
-= [import]:import(ns,assembly) command, import a namespace for typeof
-= [unimport]:unimport(ns,assembly) command, remove the previously imported namespace
-= [typeof]:typeof(type) or typeof(type,assembly) function, Type.GetType, Automatically try getunitytype/getunityuitype/getusertype, then try imports, and finally try gettype
+= [import_namespace]:import_namespace(ns,assembly) command, import a namespace for typeof
+= [un_import_namespace]:un_import_namespace(ns,assembly) command, remove the previously imported namespace
+= [typeof]:typeof(type) or typeof(type,assembly) function, Type.GetType, Automatically try get_unity_type/get_unity_ui_type/get_user_type, then try imports, and finally try get_type
 
-= [gettypeassemblyname]:gettypeassemblyname(obj) function，get Type.AssemblyQualifiedName
-= [gettypefullname]:gettypefullname(obj) function，get Type.FullName
-= [gettypename]:gettypename(obj) function，get Type.Name
-= [parseenum]:parseenum(type_obj_or_str,enum_val) function，Enum.Parse
+= [get_type_assembly_name]:get_type_assembly_name(obj) function，get Type.AssemblyQualifiedName
+= [get_type_full_name]:get_type_full_name(obj) function，get Type.FullName
+= [get_type_name]:get_type_name(obj) function，get Type.Name
+= [parse_enum]:parse_enum(type_obj_or_str,enum_val) function，Enum.Parse
 
 = [linq]:linq(obj,method,arg1,arg2,...) function, internal implementation, using obj.method(arg1,arg2,...) syntax, method can be orderby/orderbydesc/where/top, iterator is $$
 ```
@@ -784,48 +784,48 @@ c#类型转换语义下的类型转换
 
 - 命令类
 ```
-= [appendformat]:appendformat(sb,fmt,arg1,arg2,...) command
-= [appendlineformat]:appendformatline(sb,fmt,arg1,arg2,...) command
+= [append_format]:append_format(sb,fmt,arg1,arg2,...) command
+= [append_format_line]:append_format_line(sb,fmt,arg1,arg2,...) command
 ```
 - 函数类
 ```
-= [hex2int]:hex2int(str) function
-= [hex2long]:hex2long(str) function
-= [hex2uint]:hex2uint(str) function
-= [hex2ulong]:hex2ulong(str) function
-= [str2double]:str2double(str) function
-= [str2long]:str2long(str) function
-= [str2uint]:str2uint(str) function
-= [str2ulong]:str2ulong(str) function
-= [str2float]:str2float(str) function
-= [str2int]:str2int(str) function
+= [hex_2_int]:hex_2_int(str) function
+= [hex_2_long]:hex_2_long(str) function
+= [hex_2_uint]:hex_2_uint(str) function
+= [hex_2_ulong]:hex_2_ulong(str) function
+= [str_2_double]:str_2_double(str) function
+= [str_2_long]:str_2_long(str) function
+= [str_2_uint]:str_2_uint(str) function
+= [str_2_ulong]:str_2_ulong(str) function
+= [str_2_float]:str_2_float(str) function
+= [str_2_int]:str_2_int(str) function
 
-= [datetimestr]:datetimestr(fmt) function
-= [shortdatestr]:shortdatestr() function
-= [shorttimestr]:shorttimestr() function
-= [longdatestr]:longdatestr() function
-= [longtimestr]:longtimestr() function
+= [datetime_str]:datetime_str(fmt) function
+= [short_date_str]:short_date_str() function
+= [short_time_str]:short_time_str() function
+= [long_date_str]:long_date_str() function
+= [long_time_str]:long_time_str() function
 
-= [isnullorempty]:isnullorempty(str) function
-= [makestring]:makestring(char1_as_str_or_int,char2_as_str_or_int,...) function
-= [newstringbuilder]:newstringbuilder() function
-= [stringjoin]:stringjoin(sep,list) function
-= [stringreplace]:stringreplace(str,key,rep_str) function
-= [stringreplacechar]:stringreplacechar(str,key,char_as_str) function
-= [stringsplit]:stringsplit(str,sep_list) function
-= [stringtrim]:stringtrim(str) function
-= [stringtrimend]:stringtrimend(str) function
-= [stringtrimstart]:stringtrimstart(str) function
+= [is_null_or_empty]:is_null_or_empty(str) function
+= [make_string]:make_string(char1_as_str_or_int,char2_as_str_or_int,...) function
+= [new_string_builder]:new_string_builder() function
+= [string_join]:string_join(sep,list) function
+= [string_replace]:string_replace(str,key,rep_str) function
+= [string_replace_char]:string_replace_char(str,key,char_as_str) function
+= [string_split]:string_split(str,sep_list) function
+= [string_trim]:string_trim(str) function
+= [string_trim_end]:string_trim_end(str) function
+= [string_trim_start]:string_trim_start(str) function
 
 = [str2lower]:str2lower(str) function, use cache
 = [str2upper]:str2upper(str) function, use cache
-= [stringcontains]:stringcontains(str,str1,str2,...) function
-= [stringcontainsany]:stringcontainsany(str,str1,str2,...) function
-= [stringlist]:stringlist(str_split_by_sep) function
-= [stringnotcontains]:stringnotcontains(str,str1,str2,...) function
-= [stringnotcontainsany]:stringnotcontainsany(str,str1,str2,...) function
-= [stringtolower]:stringtolower(str) function
-= [stringtoupper]:stringtoupper(str) function
+= [string_contains]:string_contains(str,str1,str2,...) function
+= [string_contains_any]:string_contains_any(str,str1,str2,...) function
+= [string_list]:string_list(str_split_by_sep) function
+= [string_not_contains]:string_not_contains(str,str1,str2,...) function
+= [string_not_contains_any]:string_not_contains_any(str,str1,str2,...) function
+= [string_to_lower]:string_to_lower(str) function
+= [string_to_upper]:string_to_upper(str) function
 = [substring]:substring(str[,start,len]) function
 
 = [format]:format(fmt[,arg1,...]) function
@@ -834,40 +834,40 @@ c#类型转换语义下的类型转换
 
 - 命令类
 ```
-= [hashtableadd]:hashtableadd(hashtable,key,val) command
-= [hashtableclear]:hashtableclear(hashtable) command
-= [hashtableremove]:hashtableremove(hashtable,key) command
-= [hashtableset]:hashtableset(hashtable,key,val) command
+= [hashtable_add]:hashtable_add(hashtable,key,val) command
+= [hashtable_clear]:hashtable_clear(hashtable) command
+= [hashtable_remove]:hashtable_remove(hashtable,key) command
+= [hashtable_set]:hashtable_set(hashtable,key,val) command
 
-= [listadd]:listadd(list,value) command
-= [listclear]:listclear(list) command
-= [listenandroid]:listenandroid() command
-= [listenclipboard]:listenclipboard(interval) command
-= [listinsert]:listinsert(list,index,value) command
-= [listremove]:listremove(list,value) command
-= [listremoveat]:listremoveat(list,index) command
-= [listset]:listset(list,index,value) command
+= [list_add]:list_add(list,value) command
+= [list_clear]:list_clear(list) command
+= [listen_android]:listen_android() command
+= [listen_clipboard]:listen_clipboard(interval) command
+= [list_insert]:list_insert(list,index,value) command
+= [list_remove]:list_remove(list,value) command
+= [list_remove_at]:list_remove_at(list,index) command
+= [list_set]:list_set(list,index,value) command
 ```
 - 函数类
 ```
 = [hashtable]:hashtable(k1=>v1,k2=>v2,...) function
-= [hashtableget]:hashtableget(hash_obj,key[,defval]) function
-= [hashtablekeys]:hashtablekeys(hash_obj) function
-= [hashtablesize]:hashtablesize(hash_obj) function
-= [hashtablevalues]:hashtablevalues(hash_obj) function
+= [hashtable_get]:hashtable_get(hash_obj,key[,defval]) function
+= [hashtable_keys]:hashtable_keys(hash_obj) function
+= [hashtable_size]:hashtable_size(hash_obj) function
+= [hashtable_values]:hashtable_values(hash_obj) function
 
 = [list]:list(v1,v2,...) function
-= [listget]:listget(list,index[,defval]) function
-= [listindexof]:listindexof(list,val) function
-= [listsize]:listsize(list) function
+= [list_get]:list_get(list,index[,defval]) function
+= [list_index_of]:list_index_of(list,val) function
+= [list_size]:list_size(list) function
 
 = [array]:array(v1,v2,...) function
-= [toarray]:toarray(list) function
+= [to_array]:to_array(list) function
 
-= [floatlist]:floatlist(str_split_by_sep) function
-= [intlist]:intlist(str_split_by_sep) function
-= [vector2list]:vector2list(str_split_by_sep) function, vector2 per 2 elements
-= [vector3list]:vector3list(str_split_by_sep) function, vector3 per 3 elements
+= [float_list]:float_list(str_split_by_sep) function
+= [int_list]:int_list(str_split_by_sep) function
+= [vector_2_list]:vector_2_list(str_split_by_sep) function, vector2 per 2 elements
+= [vector_3_list]:vector_3_list(str_split_by_sep) function, vector3 per 3 elements
 ```
 ### H、基础api---数学
 
@@ -878,61 +878,61 @@ c#类型转换语义下的类型转换
 = [approximately]:approximately(v1,v2) function
 = [asin]:asin(v) function
 = [atan]:atan(v) function
-= [atan2]:atan2(v1,v2) function
+= [atan_2]:atan_2(v1,v2) function
 = [ceiling]:ceiling(val) function
-= [ceilingtoint]:ceilingtoint(v) function
+= [ceiling_to_int]:ceiling_to_int(v) function
 = [clamp]:clamp(v,v1,v2) function
-= [clamp01]:clamp01(v) function
-= [closestpoweroftwo]:closestpoweroftwo(v) function
+= [clamp_01]:clamp_01(v) function
+= [closest_power_of_two]:closest_power_of_two(v) function
 = [cos]:cos(val) function
 = [cosh]:cosh(val) function
 = [deg2rad]:deg2rad(deg) function
 = [rad2deg]:rad2deg(rad) function
 = [dist]:dist(x1,y1,x2,y2) function
-= [distsqr]:distsqr(x1,y1,x2,y2) function
+= [dist_sqr]:dist_sqr(x1,y1,x2,y2) function
 = [exp]:exp(v) function
-= [exp2]:exp2(v) function
+= [exp_2]:exp_2(v) function
 = [floor]:floor(val) function
-= [floortoint]:floortoint(v) function
-= [ispoweroftwo]:ispoweroftwo(v) function
+= [floor_to_int]:floor_to_int(v) function
+= [is_power_of_two]:is_power_of_two(v) function
 = [lerp]:lerp(a,b,t) function
-= [lerpangle]:lerpangle(a,b,t) function
-= [lerpunclamped]:lerpunclamped(a,b,t) function
+= [lerp_angle]:lerp_angle(a,b,t) function
+= [lerp_unclamped]:lerp_unclamped(a,b,t) function
 = [log]:log(x) or log(x,y) function
-= [log10]:log10(v) function
-= [log2]:log2(v) function
+= [log_10]:log_10(v) function
+= [log_2]:log_2(v) function
 = [max]:max(v1,v2,...) function
 = [min]:min(v1,v2,...) function
-= [nextpoweroftwo]:nextpoweroftwo(v) function
+= [next_power_of_two]:next_power_of_two(v) function
 = [pow]:pow(x) or pow(x,y) function
 = [exp]:exp(x) function
 = [round]:round(val) function
-= [roundtoint]:roundtoint(v) function
-= [smoothstep]:smoothstep(from,to,t) function
+= [round_to_int]:round_to_int(v) function
+= [smooth_step]:smooth_step(from,to,t) function
 = [sin]:sin(val) function
 = [sinh]:sinh(val) function
 = [sqrt]:sqrt(val) function
 = [tan]:tan(v) function
 = [tanh]:tanh(v) function
 
-= [vector2dist]:vector2dist(pt1,pt2) function
-= [vector3dist]:vector3dist(pt1,pt2) function
+= [vector_2_dist]:vector_2_dist(pt1,pt2) function
+= [vector_3_dist]:vector_3_dist(pt1,pt2) function
 ```
 ### I、基础api---文件操作
 
 - 命令类
 ```
-= [writealllines]:writealllines(file,lines) command
+= [write_all_lines]:write_all_lines(file,lines) command
 = [writefile]:writefile(file,txt) command
 ```
 - 函数类
 ```
-= [readalllines]:readalllines(file) function
+= [read_all_lines]:read_all_lines(file) function
 = [readfile]:readfile(file) function
-= [combinepath]:combinepath(path1,path2) function
-= [getdirname]:getdirname(path) function
-= [getextension]:getextension(path) function
-= [getfilename]:getfilename(path) function
+= [combine_path]:combine_path(path1,path2) function
+= [get_directory_name]:get_directory_name(path) function
+= [get_extension]:get_extension(path) function
+= [get_file_name]:get_file_name(path) function
 ```
 ### J、基础api---其它
 
@@ -943,130 +943,130 @@ c#类型转换语义下的类型转换
 ```
 - 函数类
 ```
-= [setdebug]:setdebug(1_or_0) command
+= [set_debug]:set_debug(1_or_0) command
 
 = [eval]:eval(exp1,exp2,...) function
 = [time]:time() function
 
-= [fromjson]:fromjson(json_str) function
-= [tojson]:tojson(obj) function
+= [from_json]:from_json(json_str) function
+= [to_json]:to_json(obj) function
 ```
 ### K、unity通用api---对象与组件
 
 - 命令类
 ```
-= [addcomponent]:addcomponent(obj_or_path,type_or_str)[obj("varname")] command
-= [removecomponent]:removecomponent(obj_or_path,type_or_str) command
+= [add_component]:add_component(obj_or_path,type_or_str)[obj("varname")] command
+= [remove_component]:remove_component(obj_or_path,type_or_str) command
 
-= [addtransform]:addtransform(name,local0_or_world1){position(vector3(x,y,z));rotation(vector3(x,y,z));scale(vector3(x,y,z));} command
+= [add_transform]:add_transform(name,local0_or_world1){position(vector_3(x,y,z));rotation(vector_3(x,y,z));scale(vector_3(x,y,z));} command
 
-= [creategameobject]:creategameobject(name,prefab[,parent])[obj("varname")]{position(vector3(x,y,z));rotation(vector3(x,y,z));scale(vector3(x,y,z));loadtimeout(1000);disable("typename", "typename", ...);remove("typename", "typename", ...);} command
-= [destroygameobject]:destroygameobject(path) command
+= [create_game_object]:create_game_object(name,prefab[,parent])[obj("varname")]{position(vector_3(x,y,z));rotation(vector_3(x,y,z));scale(vector_3(x,y,z));loadtimeout(1000);disable("typename", "typename", ...);remove("typename", "typename", ...);} command
+= [destroy_game_object]:destroy_game_object(path) command
 
-= [gameobjectanimation]:gameobjectanimation(obj, anim[, normalized_time]) command
-= [gameobjectanimationparam]:gameobjectanimationparam(obj){float(name,val);int(name,val);bool(name,val);trigger(name,val);} command
+= [game_object_animation]:game_object_animation(obj, anim[, normalized_time]) command
+= [game_object_animation_param]:game_object_animation_param(obj){float(name,val);int(name,val);bool(name,val);trigger(name,val);} command
 
-= [setparent]:setparent(obj_or_path,parent,int_stay_world_pos) command
-= [setactive]:setactive(obj_or_path,1_or_0) command
-= [setvisible]:setvisible(obj_or_path,1_or_0) command
+= [set_parent]:set_parent(obj_or_path,parent,int_stay_world_pos) command
+= [set_active]:set_active(obj_or_path,1_or_0) command
+= [set_visible]:set_visible(obj_or_path,1_or_0) command
 
-= [sendmessage]:sendmessage(objname,msg,arg1,arg2,...) command
-= [sendmessagewithgameobject]:sendmessagewithgameobject(gameobject,msg,arg1,arg2,...) command
-= [sendmessagewithtag]:sendmessagewithtag(tagname,msg,arg1,arg2,...) command
+= [send_message]:send_message(objname,msg,arg1,arg2,...) command
+= [send_message_with_game_object]:send_message_with_game_object(gameobject,msg,arg1,arg2,...) command
+= [send_message_with_tag]:send_message_with_tag(tagname,msg,arg1,arg2,...) command
 ```
 - 函数类
 ```
-= [equalsnull]:equalsnull(obj) function
-= [isnull]:isnull(obj) function
+= [equals_null]:equals_null(obj) function
+= [is_null]:is_null(obj) function
 = [null]:null() function
 
-= [getcomponent]:getcomponent(obj_or_path,type_or_str) function
-= [getcomponentinchildren]:getcomponentinchildren(obj_or_path,type_or_str[,int_inc_inactive]) function
-= [getcomponentinparent]:getcomponentinparent(obj_or_path,type_or_str[,int_inc_inactive]) function
-= [getcomponents]:getcomponents(obj_or_path,type_or_str) function
-= [getcomponentsinchildren]:getcomponentsinchildren(obj_or_path,type_or_str[,int_inc_inactive]) function
-= [getcomponentsinparent]:getcomponentsinparent(obj_or_path,type_or_str[,int_inc_inactive]) function
-= [getgameobject]:getgameobject(obj_or_path) or getgameobject(obj_or_path){disable(comp1,comp2,...);remove(comp1,comp2,...);} function
-= [getparent]:getparent(obj_or_path) function
-= [getchild]:getchild(obj_or_path,child_path) function
+= [get_component]:get_component(obj_or_path,type_or_str) function
+= [get_component_in_children]:get_component_in_children(obj_or_path,type_or_str[,int_inc_inactive]) function
+= [get_component_in_parent]:get_component_in_parent(obj_or_path,type_or_str[,int_inc_inactive]) function
+= [get_components]:get_components(obj_or_path,type_or_str) function
+= [get_components_in_children]:get_components_in_children(obj_or_path,type_or_str[,int_inc_inactive]) function
+= [get_components_in_parent]:get_components_in_parent(obj_or_path,type_or_str[,int_inc_inactive]) function
+= [get_game_object]:get_game_object(obj_or_path) or get_game_object(obj_or_path){disable(comp1,comp2,...);remove(comp1,comp2,...);} function
+= [get_parent]:get_parent(obj_or_path) function
+= [get_child]:get_child(obj_or_path,child_path) function
 
-= [isactive]:isactive(obj_or_path) function
-= [isreallyactive]:isreallyactive(obj_or_path) function
-= [isvisible]:isvisible(obj_or_path) function
+= [is_active]:is_active(obj_or_path) function
+= [is_really_active]:is_really_active(obj_or_path) function
+= [is_visible]:is_visible(obj_or_path) function
 ```
 ### L、unity通用api---对象空间位置
 
 - 命令类
 ```
-= [settransform]:settransform(name,local0_or_world1){position(vector3(x,y,z));rotation(vector3(x,y,z));scale(vector3(x,y,z));} command
+= [set_transform]:set_transform(name,local0_or_world1){position(vector_3(x,y,z));rotation(vector_3(x,y,z));scale(vector_3(x,y,z));} command
 ```
 - 函数类
 ```
-= [getposition]:getposition(obj_or_path[,local0_or_world1]) function
-= [getpositionx]:getpositionx(obj_or_path[,local0_or_world1]) function
-= [getpositiony]:getpositiony(obj_or_path[,local0_or_world1]) function
-= [getpositionz]:getpositionz(obj_or_path[,local0_or_world1]) function
-= [getrotation]:getrotation(obj_or_path[,local0_or_world1]) function
-= [getrotationx]:getrotationx(obj_or_path[,local0_or_world1]) function
-= [getrotationy]:getrotationy(obj_or_path[,local0_or_world1]) function
-= [getrotationz]:getrotationz(obj_or_path[,local0_or_world1]) function
-= [getscale]:getscale(obj_or_path) function
-= [getscalex]:getscalex(obj_or_path) function
-= [getscaley]:getscaley(obj_or_path) function
-= [getscalez]:getscalez(obj_or_path) function
+= [get_position]:get_position(obj_or_path[,local0_or_world1]) function
+= [get_position_x]:get_position_x(obj_or_path[,local0_or_world1]) function
+= [get_position_y]:get_position_y(obj_or_path[,local0_or_world1]) function
+= [get_position_z]:get_position_z(obj_or_path[,local0_or_world1]) function
+= [get_rotation]:get_rotation(obj_or_path[,local0_or_world1]) function
+= [get_rotation_x]:get_rotation_x(obj_or_path[,local0_or_world1]) function
+= [get_rotation_y]:get_rotation_y(obj_or_path[,local0_or_world1]) function
+= [get_rotation_z]:get_rotation_z(obj_or_path[,local0_or_world1]) function
+= [get_scale]:get_scale(obj_or_path) function
+= [get_scale_x]:get_scale_x(obj_or_path) function
+= [get_scale_y]:get_scale_y(obj_or_path) function
+= [get_scale_z]:get_scale_z(obj_or_path) function
 ```
 ### M、unity通用api---几个特殊值对象构造
 
 - 函数类
 ```
 = [color]:color(r,g,b,a) function
-= [color32]:color32(r,g,b,a) function
+= [color_32]:color_32(r,g,b,a) function
 = [eular]:eular(x,y,z) function
 = [position]:position(x,y,z) function
 = [quaternion]:quaternion(x,y,z,w) function
 = [rotation]:rotation(x,y,z) function
 = [scale]:scale(x,y,z) function
-= [vector2]:vector2(x,y) function
-= [vector2int]:vector2int(x,y) function
-= [vector2to3]:vector2to3(pt) function
-= [vector3]:vector3(x,y,z) function
-= [vector3int]:vector3int(x,y,z) function
-= [vector3to2]:vector3to2(pt) function
-= [vector4]:vector4(x,y,z,w) function
+= [vector_2]:vector_2(x,y) function
+= [vector_2_int]:vector_2_int(x,y) function
+= [vector_2_to_3]:vector_2_to_3(pt) function
+= [vector_3]:vector_3(x,y,z) function
+= [vector_3_int]:vector_3_int(x,y,z) function
+= [vector_3_to_2]:vector_3_to_2(pt) function
+= [vector_4]:vector_4(x,y,z,w) function
 ```
 ### N、unity通用api---随机
 
 - 函数类
 ```
-= [rndfloat]:rndfloat() function
-= [rndfromlist]:rndfromlist(list[,defval]) function
-= [rndint]:rndint(min,max) function
-= [rndvector2]:rndvector2(pt,radius) function
-= [rndvector3]:rndvector3(pt,radius) function
+= [rnd_float]:rnd_float() function
+= [rnd_from_list]:rnd_from_list(list[,defval]) function
+= [rnd_int]:rnd_int(min,max) function
+= [rnd_vector_2]:rnd_vector_2(pt,radius) function
+= [rnd_vector_3]:rnd_vector_3(pt,radius) function
 ```
 ### O、unity通用api---时间
 
 - 命令类
 ```
-= [settimescale]:settimescale(scale) command
+= [set_time_scale]:set_time_scale(scale) command
 ```
 - 函数类
 ```
-= [gettime]:gettime() function
-= [gettimescale]:gettimescale() function
+= [get_time]:get_time() function
+= [get_time_scale]:get_time_scale() function
 ```
 ### P、unity通用api---调试等
 
 - 调试
 ```
-= [logcodenum]:logcodenum() command，输出代码里的一个整数，用来确认版本是否符合，打包时先更新此值，运行时对比
+= [log_code_num]:log_code_num() command，输出代码里的一个整数，用来确认版本是否符合，打包时先更新此值，运行时对比
 
-= [debugbreak]:debugbreak() command，Debug.DebugBreak
-= [editorbreak]:editorbreak() command，Debug.Break
+= [debug_break]:debug_break() command，Debug.DebugBreak
+= [editor_break]:editor_break() command，Debug.Break
 ```
 - 打开UI
 ```
-= [openurl]:openurl(url) command
+= [open_url]:open_url(url) command
 ```
 - 退出
 ```
@@ -1076,17 +1076,17 @@ c#类型转换语义下的类型转换
 
 - 命令类
 ```
-= [loadui]:loadui(ui_name_dsl) command，加载指定的调试ui
-= [showui]:showui() command，显示当前加载的调试ui
-= [hideui]:hideui() command，隐藏当前调试ui
+= [load_ui]:load_ui(ui_name_dsl) command，加载指定的调试ui
+= [show_ui]:show_ui() command，显示当前加载的调试ui
+= [hide_ui]:hide_ui() command，隐藏当前调试ui
 ```
 ### R、启动时设置脚本
 
 - 命令类
 ```
 = [compilestartup]:compilestartup(startup_dsl_file) command，将启动时设置脚本翻译到C#代码
-= [reloadstartups]:reloadstartups(rungm) command，重新执行全部启动时设置脚本（/data/local/tmp/startup*.dsl）
-= [runstartup]:runstartup(startup_dsl_file,rungm) command，运行指定的启动时设置脚本
+= [reload_startups]:reload_startups(rungm) command，重新执行全部启动时设置脚本（/data/local/tmp/startup*.dsl）
+= [run_startup]:run_startup(startup_dsl_file,rungm) command，运行指定的启动时设置脚本
 = [logcstartups]:logcstartups() command，打印编译好的启动时设置脚本id
 ```
 ### S、游戏功能api---外部系统交互
@@ -1094,16 +1094,16 @@ c#类型转换语义下的类型转换
 - 命令类
 ```
 = [shell]:shell(cmd) command，异步执行系统命令
-= [shelltimeout]:shelltimeout(cmd,ms) command，异步执行系统命令，带超时时间
-= [cleanupcompletedtasks]:cleanupcompletedtasks() command，清理底层用于异步执行命令的Task
-= [usejavatask]:usejavatask(is_java) command，设置是否使用java任务机制，默认使用c#的Task
+= [shell_timeout]:shell_timeout(cmd,ms) command，异步执行系统命令，带超时时间
+= [cleanup_completed_tasks]:cleanup_completed_tasks() command，清理底层用于异步执行命令的Task
+= [use_java_task]:use_java_task(is_java) command，设置是否使用java任务机制，默认使用c#的Task
 
-= [startactivity]:startactivity(package_name[[,class_name[,flags]],extra_list_or_dict]) command，启动一个activity
+= [start_activity]:start_activity(package_name[[,class_name[,flags]],extra_list_or_dict]) command，启动一个activity
 
 目前GM脚本系统带了一个安卓插件（接收adb命令也是通过这个插件），里面有一个用来重启应用的activity，可如下使用
-startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivity",0,["package","com.DefaultCompany.Test","class","com.unity3d.player.UnityPlayerActivity","flags",0]);
+start_activity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivity",0,["package","com.DefaultCompany.Test","class","com.unity3d.player.UnityPlayerActivity","flags",0]);
 或
-startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivity",0,{"package":"com.DefaultCompany.Test","class":"com.unity3d.player.UnityPlayerActivity","flags":0});
+start_activity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivity",0,{"package":"com.DefaultCompany.Test","class":"com.unity3d.player.UnityPlayerActivity","flags":0});
 
 常用的flags:
 	0x00008000 Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -1112,121 +1112,121 @@ startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivit
 	0x10000000 Intent.FLAG_ACTIVITY_NEW_TASK
 	0x20000000 Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-= [finishactivity]:finishactivity() command，停止当前activity，相当于退出应用
+= [finish_activity]:finish_activity() command，停止当前activity，相当于退出应用
 
-= [startservice]:startservice(srv_class, extra_name, extra_val) command，启动一个service
-= [stopservice]:stopservice(srv_class) command，停止一个service
+= [start_service]:start_service(srv_class, extra_name, extra_val) command，启动一个service
+= [stop_service]:stop_service(srv_class) command，停止一个service
 
-= [setclipboard]:setclipboard(text) command，写系统剪贴板
+= [set_clipboard]:set_clipboard(text) command，写系统剪贴板
 ```
 - 函数类
 ```
 = [shell]:shell(cmd) function, return string，同步执行系统命令
-= [shelltimeout]:shelltimeout(cmd,ms) function, return string，同步执行系统命令，带超时时间
-= [isjavatask]:isjavatask() function, return int，是否使用的java任务机制
-= [gettaskcount]:gettaskcount() function, return int，当前Task数量
+= [shell_timeout]:shell_timeout(cmd,ms) function, return string，同步执行系统命令，带超时时间
+= [is_java_task]:is_java_task() function, return int，是否使用的java任务机制
+= [get_task_count]:get_task_count() function, return int，当前Task数量
 
-= [getclipboard]:getclipboard() function, get system clipboard content，读系统剪贴板
+= [get_clipboard]:get_clipboard() function, get system clipboard content，读系统剪贴板
 
 获取unity apk启动参数的函数（使用adb命令来传递参数）
-= [getbool]:getbool(str) function
-= [getboolarray]:getboolarray(str) function
-= [getbyte]:getbyte(str) function
-= [getbytearray]:getbytearray(str) function
-= [getchar]:getchar(str) function
-= [getchararray]:getchararray(str) function
-= [getdouble]:getdouble(str) function
-= [getdoublearray]:getdoublearray(str) function
-= [getfloat]:getfloat(str) function
-= [getfloatarray]:getfloatarray(str) function
-= [getint]:getint(str) function
-= [getintarray]:getintarray(str) function
-= [getlong]:getlong(str) function
-= [getlongarray]:getlongarray(str) function
-= [getshort]:getshort(str) function
-= [getshortarray]:getshortarray(str) function
-= [getstring]:getstring(str) function
-= [getstringarray]:getstringarray(str) function
+= [get_bool]:get_bool(str) function
+= [get_bool_array]:get_bool_array(str) function
+= [get_byte]:get_byte(str) function
+= [get_byte_array]:get_byte_array(str) function
+= [get_char]:get_char(str) function
+= [get_char_array]:get_char_array(str) function
+= [get_double]:get_double(str) function
+= [get_double_array]:get_double_array(str) function
+= [get_float]:get_float(str) function
+= [get_float_array]:get_float_array(str) function
+= [get_int]:get_int(str) function
+= [get_int_array]:get_int_array(str) function
+= [get_long]:get_long(str) function
+= [get_long_array]:get_long_array(str) function
+= [get_short]:get_short(str) function
+= [get_short_array]:get_short_array(str) function
+= [get_string]:get_string(str) function
+= [get_string_array]:get_string_array(str) function
 
-= [getactivityclass]:getactivityclass() function
+= [get_activity_class_name]:get_activity_class_name() function
 ```
 ### T、游戏功能api---wetest调用
 
 - 命令类
 ```
-= [wetesttouch]:wetesttouch(action,x,y) command, simulate touch event with WeTest
+= [wetest_touch]:wetest_touch(action,x,y) command, simulate touch event with WeTest
 ```
 - 函数类
 ```
-= [wetestheight]:wetestheight() function, WeTest GetHeight
-= [wetestwidth]:wetestwidth() function, WeTest GetWidth
-= [wetestx]:wetestx() function, WeTest GetX
-= [wetesty]:wetesty() function, WeTest GetY
+= [wetest_get_height]:wetest_get_height() function, WeTest GetHeight
+= [wetest_get_width]:wetest_get_width() function, WeTest GetWidth
+= [wetest_get_x]:wetest_get_x() function, WeTest GetX
+= [wetest_get_y]:wetest_get_y() function, WeTest GetY
 ```
 ### U、游戏功能api---设备查询
 
 - 命令类
 ```
-= [logprofiler]:logprofiler() command，输出性能数据日志（主要是内存信息）
-= [logresolutions]:logresolutions() command, print supported resolutions
+= [log_profiler]:log_profiler() command，输出性能数据日志（主要是内存信息）
+= [log_resolutions]:log_resolutions() command, print supported resolutions
 
-= [devicesupports]:devicesupports() command, print unsupported feature
-= [supportsgf]:supportsgf() command, print unsupported graphics format
-= [supportsrt]:supportsrt() command, print unsupported rt
-= [supportstex]:supportstex() command, print unsupported tex
-= [supportsva]:supportsva() command, print unsupported vertex attribute format
+= [device_supports]:device_supports() command, print unsupported feature
+= [supports_gfx_format]:supports_gfx_format() command, print unsupported graphics format
+= [supports_rt]:supports_rt() command, print unsupported rt
+= [supports_tex]:supports_tex() command, print unsupported tex
+= [supports_vertex_attribute_format]:supports_vertex_attribute_format() command, print unsupported vertex attribute format
 ```
 
 - 函数类
 ```
 = [app]:app() function, return typeof(Application)
-= [appid]:appid() function, return Application.identifier
-= [appname]:appname() function, return Application.productName
+= [app_id]:app_id() function, return Application.identifier
+= [app_name]:app_name() function, return Application.productName
 
-= [deviceinfo]:deviceinfo() function, get device name/model and gpu model
+= [device_info]:device_info() function, get device name/model and gpu model
 
-= [getcompatibleformat]:getcompatibleformat(fmt_str,usage_str) function
-= [getgraphicsformat]:getgraphicsformat(def_fmt) function
-= [getmsaasamplecount]:getmsaasamplecount(w,h,color_fmt,depth_bit,mip_ct) function
-= [istexsupported]:istexsupported(fmt_str,usage_str) function
+= [get_compatible_format]:get_compatible_format(fmt_str,usage_str) function
+= [get_graphics_format]:get_graphics_format(def_fmt) function
+= [get_msaa_sample_count]:get_msaa_sample_count(w,h,color_fmt,depth_bit,mip_ct) function
+= [is_format_supported]:is_format_supported(fmt_str,usage_str) function
 
-= [getpersistentpath]:getpersistentpath() function
-= [getstreamingassets]:getstreamingassets() function
+= [get_persistent_path]:get_persistent_path() function
+= [get_streaming_assets]:get_streaming_assets() function
 
-= [isandroid]:isandroid() function, return Application.platform==Android
-= [isconsole]:isconsole() function, return Application.isConsolePlatform
-= [isdebug]:isdebug() function
-= [isdev]:isdev() function
-= [iseditor]:iseditor() function, return Application.isEditor
-= [isiphone]:isiphone() function, return Application.platform==IPhone
-= [ismobile]:ismobile() function, return Application.isMobilePlatform
-= [ispc]:ispc() function, return not mobile and not console
+= [is_android]:is_android() function, return Application.platform==Android
+= [is_console]:is_console() function, return Application.isConsolePlatform
+= [is_debug]:is_debug() function
+= [is_development]:is_development() function
+= [is_editor]:is_editor() function, return Application.isEditor
+= [is_iphone]:is_iphone() function, return Application.platform==IPhone
+= [is_mobile]:is_mobile() function, return Application.isMobilePlatform
+= [is_pc]:is_pc() function, return not mobile and not console
 = [platform]:platform() function, return Application.platform
 
-= [sysinfo]:sysinfo() function, return typeof(SystemInfo)
+= [system_info]:system_info() function, return typeof(SystemInfo)
 = [shader]:shader() function, return typeof(Shader)
 = [screen]:screen() function, return typeof(Screen)
 
-= [screendpi]:screendpi() function, return Screen.dpi
-= [screenheight]:screenheight() function, return Screen.height
-= [screenwidth]:screenwidth() function, return Screen.width
+= [screen_dpi]:screen_dpi() function, return Screen.dpi
+= [screen_height]:screen_height() function, return Screen.height
+= [screen_width]:screen_width() function, return Screen.width
 ```
 
 ### V、游戏功能api---场景查询
 
 - 命令类
 ```
-= [logobjs]:logobjs(name_key,type) command
-= [logcomps]:logcomps(root_name,[name1,name2,...],type,up_level,include_inactive) command，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
-= [logscenepath]:logscenepath([prefixs],obj,up_level) command
+= [log_objects]:log_objects(name_key,type) command
+= [log_components]:log_components(root_name,[name1,name2,...],type,up_level,include_inactive) command，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
+= [log_scene_path]:log_scene_path([prefixs],obj,up_level) command
 ```
 - 函数类
 ```
-= [findobj]:findobj(name_key,type) function
-= [searchobjs]:searchobjs(name_key,type) function
-= [findcomp]:findcomp(root_name,[name1,name2,...],type,include_inactive) function，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
-= [searchcomps]:searchcomps(root_name,[name1,name2,...],type,include_inactive) function，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
-= [getscenepath]:getscenepath([prefixs],obj,up_level) function, return partial scene path
+= [find_object]:find_object(name_key,type) function
+= [search_objects]:search_objects(name_key,type) function
+= [find_component]:find_component(root_name,[name1,name2,...],type,include_inactive) function，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
+= [search_components]:search_components(root_name,[name1,name2,...],type,include_inactive) function，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
+= [get_scene_path]:get_scene_path([prefixs],obj,up_level) function, return partial scene path
 ```
 ### W、游戏功能api---UI操作
 
@@ -1235,87 +1235,87 @@ startactivity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivit
 - 命令类
 ```
 = [click]:click(uiobj) command，触发指定Button的点击事件
-= [clickonpos]:clickonpos(x,y) command，触发指定屏幕坐标位置的Button的点击事件
-= [clickonptr]:clickonptr() command，触发在鼠标当前位置的点击事件处理（用于Button控件点击）
-= [clickui]:clickui(name1,name2,...) command，搜索场景路径上包含name1,name2,...的Button控件（name完全匹配某一层级名字，各name不需要是连续层次的名字，只要路径上名称顺序符合，中间可以跳过一些层级的名字），并触发其点击事件
+= [click_on_pos]:click_on_pos(x,y) command，触发指定屏幕坐标位置的Button的点击事件
+= [click_on_pointer]:click_on_pointer() command，触发在鼠标当前位置的点击事件处理（用于Button控件点击）
+= [click_ui]:click_ui(name1,name2,...) command，搜索场景路径上包含name1,name2,...的Button控件（name完全匹配某一层级名字，各name不需要是连续层次的名字，只要路径上名称顺序符合，中间可以跳过一些层级的名字），并触发其点击事件
 
 = [toggle]:toggle(uiobj) command，切换指定Toggle的选中状态
-= [toggleon]:toggleon(name1,name2,...) command，搜索场景路径上包含name1,name2,...的Toggle控件（name完全匹配某一层级名字，各name不需要是连续层次的名字，只要路径上名称顺序符合，中间可以跳过一些层级的名字），并切换其选中状态
-= [toggleonpos]:toggleonpos(x,y) command，切换在指定屏幕坐标位置的Toggle的选中状态
-= [toggleonptr]:toggleonptr() command，切换在鼠标当前位置的Toggle的选中状态
+= [toggle_on]:toggle_on(name1,name2,...) command，搜索场景路径上包含name1,name2,...的Toggle控件（name完全匹配某一层级名字，各name不需要是连续层次的名字，只要路径上名称顺序符合，中间可以跳过一些层级的名字），并切换其选中状态
+= [toggle_on_pos]:toggle_on_pos(x,y) command，切换在指定屏幕坐标位置的Toggle的选中状态
+= [toggle_on_pointer]:toggle_on_pointer() command，切换在鼠标当前位置的Toggle的选中状态
 ```
 - 函数类（其中name1,name2,...用来匹配组件所在对象的场景路径，与命令部分相似）
 ```
-= [findbutton]:findbutton(name1,name2,...) function
-= [finddropdown]:finddropdown(name1,name2,...) function
-= [findinput]:findinput(name1,name2,...) function
-= [findrawimg]:findrawimg(name1,name2,...) function
-= [findslider]:findslider(name1,name2,...) function
-= [findtmpdropdown]:findtmpdropdown(name1,name2,...) function
-= [findtmpinput]:findtmpinput(name1,name2,...) function
-= [findtoggle]:findtoggle(name1,name2,...) function
-= [finduiimg]:finduiimg(name1,name2,...) function
+= [find_ui_button]:find_ui_button(name1,name2,...) function
+= [find_ui_dropdown]:find_ui_dropdown(name1,name2,...) function
+= [find_ui_input]:find_ui_input(name1,name2,...) function
+= [find_raw_image]:find_raw_image(name1,name2,...) function
+= [find_ui_slider]:find_ui_slider(name1,name2,...) function
+= [find_tmp_dropdown]:find_tmp_dropdown(name1,name2,...) function
+= [find_tmp_input]:find_tmp_input(name1,name2,...) function
+= [find_ui_toggle]:find_ui_toggle(name1,name2,...) function
+= [find_ui_image]:find_ui_image(name1,name2,...) function
 
-= [getpointer]:getpointer() function, return Input.mousePosition
-= [getptrcomps]:getptrcomps(type,include_inactive) function, return List<Component>，向鼠标位置打射线，返回命中的指定类型的组件列表
-= [getptruis]:getptruis() function, return List<UnityEngine.EventSystems.RaycastResult>，向鼠标位置打射线，返回命中的ui控件信息
+= [get_pointer]:get_pointer() function, return Input.mousePosition
+= [get_pointer_components]:get_pointer_components(type,include_inactive) function, return List<Component>，向鼠标位置打射线，返回命中的指定类型的组件列表
+= [pointer_raycast_uis]:pointer_raycast_uis() function, return List<UnityEngine.EventSystems.RaycastResult>，向鼠标位置打射线，返回命中的ui控件信息
 
-= [raycastcomps]:raycastcomps(x,y,type,include_inactive) function, return List<Component>，向指定屏幕位置打射线，返回命中的指定类型的组件列表
-= [raycastuis]:raycastuis(x,y) function, return List<UnityEngine.EventSystems.RaycastResult>，向指定屏幕位置打射线，返回命中的ui控件信息
+= [raycast_components]:raycast_components(x,y,type,include_inactive) function, return List<Component>，向指定屏幕位置打射线，返回命中的指定类型的组件列表
+= [raycast_uis]:raycast_uis(x,y) function, return List<UnityEngine.EventSystems.RaycastResult>，向指定屏幕位置打射线，返回命中的ui控件信息
 ```
 
 ### X、游戏功能api---材质参数
 
 - 命令类
 ```
-= [logmesh]:logmesh(mesh_or_path) command
+= [log_mesh]:log_mesh(mesh_or_path) command
 
-= [setmat]:setmat(renderer_or_path,mat_or_path) or setmat(renderer_or_path,ix,mat_or_path) or setmat(renderer_or_path,ix,mats_or_path,ix) command
-= [setmats]:setmats(mesh_or_path,mats_or_path) command
-= [setsmat]:setsmat(renderer_or_path,mat_or_path) or setsmat(renderer_or_path,ix,mat_or_path) or setsmat(renderer_or_path,ix,mats_or_path,ix) command
-= [setsmats]:setsmats(mesh_or_path,mats_or_path) command
+= [set_material]:set_material(renderer_or_path,mat_or_path) or set_material(renderer_or_path,ix,mat_or_path) or set_material(renderer_or_path,ix,mats_or_path,ix) command
+= [set_materials]:set_materials(mesh_or_path,mats_or_path) command
+= [set_shared_material]:set_shared_material(renderer_or_path,mat_or_path) or set_shared_material(renderer_or_path,ix,mat_or_path) or set_shared_material(renderer_or_path,ix,mats_or_path,ix) command
+= [set_shared_materials]:set_shared_materials(mesh_or_path,mats_or_path) command
 
-= [matsetcolor]:matsetcolor(mat_or_path,key,val) command, Material.SetColor
-= [matsetfloat]:matsetfloat(mat_or_path,key,val) command, Material.SetFloat
-= [matsetint]:matsetint(mat_or_path,key,val) command, Material.SetInt
-= [matsetinteger]:matsetinteger(mat_or_path,key,val) command, Material.SetInteger
-= [matsetvector]:matsetvector(mat_or_path,key,val) command, Material.SetVector
+= [material_set_color]:material_set_color(mat_or_path,key,val) command, Material.SetColor
+= [material_set_float]:material_set_float(mat_or_path,key,val) command, Material.SetFloat
+= [material_set_int]:material_set_int(mat_or_path,key,val) command, Material.SetInt
+= [material_set_integer]:material_set_integer(mat_or_path,key,val) command, Material.SetInteger
+= [material_set_vector]:material_set_vector(mat_or_path,key,val) command, Material.SetVector
 ```
 - 函数类
 ```
-= [getmat]:getmat(mat_or_path[,index]) function, renderer.material[s[ix]]
-= [getsmat]:getsmat(mat_or_path[,index]) function, renderer.sharedMaterial[s[ix]]
+= [get_material]:get_material(mat_or_path[,index]) function, renderer.material[s[ix]]
+= [get_shared_material]:get_shared_material(mat_or_path[,index]) function, renderer.sharedMaterial[s[ix]]
 
-= [matgetcolor]:matgetcolor(mat_or_path,key) function, Material.GetColor
-= [matgetfloat]:matgetfloat(mat_or_path,key) function, Material.GetFloat
-= [matgetint]:matgetint(mat_or_path,key) function, Material.GetInt
-= [matgetinteger]:matgetinteger(mat_or_path,key) function, Material.GetInteger
-= [matgetvector]:matgetvector(mat_or_path,key) function, Material.GetVector
+= [material_get_color]:material_get_color(mat_or_path,key) function, Material.GetColor
+= [material_get_float]:material_get_float(mat_or_path,key) function, Material.GetFloat
+= [material_get_int]:material_get_int(mat_or_path,key) function, Material.GetInt
+= [material_get_integer]:material_get_integer(mat_or_path,key) function, Material.GetInteger
+= [material_get_vector]:material_get_vector(mat_or_path,key) function, Material.GetVector
 ```
 ### Y、游戏功能api---PlayerPrefs
 
 - 命令类
 ```
-= [prefbyjava]:prefbyjava(key,val) command
-= [preffloat]:preffloat(key,val) command
-= [prefint]:prefint(key,val) command
-= [prefstr]:prefstr(key,val) command
+= [player_pref_set_by_java]:player_pref_set_by_java(key,val) command
+= [player_pref_set_float]:player_pref_set_float(key,val) command
+= [player_pref_set_int]:player_pref_set_int(key,val) command
+= [player_pref_set_string]:player_pref_set_string(key,val) command
 ```
 - 函数类
 ```
-= [prefbyjava]:prefbyjava(key,defval) function
-= [preffloat]:preffloat(key,defval) function
-= [prefint]:prefint(key,defval) function
-= [prefstr]:prefstr(key,defval) function
+= [player_pref_get_by_java]:player_pref_get_by_java(key,defval) function
+= [player_pref_get_float]:player_pref_get_float(key,defval) function
+= [player_pref_get_int]:player_pref_get_int(key,defval) function
+= [player_pref_get_string]:player_pref_get_string(key,defval) function
 ```
 ### Z、游戏功能api---内存查询
 
 - 命令类
 ```
-= [allocmemory]:allocmemory(key,size) command
-= [freememory]:freememory(key) command
+= [alloc_memory]:alloc_memory(key,size) command
+= [free_memory]:free_memory(key) command
 = [gc]:gc() command, force Garbage Collect
-= [consumecpu]:consumecpu(time) command
+= [consume_cpu]:consume_cpu(time) command
 ```
 - 函数类
 ```

@@ -23,7 +23,7 @@ using Unity.Collections.LowLevel.Unsafe;
 
 internal sealed class EditorDslEditWindow : EditorWindow
 {
-    [MenuItem("Tests/DSL脚本工具/DSL编辑器命令", false, 9999)]
+    [MenuItem("Dsl资源工具/编辑器命令", false, 199)]
     internal static void InitWindowAndShowCommand()
     {
         EditorDslEditWindow window = (EditorDslEditWindow) EditorWindow.GetWindow(typeof(EditorDslEditWindow));
@@ -32,7 +32,7 @@ internal sealed class EditorDslEditWindow : EditorWindow
         EditorUtility.ClearProgressBar();
         window.ShowCommand();
     }
-    [MenuItem("Tests/DSL脚本工具/DSL资源工具", false, 10000)]
+    [MenuItem("Dsl资源工具/资源处理", false, 200)]
     internal static void InitWindow()
     {
         EditorDslEditWindow window = (EditorDslEditWindow)EditorWindow.GetWindow(typeof(EditorDslEditWindow));

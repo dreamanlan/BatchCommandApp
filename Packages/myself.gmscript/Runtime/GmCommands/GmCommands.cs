@@ -3081,12 +3081,12 @@ namespace GmCommands
             Vector4Obj v4obj = null;
             float interval = 0.1f;
             switch (args.Count) {
-                case 1://setviewer(key)
+                case 1://add_or_update_scene_viewer(key)
                     break;
-                case 2://setviewer(key,rect)
+                case 2://add_or_update_scene_viewer(key,rect)
                     v4obj = args[1].As<Vector4Obj>();
                     break;
-                case 3://setviewer(key,rect,interval)
+                case 3://add_or_update_scene_viewer(key,rect,interval)
                     v4obj = args[1].As<Vector4Obj>();
                     interval = args[2].GetFloat();
                     break;
@@ -3146,25 +3146,25 @@ namespace GmCommands
                 if (null != viewer) {
                     Transform player = AddOrUpdateSceneViewerCommand.GetCameraTarget();
                     switch (args.Count) {
-                        case 1://viewerlookat(key)
+                        case 1://scene_viewer_look_at(key)
                             if (null != player) {
                                 viewer.target = player;
                             }
                             break;
-                        case 2://viewerlookat(key, distance)
+                        case 2://scene_viewer_look_at(key, distance)
                             if (null != player) {
                                 viewer.target = player;
                             }
                             viewer.distToTarget = args[1].GetFloat();
                             break;
-                        case 3://viewerlookat(key, distance, direction)
+                        case 3://scene_viewer_look_at(key, distance, direction)
                             if (null != player) {
                                 viewer.target = player;
                             }
                             viewer.distToTarget = args[1].GetFloat();
                             viewer.direction = args[2].As<Vector3Obj>().Value;
                             break;
-                        case 4://viewerlookat(key, distance, direction, target)
+                        case 4://scene_viewer_look_at(key, distance, direction, target)
                             viewer.distToTarget = args[1].GetFloat();
                             viewer.direction = args[2].As<Vector3Obj>().Value;
                             if (args[3].IsString) {

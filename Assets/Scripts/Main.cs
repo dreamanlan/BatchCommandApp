@@ -309,27 +309,27 @@ public class Main : MonoBehaviour
     }
     public static void RegisterGmApi(DslCalculatorApiRegistry registry)
     {
-        registry.Register("loadscp", "loadscp(dsl_script_file) or loadscp(\"name\", func(param1, param2, ...)) or loadscp(name => func(param1, param2, ...)) command", new ExpressionFactoryHelper<LoadScriptCommand>());
-        registry.Register("callscp", "callscp(\"func\", arg1, arg2, ...) or callscp(apiOrFunc(arg1, arg2, ...)) command", new ExpressionFactoryHelper<CallScriptCommand>());
-        registry.Register("evalscp", "evalscp(code_str) or evalscp(exp1,exp2,...) command", new ExpressionFactoryHelper<EvalScriptCommand>());
-        registry.Register("copypdf", "copypdf(file,page_start,page_count) command, copy pdf to clipboard", new ExpressionFactoryHelper<CopyPdfExp>());
-        registry.Register("showmemory", "showmemory() command", new ExpressionFactoryHelper<ShowMemoryExp>());
+        registry.Register("load_scp", "load_scp(dsl_script_file) or load_scp(\"name\", func(param1, param2, ...)) or load_scp(name => func(param1, param2, ...)) command", new ExpressionFactoryHelper<LoadScriptCommand>());
+        registry.Register("call_scp", "call_scp(\"func\", arg1, arg2, ...) or call_scp(apiOrFunc(arg1, arg2, ...)) command", new ExpressionFactoryHelper<CallScriptCommand>());
+        registry.Register("eval_scp", "eval_scp(code_str) or eval_scp(exp1,exp2,...) command", new ExpressionFactoryHelper<EvalScriptCommand>());
+        registry.Register("copy_pdf", "copy_pdf(file,page_start,page_count) command, copy pdf to clipboard", new ExpressionFactoryHelper<CopyPdfExp>());
+        registry.Register("show_memory", "show_memory() command", new ExpressionFactoryHelper<ShowMemoryExp>());
         registry.Register("jc", "jc(jclass) or jc(str) function", new ExpressionFactoryHelper<JavaClassExp>());
         registry.Register("jo", "jo(jobj) or jo(str,arg1,arg2,...) function", new ExpressionFactoryHelper<JavaObjectExp>());
         registry.Register("jp", "jp(class_str,scp_method) function", new ExpressionFactoryHelper<JavaProxyExp>());
         registry.Register("oc", "oc(str) function", new ExpressionFactoryHelper<ObjectcClassExp>());
         registry.Register("oo", "oo(objId) function", new ExpressionFactoryHelper<ObjectcObjectExp>());
-        registry.Register("getpss", "getpss() function", new ExpressionFactoryHelper<GetPssExp>());
-        registry.Register("getvss", "getvss() function", new ExpressionFactoryHelper<GetVssExp>());
-        registry.Register("getnative", "getnative() function", new ExpressionFactoryHelper<GetNativeExp>());
-        registry.Register("getgraphics", "getgraphics() function", new ExpressionFactoryHelper<GetGraphicsExp>());
-        registry.Register("getunknown", "getunknown() function", new ExpressionFactoryHelper<GetUnknownExp>());
-        registry.Register("getjava", "getjava() function", new ExpressionFactoryHelper<GetJavaExp>());
-        registry.Register("getcode", "getcode() function", new ExpressionFactoryHelper<GetCodeExp>());
-        registry.Register("getstack", "getstack() function", new ExpressionFactoryHelper<GetStackExp>());
-        registry.Register("getsystem", "getsystem() function", new ExpressionFactoryHelper<GetSystemExp>());
-        registry.Register("getactivity", "getactivity() function", new ExpressionFactoryHelper<GetActivityExp>());
-        registry.Register("getintent", "getintent() function", new ExpressionFactoryHelper<GetIntentExp>());
+        registry.Register("get_pss", "get_pss() function", new ExpressionFactoryHelper<GetPssExp>());
+        registry.Register("get_vss", "get_vss() function", new ExpressionFactoryHelper<GetVssExp>());
+        registry.Register("get_native", "get_native() function", new ExpressionFactoryHelper<GetNativeExp>());
+        registry.Register("get_graphics", "get_graphics() function", new ExpressionFactoryHelper<GetGraphicsExp>());
+        registry.Register("get_unknown", "get_unknown() function", new ExpressionFactoryHelper<GetUnknownExp>());
+        registry.Register("get_java", "get_java() function", new ExpressionFactoryHelper<GetJavaExp>());
+        registry.Register("get_code", "get_code() function", new ExpressionFactoryHelper<GetCodeExp>());
+        registry.Register("get_stack", "get_stack() function", new ExpressionFactoryHelper<GetStackExp>());
+        registry.Register("get_system", "get_system() function", new ExpressionFactoryHelper<GetSystemExp>());
+        registry.Register("get_activity", "get_activity() function", new ExpressionFactoryHelper<GetActivityExp>());
+        registry.Register("get_intent", "get_intent() function", new ExpressionFactoryHelper<GetIntentExp>());
     }
 
     private static Main s_Instance = null;
@@ -590,11 +590,11 @@ internal static class MemoryInfo
 namespace ExpressionAPI
 {
     /// <summary>
-    /// loadscp(dsl_script_file);
+    /// load_scp(dsl_script_file);
     /// or
-    /// loadscp("name", apiOrFunc(param1, param2, ...));
+    /// load_scp("name", apiOrFunc(param1, param2, ...));
     /// or
-    /// loadscp(name => apiOrFunc(param1, param2, ...));
+    /// load_scp(name => apiOrFunc(param1, param2, ...));
     /// </summary>
     internal sealed class LoadScriptCommand : AbstractExpression
     {
@@ -656,9 +656,9 @@ namespace ExpressionAPI
         private List<string> m_Params = new List<string>();
     }
     /// <summary>
-    /// callscp("func", arg1, arg2, ...);
+    /// call_scp("func", arg1, arg2, ...);
     /// or
-    /// callscp(apiOrFunc(arg1, arg2, ...));
+    /// call_scp(apiOrFunc(arg1, arg2, ...));
     /// </summary>
     internal sealed class CallScriptCommand : AbstractExpression
     {
@@ -715,9 +715,9 @@ namespace ExpressionAPI
         private List<IExpression> m_Args = new List<IExpression>();
     }
     /// <summary>
-    /// evalscp(code_string);
+    /// eval_scp(code_string);
     /// or
-    /// evalscp(code_dsl);
+    /// eval_scp(code_dsl);
     /// </summary>
     internal sealed class EvalScriptCommand : AbstractExpression
     {

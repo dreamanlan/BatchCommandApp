@@ -452,129 +452,129 @@ public static class EditorDslProcessorUtility
     {
         calc.OnLog = msg => { UnityEngine.Debug.LogError(msg); };
         calc.NewApiRegistry();
-        calc.Register("callscript", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CallScriptExp>());
-        calc.Register("setredirect", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetRedirectExp>());
-        calc.Register("newitem", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.NewItemExp>());
-        calc.Register("setextraobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetExtraObjectExp>());
-        calc.Register("getextraobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetExtraObjectExp>());
-        calc.Register("calcextraobjectfieldcount", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcExtraObjectFieldCountExp>());
-        calc.Register("newextralist", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.NewExtraListExp>());
-        calc.Register("extralistadd", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ExtraListAddExp>());
-        calc.Register("extralistclear", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ExtraListClearExp>());
-        calc.Register("getreferenceassets", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetReferenceAssetsExp>());
-        calc.Register("getreferencebyassets", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetReferenceByAssetsExp>());
-        calc.Register("calcrefcount", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcRefCountExp>());
-        calc.Register("calcrefbycount", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcRefByCountExp>());
-        calc.Register("findasset", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindAssetExp>());
-        calc.Register("selectframe", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectFrameExp>());
-        calc.Register("filtercpusample", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FilterCpuSampleExp>());
-        calc.Register("filtergpusample", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FilterGpuSampleExp>());
-        calc.Register("selectsample", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectSampleExp>());
-        calc.Register("selectpropertypath", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectPropertyPathExp>());
-        calc.Register("setmarkerfilter", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMarkerFilterExp>());
-        calc.Register("loadidaprosymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadIdaproSymbolsExp>());
-        calc.Register("loadxcodesymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadXcodeSymbolsExp>());
-        calc.Register("loadbuglyandroidsymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadBuglyAndroidSymbolsExp>());
-        calc.Register("loadbuglyiossymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadBuglyIosSymbolsExp>());
-        calc.Register("converttorelativeaddrs", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ConvertToRelativeAddrsExp>());
-        calc.Register("mapbuglyandroidsymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MapBuglyAndroidSymbolsExp>());
-        calc.Register("mapbuglyiossymbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MapBuglyIosSymbolsExp>());
+        calc.Register("call_script", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CallScriptExp>());
+        calc.Register("set_redirect", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetRedirectExp>());
+        calc.Register("new_item", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.NewItemExp>());
+        calc.Register("set_extraobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetExtraObjectExp>());
+        calc.Register("get_extraobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetExtraObjectExp>());
+        calc.Register("calc_extraobject_field_count", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcExtraObjectFieldCountExp>());
+        calc.Register("new_extra_list", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.NewExtraListExp>());
+        calc.Register("extra_list_add", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ExtraListAddExp>());
+        calc.Register("extra_list_clear", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ExtraListClearExp>());
+        calc.Register("get_reference_assets", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetReferenceAssetsExp>());
+        calc.Register("get_reference_by_assets", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetReferenceByAssetsExp>());
+        calc.Register("calc_ref_count", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcRefCountExp>());
+        calc.Register("calc_ref_by_count", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcRefByCountExp>());
+        calc.Register("find_asset", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindAssetExp>());
+        calc.Register("select_frame", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectFrameExp>());
+        calc.Register("filtercpu_sample", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FilterCpuSampleExp>());
+        calc.Register("filtergpu_sample", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FilterGpuSampleExp>());
+        calc.Register("select_sample", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectSampleExp>());
+        calc.Register("select_property_path", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectPropertyPathExp>());
+        calc.Register("set_marker_filter", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMarkerFilterExp>());
+        calc.Register("loadidapro_symbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadIdaproSymbolsExp>());
+        calc.Register("loadxcode_symbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadXcodeSymbolsExp>());
+        calc.Register("loadbugly_android_symbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadBuglyAndroidSymbolsExp>());
+        calc.Register("loadbuglyios_symbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadBuglyIosSymbolsExp>());
+        calc.Register("convert_to_relativeaddrs", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ConvertToRelativeAddrsExp>());
+        calc.Register("map_bugly_android_symbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MapBuglyAndroidSymbolsExp>());
+        calc.Register("map_buglyios_symbols", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MapBuglyIosSymbolsExp>());
         calc.Register("grep", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GrepExp>());
         calc.Register("subst", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SubstExp>());
-        calc.Register("setclipboard", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetClipboardExp>());
-        calc.Register("getclipboard", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetClipboardExp>());
-        calc.Register("selectobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectObjectExp>());
-        calc.Register("selectprojectobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectProjectObjectExp>());
-        calc.Register("selectsceneobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectSceneObjectExp>());
-        calc.Register("saveandreimport", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SaveAndReimportExp>());
+        calc.Register("set_clipboard", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetClipboardExp>());
+        calc.Register("get_clipboard", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetClipboardExp>());
+        calc.Register("select_object", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectObjectExp>());
+        calc.Register("select_projectobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectProjectObjectExp>());
+        calc.Register("select_sceneobject", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SelectSceneObjectExp>());
+        calc.Register("save_and_reimport", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SaveAndReimportExp>());
         calc.Register("asset_refresh", "asset_refresh([asset_path]) - reimport one asset (ForceUpdate) or refresh the whole AssetDatabase; use after editing .mat/.shader YAML externally", new ExpressionFactoryHelper<EditorDslProcessorApi.AssetRefreshExp>());
-        calc.Register("setdirty", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetDirtyExp>());
-        calc.Register("getdefaulttexturesetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetDefaultTextureSettingExp>());
-        calc.Register("gettexturesetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureSettingExp>());
-        calc.Register("settexturesetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetTextureSettingExp>());
-        calc.Register("textureisnotastc", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.TextureIsNotAstcExp>());
-        calc.Register("isastctexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IsAstcTextureExp>());
-        calc.Register("setastctexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAstcTextureExp>());
-        calc.Register("issceneastctexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IsSceneAstcTextureExp>());
-        calc.Register("setsceneastctexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetSceneAstcTextureExp>());
-        calc.Register("istexturenoalphasource", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IsTextureNoAlphaSourceExp>());
-        calc.Register("doestexturehavealpha", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.DoesTextureHaveAlphaExp>());
-        calc.Register("correctnonealphatexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CorrectNoneAlphaTextureExp>());
-        calc.Register("setnonealphatexture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetNoneAlphaTextureExp>());
-        calc.Register("gettexturecompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureCompressionExp>());
-        calc.Register("settexturecompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetTextureCompressionExp>());
-        calc.Register("gettexturestorage", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureStorageMemorySizeExp>());
-        calc.Register("gettexturememory", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureRuntimeMemorySizeExp>());
-        calc.Register("getruntimememory", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetRuntimeMemorySizeExp>());
-        calc.Register("setmaxboundingbox", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMaxBoundingBoxExp>());
-        calc.Register("resetboundingbox", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ResetBoundingBoxExp>());
-        calc.Register("mergeboundingbox", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MergeBoundingBoxExp>());
-        calc.Register("getboundingbox", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetBoundingBoxExp>());
-        calc.Register("addorupdateboundingbox", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.AddOrUpdateBoundingBoxExp>());
-        calc.Register("getmeshcompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetMeshCompressionExp>());
-        calc.Register("setmeshcompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMeshCompressionExp>());
-        calc.Register("setmeshimportexternalmaterials", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMeshImportExternalMaterialsExp>());
-        calc.Register("setmeshimportinprefabmaterials", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMeshImportInPrefabMaterialsExp>());
-        calc.Register("closemeshanimationifnoanimation", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CloseMeshAnimationIfNoAnimationExp>());
-        calc.Register("singlemeshinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SingleMeshInfoExp>());
-        calc.Register("collectmeshes", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectMeshesExp>());
-        calc.Register("collectmeshinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectMeshInfoExp>());
-        calc.Register("collectanimatorcontrollerinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectAnimatorControllerInfoExp>());
-        calc.Register("collectprefabinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectPrefabInfoExp>());
-        calc.Register("getanimationclipinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAnimationClipInfoExp>());
-        calc.Register("getanimationcompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAnimationCompressionExp>());
-        calc.Register("setanimationcompression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAnimationCompressionExp>());
-        calc.Register("getanimationtype", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAnimationTypeExp>());
-        calc.Register("setanimationtype", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAnimationTypeExp>());
-        calc.Register("setextraexposedtransformpaths", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetExtraExposedTransformPathsExp>());
-        calc.Register("clearanimationscalecurve", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ClearAnimationScaleCurveExp>());
-        calc.Register("getaudiosetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAudioSettingExp>());
-        calc.Register("setaudiosetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAudioSettingExp>());
-        calc.Register("calcmeshvertexcomponentcount", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMeshVertexComponentCountExp>());
-        calc.Register("calcmeshtexratio", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMeshTexRatioExp>());
-        calc.Register("calcassetmd5", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcAssetMd5Exp>());
-        calc.Register("calcassetsize", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcAssetSizeExp>());
-        calc.Register("deleteasset", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.DeleteAssetExp>());
-        calc.Register("getshaderutil", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetShaderUtilExp>());
-        calc.Register("getshaderpropertycount", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetShaderPropertyCountExp>());
-        calc.Register("getshaderpropertynames", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetShaderPropertyNamesExp>());
-        calc.Register("removeyamlleafproperties", "removeyamlleafproperties(asset_path,property1,property2,...)", new ExpressionFactoryHelper<EditorDslProcessorApi.RemoveYamlLeafPropertiesExp>());
-        calc.Register("checkyaml", "checkyaml(asset_path[,int_start,int_count,bool_partial_conflict])", new ExpressionFactoryHelper<EditorDslProcessorApi.CheckYamlExp>());
-        calc.Register("ispathtoolong", "ispathtoolong(asset_path)", new ExpressionFactoryHelper<EditorDslProcessorApi.IsPathTooLongExp>());
-        calc.Register("findrowindex", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindRowIndexExp>());
-        calc.Register("findrowindexes", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindRowIndexesExp>());
-        calc.Register("findcellindex", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindCellIndexExp>());
-        calc.Register("findcellindexes", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindCellIndexesExp>());
-        calc.Register("getcellvalue", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetCellValueExp>());
-        calc.Register("getcellstring", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetCellStringExp>());
-        calc.Register("getcellnumeric", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetCellNumericExp>());
-        calc.Register("rowtoline", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.RowToLineExp>());
-        calc.Register("tabletohashtable", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.TableToHashtableExp>());
-        calc.Register("findrowfromhashtable", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindRowFromHashtableExp>());
-        calc.Register("loadmanagedheaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadManagedHeapsExp>());
-        calc.Register("findmanagedheaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindManagedHeapsExp>());
-        calc.Register("matchmanagedheaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MatchManagedHeapsExp>());
-        calc.Register("calcmatchedmanagedheapsdiff", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMatchedManagedHeapsDiffExp>());
-        calc.Register("loadmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadMapsExp>());
-        calc.Register("findmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindMapsExp>());
-        calc.Register("matchmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MatchMapsExp>());
-        calc.Register("calcmatchedmapsdiff", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMatchedMapsDiffExp>());
-        calc.Register("loadsmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadSmapsExp>());
-        calc.Register("findsmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindSmapsExp>());
-        calc.Register("matchsmaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MatchSmapsExp>());
-        calc.Register("calcmatchedsmapsdiff", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMatchedSmapsDiffExp>());
-        calc.Register("loadaddrs", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadAddrsExp>());
-        calc.Register("escapeurl", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.EscapeUrlExp>());
-        calc.Register("unescapeurl", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.UnEscapeUrlExp>());
-        calc.Register("parseurlargs", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ParseUrlArgsExp>());
-        calc.Register("parsebuglyinfo", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ParseBuglyInfoExp>());
-        calc.Register("inthashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IntHashContainsExp>());
-        calc.Register("uinthashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.UintHashContainsExp>());
-        calc.Register("longhashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LongHashContainsExp>());
-        calc.Register("ulonghashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.UlongHashContainsExp>());
-        calc.Register("floathashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FloatHashContainsExp>());
-        calc.Register("doublehashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.DoubleHashContainsExp>());
-        calc.Register("stringhashcontains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.StringHashContainsExp>());
+        calc.Register("set_dirty", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetDirtyExp>());
+        calc.Register("get_default_texture_setting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetDefaultTextureSettingExp>());
+        calc.Register("get_texture_setting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureSettingExp>());
+        calc.Register("set_texture_setting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetTextureSettingExp>());
+        calc.Register("texture_is_not_astc", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.TextureIsNotAstcExp>());
+        calc.Register("is_astc_texture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IsAstcTextureExp>());
+        calc.Register("set_astc_texture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAstcTextureExp>());
+        calc.Register("is_scene_astc_texture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IsSceneAstcTextureExp>());
+        calc.Register("set_scene_astc_texture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetSceneAstcTextureExp>());
+        calc.Register("is_texture_no_alpha_source", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IsTextureNoAlphaSourceExp>());
+        calc.Register("does_texture_have_alpha", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.DoesTextureHaveAlphaExp>());
+        calc.Register("correct_none_alpha_texture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CorrectNoneAlphaTextureExp>());
+        calc.Register("set_none_alpha_texture", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetNoneAlphaTextureExp>());
+        calc.Register("get_texture_compression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureCompressionExp>());
+        calc.Register("set_texture_compression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetTextureCompressionExp>());
+        calc.Register("get_texture_storage_memory_size", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureStorageMemorySizeExp>());
+        calc.Register("get_texture_runtime_memory_size", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetTextureRuntimeMemorySizeExp>());
+        calc.Register("get_runtime_memory_size", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetRuntimeMemorySizeExp>());
+        calc.Register("set_max_bounding_box", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMaxBoundingBoxExp>());
+        calc.Register("reset_bounding_box", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ResetBoundingBoxExp>());
+        calc.Register("merge_bounding_box", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MergeBoundingBoxExp>());
+        calc.Register("get_bounding_box", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetBoundingBoxExp>());
+        calc.Register("add_or_update_bounding_box", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.AddOrUpdateBoundingBoxExp>());
+        calc.Register("get_mesh_compression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetMeshCompressionExp>());
+        calc.Register("set_mesh_compression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMeshCompressionExp>());
+        calc.Register("set_mesh_import_external_materials", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMeshImportExternalMaterialsExp>());
+        calc.Register("set_mesh_import_in_prefab_materials", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetMeshImportInPrefabMaterialsExp>());
+        calc.Register("close_mesh_animation_if_no_animation", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CloseMeshAnimationIfNoAnimationExp>());
+        calc.Register("single_mesh_info", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SingleMeshInfoExp>());
+        calc.Register("collect_meshes", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectMeshesExp>());
+        calc.Register("collect_mesh_info", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectMeshInfoExp>());
+        calc.Register("collect_animator_controller_info", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectAnimatorControllerInfoExp>());
+        calc.Register("collect_prefab_info", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CollectPrefabInfoExp>());
+        calc.Register("get_animation_clip_info", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAnimationClipInfoExp>());
+        calc.Register("get_animation_compression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAnimationCompressionExp>());
+        calc.Register("set_animation_compression", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAnimationCompressionExp>());
+        calc.Register("get_animation_type", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAnimationTypeExp>());
+        calc.Register("set_animation_type", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAnimationTypeExp>());
+        calc.Register("set_extra_exposed_transform_paths", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetExtraExposedTransformPathsExp>());
+        calc.Register("clear_animation_scale_curve", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ClearAnimationScaleCurveExp>());
+        calc.Register("get_audiosetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetAudioSettingExp>());
+        calc.Register("set_audiosetting", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.SetAudioSettingExp>());
+        calc.Register("calc_mesh_vertex_component_count", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMeshVertexComponentCountExp>());
+        calc.Register("calc_mesh_tex_ratio", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMeshTexRatioExp>());
+        calc.Register("calc_assetmd5", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcAssetMd5Exp>());
+        calc.Register("calc_asset_size", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcAssetSizeExp>());
+        calc.Register("delete_asset", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.DeleteAssetExp>());
+        calc.Register("get_shader_util", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetShaderUtilExp>());
+        calc.Register("get_shader_property_count", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetShaderPropertyCountExp>());
+        calc.Register("get_shader_property_names", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetShaderPropertyNamesExp>());
+        calc.Register("removeyaml_leaf_properties", "removeyaml_leaf_properties(asset_path,property1,property2,...)", new ExpressionFactoryHelper<EditorDslProcessorApi.RemoveYamlLeafPropertiesExp>());
+        calc.Register("check_yaml", "check_yaml(asset_path[,int_start,int_count,bool_partial_conflict])", new ExpressionFactoryHelper<EditorDslProcessorApi.CheckYamlExp>());
+        calc.Register("is_path_too_long", "is_path_too_long(asset_path)", new ExpressionFactoryHelper<EditorDslProcessorApi.IsPathTooLongExp>());
+        calc.Register("find_row_index", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindRowIndexExp>());
+        calc.Register("find_row_indexes", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindRowIndexesExp>());
+        calc.Register("find_cell_index", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindCellIndexExp>());
+        calc.Register("find_cell_indexes", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindCellIndexesExp>());
+        calc.Register("get_cell_value", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetCellValueExp>());
+        calc.Register("get_cell_string", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetCellStringExp>());
+        calc.Register("get_cell_numeric", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.GetCellNumericExp>());
+        calc.Register("row_to_line", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.RowToLineExp>());
+        calc.Register("table_to_hashtable", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.TableToHashtableExp>());
+        calc.Register("find_row_from_hashtable", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindRowFromHashtableExp>());
+        calc.Register("load_managed_heaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadManagedHeapsExp>());
+        calc.Register("find_managed_heaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindManagedHeapsExp>());
+        calc.Register("match_managed_heaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MatchManagedHeapsExp>());
+        calc.Register("calc_matched_managed_heaps_diff", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMatchedManagedHeapsDiffExp>());
+        calc.Register("load_maps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadMapsExp>());
+        calc.Register("find_maps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindMapsExp>());
+        calc.Register("match_maps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MatchMapsExp>());
+        calc.Register("calc_matched_maps_diff", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMatchedMapsDiffExp>());
+        calc.Register("load_smaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadSmapsExp>());
+        calc.Register("find_smaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FindSmapsExp>());
+        calc.Register("match_smaps", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.MatchSmapsExp>());
+        calc.Register("calc_matchedsmaps_diff", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.CalcMatchedSmapsDiffExp>());
+        calc.Register("load_addrs", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LoadAddrsExp>());
+        calc.Register("escape_url", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.EscapeUrlExp>());
+        calc.Register("un_escapeurl", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.UnEscapeUrlExp>());
+        calc.Register("parseurl_args", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ParseUrlArgsExp>());
+        calc.Register("parse_bugly_info", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.ParseBuglyInfoExp>());
+        calc.Register("int_hash_contains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.IntHashContainsExp>());
+        calc.Register("uint_hash_contains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.UintHashContainsExp>());
+        calc.Register("long_hash_contains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.LongHashContainsExp>());
+        calc.Register("ulong_hash_contains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.UlongHashContainsExp>());
+        calc.Register("float_hash_contains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.FloatHashContainsExp>());
+        calc.Register("double_hash_contains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.DoubleHashContainsExp>());
+        calc.Register("string_hash_contains", string.Empty, new ExpressionFactoryHelper<EditorDslProcessorApi.StringHashContainsExp>());
 
         EditorDslApi.Register(calc);
         if (null != OnRegisterApi) {
@@ -588,8 +588,8 @@ public static class EditorDslProcessorUtility
             results.Clear();
             var ret = BoxedValue.NullObject;
             if (null != calc) {
-                calc.SetGlobalVariable("assetpath", item.AssetPath);
-                calc.SetGlobalVariable("scenepath", item.ScenePath);
+                calc.SetGlobalVariable("asset_path", item.AssetPath);
+                calc.SetGlobalVariable("scene_path", item.ScenePath);
                 calc.SetGlobalVariable("importer", BoxedValue.FromObject(item.Importer));
                 calc.SetGlobalVariable("object", BoxedValue.FromObject(item.Object));
                 calc.SetGlobalVariable("info", item.Info);
@@ -597,9 +597,9 @@ public static class EditorDslProcessorUtility
                 calc.SetGlobalVariable("value", item.Value);
                 calc.SetGlobalVariable("selected", item.Selected);
                 calc.SetGlobalVariable("results", BoxedValue.FromObject(results));
-                calc.SetGlobalVariable("scenedeps", BoxedValue.FromObject(sceneDeps));
-                calc.SetGlobalVariable("refdict", BoxedValue.FromObject(refDict));
-                calc.SetGlobalVariable("refbydict", BoxedValue.FromObject(refByDict));
+                calc.SetGlobalVariable("scene_deps", BoxedValue.FromObject(sceneDeps));
+                calc.SetGlobalVariable("ref_dict", BoxedValue.FromObject(refDict));
+                calc.SetGlobalVariable("ref_by_dict", BoxedValue.FromObject(refByDict));
                 if (null != addVars) {
                     foreach (var pair in addVars) {
                         calc.SetGlobalVariable(pair.Key, pair.Value);
@@ -611,19 +611,19 @@ public static class EditorDslProcessorUtility
                     calc.SetGlobalVariable(p.Name, BoxedValue.FromObject(p.Value));
                 }
                 calc.SetGlobalVariable("group", BoxedValue.NullObject);
-                calc.SetGlobalVariable("extralist", BoxedValue.NullObject);
+                calc.SetGlobalVariable("extra_list", BoxedValue.NullObject);
 
                 for (int i = 0; i < indexCount; ++i) {
                     ret = calc.Calc(i.ToString());
                 }
 
                 BoxedValue v;
-                if (calc.TryGetGlobalVariable("assetpath", out v)) {
+                if (calc.TryGetGlobalVariable("asset_path", out v)) {
                     var path = v.AsString;
                     if (!string.IsNullOrEmpty(path))
                         item.AssetPath = path;
                 }
-                if (calc.TryGetGlobalVariable("scenepath", out v)) {
+                if (calc.TryGetGlobalVariable("scene_path", out v)) {
                     var path = v.AsString;
                     if (!string.IsNullOrEmpty(path))
                         item.ScenePath = path;
@@ -665,7 +665,7 @@ public static class EditorDslProcessorUtility
                         item.Group = g;
                     }
                 }
-                if (calc.TryGetGlobalVariable("extralist", out v)) {
+                if (calc.TryGetGlobalVariable("extra_list", out v)) {
                     var list = v.As<IList>();
                     if (null != list) {
                         var pairList = new List<KeyValuePair<string, BoxedValue>>();
@@ -700,10 +700,10 @@ public static class EditorDslProcessorUtility
                         item.ExtraListClickScript = string.Empty;
                     }
                 }
-                if (calc.TryGetGlobalVariable("redirectdsl", out v)) {
+                if (calc.TryGetGlobalVariable("redirect_dsl", out v)) {
                     item.RedirectDsl = v.AsString;
                 }
-                if (calc.TryGetGlobalVariable("redirectargs", out v)) {
+                if (calc.TryGetGlobalVariable("redirect_args", out v)) {
                     var dict = v.As<IDictionary>();
                     if (null != dict) {
                         var strDict = new Dictionary<string, string>();
@@ -739,17 +739,17 @@ public static class EditorDslProcessorUtility
             item.PrepareShowInfo();
             var ret = BoxedValue.NullObject;
             if (null != calc) {
-                calc.SetGlobalVariable("assetpath", item.AssetPath);
-                calc.SetGlobalVariable("scenepath", item.ScenePath);
+                calc.SetGlobalVariable("asset_path", item.AssetPath);
+                calc.SetGlobalVariable("scene_path", item.ScenePath);
                 calc.SetGlobalVariable("importer", BoxedValue.FromObject(item.Importer));
                 calc.SetGlobalVariable("object", BoxedValue.FromObject(item.Object));
                 calc.SetGlobalVariable("info", item.Info);
                 calc.SetGlobalVariable("order", item.Order);
                 calc.SetGlobalVariable("value", item.Value);
                 calc.SetGlobalVariable("selected", item.Selected);
-                calc.SetGlobalVariable("scenedeps", BoxedValue.FromObject(sceneDeps));
-                calc.SetGlobalVariable("refdict", BoxedValue.FromObject(refDict));
-                calc.SetGlobalVariable("refbydict", BoxedValue.FromObject(refByDict));
+                calc.SetGlobalVariable("scene_deps", BoxedValue.FromObject(sceneDeps));
+                calc.SetGlobalVariable("ref_dict", BoxedValue.FromObject(refDict));
+                calc.SetGlobalVariable("ref_by_dict", BoxedValue.FromObject(refByDict));
                 calc.SetGlobalVariable("params", BoxedValue.FromObject(args));
                 foreach (var pair in args) {
                     var p = pair.Value;
@@ -780,33 +780,33 @@ public static class EditorDslProcessorUtility
                 calc.SetGlobalVariable("min", item.Min);
                 calc.SetGlobalVariable("count", item.Count);
                 calc.SetGlobalVariable("avg", item.Avg);
-                calc.SetGlobalVariable("assetpath", item.AssetPath);
-                calc.SetGlobalVariable("scenepath", item.ScenePath);
+                calc.SetGlobalVariable("asset_path", item.AssetPath);
+                calc.SetGlobalVariable("scene_path", item.ScenePath);
                 calc.SetGlobalVariable("info", item.Info);
                 calc.SetGlobalVariable("order", item.Order);
                 calc.SetGlobalVariable("value", item.Value);
                 calc.SetGlobalVariable("selected", item.Selected);
-                calc.SetGlobalVariable("scenedeps", BoxedValue.FromObject(sceneDeps));
-                calc.SetGlobalVariable("refdict", BoxedValue.FromObject(refDict));
-                calc.SetGlobalVariable("refbydict", BoxedValue.FromObject(refByDict));
+                calc.SetGlobalVariable("scene_deps", BoxedValue.FromObject(sceneDeps));
+                calc.SetGlobalVariable("ref_dict", BoxedValue.FromObject(refDict));
+                calc.SetGlobalVariable("ref_by_dict", BoxedValue.FromObject(refByDict));
                 calc.SetGlobalVariable("params", BoxedValue.FromObject(args));
                 foreach (var pair in args) {
                     var p = pair.Value;
                     calc.SetGlobalVariable(p.Name, p.Value);
                 }
-                calc.SetGlobalVariable("extralist", BoxedValue.NullObject);
+                calc.SetGlobalVariable("extra_list", BoxedValue.NullObject);
 
                 for (int i = 0; i < indexCount; ++i) {
                     ret = calc.Calc(i.ToString());
                 }
 
                 BoxedValue v;
-                if (calc.TryGetGlobalVariable("assetpath", out v)) {
+                if (calc.TryGetGlobalVariable("asset_path", out v)) {
                     var path = v.AsString;
                     if (!string.IsNullOrEmpty(path))
                         item.AssetPath = path;
                 }
-                if (calc.TryGetGlobalVariable("scenepath", out v)) {
+                if (calc.TryGetGlobalVariable("scene_path", out v)) {
                     var path = v.AsString;
                     if (!string.IsNullOrEmpty(path))
                         item.ScenePath = path;
@@ -832,7 +832,7 @@ public static class EditorDslProcessorUtility
                         item.Selected = v.GetBool();
                     }
                 }
-                if (calc.TryGetGlobalVariable("extralist", out v)) {
+                if (calc.TryGetGlobalVariable("extra_list", out v)) {
                     var list = v.As<IList>();
                     if (null != list) {
                         var pairList = new List<KeyValuePair<string, BoxedValue>>();
@@ -867,10 +867,10 @@ public static class EditorDslProcessorUtility
                         item.ExtraListClickScript = string.Empty;
                     }
                 }
-                if (calc.TryGetGlobalVariable("redirectdsl", out v)) {
+                if (calc.TryGetGlobalVariable("redirect_dsl", out v)) {
                     item.RedirectDsl = v.AsString;
                 }
-                if (calc.TryGetGlobalVariable("redirectargs", out v)) {
+                if (calc.TryGetGlobalVariable("redirect_args", out v)) {
                     var dict = v.As<IDictionary>();
                     if (null != dict) {
                         var strDict = new Dictionary<string, string>();
@@ -906,15 +906,15 @@ public static class EditorDslProcessorUtility
                 calc.SetGlobalVariable("min", item.Min);
                 calc.SetGlobalVariable("count", item.Count);
                 calc.SetGlobalVariable("avg", item.Avg);
-                calc.SetGlobalVariable("assetpath", item.AssetPath);
-                calc.SetGlobalVariable("scenepath", item.ScenePath);
+                calc.SetGlobalVariable("asset_path", item.AssetPath);
+                calc.SetGlobalVariable("scene_path", item.ScenePath);
                 calc.SetGlobalVariable("info", item.Info);
                 calc.SetGlobalVariable("order", item.Order);
                 calc.SetGlobalVariable("value", item.Value);
                 calc.SetGlobalVariable("selected", item.Selected);
-                calc.SetGlobalVariable("scenedeps", BoxedValue.FromObject(sceneDeps));
-                calc.SetGlobalVariable("refdict", BoxedValue.FromObject(refDict));
-                calc.SetGlobalVariable("refbydict", BoxedValue.FromObject(refByDict));
+                calc.SetGlobalVariable("scene_deps", BoxedValue.FromObject(sceneDeps));
+                calc.SetGlobalVariable("ref_dict", BoxedValue.FromObject(refDict));
+                calc.SetGlobalVariable("ref_by_dict", BoxedValue.FromObject(refByDict));
                 calc.SetGlobalVariable("params", BoxedValue.FromObject(args));
                 foreach (var pair in args) {
                     var p = pair.Value;
@@ -1620,8 +1620,8 @@ namespace EditorDslProcessorApi
                             args.Add(key, val);
                         }
                     }
-                    calculator.SetGlobalVariable("redirectdsl", BoxedValue.FromObject(dsl));
-                    calculator.SetGlobalVariable("redirectargs", BoxedValue.FromObject(args));
+                    calculator.SetGlobalVariable("redirect_dsl", BoxedValue.FromObject(dsl));
+                    calculator.SetGlobalVariable("redirect_args", BoxedValue.FromObject(args));
                 }
             }
             return r;
@@ -1793,7 +1793,7 @@ namespace EditorDslProcessorApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var dict = calculator.GetVariable("refdict").As<Dictionary<string, HashSet<string>>>();
+                var dict = calculator.GetVariable("ref_dict").As<Dictionary<string, HashSet<string>>>();
                 var path = operands[0].AsString;
                 if (null != dict && !string.IsNullOrEmpty(path)) {
                     HashSet<string> refbyset;
@@ -1814,7 +1814,7 @@ namespace EditorDslProcessorApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var dict = calculator.GetVariable("refbydict").As<Dictionary<string, HashSet<string>>>();
+                var dict = calculator.GetVariable("ref_by_dict").As<Dictionary<string, HashSet<string>>>();
                 var path = operands[0].AsString;
                 if (null != dict && !string.IsNullOrEmpty(path)) {
                     HashSet<string> refbyset;
@@ -1835,7 +1835,7 @@ namespace EditorDslProcessorApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var refDict = calculator.GetVariable("refdict").As<Dictionary<string, HashSet<string>>>();
+                var refDict = calculator.GetVariable("ref_dict").As<Dictionary<string, HashSet<string>>>();
                 var file = operands[0].AsString;
                 if (null != file) {
                     HashSet<string> hash;
@@ -1856,7 +1856,7 @@ namespace EditorDslProcessorApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 1) {
-                var refByDict = calculator.GetVariable("refbydict").As<Dictionary<string, HashSet<string>>>();
+                var refByDict = calculator.GetVariable("ref_by_dict").As<Dictionary<string, HashSet<string>>>();
                 var file = operands[0].AsString;
                 if (null != file) {
                     HashSet<string> hash;
@@ -1877,7 +1877,7 @@ namespace EditorDslProcessorApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 2) {
-                var sceneDeps = calculator.GetVariable("scenedeps").As<EditorDslProcessorUtility.SceneDepInfo>();
+                var sceneDeps = calculator.GetVariable("scene_deps").As<EditorDslProcessorUtility.SceneDepInfo>();
                 var asset = operands[0].AsString;
                 var type = operands[1].AsString;
                 var assetPath = string.Empty;
@@ -3849,7 +3849,7 @@ namespace EditorDslProcessorApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                string assetPath = calculator.GetVariable("assetpath").AsString;
+                string assetPath = calculator.GetVariable("asset_path").AsString;
                 if (!string.IsNullOrEmpty(assetPath)) {
                     var obj = AssetDatabase.LoadMainAssetAtPath(assetPath);
                     if (null != obj) {
@@ -4044,7 +4044,7 @@ namespace EditorDslProcessorApi
         {
             var r = BoxedValue.NullObject;
             if (operands.Count >= 0) {
-                var path = calculator.GetVariable("assetpath").AsString;
+                var path = calculator.GetVariable("asset_path").AsString;
                 if (null != path) {
                     GameObject obj = AssetDatabase.LoadMainAssetAtPath(path) as GameObject;
                     bool modified = false;
