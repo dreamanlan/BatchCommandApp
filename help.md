@@ -189,15 +189,15 @@ adb shell am startservice -a com.unity3d.clipboard -e pkgcmd '包名:命令串'
 	```
 	- looplist命令，用来遍历一个IList，循环体内可以使用\$\$来访问当前遍历的元素
 	```
-	looplist(list变量){命令列表};
+	loop_list(list变量){命令列表};
 	```
 	比如下面循环遍历数组并显示各数组元素(gm脚本支持数组的直接写法，实际是c#的List)：
 	```
-	looplist([1,2,3,4]){log("looplist {0}",$$);};
+	loop_list([1,2,3,4]){log("loop_list {0}",$$);};
 	```
 	再比如下面循环遍历hash表并显示各对元素(gm脚本里的哈希表的key可以是常量或变量，所以字符串常量作为key时必须加引号)：
 	```
-	looplist({1=>13,3=>25,9=>345}){log("pair {0}:{1}",$$.Key,$$.Value);};
+	loop_list({1=>13,3=>25,9=>345}){log("pair {0}:{1}",$$.Key,$$.Value);};
 	```
 	- foreach命令，直接指定每次循环的变量值，循环体内可以使用\$\$来访问当前值
 	```
@@ -614,7 +614,7 @@ Assets\StartupApi\StartupApi.cs //启动时设置脚本的api与分级设置逻�
 = [foreach]:foreach(a,b,...){command_list;}; statement, iterator is $$
 = [if]:if(condition){command_list;}elseif(condition){command_list;}else{command_list;}; statement, elseif can be zero or more, else can be zero or one
 = [loop]:loop(count){command_list;}; statement, iterator is $$
-= [looplist]:looplist(list){command_list;}; statement, iterator is $$
+= [loop_list]:loop_list(list){command_list;}; statement, iterator is $$
 = [while]:while(condition){command_list;}; statement
 ```
 - 虽然我们也有break/continue/return命令，但这与传统c语言对应语句的涵义不一样，所以不要使用这些命令

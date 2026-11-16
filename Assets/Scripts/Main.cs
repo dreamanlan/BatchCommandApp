@@ -30,8 +30,8 @@ public class Main : MonoBehaviour
         StartCoroutine(Loop());
 
         StartupScript.TryInit();
-        StartupScript.Calculator.Register("setclipboard", "setclipboard(str) api", new ExpressionFactoryHelper<SetClipboardExp>());
-        StartupScript.Calculator.Register("getclipboard", "getclipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
+        StartupScript.Calculator.Register("set_clipboard", "set_clipboard(str) api", new ExpressionFactoryHelper<SetClipboardExp>());
+        StartupScript.Calculator.Register("get_clipboard", "get_clipboard() api", new ExpressionFactoryHelper<GetClipboardExp>());
 
         RunStartup(true);
     }
