@@ -566,7 +566,7 @@ namespace GmCommands
                         }
                         else {
                             //error arg
-                            LogSystem.Error("startactivity, illegal argument {0}:{1}", i, arg);
+                            LogSystem.Error("start_activity, illegal argument {0}:{1}", i, arg);
                             noError = false;
                         }
                     }
@@ -575,7 +575,7 @@ namespace GmCommands
                     }
                 }
                 else {
-                    LogSystem.Error("expect startactivity(package_name, ...)");
+                    LogSystem.Error("expect start_activity(package_name, ...)");
                 }
             }
             return BoxedValue.NullObject;
