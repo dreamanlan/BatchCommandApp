@@ -611,7 +611,7 @@ Assets\StartupApi\StartupApi.cs //启动时设置脚本的api与分级设置逻�
 
 - 语句列表，语句用法见前面介绍部分
 ```
-= [foreach]:foreach(a,b,...){command_list;}; statement, iterator is $$
+= [foreach]:foreach(a,b,...){command_list;}; statement, iterator is $$（DSL 语句语法，非注册 API；对应 API 为 for_each_value）
 = [if]:if(condition){command_list;}elseif(condition){command_list;}else{command_list;}; statement, elseif can be zero or more, else can be zero or one
 = [loop]:loop(count){command_list;}; statement, iterator is $$
 = [loop_list]:loop_list(list){command_list;}; statement, iterator is $$
@@ -664,27 +664,27 @@ Assets\StartupApi\StartupApi.cs //启动时设置脚本的api与分级设置逻�
 = [pause]:pause command
 = [terminate]:terminate command
 
-= [clearcmdsubsts]:clearcmdsubsts() command
-= [clearfuncsubsts]:clearfuncsubsts() command
-= [substcmd]:substcmd(id,substId) command
-= [substfunc]:substfunc(id,substId) command
+= [clearcmdsubsts]:clearcmdsubsts() command（旧版内建，当前 StoryScript.dll 已移除，无对应注册）
+= [clearfuncsubsts]:clearfuncsubsts() command（旧版内建，当前 StoryScript.dll 已移除，无对应注册）
+= [substcmd]:substcmd(id,substId) command（旧版内建，当前 StoryScript.dll 已移除，无对应注册）
+= [substfunc]:substfunc(id,substId) command（旧版内建，当前 StoryScript.dll 已移除，无对应注册）
 ```
-- ~~应该不会用到的函数，请勿使用~~
+- ~~应该不会用到的函数，请勿使用~~（以上 4 个及下方 4 个 subst 系均为旧版残留，当前运行时调用会报 unknown func）
 ```
-= [countcommand]:countcommand(level) function
-= [counthandlercommand]:counthandlercommand() function
+= [countcommand]:countcommand(level) function（旧版内建，已移除）
+= [counthandlercommand]:counthandlercommand() function（旧版内建，已移除）
 = [namespace]:namespace() function
 = [story_id]:story_id() function
 = [message_id]:message_id() function
 
-= [getcmdsubst]:getcmdsubst(id) function
-= [getfuncsubst]:getfuncsubst(id) function
+= [getcmdsubst]:getcmdsubst(id) function（旧版内建，已移除）
+= [getfuncsubst]:getfuncsubst(id) function（旧版内建，已移除）
 ```
 ### C、基础api---运算
 
 - 命令类
 ```
-= [assign]:assign(var, val) command，赋值操作符的函数样式写法
+= [assign]:assign(var, val) command，赋值操作符的函数样式写法（DSL 语句语法，非注册 API）
 = [inc]:inc(var, val) command，增加一个变量的值，我们没有实现++运算符，用这个命令代替
 = [dec]:dec(var, val) command，减少一个变量的值，我们没有实现--运算符，用这个命令代替
 
@@ -817,8 +817,8 @@ c#类型转换语义下的类型转换
 = [string_trim_end]:string_trim_end(str) function
 = [string_trim_start]:string_trim_start(str) function
 
-= [str2lower]:str2lower(str) function, use cache
-= [str2upper]:str2upper(str) function, use cache
+= [string_to_lower]:string_to_lower(str) function, use cache
+= [string_to_upper]:string_to_upper(str) function, use cache
 = [string_contains]:string_contains(str,str1,str2,...) function
 = [string_contains_any]:string_contains_any(str,str1,str2,...) function
 = [string_list]:string_list(str_split_by_sep) function
@@ -923,12 +923,12 @@ c#类型转换语义下的类型转换
 - 命令类
 ```
 = [write_all_lines]:write_all_lines(file,lines) command
-= [writefile]:writefile(file,txt) command
+= [write_all_text]:write_all_text(file,txt) command
 ```
 - 函数类
 ```
 = [read_all_lines]:read_all_lines(file) function
-= [readfile]:readfile(file) function
+= [read_all_text]:read_all_text(file) function
 = [combine_path]:combine_path(path1,path2) function
 = [get_directory_name]:get_directory_name(path) function
 = [get_extension]:get_extension(path) function
@@ -1084,10 +1084,10 @@ c#类型转换语义下的类型转换
 
 - 命令类
 ```
-= [compilestartup]:compilestartup(startup_dsl_file) command，将启动时设置脚本翻译到C#代码
+= [compilestartup]:compilestartup(startup_dsl_file) command，将启动时设置脚本翻译到C#代码（旧版内建，当前已移除，无对应注册）
 = [reload_startups]:reload_startups(rungm) command，重新执行全部启动时设置脚本（/data/local/tmp/startup*.dsl）
 = [run_startup]:run_startup(startup_dsl_file,rungm) command，运行指定的启动时设置脚本
-= [logcstartups]:logcstartups() command，打印编译好的启动时设置脚本id
+= [logcstartups]:logcstartups() command，打印编译好的启动时设置脚本id（旧版内建，当前已移除，无对应注册）
 ```
 ### S、游戏功能api---外部系统交互
 

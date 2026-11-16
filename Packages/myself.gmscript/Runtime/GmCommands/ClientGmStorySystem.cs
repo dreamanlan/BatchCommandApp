@@ -71,51 +71,51 @@ namespace GmCommands
 
                 registry.Register("cmd", "cmd(str) command", new ExpressionFactoryHelper<CmdCommand>());
 
-                registry.Register("player_pref_set_int", "player_pref_set_int(key,val) command", new ExpressionFactoryHelper<PlayerPrefIntCommand>());
-                registry.Register("player_pref_set_float", "player_pref_set_float(key,val) command", new ExpressionFactoryHelper<PlayerPrefFloatCommand>());
-                registry.Register("player_pref_set_string", "player_pref_set_string(key,val) command", new ExpressionFactoryHelper<PlayerPrefStringCommand>());
-                registry.Register("player_pref_delete", "player_pref_delete(key) command", new ExpressionFactoryHelper<PlayerPrefDeleteCommand>());
-                registry.Register("player_pref_delete_all", "player_pref_delete_all() command", new ExpressionFactoryHelper<PlayerPrefDeleteAllCommand>());
-                registry.Register("player_pref_set_by_java", "player_pref_set_by_java(key,val) command", new ExpressionFactoryHelper<PrefByJavaCommand>());
+                registry.Register("pref_set_int", "pref_set_int(key,val) command", new ExpressionFactoryHelper<PlayerPrefIntCommand>());
+                registry.Register("pref_set_float", "pref_set_float(key,val) command", new ExpressionFactoryHelper<PlayerPrefFloatCommand>());
+                registry.Register("pref_set_str", "pref_set_str(key,val) command", new ExpressionFactoryHelper<PlayerPrefStringCommand>());
+                registry.Register("pref_del", "pref_del(key) command", new ExpressionFactoryHelper<PlayerPrefDeleteCommand>());
+                registry.Register("pref_del_all", "pref_del_all() command", new ExpressionFactoryHelper<PlayerPrefDeleteAllCommand>());
+                registry.Register("pref_set_by_java", "pref_set_by_java(key,val) command", new ExpressionFactoryHelper<PrefByJavaCommand>());
                 registry.Register("wetest_touch", "wetest_touch(action,x,y) command, simulate touch event with WeTest", new ExpressionFactoryHelper<WeTestTouchCommand>());
                 registry.Register("log_mesh", "log_mesh(mesh_or_path) command", new ExpressionFactoryHelper<LogMeshCommand>());
-                registry.Register("set_material", "set_material(renderer_or_path,mat_or_path) or set_material(renderer_or_path,ix,mat_or_path) or set_material(renderer_or_path,ix,mats_or_path,ix) command", new ExpressionFactoryHelper<SetMaterialCommand>());
-                registry.Register("set_shared_material", "set_shared_material(renderer_or_path,mat_or_path) or set_shared_material(renderer_or_path,ix,mat_or_path) or set_shared_material(renderer_or_path,ix,mats_or_path,ix) command", new ExpressionFactoryHelper<SetSharedMaterialCommand>());
-                registry.Register("set_materials", "set_materials(mesh_or_path,mats_or_path) command", new ExpressionFactoryHelper<SetMaterialsCommand>());
-                registry.Register("set_shared_materials", "set_shared_materials(mesh_or_path,mats_or_path) command", new ExpressionFactoryHelper<SetSharedMaterialsCommand>());
-                registry.Register("material_set_float", "material_set_float(mat_or_path,key,val) command, Material.SetFloat", new ExpressionFactoryHelper<MaterialSetFloatCommand>());
-                registry.Register("material_set_int", "material_set_int(mat_or_path,key,val) command, Material.SetInt", new ExpressionFactoryHelper<MaterialSetIntCommand>());
-                registry.Register("material_set_integer", "material_set_integer(mat_or_path,key,val) command, Material.SetInteger", new ExpressionFactoryHelper<MaterialSetIntegerCommand>());
-                registry.Register("material_set_vector", "material_set_vector(mat_or_path,key,val) command, Material.SetVector", new ExpressionFactoryHelper<MaterialSetVectorCommand>());
-                registry.Register("material_set_color", "material_set_color(mat_or_path,key,val) command, Material.SetColor", new ExpressionFactoryHelper<MaterialSetColorCommand>());
+                registry.Register("set_mat", "set_mat(renderer_or_path,mat_or_path) or set_mat(renderer_or_path,ix,mat_or_path) or set_mat(renderer_or_path,ix,mats_or_path,ix) command", new ExpressionFactoryHelper<SetMaterialCommand>());
+                registry.Register("set_smat", "set_smat(renderer_or_path,mat_or_path) or set_smat(renderer_or_path,ix,mat_or_path) or set_smat(renderer_or_path,ix,mats_or_path,ix) command", new ExpressionFactoryHelper<SetSharedMaterialCommand>());
+                registry.Register("set_mats", "set_mats(mesh_or_path,mats_or_path) command", new ExpressionFactoryHelper<SetMaterialsCommand>());
+                registry.Register("set_smats", "set_smats(mesh_or_path,mats_or_path) command", new ExpressionFactoryHelper<SetSharedMaterialsCommand>());
+                registry.Register("mat_set_float", "mat_set_float(mat_or_path,key,val) command, Material.SetFloat", new ExpressionFactoryHelper<MaterialSetFloatCommand>());
+                registry.Register("mat_set_int", "mat_set_int(mat_or_path,key,val) command, Material.SetInt", new ExpressionFactoryHelper<MaterialSetIntCommand>());
+                registry.Register("mat_set_integer", "mat_set_integer(mat_or_path,key,val) command, Material.SetInteger", new ExpressionFactoryHelper<MaterialSetIntegerCommand>());
+                registry.Register("mat_set_vector", "mat_set_vector(mat_or_path,key,val) command, Material.SetVector", new ExpressionFactoryHelper<MaterialSetVectorCommand>());
+                registry.Register("mat_set_color", "mat_set_color(mat_or_path,key,val) command, Material.SetColor", new ExpressionFactoryHelper<MaterialSetColorCommand>());
 
-                registry.Register("log_objects", "log_objects(name_key,type) command", new ExpressionFactoryHelper<LogObjectsCommand>());
-                registry.Register("log_components", "log_components(root_name,[name1,name2,...],type,up_level,include_inactive) command", new ExpressionFactoryHelper<LogComponentsCommand>());
+                registry.Register("log_objs", "log_objs(name_key,type) command", new ExpressionFactoryHelper<LogObjectsCommand>());
+                registry.Register("log_comps", "log_comps(root_name,[name1,name2,...],type,up_level,include_inactive) command", new ExpressionFactoryHelper<LogComponentsCommand>());
                 registry.Register("log_scene_path", "log_scene_path([prefixs],obj,up_level) command", new ExpressionFactoryHelper<LogScenePathCommand>());
                 registry.Register("click_ui", "click_ui(name1,name2,...) command", new ExpressionFactoryHelper<ClickUiCommand>());
                 registry.Register("toggle_on", "toggle_on(name1,name2,...) command", new ExpressionFactoryHelper<ToggleOnCommand>());
 
-                registry.Register("click_on_pointer", "click_on_pointer() command", new ExpressionFactoryHelper<ClickOnPointerCommand>());
-                registry.Register("toggle_on_pointer", "toggle_on_pointer() command", new ExpressionFactoryHelper<ToggleOnPointerCommand>());
+                registry.Register("click_on_ptr", "click_on_ptr() command", new ExpressionFactoryHelper<ClickOnPointerCommand>());
+                registry.Register("toggle_on_ptr", "toggle_on_ptr() command", new ExpressionFactoryHelper<ToggleOnPointerCommand>());
                 registry.Register("click_on_pos", "click_on_pos(x,y) command", new ExpressionFactoryHelper<ClickOnPosCommand>());
                 registry.Register("toggle_on_pos", "toggle_on_pos(x,y) command", new ExpressionFactoryHelper<ToggleOnPosCommand>());
                 registry.Register("click", "click(uiobj) command", new ExpressionFactoryHelper<ClickCommand>());
                 registry.Register("toggle", "toggle(uiobj) command", new ExpressionFactoryHelper<ToggleCommand>());
 
                 registry.Register("run_startup", "run_startup(startup_dsl_file, rungm) command", new ExpressionFactoryHelper<RunStartupCommand>());
-                registry.Register("import_namespace", "import_namespace(ns,assembly) command", new ExpressionFactoryHelper<ImportNamespaceCommand>());
-                registry.Register("un_import_namespace", "un_import_namespace(ns,assembly) command", new ExpressionFactoryHelper<UnImportNamespaceCommand>());
+                registry.Register("import", "import(ns,assembly) command", new ExpressionFactoryHelper<ImportNamespaceCommand>());
+                registry.Register("unimport", "unimport(ns,assembly) command", new ExpressionFactoryHelper<UnImportNamespaceCommand>());
                 registry.Register("add_or_update_scene_viewer", "add_or_update_scene_viewer(key) or add_or_update_scene_viewer(key,rect) or add_or_update_scene_viewer(key,rect,interval) command", new ExpressionFactoryHelper<AddOrUpdateSceneViewerCommand>());
                 registry.Register("scene_viewer_look_at", "scene_viewer_look_at(key) or scene_viewer_look_at(key,dist) or scene_viewer_look_at(key,dist,dir) or scene_viewer_look_at(key,dist,dir,target) command", new ExpressionFactoryHelper<SceneViewerLookAtCommand>());
                 //register value or function
-                registry.Register("exists_directory", "exists_directory(dir) function", new ExpressionFactoryHelper<ExistsDirectoryFunction>());
+                registry.Register("exists_dir", "exists_dir(dir) function", new ExpressionFactoryHelper<ExistsDirectoryFunction>());
                 registry.Register("exists_file", "exists_file(file) function", new ExpressionFactoryHelper<ExistsFileFunction>());
                 registry.Register("expand", "expand(file) function", new ExpressionFactoryHelper<ExpandEnvironmentsFunction>());
-                registry.Register("environments", "environments() function", new ExpressionFactoryHelper<EnvironmentsFunction>());
+                registry.Register("envs", "envs() function", new ExpressionFactoryHelper<EnvironmentsFunction>());
                 registry.Register("pwd", "pwd() function", new ExpressionFactoryHelper<GetCurrentDirectoryFunction>());
 
                 registry.Register("is_debug", "is_debug() function", new ExpressionFactoryHelper<IsDebugFunction>());
-                registry.Register("is_development", "is_development() function", new ExpressionFactoryHelper<IsDevelopmentFunction>());
+                registry.Register("is_dev", "is_dev() function", new ExpressionFactoryHelper<IsDevelopmentFunction>());
                 registry.Register("typeof", "typeof(type) or typeof(type,assembly) function", new ExpressionFactoryHelper<TypeOfFunction>());
                 registry.Register("mono", "mono() function, get total mono memory", new ExpressionFactoryHelper<GetMonoMemoryFunction>());
                 registry.Register("native", "native() function, get used native memory", new ExpressionFactoryHelper<GetNativeMemoryFunction>());
@@ -149,16 +149,16 @@ namespace GmCommands
                 registry.Register("get_double_array", "get_double_array(str) function", new ExpressionFactoryHelper<GetDoubleArrayFunction>());
                 registry.Register("get_activity_class_name", "get_activity_class_name() function", new ExpressionFactoryHelper<GetActivityClassNameFunction>());
 
-                registry.Register("player_pref_get_int", "player_pref_get_int(key,defval) function", new ExpressionFactoryHelper<PlayerPrefIntFunction>());
-                registry.Register("player_pref_get_float", "player_pref_get_float(key,defval) function", new ExpressionFactoryHelper<PlayerPrefFloatFunction>());
-                registry.Register("player_pref_get_string", "player_pref_get_string(key,defval) function", new ExpressionFactoryHelper<PlayerPrefStringFunction>());
-                registry.Register("player_pref_get_by_java", "player_pref_get_by_java(key,defval) function", new ExpressionFactoryHelper<PrefByJavaFunction>());
+                registry.Register("pref_get_int", "pref_get_int(key,defval) function", new ExpressionFactoryHelper<PlayerPrefIntFunction>());
+                registry.Register("pref_get_float", "pref_get_float(key,defval) function", new ExpressionFactoryHelper<PlayerPrefFloatFunction>());
+                registry.Register("pref_get_str", "pref_get_str(key,defval) function", new ExpressionFactoryHelper<PlayerPrefStringFunction>());
+                registry.Register("pref_get_by_java", "pref_get_by_java(key,defval) function", new ExpressionFactoryHelper<PrefByJavaFunction>());
 
                 registry.Register("is_format_supported", "is_format_supported(fmt_str,usage_str) function", new ExpressionFactoryHelper<IsFormatSupportedFunction>());
                 registry.Register("get_compatible_format", "get_compatible_format(fmt_str,usage_str) function", new ExpressionFactoryHelper<GetCompatibleFormatFunction>());
                 registry.Register("get_graphics_format", "get_graphics_format(def_fmt) function", new ExpressionFactoryHelper<GetGraphicsFormatFunction>());
                 registry.Register("get_msaa_sample_count", "get_msaa_sample_count(w,h,color_fmt,depth_bit,mip_ct) function", new ExpressionFactoryHelper<GetMSAASampleCountFunction>());
-                registry.Register("system_info", "system_info() function, return typeof(SystemInfo)", new ExpressionFactoryHelper<SystemInfoFunction>());
+                registry.Register("sys_info", "sys_info() function, return typeof(SystemInfo)", new ExpressionFactoryHelper<SystemInfoFunction>());
                 registry.Register("screen", "screen() function, return typeof(Screen)", new ExpressionFactoryHelper<ScreenFunction>());
                 registry.Register("screen_width", "screen_width() function, return Screen.width", new ExpressionFactoryHelper<ScreenWidthFunction>());
                 registry.Register("screen_height", "screen_height() function, return Screen.height", new ExpressionFactoryHelper<ScreenHeightFunction>());
@@ -182,35 +182,35 @@ namespace GmCommands
                 registry.Register("wetest_get_width", "wetest_get_width() function, WeTest GetWidth", new ExpressionFactoryHelper<WeTestGetWidthFunction>());
                 registry.Register("wetest_get_height", "wetest_get_height() function, WeTest GetHeight", new ExpressionFactoryHelper<WeTestGetHeightFunction>());
                 registry.Register("get_pointer", "get_pointer() function, return Input.mousePosition", new ExpressionFactoryHelper<GetPointerFunction>());
-                registry.Register("pointer_raycast_uis", "pointer_raycast_uis() function, return List<UnityEngine.EventSystems.RaycastResult>", new ExpressionFactoryHelper<PointerRaycastUisFunction>());
-                registry.Register("get_pointer_components", "get_pointer_components(type,include_inactive) function, return List<Component>", new ExpressionFactoryHelper<GetPointerComponentsFunction>());
+                registry.Register("get_ptr_uis", "get_ptr_uis() function, return List<UnityEngine.EventSystems.RaycastResult>", new ExpressionFactoryHelper<PointerRaycastUisFunction>());
+                registry.Register("get_ptr_comps", "get_ptr_comps(type,include_inactive) function, return List<Component>", new ExpressionFactoryHelper<GetPointerComponentsFunction>());
                 registry.Register("raycast_uis", "raycast_uis(x,y) function, return List<UnityEngine.EventSystems.RaycastResult>", new ExpressionFactoryHelper<RaycastUisFunction>());
-                registry.Register("raycast_components", "raycast_components(x,y,type,include_inactive) function, return List<Component>", new ExpressionFactoryHelper<RaycastComponentsFunction>());
+                registry.Register("raycast_comps", "raycast_comps(x,y,type,include_inactive) function, return List<Component>", new ExpressionFactoryHelper<RaycastComponentsFunction>());
                 registry.Register("get_scene_path", "get_scene_path([prefixs],obj,up_level) function, return partial scene path", new ExpressionFactoryHelper<GetScenePathFunction>());
 
                 registry.Register("shader", "shader() function, return typeof(Shader)", new ExpressionFactoryHelper<ShaderFunction>());
-                registry.Register("get_material", "get_material(mat_or_path[,index]) function, renderer.material[s[ix]]", new ExpressionFactoryHelper<GetMaterialFunction>());
-                registry.Register("get_shared_material", "get_shared_material(mat_or_path[,index]) function, renderer.sharedMaterial[s[ix]]", new ExpressionFactoryHelper<GetSharedMaterialFunction>());
-                registry.Register("material_get_float", "material_get_float(mat_or_path,key) function, Material.GetFloat", new ExpressionFactoryHelper<MaterialGetFloatFunction>());
-                registry.Register("material_get_int", "material_get_int(mat_or_path,key) function, Material.GetInt", new ExpressionFactoryHelper<MaterialGetIntFunction>());
-                registry.Register("material_get_integer", "material_get_integer(mat_or_path,key) function, Material.GetInteger", new ExpressionFactoryHelper<MaterialGetIntegerFunction>());
-                registry.Register("material_get_vector", "material_get_vector(mat_or_path,key) function, Material.GetVector", new ExpressionFactoryHelper<MaterialGetVectorFunction>());
-                registry.Register("material_get_color", "material_get_color(mat_or_path,key) function, Material.GetColor", new ExpressionFactoryHelper<MaterialGetColorFunction>());
+                registry.Register("get_mat", "get_mat(mat_or_path[,index]) function, renderer.material[s[ix]]", new ExpressionFactoryHelper<GetMaterialFunction>());
+                registry.Register("get_smat", "get_smat(mat_or_path[,index]) function, renderer.sharedMaterial[s[ix]]", new ExpressionFactoryHelper<GetSharedMaterialFunction>());
+                registry.Register("mat_get_float", "mat_get_float(mat_or_path,key) function, Material.GetFloat", new ExpressionFactoryHelper<MaterialGetFloatFunction>());
+                registry.Register("mat_get_int", "mat_get_int(mat_or_path,key) function, Material.GetInt", new ExpressionFactoryHelper<MaterialGetIntFunction>());
+                registry.Register("mat_get_integer", "mat_get_integer(mat_or_path,key) function, Material.GetInteger", new ExpressionFactoryHelper<MaterialGetIntegerFunction>());
+                registry.Register("mat_get_vector", "mat_get_vector(mat_or_path,key) function, Material.GetVector", new ExpressionFactoryHelper<MaterialGetVectorFunction>());
+                registry.Register("mat_get_color", "mat_get_color(mat_or_path,key) function, Material.GetColor", new ExpressionFactoryHelper<MaterialGetColorFunction>());
 
-                registry.Register("find_raw_image", "find_raw_image(name1,name2,...) function", new ExpressionFactoryHelper<FindRawImageFunction>());
-                registry.Register("find_ui_image", "find_ui_image(name1,name2,...) function", new ExpressionFactoryHelper<FindUiImageFunction>());
-                registry.Register("find_ui_button", "find_ui_button(name1,name2,...) function", new ExpressionFactoryHelper<FindUiButtonFunction>());
-                registry.Register("find_ui_toggle", "find_ui_toggle(name1,name2,...) function", new ExpressionFactoryHelper<FindUiToggleFunction>());
-                registry.Register("find_ui_slider", "find_ui_slider(name1,name2,...) function", new ExpressionFactoryHelper<FindUiSliderFunction>());
-                registry.Register("find_ui_input", "find_ui_input(name1,name2,...) function", new ExpressionFactoryHelper<FindUiInputFunction>());
+                registry.Register("find_raw_img", "find_raw_img(name1,name2,...) function", new ExpressionFactoryHelper<FindRawImageFunction>());
+                registry.Register("find_ui_img", "find_ui_img(name1,name2,...) function", new ExpressionFactoryHelper<FindUiImageFunction>());
+                registry.Register("find_button", "find_button(name1,name2,...) function", new ExpressionFactoryHelper<FindUiButtonFunction>());
+                registry.Register("find_toggle", "find_toggle(name1,name2,...) function", new ExpressionFactoryHelper<FindUiToggleFunction>());
+                registry.Register("find_slider", "find_slider(name1,name2,...) function", new ExpressionFactoryHelper<FindUiSliderFunction>());
+                registry.Register("find_input", "find_input(name1,name2,...) function", new ExpressionFactoryHelper<FindUiInputFunction>());
                 registry.Register("find_tmp_input", "find_tmp_input(name1,name2,...) function", new ExpressionFactoryHelper<FindTmpInputFunction>());
-                registry.Register("find_ui_dropdown", "find_ui_dropdown(name1,name2,...) function", new ExpressionFactoryHelper<FindUiDropdownFunction>());
+                registry.Register("find_dropdown", "find_dropdown(name1,name2,...) function", new ExpressionFactoryHelper<FindUiDropdownFunction>());
                 registry.Register("find_tmp_dropdown", "find_tmp_dropdown(name1,name2,...) function", new ExpressionFactoryHelper<FindTmpDropdownFunction>());
 
-                registry.Register("find_object", "find_object(name_key,type) function", new ExpressionFactoryHelper<FindObjectFunction>());
-                registry.Register("search_objects", "search_objects(name_key,type) function", new ExpressionFactoryHelper<SearchObjectsFunction>());
-                registry.Register("find_component", "find_component(root_name,[name1,name2,...],type,include_inactive) function", new ExpressionFactoryHelper<FindComponentFunction>());
-                registry.Register("search_components", "search_components(root_name,[name1,name2,...],type,include_inactive) function", new ExpressionFactoryHelper<SearchComponentsFunction>());
+                registry.Register("find_obj", "find_obj(name_key,type) function", new ExpressionFactoryHelper<FindObjectFunction>());
+                registry.Register("search_objs", "search_objs(name_key,type) function", new ExpressionFactoryHelper<SearchObjectsFunction>());
+                registry.Register("find_comp", "find_comp(root_name,[name1,name2,...],type,include_inactive) function", new ExpressionFactoryHelper<FindComponentFunction>());
+                registry.Register("search_comps", "search_comps(root_name,[name1,name2,...],type,include_inactive) function", new ExpressionFactoryHelper<SearchComponentsFunction>());
 
 
                 if (null != OnRegisterGmCommandsAndFunctions) {
@@ -297,11 +297,11 @@ namespace GmCommands
             registry.Register("rotation", "rotation(x,y,z) function", new ExpressionFactoryHelper<GmCommands.Vector3Function>());
             registry.Register("scale", "scale(x,y,z) function", new ExpressionFactoryHelper<GmCommands.Vector3Function>());
 
-            registry.Register("deg2rad", "deg2rad(deg) function", new ExpressionFactoryHelper<GmCommands.Deg2RadFunction>());
-            registry.Register("rad2deg", "rad2deg(rad) function", new ExpressionFactoryHelper<GmCommands.Rad2DegFunction>());
+            registry.Register("deg_2_rad", "deg_2_rad(deg) function", new ExpressionFactoryHelper<GmCommands.Deg2RadFunction>());
+            registry.Register("rad_2_deg", "rad_2_deg(rad) function", new ExpressionFactoryHelper<GmCommands.Rad2DegFunction>());
 
             registry.Register("get_file_name", "get_file_name(path) function", new ExpressionFactoryHelper<GmCommands.GetFileNameFunction>());
-            registry.Register("get_directory_name", "get_directory_name(path) function", new ExpressionFactoryHelper<GmCommands.GetDirectoryNameFunction>());
+            registry.Register("get_dir_name", "get_dir_name(path) function", new ExpressionFactoryHelper<GmCommands.GetDirectoryNameFunction>());
             registry.Register("get_extension", "get_extension(path) function", new ExpressionFactoryHelper<GmCommands.GetExtensionFunction>());
             registry.Register("combine_path", "combine_path(path1,path2) function", new ExpressionFactoryHelper<GmCommands.CombinePathFunction>());
             registry.Register("get_streaming_assets", "get_streaming_assets() function", new ExpressionFactoryHelper<GmCommands.GetStreamingAssetsFunction>());

@@ -572,7 +572,7 @@ namespace GmCommands
         }
     }
     /// <summary>
-    /// editor_add_component(objpath,type)[obj("varname")];
+    /// add_component(objpath,type)[obj("varname")];
     /// </summary>
     internal sealed class AddComponentCommand : AbstractExpression
     {
