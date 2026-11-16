@@ -2658,7 +2658,7 @@ namespace StoryScript.DslExpression
             calculator.Register("api_list", "api_list([regex,...]) - regex search over all APIs/docs registered on the current editor interpreter (like helpall)", new ExpressionFactoryHelper<ApiListExp>());
             calculator.Register("editor_list_components", "editor_list_components(obj_or_path) - list components on a scene GameObject, including inactive objects (read-only)", new ExpressionFactoryHelper<EditorListComponentsExp>());
             calculator.Register("editor_add_component", "editor_add_component(obj_or_path,type_or_str[,dryRun]) - add a component in edit mode; defaults to DRY RUN, uses Undo.AddComponent, never saves the scene", new ExpressionFactoryHelper<EditorAddComponentExp>());
-            calculator.Register("remove_component", "remove_component(obj_or_path,type_or_str[,dryRun,all]) - remove component(s) in edit mode; defaults to DRY RUN, uses Undo.DestroyObjectImmediate, never saves the scene", new ExpressionFactoryHelper<EditorRemoveComponentExp>());
+            calculator.Register("editor_remove_component", "editor_remove_component(obj_or_path,type_or_str[,dryRun,all]) - remove component(s) in edit mode; defaults to DRY RUN, uses Undo.DestroyObjectImmediate, never saves the scene", new ExpressionFactoryHelper<EditorRemoveComponentExp>());
 #endif
 #if USE_GM_STORY
             calculator.Register("story_var", "story_var(name,val) or story_var(name) api", new ExpressionFactoryHelper<StoryVarExp>());
