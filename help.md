@@ -769,8 +769,8 @@ c#类型转换语义下的类型转换
 = [get_unity_ui_type]:get_unity_ui_type(type_str) function，Type.GetType($"UnityEngine.UI.{typeName},UnityEngine.UI")
 = [get_user_type]:get_user_type(type_str) function，Type.GetType($"{typeName},Assembly-CSharp")
 
-= [import_namespace]:import_namespace(ns,assembly) command, import a namespace for typeof
-= [un_import_namespace]:un_import_namespace(ns,assembly) command, remove the previously imported namespace
+= [import]:import(ns,assembly) command, import a namespace for typeof
+= [unimport]:unimport(ns,assembly) command, remove the previously imported namespace
 = [typeof]:typeof(type) or typeof(type,assembly) function, Type.GetType, Automatically try get_unity_type/get_unity_ui_type/get_user_type, then try imports, and finally try get_type
 
 = [get_type_assembly_name]:get_type_assembly_name(obj) function，get Type.AssemblyQualifiedName
@@ -866,8 +866,8 @@ c#类型转换语义下的类型转换
 
 = [float_list]:float_list(str_split_by_sep) function
 = [int_list]:int_list(str_split_by_sep) function
-= [vector_2_list]:vector_2_list(str_split_by_sep) function, vector2 per 2 elements
-= [vector_3_list]:vector_3_list(str_split_by_sep) function, vector3 per 3 elements
+= [vector2_list]:vector2_list(str_split_by_sep) function, vector2 per 2 elements
+= [vector3_list]:vector3_list(str_split_by_sep) function, vector3 per 3 elements
 ```
 ### H、基础api---数学
 
@@ -878,20 +878,20 @@ c#类型转换语义下的类型转换
 = [approximately]:approximately(v1,v2) function
 = [asin]:asin(v) function
 = [atan]:atan(v) function
-= [atan_2]:atan_2(v1,v2) function
+= [atan2]:atan2(v1,v2) function
 = [ceiling]:ceiling(val) function
 = [ceiling_to_int]:ceiling_to_int(v) function
 = [clamp]:clamp(v,v1,v2) function
-= [clamp_01]:clamp_01(v) function
+= [clamp01]:clamp01(v) function
 = [closest_power_of_two]:closest_power_of_two(v) function
 = [cos]:cos(val) function
 = [cosh]:cosh(val) function
-= [deg2rad]:deg2rad(deg) function
-= [rad2deg]:rad2deg(rad) function
+= [deg_2_rad]:deg_2_rad(deg) function
+= [rad_2_deg]:rad_2_deg(rad) function
 = [dist]:dist(x1,y1,x2,y2) function
 = [dist_sqr]:dist_sqr(x1,y1,x2,y2) function
 = [exp]:exp(v) function
-= [exp_2]:exp_2(v) function
+= [exp2]:exp2(v) function
 = [floor]:floor(val) function
 = [floor_to_int]:floor_to_int(v) function
 = [is_power_of_two]:is_power_of_two(v) function
@@ -899,8 +899,8 @@ c#类型转换语义下的类型转换
 = [lerp_angle]:lerp_angle(a,b,t) function
 = [lerp_unclamped]:lerp_unclamped(a,b,t) function
 = [log]:log(x) or log(x,y) function
-= [log_10]:log_10(v) function
-= [log_2]:log_2(v) function
+= [log10]:log10(v) function
+= [log2]:log2(v) function
 = [max]:max(v1,v2,...) function
 = [min]:min(v1,v2,...) function
 = [next_power_of_two]:next_power_of_two(v) function
@@ -915,8 +915,8 @@ c#类型转换语义下的类型转换
 = [tan]:tan(v) function
 = [tanh]:tanh(v) function
 
-= [vector_2_dist]:vector_2_dist(pt1,pt2) function
-= [vector_3_dist]:vector_3_dist(pt1,pt2) function
+= [vector2_dist]:vector2_dist(pt1,pt2) function
+= [vector3_dist]:vector3_dist(pt1,pt2) function
 ```
 ### I、基础api---文件操作
 
@@ -958,9 +958,9 @@ c#类型转换语义下的类型转换
 = [add_component]:add_component(obj_or_path,type_or_str)[obj("varname")] command
 = [remove_component]:remove_component(obj_or_path,type_or_str) command
 
-= [add_transform]:add_transform(name,local0_or_world1){position(vector_3(x,y,z));rotation(vector_3(x,y,z));scale(vector_3(x,y,z));} command
+= [add_transform]:add_transform(name,local0_or_world1){position(vector3(x,y,z));rotation(vector3(x,y,z));scale(vector3(x,y,z));} command
 
-= [create_game_object]:create_game_object(name,prefab[,parent])[obj("varname")]{position(vector_3(x,y,z));rotation(vector_3(x,y,z));scale(vector_3(x,y,z));loadtimeout(1000);disable("typename", "typename", ...);remove("typename", "typename", ...);} command
+= [create_game_object]:create_game_object(name,prefab[,parent])[obj("varname")]{position(vector3(x,y,z));rotation(vector3(x,y,z));scale(vector3(x,y,z));loadtimeout(1000);disable("typename", "typename", ...);remove("typename", "typename", ...);} command
 = [destroy_game_object]:destroy_game_object(path) command
 
 = [game_object_animation]:game_object_animation(obj, anim[, normalized_time]) command
@@ -998,7 +998,7 @@ c#类型转换语义下的类型转换
 
 - 命令类
 ```
-= [set_transform]:set_transform(name,local0_or_world1){position(vector_3(x,y,z));rotation(vector_3(x,y,z));scale(vector_3(x,y,z));} command
+= [set_transform]:set_transform(name,local0_or_world1){position(vector3(x,y,z));rotation(vector3(x,y,z));scale(vector3(x,y,z));} command
 ```
 - 函数类
 ```
@@ -1020,19 +1020,19 @@ c#类型转换语义下的类型转换
 - 函数类
 ```
 = [color]:color(r,g,b,a) function
-= [color_32]:color_32(r,g,b,a) function
+= [color32]:color32(r,g,b,a) function
 = [eular]:eular(x,y,z) function
 = [position]:position(x,y,z) function
 = [quaternion]:quaternion(x,y,z,w) function
 = [rotation]:rotation(x,y,z) function
 = [scale]:scale(x,y,z) function
-= [vector_2]:vector_2(x,y) function
-= [vector_2_int]:vector_2_int(x,y) function
-= [vector_2_to_3]:vector_2_to_3(pt) function
-= [vector_3]:vector_3(x,y,z) function
-= [vector_3_int]:vector_3_int(x,y,z) function
-= [vector_3_to_2]:vector_3_to_2(pt) function
-= [vector_4]:vector_4(x,y,z,w) function
+= [vector2]:vector2(x,y) function
+= [vector2_int]:vector2_int(x,y) function
+= [vector2_to_3]:vector2_to_3(pt) function
+= [vector3]:vector3(x,y,z) function
+= [vector3_int]:vector3_int(x,y,z) function
+= [vector3_to_2]:vector3_to_2(pt) function
+= [vector4]:vector4(x,y,z,w) function
 ```
 ### N、unity通用api---随机
 
@@ -1041,8 +1041,8 @@ c#类型转换语义下的类型转换
 = [rnd_float]:rnd_float() function
 = [rnd_from_list]:rnd_from_list(list[,defval]) function
 = [rnd_int]:rnd_int(min,max) function
-= [rnd_vector_2]:rnd_vector_2(pt,radius) function
-= [rnd_vector_3]:rnd_vector_3(pt,radius) function
+= [rnd_vector2]:rnd_vector2(pt,radius) function
+= [rnd_vector3]:rnd_vector3(pt,radius) function
 ```
 ### O、unity通用api---时间
 
@@ -1196,14 +1196,14 @@ start_activity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivi
 = [is_android]:is_android() function, return Application.platform==Android
 = [is_console]:is_console() function, return Application.isConsolePlatform
 = [is_debug]:is_debug() function
-= [is_development]:is_development() function
+= [is_dev]:is_dev() function
 = [is_editor]:is_editor() function, return Application.isEditor
 = [is_iphone]:is_iphone() function, return Application.platform==IPhone
 = [is_mobile]:is_mobile() function, return Application.isMobilePlatform
 = [is_pc]:is_pc() function, return not mobile and not console
 = [platform]:platform() function, return Application.platform
 
-= [system_info]:system_info() function, return typeof(SystemInfo)
+= [sys_info]:sys_info() function, return typeof(SystemInfo)
 = [shader]:shader() function, return typeof(Shader)
 = [screen]:screen() function, return typeof(Screen)
 
@@ -1216,16 +1216,16 @@ start_activity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivi
 
 - 命令类
 ```
-= [log_objects]:log_objects(name_key,type) command
-= [log_components]:log_components(root_name,[name1,name2,...],type,up_level,include_inactive) command，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
+= [log_objs]:log_objs(name_key,type) command
+= [log_comps]:log_comps(root_name,[name1,name2,...],type,up_level,include_inactive) command，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
 = [log_scene_path]:log_scene_path([prefixs],obj,up_level) command
 ```
 - 函数类
 ```
-= [find_object]:find_object(name_key,type) function
-= [search_objects]:search_objects(name_key,type) function
-= [find_component]:find_component(root_name,[name1,name2,...],type,include_inactive) function，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
-= [search_components]:search_components(root_name,[name1,name2,...],type,include_inactive) function，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
+= [find_obj]:find_obj(name_key,type) function
+= [search_objs]:search_objs(name_key,type) function
+= [find_comp]:find_comp(root_name,[name1,name2,...],type,include_inactive) function，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
+= [search_comps]:search_comps(root_name,[name1,name2,...],type,include_inactive) function，其中name1,name2,...用来匹配组件所在对象的场景路径（与下一部分UI操作里相似）
 = [get_scene_path]:get_scene_path([prefixs],obj,up_level) function, return partial scene path
 ```
 ### W、游戏功能api---UI操作
@@ -1236,31 +1236,31 @@ start_activity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivi
 ```
 = [click]:click(uiobj) command，触发指定Button的点击事件
 = [click_on_pos]:click_on_pos(x,y) command，触发指定屏幕坐标位置的Button的点击事件
-= [click_on_pointer]:click_on_pointer() command，触发在鼠标当前位置的点击事件处理（用于Button控件点击）
+= [click_on_ptr]:click_on_ptr() command，触发在鼠标当前位置的点击事件处理（用于Button控件点击）
 = [click_ui]:click_ui(name1,name2,...) command，搜索场景路径上包含name1,name2,...的Button控件（name完全匹配某一层级名字，各name不需要是连续层次的名字，只要路径上名称顺序符合，中间可以跳过一些层级的名字），并触发其点击事件
 
 = [toggle]:toggle(uiobj) command，切换指定Toggle的选中状态
 = [toggle_on]:toggle_on(name1,name2,...) command，搜索场景路径上包含name1,name2,...的Toggle控件（name完全匹配某一层级名字，各name不需要是连续层次的名字，只要路径上名称顺序符合，中间可以跳过一些层级的名字），并切换其选中状态
 = [toggle_on_pos]:toggle_on_pos(x,y) command，切换在指定屏幕坐标位置的Toggle的选中状态
-= [toggle_on_pointer]:toggle_on_pointer() command，切换在鼠标当前位置的Toggle的选中状态
+= [toggle_on_ptr]:toggle_on_ptr() command，切换在鼠标当前位置的Toggle的选中状态
 ```
 - 函数类（其中name1,name2,...用来匹配组件所在对象的场景路径，与命令部分相似）
 ```
-= [find_ui_button]:find_ui_button(name1,name2,...) function
-= [find_ui_dropdown]:find_ui_dropdown(name1,name2,...) function
-= [find_ui_input]:find_ui_input(name1,name2,...) function
-= [find_raw_image]:find_raw_image(name1,name2,...) function
-= [find_ui_slider]:find_ui_slider(name1,name2,...) function
+= [find_button]:find_button(name1,name2,...) function
+= [find_dropdown]:find_dropdown(name1,name2,...) function
+= [find_input]:find_input(name1,name2,...) function
+= [find_raw_img]:find_raw_img(name1,name2,...) function
+= [find_slider]:find_slider(name1,name2,...) function
 = [find_tmp_dropdown]:find_tmp_dropdown(name1,name2,...) function
 = [find_tmp_input]:find_tmp_input(name1,name2,...) function
-= [find_ui_toggle]:find_ui_toggle(name1,name2,...) function
-= [find_ui_image]:find_ui_image(name1,name2,...) function
+= [find_toggle]:find_toggle(name1,name2,...) function
+= [find_ui_img]:find_ui_img(name1,name2,...) function
 
 = [get_pointer]:get_pointer() function, return Input.mousePosition
-= [get_pointer_components]:get_pointer_components(type,include_inactive) function, return List<Component>，向鼠标位置打射线，返回命中的指定类型的组件列表
-= [pointer_raycast_uis]:pointer_raycast_uis() function, return List<UnityEngine.EventSystems.RaycastResult>，向鼠标位置打射线，返回命中的ui控件信息
+= [get_ptr_comps]:get_ptr_comps(type,include_inactive) function, return List<Component>，向鼠标位置打射线，返回命中的指定类型的组件列表
+= [get_ptr_uis]:get_ptr_uis() function, return List<UnityEngine.EventSystems.RaycastResult>，向鼠标位置打射线，返回命中的ui控件信息
 
-= [raycast_components]:raycast_components(x,y,type,include_inactive) function, return List<Component>，向指定屏幕位置打射线，返回命中的指定类型的组件列表
+= [raycast_comps]:raycast_comps(x,y,type,include_inactive) function, return List<Component>，向指定屏幕位置打射线，返回命中的指定类型的组件列表
 = [raycast_uis]:raycast_uis(x,y) function, return List<UnityEngine.EventSystems.RaycastResult>，向指定屏幕位置打射线，返回命中的ui控件信息
 ```
 
@@ -1270,43 +1270,43 @@ start_activity("com.DefaultCompany.Test","com.unity3d.broadcastlib.RestartActivi
 ```
 = [log_mesh]:log_mesh(mesh_or_path) command
 
-= [set_material]:set_material(renderer_or_path,mat_or_path) or set_material(renderer_or_path,ix,mat_or_path) or set_material(renderer_or_path,ix,mats_or_path,ix) command
-= [set_materials]:set_materials(mesh_or_path,mats_or_path) command
-= [set_shared_material]:set_shared_material(renderer_or_path,mat_or_path) or set_shared_material(renderer_or_path,ix,mat_or_path) or set_shared_material(renderer_or_path,ix,mats_or_path,ix) command
-= [set_shared_materials]:set_shared_materials(mesh_or_path,mats_or_path) command
+= [set_mat]:set_mat(renderer_or_path,mat_or_path) or set_mat(renderer_or_path,ix,mat_or_path) or set_mat(renderer_or_path,ix,mats_or_path,ix) command
+= [set_mats]:set_mats(mesh_or_path,mats_or_path) command
+= [set_smat]:set_smat(renderer_or_path,mat_or_path) or set_smat(renderer_or_path,ix,mat_or_path) or set_smat(renderer_or_path,ix,mats_or_path,ix) command
+= [set_smats]:set_smats(mesh_or_path,mats_or_path) command
 
-= [material_set_color]:material_set_color(mat_or_path,key,val) command, Material.SetColor
-= [material_set_float]:material_set_float(mat_or_path,key,val) command, Material.SetFloat
-= [material_set_int]:material_set_int(mat_or_path,key,val) command, Material.SetInt
-= [material_set_integer]:material_set_integer(mat_or_path,key,val) command, Material.SetInteger
-= [material_set_vector]:material_set_vector(mat_or_path,key,val) command, Material.SetVector
+= [mat_set_color]:mat_set_color(mat_or_path,key,val) command, Material.SetColor
+= [mat_set_float]:mat_set_float(mat_or_path,key,val) command, Material.SetFloat
+= [mat_set_int]:mat_set_int(mat_or_path,key,val) command, Material.SetInt
+= [mat_set_integer]:mat_set_integer(mat_or_path,key,val) command, Material.SetInteger
+= [mat_set_vector]:mat_set_vector(mat_or_path,key,val) command, Material.SetVector
 ```
 - 函数类
 ```
-= [get_material]:get_material(mat_or_path[,index]) function, renderer.material[s[ix]]
-= [get_shared_material]:get_shared_material(mat_or_path[,index]) function, renderer.sharedMaterial[s[ix]]
+= [get_mat]:get_mat(mat_or_path[,index]) function, renderer.material[s[ix]]
+= [get_smat]:get_smat(mat_or_path[,index]) function, renderer.sharedMaterial[s[ix]]
 
-= [material_get_color]:material_get_color(mat_or_path,key) function, Material.GetColor
-= [material_get_float]:material_get_float(mat_or_path,key) function, Material.GetFloat
-= [material_get_int]:material_get_int(mat_or_path,key) function, Material.GetInt
-= [material_get_integer]:material_get_integer(mat_or_path,key) function, Material.GetInteger
-= [material_get_vector]:material_get_vector(mat_or_path,key) function, Material.GetVector
+= [mat_get_color]:mat_get_color(mat_or_path,key) function, Material.GetColor
+= [mat_get_float]:mat_get_float(mat_or_path,key) function, Material.GetFloat
+= [mat_get_int]:mat_get_int(mat_or_path,key) function, Material.GetInt
+= [mat_get_integer]:mat_get_integer(mat_or_path,key) function, Material.GetInteger
+= [mat_get_vector]:mat_get_vector(mat_or_path,key) function, Material.GetVector
 ```
 ### Y、游戏功能api---PlayerPrefs
 
 - 命令类
 ```
-= [player_pref_set_by_java]:player_pref_set_by_java(key,val) command
-= [player_pref_set_float]:player_pref_set_float(key,val) command
-= [player_pref_set_int]:player_pref_set_int(key,val) command
-= [player_pref_set_string]:player_pref_set_string(key,val) command
+= [pref_set_by_java]:pref_set_by_java(key,val) command
+= [pref_set_float]:pref_set_float(key,val) command
+= [pref_set_int]:pref_set_int(key,val) command
+= [pref_set_str]:pref_set_str(key,val) command
 ```
 - 函数类
 ```
-= [player_pref_get_by_java]:player_pref_get_by_java(key,defval) function
-= [player_pref_get_float]:player_pref_get_float(key,defval) function
-= [player_pref_get_int]:player_pref_get_int(key,defval) function
-= [player_pref_get_string]:player_pref_get_string(key,defval) function
+= [pref_get_by_java]:pref_get_by_java(key,defval) function
+= [pref_get_float]:pref_get_float(key,defval) function
+= [pref_get_int]:pref_get_int(key,defval) function
+= [pref_get_str]:pref_get_str(key,defval) function
 ```
 ### Z、游戏功能api---内存查询
 
