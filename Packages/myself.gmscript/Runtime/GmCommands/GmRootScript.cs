@@ -278,13 +278,11 @@ public sealed class GmRootScript : MonoBehaviour
     }
 
     private long m_LastTaskCleanupTime;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-    // Development builds poll the clipboard by default; otherwise no GM command
-    // ever calls listen_clipboard() and the whole clipboard path stays disabled.
-    private int m_ClipboardInterval = 500;
-#else
+    // Clipboard polling is enabled explicitly by listen_clipboard(interval),
+    // typically from initgm.txt. Once enabled, Update() executes each distinct
+    // tagged payload once, which also works on iOS where UIKeyCommand gives no
+    // reliable modifier+V key state.
     private int m_ClipboardInterval;
-#endif
     private long m_LastClipboardTime;
     private bool m_NeedCheckClipboard;
     private string m_LastClipboardCommand = string.Empty;
