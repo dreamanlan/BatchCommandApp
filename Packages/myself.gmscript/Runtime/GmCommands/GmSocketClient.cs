@@ -181,7 +181,10 @@ public sealed class GmSocketClient
         }
         string response;
         try {
-            response = GmCommandDispatcher.HandleLine(requestLine);
+            // The hello frame declares this connection's channel; pass it on so
+            // jobstart can enforce each job's [Flags] channel mask.
+            GmJobChannel ch = m_Channel == "editor" ? GmJobChannel.Editor : GmJobChannel.Runtime;
+            response = GmCommandDispatcher.HandleLine(requestLine, ch);
         }
         catch (Exception ex) {
             response = "{\"ok\":false,\"error\":\"" + GmJson.Escape("server error: " + ex.Message) + "\"}";

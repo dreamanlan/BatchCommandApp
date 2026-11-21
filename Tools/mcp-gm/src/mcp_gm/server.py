@@ -17,22 +17,35 @@ following calls. project selects one Unity instance; after unity_set_active_proj
 it can be omitted. UC_GM_TARGET sets the startup default, UC_GM_MCP_HOST /
 UC_GM_MCP_PORT configure the listener, UC_GM_HOST / UC_GM_PORT the device endpoint.
 
-Script execution is channel-restricted:
-  editor channel  -> unity_editor_exec only
-  runtime channel -> unity_exec / unity_console only
-  both channels   -> unity_info / unity_logs / unity_clearlogs
+Script execution: unity_exec is the SINGLE DSL entry point for both channels.
+The bridge resolves it to "edit" on the editor channel and "exec" on the
+runtime/device channel. unity_console is runtime-only. The two calculators
+have different API registries, so discover APIs on the target channel:
+  unity_exec('api_list("regex")', target='editor')    editor/resource APIs
+  unity_exec('api_list("regex")', target='runtime')   GM command/function APIs
+unity_info / unity_logs / unity_clearlogs / unity_job_* work on both channels.
 unity_info reports the live connections, the active project and the known projects.
 
+LONG BATCH COMMANDS (IMPORTANT): never call a multi-scene editor command through
+unity_exec with a huge timeout. Those commands run synchronously inside one
+EditorApplication.update callback, which blocks script compilation, asset refresh,
+repaint and every later GM request (Unity shows "Hold on (busy for ...)").
+Use unity_job_start(name, arg) instead: it returns "JOB_STARTED id=N" immediately
+and the command advances one scene per frame. Poll unity_job_status(id), then
+unity_job_result(id); unity_job_list() shows registered job names.
+unity_job_run(name, arg, wait_ms) is a convenience wrapper for short jobs.
+
 Interpreters (Unity side, all shared with the existing systems):
-  unity_exec        -> one persistent DslCalculator in GmCommandApi, sharing the GM
-                       command/function registry with the story-based GM scripts.
-  unity_editor_exec -> the same DslCalculator used by the editor command window and
-                       editor_startup.dsl, with editor APIs only.
-  unity_console     -> DebugConsole.ExecuteForResult when a DebugConsole exists.
+  unity_exec(target='editor')  -> the DslCalculator used by the editor command
+                                  window and editor_startup.dsl (editor APIs only).
+  unity_exec(target='runtime') -> one persistent DslCalculator in GmCommandApi,
+                                  sharing the GM command/function registry with
+                                  the story-based GM scripts.
+  unity_console                -> DebugConsole.ExecuteForResult when available.
 
 Discovering DSL APIs (IMPORTANT - the two channels have different registries):
-  unity_editor_exec('api_list("regex")', target='editor')   editor interpreter registry
-  unity_exec('api_list("regex")', target='runtime')         runtime interpreter registry
+  unity_exec('api_list("regex")', target='editor')   editor interpreter registry
+  unity_exec('api_list("regex")', target='runtime')  runtime interpreter registry
 api_list() reads the CURRENT interpreter's live registry and takes zero or more REGEX
 patterns, matched case-insensitively against "name: doc". Prefer it over help() / '/?'.
 
@@ -95,50 +108,36 @@ def unity_info(target: str | None = None, project: str | None = None) -> dict:
     ``target`` switches channel ("editor" / "runtime" / "auto" / "device") for this and
     later calls; ``project`` selects one Unity instance.
     """
-    reply = _run("ping", timeout_ms=5000, target=target, project=project)
+    # A frame-pumped job can hold one work item (e.g. a NavMesh bake) for
+    # ~10-15s. Keep the ping above that so unity_info stays usable mid-job.
+    reply = _run("ping", timeout_ms=20000, target=target, project=project)
     if isinstance(reply, dict):
         reply["channel"] = get_bridge().channel_info()
     return reply
 
 
 @mcp.tool()
-def unity_exec(code: str, timeout_ms: int = 15000, target: str | None = None,
+def unity_exec(code: str, timeout_ms: int = 30000, target: str | None = None,
                project: str | None = None) -> dict:
     """Run a GM DSL snippet synchronously inside Unity and return the value of the last statement.
 
-    Write plain DSL statements separated by ';' (it is wrapped into script{ ... } before evaluation).
-    Common functions: findobj(name,type) / searchobjs(name_key,type) / getposition(obj_or_path)
-                      getcomponent / getcomponents / matgetfloat(mat,key) / screenwidth() / iseditor()
-    To discover APIs, call unity_exec('api_list("regex")', target='runtime') - it reads
-    the LIVE interpreter registry. help() also works here (runtime channel only).
+    This is the single DSL entry point for BOTH channels: the bridge resolves the
+    request to "edit" on the editor channel and "exec" on the runtime/device
+    channel, according to the selected target. The two calculators have different
+    API registries, so use api_list("regex") on the target channel to discover
+    what is available there.
 
-    RUNTIME CHANNEL ONLY (rejected on the editor channel; switch with target='runtime').
-    Uses a persistent DslCalculator that shares the GM command/function API registry with
-    the story-based GM scripts, so variables defined in an earlier call are still visible.
+    Write plain DSL statements separated by ';' (wrapped into script{ ... }).
+    Editor channel: resource/editor APIs (check_pipeline_assets, gettexturesetting,
+    grep, subst, map_*, job_* ...). Runtime channel: GM command/function registry
+    shared with story scripts; help() works there only. Variables persist across
+    calls on the runtime channel.
 
-    Note: the DSL runs synchronously on the main thread, so an infinite loop freezes Unity.
+    Note: the DSL runs synchronously on the main thread, so an infinite loop freezes
+    Unity. For long batch commands use unity_job_start instead.
     The logs field holds entries produced during this call; always read it.
     """
-    return _run("exec", timeout_ms=timeout_ms, target=target, project=project, code=code)
-
-
-@mcp.tool()
-def unity_editor_exec(code: str, timeout_ms: int = 30000, target: str | None = None,
-                      project: str | None = None) -> dict:
-    """Run editor DSL (resource processing / AssetDatabase / editor APIs). Unity Editor only.
-
-    code can use editor-side APIs such as check_pipeline_assets(), check_pipeline_asset_guid(),
-    gettexturesetting(path), grep(...), subst(...). Calls from a built player return
-    ok=false (there is no editor executor).
-
-    To discover APIs, call unity_editor_exec('api_list("regex")', target='editor').
-    NOTE: help() and unity_console('/?') do NOT work on this channel.
-
-    EDITOR CHANNEL ONLY. Uses the same DslCalculator instance as the editor command window
-    and editor_startup.dsl, so global variables/functions are shared. Only editor/resource
-    APIs are available here (no runtime GM commands).
-    """
-    return _run("edit", timeout_ms=timeout_ms, target=target, project=project, code=code)
+    return _run("dsl", timeout_ms=timeout_ms, target=target, project=project, code=code)
 
 
 @mcp.tool()
@@ -172,6 +171,125 @@ def unity_logs(since: int = -1, count: int = 200, filter: str = "",
 def unity_clearlogs(target: str | None = None, project: str | None = None) -> dict:
     """Clear the log ring buffer (does not touch Unity's own Editor.log)."""
     return _run("clearlogs", timeout_ms=5000, target=target, project=project)
+
+
+# ---------------------------------------------------------------------------
+# Frame-pumped coroutine jobs. Long editor batch commands used to run entirely
+# inside one EditorApplication.update callback (a 640-scene NavMesh bake took
+# hours), which blocked script compilation, asset refresh, repaint and every
+# later GM request. A job yields control between scenes instead.
+#
+#   job = unity_job_start("map_nav_force", "r0c0")   -> {"result":"JOB_STARTED id=1 ..."}
+#   unity_job_status(1)                              -> state / progress / note
+#   unity_job_result(1)                              -> final result when done
+# ---------------------------------------------------------------------------
+
+def _job_id(reply: dict) -> int | None:
+    """Extract the job id from a JOB_STARTED reply."""
+    if not isinstance(reply, dict) or not reply.get("ok"):
+        return None
+    result = reply.get("result")
+    if not isinstance(result, str):
+        return None
+    for part in result.split():
+        if part.startswith("id="):
+            try:
+                return int(part[3:])
+            except ValueError:
+                return None
+    return None
+
+
+def _job_args(arg: str, args: list[str] | None) -> list[str]:
+    """Normalise the shorthand `arg` and the full `args` list into one array.
+
+    `args` wins when provided; otherwise a non-empty `arg` becomes the single
+    element. Always send an array so the Unity side has one code path.
+    """
+    if args is not None:
+        return [str(a) for a in args]
+    if arg:
+        return [str(arg)]
+    return []
+
+
+@mcp.tool()
+def unity_job_start(name: str, arg: str = "", args: list[str] | None = None,
+                    target: str | None = None, project: str | None = None) -> dict:
+    """Start a long batch command as a frame-pumped coroutine job; returns immediately.
+
+    name is one of the registered job names (unity_job_list shows them).
+    args is the full argument list; arg is a shorthand for a single argument.
+    Convention: args[0] = tile/scene/category filter (empty = all),
+    args[1] = option flag ("force"/"dry"/"1"/"true"). Examples:
+      unity_job_start("map_nav", args=["r0c0", "force"])  # force re-bake one tile
+      unity_job_start("map_scenery_fit", arg="r0c0")      # shorthand
+    The reply contains "JOB_STARTED id=N"; pass that id to unity_job_status /
+    unity_job_result / unity_job_cancel.
+
+    Unlike calling the command through unity_exec, this never holds the editor
+    main thread for more than one work item per frame, so compilation, asset
+    refresh and other GM requests keep working while the job runs.
+    """
+    argv = _job_args(arg, args)
+    return _run("jobstart", timeout_ms=20000, target=target, project=project,
+                name=name, args=argv)
+
+
+@mcp.tool()
+def unity_job_status(job_id: int, target: str | None = None,
+                     project: str | None = None) -> dict:
+    """Poll a coroutine job: state (running/done/error/cancelled), progress and note."""
+    return _run("jobstatus", timeout_ms=20000, target=target, project=project, job=job_id)
+
+
+@mcp.tool()
+def unity_job_result(job_id: int, target: str | None = None,
+                     project: str | None = None) -> dict:
+    """Fetch a finished job's result string (or its current progress if still running)."""
+    return _run("jobresult", timeout_ms=20000, target=target, project=project, job=job_id)
+
+
+@mcp.tool()
+def unity_job_cancel(job_id: int, target: str | None = None,
+                     project: str | None = None) -> dict:
+    """Request cancellation of a running coroutine job (takes effect at the next step)."""
+    return _run("jobcancel", timeout_ms=20000, target=target, project=project, job=job_id)
+
+
+@mcp.tool()
+def unity_job_list(target: str | None = None, project: str | None = None) -> dict:
+    """List all coroutine jobs and the registered job command names."""
+    return _run("joblist", timeout_ms=20000, target=target, project=project)
+
+
+@mcp.tool()
+def unity_job_run(name: str, arg: str = "", args: list[str] | None = None,
+                  wait_ms: int = 0, poll_ms: int = 1000,
+                  target: str | None = None, project: str | None = None) -> dict:
+    """Start a job and optionally poll it for a bounded time, all in one call.
+
+    Same arguments as unity_job_start plus the polling window. wait_ms=0
+    (default) returns the JOB_STARTED reply immediately, leaving the caller to
+    poll unity_job_status. A positive wait_ms polls locally (never one long
+    blocking Unity request) and returns the final result if the job finishes
+    within that window, otherwise the latest status. Use it for short jobs;
+    for hour-long bakes prefer start + separate status polls.
+    """
+    start = _run("jobstart", timeout_ms=20000, target=target, project=project,
+                 name=name, args=_job_args(arg, args))
+    jid = _job_id(start)
+    if jid is None or wait_ms <= 0:
+        return start
+    deadline = time.monotonic() + wait_ms / 1000.0
+    status = start
+    while time.monotonic() < deadline:
+        status = _run("jobstatus", timeout_ms=20000, target=target, project=project, job=jid)
+        text = status.get("result", "") if isinstance(status, dict) else ""
+        if not isinstance(text, str) or "state=running" not in text:
+            return _run("jobresult", timeout_ms=20000, target=target, project=project, job=jid)
+        time.sleep(max(0.05, poll_ms / 1000.0))
+    return status
 
 
 # ---------------------------------------------------------------------------

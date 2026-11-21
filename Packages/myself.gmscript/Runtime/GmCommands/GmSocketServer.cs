@@ -189,7 +189,8 @@ public sealed class GmSocketServer
         }
         string response;
         try {
-            response = GmCommandDispatcher.HandleLine(requestLine);
+            // Standalone player / device listener: always the runtime channel.
+            response = GmCommandDispatcher.HandleLine(requestLine, GmJobChannel.Runtime);
         }
         catch (Exception ex) {
             response = "{\"ok\":false,\"error\":\"" + GmJson.Escape("server error: " + ex.Message) + "\"}";

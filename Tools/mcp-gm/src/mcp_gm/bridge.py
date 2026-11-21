@@ -40,15 +40,28 @@ HELLO_TIMEOUT = 10.0
 # reconnects the device channel on a fixed interval.
 MONITOR_INTERVAL = 5.0
 HEARTBEAT_IDLE = 30.0
-HEARTBEAT_TIMEOUT_MS = 1000
+# A frame-pumped GM job may legitimately occupy the editor main thread for one
+# work item (NavMeshBuilder.BuildNavMesh ~10-15s per scene). A 1s heartbeat used
+# to fail three times and drop the connection while such a job was running.
+HEARTBEAT_TIMEOUT_MS = 20000
 HEARTBEAT_MAX_MISSES = 3
 DEVICE_RETRY_INTERVAL = 10.0
 DEVICE_LOG_INTERVAL = 60.0
 
-EDITOR_CHANNEL_CMDS = frozenset({"ping", "logs", "clearlogs", "edit"})
-RUNTIME_CHANNEL_CMDS = frozenset({"ping", "logs", "clearlogs", "exec", "console"})
+# job* commands drive frame-pumped coroutine jobs on Unity's main thread.
+# jobstart returns "JOB_STARTED id=N" immediately instead of blocking for the
+# whole batch; jobstatus/jobresult/jobcancel/joblist are quick polls.
+JOB_CMDS = frozenset({"jobstart", "jobstatus", "jobresult", "jobcancel", "joblist"})
+# A single DSL entry point (unity_exec) is mapped to the right executor per
+# channel in request(): editor -> "edit" (editor Calculator), runtime/device ->
+# "exec" (persistent GM Calculator). The two calculators have DIFFERENT API
+# registries, so keeping them as one tool is a UI simplification only.
+DSL_CMD = "dsl"
+EDITOR_CHANNEL_CMDS = frozenset({"ping", "logs", "clearlogs", "edit"}) | JOB_CMDS
+RUNTIME_CHANNEL_CMDS = frozenset({"ping", "logs", "clearlogs", "exec", "console"}) | JOB_CMDS
 # These commands are safe to resend after a reconnect; exec/console/edit may already have run.
-SAFE_RETRY_COMMANDS = frozenset({"ping", "logs", "clearlogs"})
+# jobstart is deliberately NOT safe to retry (it would start a second job).
+SAFE_RETRY_COMMANDS = frozenset({"ping", "logs", "clearlogs", "jobstatus", "jobresult", "joblist", "jobcancel"})
 VALID_TARGETS = frozenset({"auto", "editor", "runtime", "device"})
 DEFAULT_TARGET = "auto"
 
@@ -603,6 +616,12 @@ class GmConnectionManager:
             tgt = self._normalize_target(self._target)
             peer = self._select_peer(tgt, project)
             cmd = str(payload.get("cmd", ""))
+            # unity_exec sends the neutral "dsl" cmd; resolve it against the
+            # peer that was actually selected so target='editor' and
+            # target='runtime' both work through the same MCP tool.
+            if cmd == DSL_CMD:
+                cmd = "edit" if peer.channel == "editor" else "exec"
+                payload["cmd"] = cmd
             self._check_command_channel(peer, cmd)
             with peer.lock:
                 try:
@@ -639,8 +658,8 @@ class GmConnectionManager:
             return
         raise ChannelRejected(
             f"cmd {cmd!r} cannot run on the {peer.channel} channel ({peer.endpoint}). "
-            "Only unity_editor_exec ('edit') executes scripts on the editor channel; "
-            "unity_exec / unity_console need the runtime channel. "
+            "unity_exec resolves to 'edit' on the editor channel and 'exec' on "
+            "the runtime channel; unity_console needs the runtime channel. "
             "Pass target='runtime' after Play starts.")
 
     def _roundtrip(self, peer: GmPeer, payload: dict, extra_wait: float = 5.0) -> dict:

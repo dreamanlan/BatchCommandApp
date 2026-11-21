@@ -2897,6 +2897,11 @@ namespace StoryScript.DslExpression
     {
         public static void Register(DslCalculator calculator)
         {
+            // Generic GM APIs (job_* coroutine jobs) live in the shared runtime
+            // assembly and must be registered once per interpreter. This is the
+            // package-side editor interpreter entry point; the project-side
+            // OnRegisterApi callback below only adds project-specific APIs.
+            GmJobDslApi.Register(calculator);
             calculator.Register("get_object_by_id", "get_object_by_id(instance_id) api", new ExpressionFactoryHelper<GetObjectByIdExp>());
             calculator.Register("get_object_id", "get_object_id(obj) api", new ExpressionFactoryHelper<GetObjectIdExp>());
             calculator.Register("asset_path_2_guid", "asset_path_2_guid(asset_path) api", new ExpressionFactoryHelper<AssetPath2GUIDExp>());

@@ -241,6 +241,9 @@ namespace GmCommands
         }
         private void RegisterCommon(DslCalculatorApiRegistry registry)
         {
+            // Generic GM APIs shared by the editor and runtime interpreters.
+            GmJobDslApi.Register(registry);
+
             //register command
             registry.Register("send_message", "send_message(objname,msg,arg1,arg2,...) command", new ExpressionFactoryHelper<GmCommands.SendMessageCommand>());
             registry.Register("send_message_with_tag", "send_message_with_tag(tagname,msg,arg1,arg2,...) command", new ExpressionFactoryHelper<GmCommands.SendMessageWithTagCommand>());

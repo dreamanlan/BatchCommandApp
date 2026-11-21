@@ -14,6 +14,14 @@ public sealed class GmCommandRequest
     public long Since = -1;
     public int Count = 200;
     public string Filter = string.Empty;
+    // Async job protocol (jobstart / jobstatus / jobresult / jobcancel / joblist).
+    public int JobId;
+    public string JobName = string.Empty;
+    public string JobArg = string.Empty;      // legacy single argument
+    public string[] JobArgs = new string[0];  // full argument list
+    // Channel that actually delivered this request: editor / runtime / device.
+    // None when the caller did not supply one (fail closed, never assume Both).
+    public GmJobChannel JobChannel = GmJobChannel.None;
 
     public readonly ManualResetEventSlim Done = new ManualResetEventSlim(false);
 
@@ -45,7 +53,11 @@ public static class GmCommandDispatcher
     public static Func<Dictionary<string, object>> InfoProvider;
 
     // Callable from any thread; returns one line of JSON (no trailing newline).
-    public static string HandleLine(string line)
+    // channel identifies the connection that delivered the line; it is used to
+    // enforce each job's [Flags] channel mask (editor / runtime / both).
+    // None is the fail-closed default: legacy callers that omit it cannot
+    // silently bypass the mask.
+    public static string HandleLine(string line, GmJobChannel channel = GmJobChannel.None)
     {
         if (string.IsNullOrEmpty(line)) {
             return ErrorResponse(null, "empty request");
@@ -76,6 +88,21 @@ public static class GmCommandDispatcher
             req.Since = GmJson.GetLong(dict, "since", -1);
             req.Count = GmJson.GetInt(dict, "count", c_MaxLogsPerResponse);
             req.Filter = GmJson.GetString(dict, "filter", string.Empty);
+            req.JobId = GmJson.GetInt(dict, "job", 0);
+            req.JobChannel = channel;
+            req.JobName = GmJson.GetString(dict, "name", string.Empty);
+            req.JobArg = GmJson.GetString(dict, "arg", string.Empty);
+            object rawArgs;
+            var list = dict.TryGetValue("args", out rawArgs) ? rawArgs as List<object> : null;
+            if (null != list) {
+                var args = new List<string>(list.Count);
+                foreach (object v in list)
+                    args.Add(null == v ? string.Empty : Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture));
+                req.JobArgs = args.ToArray();
+            }
+            else if (!string.IsNullOrEmpty(req.JobArg)) {
+                req.JobArgs = new[] { req.JobArg };
+            }
         }
         catch (Exception ex) {
             return ErrorResponse(id, "bad request: " + ex.Message);
@@ -109,16 +136,23 @@ public static class GmCommandDispatcher
     {
         // Refreshed here so socket threads can read play state without Unity APIs.
         IsPlaying = Application.isPlaying;
+        // Service short requests (ping / jobstatus / logs) FIRST. A single job
+        // work item can legitimately take ~10s (NavMeshBuilder.BuildNavMesh),
+        // so running Tick() first would add that latency to every heartbeat.
         for (int i = 0; i < c_MaxRequestsPerPump; ++i) {
             GmCommandRequest req;
             lock (s_Lock) {
                 if (s_Requests.Count <= 0) {
-                    return;
+                    break;
                 }
                 req = s_Requests.Dequeue();
             }
             Process(req);
         }
+        // One frame-pumped step for long jobs, after requests are answered.
+        // Note: `break` above (not `return`) is required, otherwise an idle
+        // editor would never advance a job at all.
+        GmCoroutineRunner.Tick();
     }
 
     public static int PendingCount
@@ -167,6 +201,27 @@ public static class GmCommandDispatcher
                 case "clearlogs":
                     GmLogBuffer.Clear();
                     req.Result = "cleared";
+                    break;
+                // Async job protocol. Deliberately handled here rather than
+                // through DSL evaluation: these must stay responsive while a
+                // long DSL command is being pumped frame by frame.
+                case "jobstart":
+                    req.Result = "JOB_STARTED id=" + GmCoroutineRunner.StartCommand(req.JobName, req.JobArgs, req.JobChannel) +
+                                 " name=" + req.JobName;
+                    break;
+                case "jobstatus":
+                    req.Result = GmCoroutineRunner.Status(req.JobId);
+                    break;
+                case "jobresult":
+                    req.Result = GmCoroutineRunner.Result(req.JobId);
+                    break;
+                case "jobcancel":
+                    req.Result = GmCoroutineRunner.Cancel(req.JobId)
+                        ? "JOB_CANCEL_REQUESTED id=" + req.JobId
+                        : "JOB_NOT_RUNNING id=" + req.JobId;
+                    break;
+                case "joblist":
+                    req.Result = GmCoroutineRunner.List();
                     break;
                 default:
                     req.Ok = false;
