@@ -2741,7 +2741,17 @@ namespace StoryScript.DslExpression
             st.result = "";
             st.error = "";
             WriteState(st);
-            EditorApplication.delayCall += () => RunBuild(target, options);
+            // delayCall is a one-shot multicast delegate that gets dropped on an editor
+            // state refresh / script reload, leaving build_state.json stuck at "pending"
+            // forever. Drive the queued build from EditorApplication.update instead and
+            // unsubscribe before running so it executes exactly once.
+            EditorApplication.CallbackFunction callback = null;
+            callback = () =>
+            {
+                EditorApplication.update -= callback;
+                RunBuild(target, options);
+            };
+            EditorApplication.update += callback;
         }
 
         private static void RunBuild(BuildTarget target, BuildOptions options)
@@ -2853,7 +2863,7 @@ namespace StoryScript.DslExpression
                 scenes = string.Join(",", scenes.ToArray())
             };
             Schedule(state, target, options);
-            sb.Append("SCHEDULED: BuildPlayer queued via EditorApplication.delayCall.\n");
+            sb.Append("SCHEDULED: BuildPlayer queued on the next editor update.\n");
             sb.Append("The build blocks the editor main thread; the GM socket may be unreachable until it finishes.\n");
             sb.Append("Result is persisted in Library/build_state.json - poll build_state() after reconnecting.");
             return sb.ToString();
