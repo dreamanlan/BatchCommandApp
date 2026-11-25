@@ -995,7 +995,7 @@ public class DebugConsole : MonoBehaviour
         inputString = inputString.Trim();
         List<string> input = new List<string>();
         string cmd;
-        int startIx = inputString.IndexOf(' ');
+        int startIx = inputString.IndexOfAny(new char[] { ' ', '\t', '\r', '\n' });
         if (startIx > 0) {
             cmd = inputString.Substring(0, startIx).Trim().ToLower();
             string leftCmd = inputString.Substring(startIx + 1).Trim();
