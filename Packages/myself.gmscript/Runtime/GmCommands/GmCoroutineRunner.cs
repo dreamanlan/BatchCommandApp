@@ -82,6 +82,9 @@ public sealed class GmJob
     public GmJobChannel Channels = GmJobChannel.None;
 
     internal readonly Stopwatch Watch = new Stopwatch();
+#if UNITY_EDITOR
+    internal int EditorProgressId = -1;
+#endif
 }
 
 /// <summary>
@@ -336,12 +339,22 @@ public static class GmCoroutineRunner
             if (budget.ElapsedMilliseconds >= c_FrameBudgetMs) break;
 
             if (job.CancelRequested) { Finish(job, "cancelled", string.Empty, "cancelled by request"); continue; }
+            if ((job.Channels & GmJobChannel.Editor) != 0) {
+#if UNITY_EDITOR
+                if (UnityEditor.EditorApplication.isCompiling || UnityEditor.EditorApplication.isUpdating) continue;
+#endif
+            }
             try {
                 // Advance until the coroutine yields a checkpoint, completes,
                 // or the shared frame budget is used up.
                 while (budget.ElapsedMilliseconds < c_FrameBudgetMs) {
                     bool more;
-                    try { more = job.Body.MoveNext(); }
+                    try {
+#if UNITY_EDITOR
+                        UpdateEditorProgress(job);
+#endif
+                        more = job.Body.MoveNext();
+                    }
                     catch (Exception ex) {
                         Finish(job, "error", string.Empty, ex.Message + "\n" + ex.StackTrace);
                         break;
@@ -362,6 +375,9 @@ public static class GmCoroutineRunner
                         job.Done = step.Done;
                         job.Total = step.Total;
                         job.Note = step.Note;
+#if UNITY_EDITOR
+                        UpdateEditorProgress(job);
+#endif
                         break;                       // hand this frame back
                     }
                     var res = cur as GmJobResult;
@@ -384,6 +400,22 @@ public static class GmCoroutineRunner
         }
     }
 
+#if UNITY_EDITOR
+    private static void UpdateEditorProgress(GmJob job)
+    {
+        if ((job.Channels & GmJobChannel.Editor) == 0) return;
+        try {
+            string description = "GM任务正在执行：" + job.Name + "，进度 " + job.Done + "/" + job.Total +
+                "。同步步骤占用主线程，可能出现 Hold on。" +
+                (string.IsNullOrEmpty(job.Note) ? "" : " 当前阶段：" + job.Note);
+            if (job.EditorProgressId < 0)
+                job.EditorProgressId = UnityEditor.Progress.Start("GM Job: " + job.Name, description, UnityEditor.Progress.Options.None);
+            UnityEditor.Progress.Report(job.EditorProgressId,
+                job.Total > 0 ? (float)job.Done / job.Total : 0f, description);
+        } catch (Exception ex) { UnityEngine.Debug.LogWarning("GM job status display: " + ex.Message); }
+    }
+#endif
+
     private static void Finish(GmJob job, string state, string result, string error)
     {
         // A completed batch with any failed work item must not be reported as
@@ -398,9 +430,27 @@ public static class GmCoroutineRunner
         job.State = state;
         job.Result = result ?? string.Empty;
         job.Error = error ?? string.Empty;
-        job.Watch.Stop();
-        job.ElapsedMs = job.Watch.ElapsedMilliseconds;
-        try { if (null != job.Body) job.Body.Reset(); } catch { }
+        try {
+            var disposable = job.Body as IDisposable;
+            if (null != disposable) disposable.Dispose();
+        } catch (Exception ex) {
+            job.State = "error";
+            job.Error += (string.IsNullOrEmpty(job.Error) ? "" : "\n") + "Job cleanup failed: " + ex.Message;
+        } finally {
+            job.Body = null;
+            job.Watch.Stop();
+            job.ElapsedMs = job.Watch.ElapsedMilliseconds;
+#if UNITY_EDITOR
+            if (job.EditorProgressId >= 0) {
+                try {
+                    var status = job.State == "done" ? UnityEditor.Progress.Status.Succeeded :
+                        job.State == "cancelled" ? UnityEditor.Progress.Status.Canceled : UnityEditor.Progress.Status.Failed;
+                    UnityEditor.Progress.Finish(job.EditorProgressId, status);
+                } catch (Exception ex) { UnityEngine.Debug.LogWarning("GM job status display: " + ex.Message); }
+                job.EditorProgressId = -1;
+            }
+#endif
+        }
     }
 
     public static GmJob Find(int id)

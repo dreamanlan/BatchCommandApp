@@ -24,6 +24,19 @@ public sealed class GmCommandRequest
     public GmJobChannel JobChannel = GmJobChannel.None;
 
     public readonly ManualResetEventSlim Done = new ManualResetEventSlim(false);
+    internal long DeadlineTimestamp;
+    private int m_ExecutionState; // 0: pending, 1: started, 2: expired
+
+    internal bool ExpirePending()
+    {
+        Interlocked.CompareExchange(ref m_ExecutionState, 2, 0);
+        return Volatile.Read(ref m_ExecutionState) == 2;
+    }
+    internal bool TryBegin()
+    {
+        if (Stopwatch.GetTimestamp() >= DeadlineTimestamp) { ExpirePending(); return false; }
+        return Interlocked.CompareExchange(ref m_ExecutionState, 1, 0) == 0;
+    }
 
     public bool Ok = true;
     public string Result = string.Empty;
@@ -118,6 +131,7 @@ public static class GmCommandDispatcher
             req.Count = c_MaxLogsPerResponse;
         }
 
+        req.DeadlineTimestamp = Stopwatch.GetTimestamp() + (long)(req.TimeoutMs * (Stopwatch.Frequency / 1000.0));
         lock (s_Lock) {
             if (s_Requests.Count >= c_MaxQueuedRequests) {
                 return ErrorResponse(id, "server busy: too many pending requests");
@@ -126,7 +140,9 @@ public static class GmCommandDispatcher
         }
 
         if (!req.Done.Wait(req.TimeoutMs)) {
-            return ErrorResponse(id, string.Format("timed out after {0}ms: main thread did not process the request (game paused / blocked?)", req.TimeoutMs));
+            bool expired = req.ExpirePending();
+            return ErrorResponse(id, string.Format("timed out after {0}ms: {1}", req.TimeoutMs,
+                expired ? "pending request expired; it will not execute" : "request may already be executing; do not retry a mutating command"));
         }
         return BuildResponse(req);
     }
@@ -134,26 +150,26 @@ public static class GmCommandDispatcher
     // Called on the main thread, once per frame.
     public static void Pump()
     {
-        // Refreshed here so socket threads can read play state without Unity APIs.
-        IsPlaying = Application.isPlaying;
-        // Service short requests (ping / jobstatus / logs) FIRST. A single job
-        // work item can legitimately take ~10s (NavMeshBuilder.BuildNavMesh),
-        // so running Tick() first would add that latency to every heartbeat.
-        for (int i = 0; i < c_MaxRequestsPerPump; ++i) {
-            GmCommandRequest req;
-            lock (s_Lock) {
-                if (s_Requests.Count <= 0) {
-                    break;
+        if (s_IsPumping) return;
+        s_IsPumping = true;
+        try {
+            IsPlaying = Application.isPlaying;
+            var budget = Stopwatch.StartNew();
+            for (int i = 0; i < c_MaxRequestsPerPump && budget.ElapsedMilliseconds < 4; ++i) {
+                GmCommandRequest req;
+                lock (s_Lock) {
+                    if (s_Requests.Count <= 0) break;
+                    req = s_Requests.Dequeue();
                 }
-                req = s_Requests.Dequeue();
+                if (req.TryBegin()) Process(req);
             }
-            Process(req);
+            if (budget.ElapsedMilliseconds < 4) GmCoroutineRunner.Tick();
+        } finally {
+            s_IsPumping = false;
         }
-        // One frame-pumped step for long jobs, after requests are answered.
-        // Note: `break` above (not `return`) is required, otherwise an idle
-        // editor would never advance a job at all.
-        GmCoroutineRunner.Tick();
     }
+
+    private static bool s_IsPumping;
 
     public static int PendingCount
     {

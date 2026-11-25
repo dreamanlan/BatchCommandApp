@@ -17,17 +17,16 @@ internal static class EditorGmSocketClient
         // The editor connection serves editor DSL only. Runtime GM commands live on the
         // runtime channel and are deliberately not merged into the editor Calculator.
         GmCommandDispatcher.EditorExecutor = ExecEditor;
+        AssemblyReloadEvents.beforeAssemblyReload -= StopSilently;
+        AssemblyReloadEvents.beforeAssemblyReload += StopSilently;
+        EditorApplication.quitting -= StopSilently;
+        EditorApplication.quitting += StopSilently;
         EditorApplication.delayCall -= OnEditorReady;
         EditorApplication.delayCall += OnEditorReady;
     }
 
     private static void OnEditorReady()
     {
-        AssemblyReloadEvents.beforeAssemblyReload -= StopSilently;
-        AssemblyReloadEvents.beforeAssemblyReload += StopSilently;
-        EditorApplication.quitting -= StopSilently;
-        EditorApplication.quitting += StopSilently;
-
         if (EditorPrefs.GetBool(c_AutoStartKey, true)) {
             Start();
         }
@@ -96,6 +95,7 @@ internal static class EditorGmSocketClient
     }
     private static void Pump()
     {
+        if (EditorApplication.isCompiling || EditorApplication.isUpdating) return;
         GmCommandDispatcher.Pump();
     }
 
