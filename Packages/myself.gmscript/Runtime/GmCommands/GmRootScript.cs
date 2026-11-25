@@ -18,6 +18,7 @@ public sealed class GmRootScript : MonoBehaviour
 
     void OnEnable()
     {
+        if (Application.isPlaying && m_Inited) TryInit();
     }
     void OnDisable()
     {
@@ -102,7 +103,13 @@ public sealed class GmRootScript : MonoBehaviour
     }
     private void TryInitGmRoot()
     {
-        if (m_Inited) return;
+        if (m_Inited) {
+            ClientGmStorySystem.Instance.Init();
+#if UNITY_EDITOR || (UNITY_STANDALONE && DEVELOPMENT_BUILD)
+            if (s_SocketClient == null) InitSocketClient();
+#endif
+            return;
+        }
         m_Inited = true;
 
         s_application_identifier = Application.identifier;
